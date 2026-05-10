@@ -3,6 +3,8 @@
 App web **mobile-first** para guiar el protocolo de atención de ACV isquémico en fase aguda (Código Stroke) en guardia hospitalaria. Basada en guías AHA/ASA 2026.
 
 > **Directorio:** `/home/jutopa/CodigoStroke/`
+> **Repo:** https://github.com/jutopa31/CodigoStroke
+> **Demo en vivo:** https://codigo-stroke.vercel.app
 
 ---
 
@@ -30,6 +32,18 @@ npm run dev -- --host 0.0.0.0
 | `docs/ARCHITECTURE.md` | Estructura de archivos, componentes, estado global, flujo de datos |
 | `docs/IMPLEMENTATION.md` | Stack, configuración de EmailJS, Supabase, deploy en Vercel |
 | `docs/NEXT_STEPS.md` | Roadmap clínico y técnico — todas las fases pendientes |
+
+---
+
+## Deploy
+
+Cada `git push` a `main` redeploya automáticamente en Vercel.
+
+```bash
+git add .
+git commit -m "feat: descripción del cambio"
+git push   # Vercel redeploya solo
+```
 
 ---
 

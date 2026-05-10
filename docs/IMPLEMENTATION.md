@@ -1,5 +1,13 @@
 # Implementación — Código Stroke
 
+## URLs
+
+| Recurso | URL |
+|---|---|
+| Repositorio GitHub | https://github.com/jutopa31/CodigoStroke |
+| App en producción | https://codigo-stroke.vercel.app |
+| Dashboard Vercel | https://vercel.com/julianmartinalonso-1393s-projects/codigo-stroke |
+
 ## Comandos
 
 ```bash
@@ -64,16 +72,21 @@ npm run preview      # Preview del build en local
 
 ## Deploy en Vercel
 
+El proyecto ya está conectado. Cada `git push` a `main` redeploya automáticamente.
+
 ```bash
-# Desde la raíz del proyecto
+git add .
+git commit -m "feat: descripción"
+git push   # Vercel CI/CD redeploya solo
+```
+
+Para redeploy manual desde CLI:
+```bash
 vercel --prod
 ```
 
-O conectar el repo GitHub a Vercel (recomendado):
-1. `git init && git remote add origin https://github.com/jutopa31/CodigoStroke`
-2. Push a main
-3. Importar en vercel.com → seleccionar framework "Vite"
-4. Agregar las variables de entorno en el dashboard de Vercel
+**Variables de entorno en producción:** configurarlas en el dashboard de Vercel:
+https://vercel.com/julianmartinalonso-1393s-projects/codigo-stroke/settings/environment-variables
 
 **Sin variables de entorno configuradas**, la app funciona igual — el email se simula en consola y el storage usa localStorage.
 
