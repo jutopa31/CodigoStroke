@@ -18,12 +18,17 @@ export default {
       },
       animation: {
         'slide-down': 'slideDown 0.45s ease-out',
+        'slide-up':   'slideUp 0.38s cubic-bezier(0.32, 0.72, 0, 1)',
         'fade-in': 'fadeIn 0.3s ease-out',
         'pulse-ring': 'pulseRing 1.5s ease-out infinite',
       },
       keyframes: {
         slideDown: {
           '0%': { opacity: '0', transform: 'translateY(-20px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        slideUp: {
+          '0%': { opacity: '0', transform: 'translateY(60px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
         fadeIn: {
