@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ChevronRight, CheckCircle2, Circle, Hospital, Ban, Pill, BarChart2, Brain, Microscope, Heart } from 'lucide-react'
+import { ChevronRight, CheckCircle2, Circle, Hospital, Ban, Pill, BarChart2, Brain, Microscope, Heart, Clock } from 'lucide-react'
 import StepCard from '../components/StepCard'
 
 const WEIGHT_PRESETS = [50, 60, 70, 80, 90, 100]
@@ -65,7 +65,7 @@ function calcTNK(kg) {
   return { total }
 }
 
-export default function DosageStep({ onConfirm }) {
+export default function DosageStep({ onConfirm, thrombolyticStartTime = null, onThrombolyticStart }) {
   const [drug, setDrug] = useState('tnk')
   const [weightStr, setWeightStr] = useState('')
   const [checked, setChecked] = useState({})
@@ -78,7 +78,7 @@ export default function DosageStep({ onConfirm }) {
   const dose = drug === 'tnk' ? tnk : rtpa
 
   const allChecked = POST_CHECKLIST.every((item) => checked[item.id])
-  const canContinue = validWeight && allChecked
+  const canContinue = validWeight && allChecked && thrombolyticStartTime
 
   function adjust(delta) {
     const current = parseFloat(weightStr) || 0
@@ -88,6 +88,10 @@ export default function DosageStep({ onConfirm }) {
 
   function toggleCheck(id) {
     setChecked((c) => ({ ...c, [id]: !c[id] }))
+  }
+
+  function handleThrombolyticStart() {
+    onThrombolyticStart?.(new Date())
   }
 
   return (
@@ -206,6 +210,32 @@ export default function DosageStep({ onConfirm }) {
             )}
           </div>
         )}
+
+        {validWeight && dose && (
+          <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3">
+            <div className="flex items-start gap-3">
+              <Clock size={18} className="text-emerald-600 shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-emerald-800">Inicio de trombolítico</p>
+                <p className="text-xs text-emerald-700 mt-0.5">
+                  Registrar cuando inicia la administración IV de {drug === 'tnk' ? 'TNK' : 'rtPA'}.
+                </p>
+                {thrombolyticStartTime && (
+                  <p className="text-sm font-mono font-semibold text-emerald-900 mt-2">
+                    {thrombolyticStartTime.toLocaleTimeString('es-AR')}
+                  </p>
+                )}
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={handleThrombolyticStart}
+              className="mt-3 w-full rounded-xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white transition-all hover:bg-emerald-700 active:scale-95"
+            >
+              {thrombolyticStartTime ? 'Actualizar inicio' : 'Registrar inicio'}
+            </button>
+          </div>
+        )}
       </StepCard>
 
       {/* Post-thrombolysis checklist */}
@@ -259,7 +289,13 @@ export default function DosageStep({ onConfirm }) {
       </StepCard>
 
       <button
-        onClick={() => onConfirm({ drug, weight, dose, checklist: checked })}
+        onClick={() => onConfirm({
+          drug,
+          weight,
+          dose,
+          checklist: checked,
+          thrombolyticStartTime: thrombolyticStartTime.toISOString(),
+        })}
         disabled={!canContinue}
         className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-semibold py-4 rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed"
       >

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { ChevronRight } from 'lucide-react'
 import StepCard from '../components/StepCard'
 
@@ -66,12 +66,30 @@ function ContraRow({ item, value, onChange, color }) {
 export default function ContraindicationsStep({ onConfirm }) {
   const [redAnswers, setRedAnswers] = useState({})
   const [orangeAnswers, setOrangeAnswers] = useState({})
+  const confirmRef = useRef(null)
 
   const hasRed = Object.values(redAnswers).some(Boolean)
   const hasOrange = Object.values(orangeAnswers).some(Boolean)
 
-  function setRed(id, val) { setRedAnswers((a) => ({ ...a, [id]: val })) }
-  function setOrange(id, val) { setOrangeAnswers((a) => ({ ...a, [id]: val })) }
+  function scrollToConfirm() {
+    setTimeout(() => {
+      confirmRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
+    }, 150)
+  }
+
+  function setRed(id, val) {
+    setRedAnswers((a) => ({ ...a, [id]: val }))
+    if (val) scrollToConfirm()
+  }
+
+  function setOrange(id, val) {
+    setOrangeAnswers((a) => ({ ...a, [id]: val }))
+    if (val) scrollToConfirm()
+  }
+
+  function confirm(decidedNotToThrombolyze) {
+    onConfirm({ red: redAnswers, orange: orangeAnswers, hasAbsolute: hasRed, hasRelative: hasOrange, decidedNotToThrombolyze })
+  }
 
   return (
     <div className="px-4 pb-4 space-y-3">
@@ -126,12 +144,31 @@ export default function ContraindicationsStep({ onConfirm }) {
         )}
       </StepCard>
 
-      <button
-        onClick={() => onConfirm({ red: redAnswers, orange: orangeAnswers, hasAbsolute: hasRed, hasRelative: hasOrange })}
-        className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-semibold py-4 rounded-xl transition-all"
-      >
-        Registrar y continuar <ChevronRight size={18} />
-      </button>
+      <div ref={confirmRef} className="space-y-2">
+        {hasOrange && !hasRed ? (
+          <>
+            <button
+              onClick={() => confirm(false)}
+              className="w-full flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-600 active:scale-95 text-white font-semibold py-4 rounded-xl transition-all"
+            >
+              Trombolizar con precaución <ChevronRight size={18} />
+            </button>
+            <button
+              onClick={() => confirm(true)}
+              className="w-full flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-800 active:scale-95 text-white font-semibold py-4 rounded-xl transition-all"
+            >
+              No trombolizar — Evaluar OGV <ChevronRight size={18} />
+            </button>
+          </>
+        ) : (
+          <button
+            onClick={() => confirm(hasRed)}
+            className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-semibold py-4 rounded-xl transition-all"
+          >
+            {hasRed ? 'Registrar — Evaluar OGV' : 'Registrar y continuar'} <ChevronRight size={18} />
+          </button>
+        )}
+      </div>
     </div>
   )
 }

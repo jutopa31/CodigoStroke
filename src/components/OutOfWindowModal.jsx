@@ -11,10 +11,6 @@ const ANTECEDENTES = [
   { id: 'valvular',  label: 'Valvulopatía' },
 ]
 
-const ANTICOAGULANTES = [
-  'Rivaroxabán', 'Apixabán', 'Dabigatrán', 'Edoxabán',
-  'Warfarina', 'Acenocumarol', 'HBPM', 'HNF',
-]
 const ACOD = ['Rivaroxabán', 'Apixabán', 'Dabigatrán', 'Edoxabán']
 
 const ANTIPLAQUETARIOS = ['AAS', 'Clopidogrel', 'Ticagrelor', 'Prasugrel']

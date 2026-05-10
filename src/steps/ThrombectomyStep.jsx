@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ChevronRight, Bell, Calculator } from 'lucide-react'
+import { ChevronRight, Bell, Calculator, Clock } from 'lucide-react'
 import StepCard from '../components/StepCard'
 import AspectModal from '../components/AspectModal'
 
@@ -15,7 +15,14 @@ function getAspectLabel(score) {
   return 'Cambios extensos'
 }
 
-export default function ThrombectomyStep({ nihssScore, onConfirm }) {
+export default function ThrombectomyStep({
+  nihssScore,
+  onConfirm,
+  angioRequestTime = null,
+  onAngioRequest,
+  thrombectomyActivationTime = null,
+  onThrombectomyActivation,
+}) {
   const [angioRequested, setAngioRequested] = useState(null)
   const [notified, setNotified] = useState(false)
   const [aspectScore, setAspectScore] = useState('')
@@ -24,6 +31,18 @@ export default function ThrombectomyStep({ nihssScore, onConfirm }) {
   const highNihss = nihssScore >= 6
   const aspectNum = aspectScore !== '' ? parseInt(aspectScore, 10) : null
   const aspectValid = aspectNum !== null && aspectNum >= 0 && aspectNum <= 10
+  const needsThrombectomyTime = angioRequested === true
+  const canContinue = angioRequested !== null && aspectValid && (!needsThrombectomyTime || thrombectomyActivationTime)
+
+  function handleAngioRequest() {
+    const now = new Date()
+    setAngioRequested(true)
+    onAngioRequest?.(now)
+  }
+
+  function handleThrombectomyActivation() {
+    onThrombectomyActivation?.(new Date())
+  }
 
   return (
     <div className="px-4 pb-4 space-y-3">
@@ -88,7 +107,7 @@ export default function ThrombectomyStep({ nihssScore, onConfirm }) {
               NO
             </button>
             <button
-              onClick={() => setAngioRequested(true)}
+              onClick={handleAngioRequest}
               className={`py-5 rounded-xl border-2 font-bold text-xl transition-all active:scale-95 ${
                 angioRequested === true
                   ? 'bg-blue-600 border-blue-600 text-white shadow-md'
@@ -98,6 +117,14 @@ export default function ThrombectomyStep({ nihssScore, onConfirm }) {
               SÍ
             </button>
           </div>
+          {angioRequested === true && angioRequestTime && (
+            <div className="mt-2 flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2 animate-fade-in">
+              <Clock size={13} className="text-blue-500 shrink-0" />
+              <span className="text-xs text-blue-700 font-medium">
+                AngioTAC solicitada a las {angioRequestTime.toLocaleTimeString('es-AR')}
+              </span>
+            </div>
+          )}
 
           {angioRequested === false && (
             <div className="mt-4 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 animate-fade-in">
@@ -132,14 +159,44 @@ export default function ThrombectomyStep({ nihssScore, onConfirm }) {
                 <Bell size={17} />
                 {notified ? '✓ Hemodinamia notificada' : 'Notificar al servicio de Hemodinamia'}
               </button>
+
+              <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">
+                <div className="flex items-start gap-3">
+                  <Clock size={18} className="text-blue-600 shrink-0 mt-0.5" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-blue-800">Activación de trombectomía mecánica</p>
+                    <p className="text-xs text-blue-700 mt-0.5">
+                      Registrar cuando se activa/inicia el circuito de trombectomía.
+                    </p>
+                    {thrombectomyActivationTime && (
+                      <p className="text-sm font-mono font-semibold text-blue-900 mt-2">
+                        {thrombectomyActivationTime.toLocaleTimeString('es-AR')}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleThrombectomyActivation}
+                  className="mt-3 w-full rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition-all hover:bg-blue-700 active:scale-95"
+                >
+                  {thrombectomyActivationTime ? 'Actualizar activación' : 'Registrar activación'}
+                </button>
+              </div>
             </div>
           )}
         </div>
       </StepCard>
 
       <button
-        onClick={() => onConfirm({ angioRequested, hemodinamisNotified: notified, aspectScore: aspectNum })}
-        disabled={angioRequested === null}
+        onClick={() => onConfirm({
+          angioRequested,
+          angioRequestTime: angioRequestTime?.toISOString(),
+          hemodinamisNotified: notified,
+          aspectScore: aspectNum,
+          thrombectomyActivationTime: thrombectomyActivationTime?.toISOString(),
+        })}
+        disabled={!canContinue}
         className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-semibold py-4 rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed"
       >
         Finalizar protocolo <ChevronRight size={18} />

@@ -19,13 +19,19 @@ function timeSince(date) {
   return `${s} s`
 }
 
-export default function CTResultStep({ onConfirm }) {
-  const [ctRequestTime, setCtRequestTime] = useState(null)
+export default function CTResultStep({ onConfirm, initialCtRequestTime = null, onCtRequest }) {
+  const [ctRequestTime, setCtRequestTime] = useState(initialCtRequestTime)
   const [bleeding, setBleeding] = useState(null)
 
   useInterval(1000)
 
   const elapsed = timeSince(ctRequestTime)
+
+  function handleCtRequest() {
+    const now = new Date()
+    setCtRequestTime(now)
+    onCtRequest?.(now)
+  }
 
   return (
     <div className="px-4 pb-4 space-y-3">
@@ -38,7 +44,7 @@ export default function CTResultStep({ onConfirm }) {
               Presioná el botón cuando se solicite la tomografía para registrar el tiempo.
             </p>
             <button
-              onClick={() => setCtRequestTime(new Date())}
+              onClick={handleCtRequest}
               className="w-full flex items-center justify-center gap-2 py-4 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-semibold rounded-xl transition-all"
             >
               <Scan size={18} /> Solicitar TC de encéfalo

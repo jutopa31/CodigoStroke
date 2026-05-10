@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { User, CreditCard, Lock, ChevronRight, CheckCircle2 } from 'lucide-react'
 import StepCard from '../components/StepCard'
 
-export default function PatientStep({ onConfirm, confirmed = false, patient = null, patientId = null }) {
+export default function PatientStep({ onConfirm, confirmed = false, patient = null, patientId = null, arrivalTime = null }) {
   const [dni, setDni] = useState('')
   const [name, setName] = useState('')
   const [passphrase, setPassphrase] = useState('')
@@ -31,6 +31,14 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
             <div className="mt-2 pt-2 border-t border-gray-100">
               <p className="text-xs text-gray-400 uppercase tracking-wider">ID del caso</p>
               <p className="text-base font-mono font-bold text-brand-600 tracking-widest">{patientId}</p>
+            </div>
+          )}
+          {arrivalTime && (
+            <div className="mt-2 pt-2 border-t border-gray-100">
+              <p className="text-xs text-gray-400 uppercase tracking-wider">Llegada / carga de datos</p>
+              <p className="text-sm font-mono font-semibold text-gray-700">
+                {arrivalTime.toLocaleTimeString('es-AR')}
+              </p>
             </div>
           )}
         </StepCard>

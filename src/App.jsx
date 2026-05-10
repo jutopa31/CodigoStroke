@@ -40,6 +40,11 @@ const SIDEBAR_VALUES = [1, 3, 4, 5, 6, 7, 8, 9, 10]
 export default function App() {
   const [step, setStep] = useState(STEP.START)
   const [timerStart, setTimerStart] = useState(null)
+  const [patientArrivalTime, setPatientArrivalTime] = useState(null)
+  const [ctRequestTime, setCtRequestTime] = useState(null)
+  const [angioRequestTime, setAngioRequestTime] = useState(null)
+  const [thrombolyticStartTime, setThrombolyticStartTime] = useState(null)
+  const [thrombectomyActivationTime, setThrombectomyActivationTime] = useState(null)
   const [patient, setPatient] = useState(null)
   const [patientId, setPatientId] = useState('')
   const [symptoms, setSymptoms] = useState(null)
@@ -48,11 +53,11 @@ export default function App() {
   const [ctResult, setCtResult] = useState(null)
   const [contraindications, setContraindications] = useState(null)
   const [dosage, setDosage] = useState(null)
-  const [thrombectomy, setThrombectomy] = useState(null)
+  const [, setThrombectomy] = useState(null)
   const [eventId] = useState(uuidv4)
-  const [nihssReadings, setNihssReadings] = useState([])
-  const [vitalsReadings, setVitalsReadings] = useState([])
-  const [glucoseReadings, setGlucoseReadings] = useState([])
+  const [, setNihssReadings] = useState([])
+  const [, setVitalsReadings] = useState([])
+  const [, setGlucoseReadings] = useState([])
   const [showOutOfWindow, setShowOutOfWindow] = useState(false)
 
   const symptomsRef = useRef(null)
@@ -71,6 +76,10 @@ export default function App() {
     }, 80)
   }
 
+  function advanceTo(nextStep) {
+    setStep((currentStep) => Math.max(currentStep, nextStep))
+  }
+
   function handleStart() {
     setStep(STEP.PATIENT)
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -80,11 +89,18 @@ export default function App() {
     setPatientId(id)
     setPatient({ name: session.patientName, dni: session.patientDNI })
     if (session.startTime) setTimerStart(new Date(session.startTime))
+    if (session.patientArrivalTime) setPatientArrivalTime(new Date(session.patientArrivalTime))
+    if (session.ctRequestTime) setCtRequestTime(new Date(session.ctRequestTime))
+    if (session.angioRequestTime) setAngioRequestTime(new Date(session.angioRequestTime))
+    if (session.thrombolyticStartTime) setThrombolyticStartTime(new Date(session.thrombolyticStartTime))
+    if (session.thrombectomyActivationTime) setThrombectomyActivationTime(new Date(session.thrombectomyActivationTime))
     setStep(STEP.SYMPTOMS)
   }
 
   function handlePatientConfirm(data) {
+    const now = new Date()
     setPatient(data)
+    setPatientArrivalTime(now)
     setPatientId(generatePatientId(data.name, data.dni))
     setStep(STEP.ALERT)
   }
@@ -98,6 +114,7 @@ export default function App() {
     saveSession(patientId, {
       patientName: patient.name,
       patientDNI: patient.dni,
+      patientArrivalTime: patientArrivalTime?.toISOString(),
       startTime: now.toISOString(),
     })
 
@@ -111,26 +128,81 @@ export default function App() {
       id: eventId,
       patientDNI: patient.dni,
       patientName: patient.name,
+      patientArrivalTime: patientArrivalTime?.toISOString(),
       startTime: now.toISOString(),
       emailSent: true,
     })
   }
 
+  function handleCtRequest(time) {
+    setCtRequestTime(time)
+    saveSession(patientId, {
+      patientName: patient.name,
+      patientDNI: patient.dni,
+      patientArrivalTime: patientArrivalTime?.toISOString(),
+      startTime: timerStart?.toISOString(),
+      ctRequestTime: time.toISOString(),
+      thrombolyticStartTime: thrombolyticStartTime?.toISOString(),
+      thrombectomyActivationTime: thrombectomyActivationTime?.toISOString(),
+    })
+  }
+
+  function handleThrombolyticStart(time) {
+    setThrombolyticStartTime(time)
+    saveSession(patientId, {
+      patientName: patient.name,
+      patientDNI: patient.dni,
+      patientArrivalTime: patientArrivalTime?.toISOString(),
+      startTime: timerStart?.toISOString(),
+      ctRequestTime: ctRequestTime?.toISOString(),
+      thrombolyticStartTime: time.toISOString(),
+      thrombectomyActivationTime: thrombectomyActivationTime?.toISOString(),
+    })
+  }
+
+  function handleAngioRequest(time) {
+    setAngioRequestTime(time)
+    saveSession(patientId, {
+      patientName: patient.name,
+      patientDNI: patient.dni,
+      patientArrivalTime: patientArrivalTime?.toISOString(),
+      startTime: timerStart?.toISOString(),
+      ctRequestTime: ctRequestTime?.toISOString(),
+      angioRequestTime: time.toISOString(),
+      thrombolyticStartTime: thrombolyticStartTime?.toISOString(),
+      thrombectomyActivationTime: thrombectomyActivationTime?.toISOString(),
+    })
+  }
+
+  function handleThrombectomyActivation(time) {
+    setThrombectomyActivationTime(time)
+    saveSession(patientId, {
+      patientName: patient.name,
+      patientDNI: patient.dni,
+      patientArrivalTime: patientArrivalTime?.toISOString(),
+      startTime: timerStart?.toISOString(),
+      ctRequestTime: ctRequestTime?.toISOString(),
+      angioRequestTime: angioRequestTime?.toISOString(),
+      thrombolyticStartTime: thrombolyticStartTime?.toISOString(),
+      thrombectomyActivationTime: time.toISOString(),
+    })
+  }
+
   function handleSymptomsConfirm(data) {
     setSymptoms(data)
-    setStep(STEP.VITALS)
+    advanceTo(STEP.VITALS)
     scrollTo(vitalsRef)
   }
 
   function handleVitalsConfirm(data) {
     setVitals(data)
-    setStep(STEP.NIHSS)
+    advanceTo(STEP.NIHSS)
     scrollTo(nihssRef)
   }
 
   function handleNihssConfirm(data) {
     setNihss(data)
-    setStep(STEP.INSTRUCTIONS)
+    advanceTo(STEP.INSTRUCTIONS)
     scrollTo(instructionsRef)
   }
 
@@ -139,23 +211,28 @@ export default function App() {
       id: eventId,
       patientDNI: patient.dni,
       patientName: patient.name,
+      patientArrivalTime: patientArrivalTime?.toISOString(),
       startTime: timerStart?.toISOString(),
+      ctRequestTime: ctRequestTime?.toISOString(),
+      thrombolyticStartTime: thrombolyticStartTime?.toISOString(),
+      thrombectomyActivationTime: thrombectomyActivationTime?.toISOString(),
       symptoms,
       vitals,
       nihss,
       checklist: data.checklist,
     })
-    setStep(STEP.CT_RESULT)
+    advanceTo(STEP.CT_RESULT)
     scrollTo(ctResultRef)
   }
 
   function handleCtResultConfirm(data) {
     setCtResult(data)
+    setCtRequestTime(new Date(data.ctRequestTime))
     if (data.bleeding) {
       setStep(STEP.DONE)
       scrollTo(doneRef)
     } else {
-      setStep(STEP.CONTRAINDICATIONS)
+      advanceTo(STEP.CONTRAINDICATIONS)
       scrollTo(contraindicationsRef)
     }
   }
@@ -163,33 +240,37 @@ export default function App() {
   function handleMRIResultConfirm(data) {
     setCtResult(data)
     if (data.mismatch) {
-      setStep(STEP.CONTRAINDICATIONS)
+      advanceTo(STEP.CONTRAINDICATIONS)
       scrollTo(contraindicationsRef)
     } else {
-      setStep(STEP.THROMBECTOMY)
+      advanceTo(STEP.THROMBECTOMY)
       scrollTo(thrombectomyRef)
     }
   }
 
   function handleContraindicationsConfirm(data) {
     setContraindications(data)
-    if (data.hasAbsolute) {
-      setStep(STEP.THROMBECTOMY)
+    if (data.hasAbsolute || data.decidedNotToThrombolyze) {
+      advanceTo(STEP.THROMBECTOMY)
       scrollTo(thrombectomyRef)
     } else {
-      setStep(STEP.DOSAGE)
+      advanceTo(STEP.DOSAGE)
       scrollTo(dosageRef)
     }
   }
 
   function handleDosageConfirm(data) {
     setDosage(data)
-    setStep(STEP.THROMBECTOMY)
+    setThrombolyticStartTime(new Date(data.thrombolyticStartTime))
+    advanceTo(STEP.THROMBECTOMY)
     scrollTo(thrombectomyRef)
   }
 
   function handleThrombectomyConfirm(data) {
     setThrombectomy(data)
+    if (data.thrombectomyActivationTime) {
+      setThrombectomyActivationTime(new Date(data.thrombectomyActivationTime))
+    }
     setStep(STEP.DONE)
     scrollTo(doneRef)
   }
@@ -231,6 +312,7 @@ export default function App() {
   const sidebarCompletedSteps = step === STEP.DONE
     ? SIDEBAR_VALUES
     : SIDEBAR_VALUES.filter((v) => v < step)
+  const protocolUnlocked = step >= STEP.SYMPTOMS
 
   function getDoneContent() {
     if (ctResult?.bleeding) {
@@ -271,6 +353,15 @@ export default function App() {
         borderColor: 'border-emerald-500',
         title: 'Trombolisis indicada',
         body: `${drugName} — ${doseStr}. Protocolo completo registrado.`,
+      }
+    }
+    if (contraindications?.hasRelative && contraindications?.decidedNotToThrombolyze) {
+      return {
+        icon: 'warning',
+        iconBg: 'bg-amber-100',
+        borderColor: 'border-amber-400',
+        title: 'No candidato a trombolisis IV — contraindicación relativa',
+        body: 'Decisión de no trombolizar. Se descartó OGV. Continuar con manejo de soporte y monitoreo.',
       }
     }
     if (contraindications?.hasRelative) {
@@ -383,6 +474,7 @@ export default function App() {
               confirmed={step > STEP.ALERT}
               patient={patient}
               patientId={patientId}
+              arrivalTime={patientArrivalTime}
             />
           )}
 
@@ -394,25 +486,25 @@ export default function App() {
             />
           )}
 
-          {step >= STEP.SYMPTOMS && (
+          {protocolUnlocked && (
             <div ref={symptomsRef}>
               <SymptomsStep onConfirm={handleSymptomsConfirm} />
             </div>
           )}
 
-          {step >= STEP.VITALS && (
+          {protocolUnlocked && (
             <div ref={vitalsRef}>
               <VitalsStep onConfirm={handleVitalsConfirm} />
             </div>
           )}
 
-          {step >= STEP.NIHSS && (
+          {protocolUnlocked && (
             <div ref={nihssRef}>
               <NihssStep onConfirm={handleNihssConfirm} />
             </div>
           )}
 
-          {step >= STEP.INSTRUCTIONS && (
+          {protocolUnlocked && (
             <div ref={instructionsRef}>
               <InstructionsStep onConfirm={handleInstructionsConfirm} />
             </div>
@@ -422,7 +514,13 @@ export default function App() {
             <div ref={ctResultRef}>
               {symptoms?.isWakeUpStroke
                 ? <MRIResultStep onConfirm={handleMRIResultConfirm} />
-                : <CTResultStep onConfirm={handleCtResultConfirm} />
+                : (
+                  <CTResultStep
+                    onConfirm={handleCtResultConfirm}
+                    initialCtRequestTime={ctRequestTime}
+                    onCtRequest={handleCtRequest}
+                  />
+                )
               }
             </div>
           )}
@@ -435,7 +533,11 @@ export default function App() {
 
           {step >= STEP.DOSAGE && (
             <div ref={dosageRef}>
-              <DosageStep onConfirm={handleDosageConfirm} />
+              <DosageStep
+                onConfirm={handleDosageConfirm}
+                thrombolyticStartTime={thrombolyticStartTime}
+                onThrombolyticStart={handleThrombolyticStart}
+              />
             </div>
           )}
 
@@ -444,6 +546,10 @@ export default function App() {
               <ThrombectomyStep
                 nihssScore={nihss?.nihssScore ?? 0}
                 onConfirm={handleThrombectomyConfirm}
+                angioRequestTime={angioRequestTime}
+                onAngioRequest={handleAngioRequest}
+                thrombectomyActivationTime={thrombectomyActivationTime}
+                onThrombectomyActivation={handleThrombectomyActivation}
               />
             </div>
           )}
