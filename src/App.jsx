@@ -9,6 +9,7 @@ import VitalsStep from './steps/VitalsStep'
 import NihssStep from './steps/NihssStep'
 import InstructionsStep from './steps/InstructionsStep'
 import CTResultStep from './steps/CTResultStep'
+import MRIResultStep from './steps/MRIResultStep'
 import ContraindicationsStep from './steps/ContraindicationsStep'
 import DosageStep from './steps/DosageStep'
 import ThrombectomyStep from './steps/ThrombectomyStep'
@@ -134,6 +135,17 @@ export default function App() {
     }
   }
 
+  function handleMRIResultConfirm(data) {
+    setCtResult(data)
+    if (data.mismatch) {
+      setStep(STEP.CONTRAINDICATIONS)
+      scrollTo(contraindicationsRef)
+    } else {
+      setStep(STEP.THROMBECTOMY)
+      scrollTo(thrombectomyRef)
+    }
+  }
+
   function handleContraindicationsConfirm(data) {
     setContraindications(data)
     if (data.hasAbsolute) {
@@ -165,6 +177,15 @@ export default function App() {
         borderColor: 'border-red-400',
         title: 'Hemorragia intracraneal',
         body: 'La TC evidencia hemorragia. Trombolisis contraindicada. Derivar a Neurocirugía.',
+      }
+    }
+    if (symptoms?.isWakeUpStroke && ctResult?.mismatch === false) {
+      return {
+        icon: '🌙',
+        iconBg: 'bg-indigo-100',
+        borderColor: 'border-indigo-400',
+        title: 'ACV del despertar — sin mismatch',
+        body: 'No se cumplen criterios WAKE-UP para trombolisis IV. Evaluar trombectomía mecánica si corresponde.',
       }
     }
     if (contraindications?.hasAbsolute) {
@@ -272,7 +293,10 @@ export default function App() {
 
         {step >= STEP.CT_RESULT && (
           <div ref={ctResultRef}>
-            <CTResultStep onConfirm={handleCtResultConfirm} />
+            {symptoms?.isWakeUpStroke
+              ? <MRIResultStep onConfirm={handleMRIResultConfirm} />
+              : <CTResultStep onConfirm={handleCtResultConfirm} />
+            }
           </div>
         )}
 
