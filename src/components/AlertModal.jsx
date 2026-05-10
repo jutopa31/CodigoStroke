@@ -20,7 +20,7 @@ export default function AlertModal({ patient, onConfirm, onClose }) {
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/50 animate-fade-in">
       <div className="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden animate-slide-down">
         {/* Header */}
-        <div className="bg-red-600 px-5 py-4 flex items-center justify-between">
+        <div className="bg-brand-600 px-5 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <AlertTriangle size={20} className="text-white" />
             <span className="text-white font-bold text-base tracking-wide">CÓDIGO STROKE</span>
@@ -75,7 +75,7 @@ export default function AlertModal({ patient, onConfirm, onClose }) {
           <button
             onClick={handleConfirm}
             disabled={sending}
-            className="flex-1 py-3 bg-red-600 text-white rounded-xl font-semibold text-sm hover:bg-red-700 active:scale-95 transition-all disabled:opacity-60"
+            className="flex-1 py-3 bg-brand-600 text-white rounded-xl font-semibold text-sm hover:bg-brand-700 active:scale-95 transition-all disabled:opacity-60"
           >
             {sending ? 'Notificando…' : 'Confirmar y Notificar'}
           </button>

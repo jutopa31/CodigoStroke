@@ -94,7 +94,7 @@ export default function VitalsStep({ onConfirm }) {
       <button
         onClick={handleSubmit}
         disabled={!valid}
-        className="w-full flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 active:scale-95 text-white font-semibold py-4 rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+        className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-semibold py-4 rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed"
       >
         Continuar <ChevronRight size={18} />
       </button>

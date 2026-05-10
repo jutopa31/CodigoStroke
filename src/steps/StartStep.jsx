@@ -5,8 +5,8 @@ export default function StartStep({ onStart }) {
     <div className="min-h-screen flex flex-col items-center justify-center px-6 bg-gray-50">
       {/* Logo */}
       <div className="relative mb-8">
-        <div className="absolute inset-0 rounded-full bg-red-500 animate-pulse-ring opacity-30 scale-110" />
-        <div className="w-24 h-24 rounded-full bg-red-600 flex items-center justify-center shadow-lg relative">
+        <div className="absolute inset-0 rounded-full bg-brand-600 animate-pulse-ring opacity-30 scale-110" />
+        <div className="w-24 h-24 rounded-full bg-brand-600 flex items-center justify-center shadow-lg relative">
           <Activity size={44} className="text-white" />
         </div>
       </div>
@@ -33,7 +33,7 @@ export default function StartStep({ onStart }) {
       {/* CTA */}
       <button
         onClick={onStart}
-        className="w-full max-w-xs flex items-center justify-center gap-3 bg-red-600 hover:bg-red-700 active:scale-95 text-white font-bold text-lg py-5 px-8 rounded-2xl shadow-xl transition-all duration-150"
+        className="w-full max-w-xs flex items-center justify-center gap-3 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-bold text-lg py-5 px-8 rounded-2xl shadow-xl transition-all duration-150"
       >
         <Zap size={22} />
         Iniciar Código Stroke

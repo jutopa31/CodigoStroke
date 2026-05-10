@@ -3,6 +3,15 @@ export default {
   content: ['./index.html', './src/**/*.{js,jsx}'],
   theme: {
     extend: {
+      colors: {
+        brand: {
+          50:  '#fef2f2',
+          300: '#f0a0a0',
+          500: '#c0392b',
+          600: '#9b2c2c',
+          700: '#7f2424',
+        },
+      },
       fontFamily: {
         sans: ['DM Sans', 'sans-serif'],
         display: ['DM Serif Display', 'serif'],

@@ -39,7 +39,7 @@ export default function NihssModal({ onLoad, onClose }) {
         {/* Progress bar */}
         <div className="h-1 bg-gray-100">
           <div
-            className="h-1 bg-red-500 transition-all duration-300"
+            className="h-1 bg-brand-600 transition-all duration-300"
             style={{ width: `${(answered / nihssItems.length) * 100}%` }}
           />
         </div>
@@ -60,8 +60,8 @@ export default function NihssModal({ onLoad, onClose }) {
                   onClick={() => select(opt.score)}
                   className={`w-full text-left px-4 py-3 rounded-xl border text-sm transition-all ${
                     selected
-                      ? 'bg-red-600 border-red-600 text-white font-medium'
-                      : 'border-gray-200 text-gray-700 hover:border-red-300 hover:bg-red-50 active:scale-98'
+                      ? 'bg-brand-600 border-brand-600 text-white font-medium'
+                      : 'border-gray-200 text-gray-700 hover:border-brand-300 hover:bg-brand-50 active:scale-98'
                   }`}
                 >
                   <span className="font-mono text-xs opacity-60 mr-2">{opt.score}</span>
@@ -105,7 +105,7 @@ export default function NihssModal({ onLoad, onClose }) {
           {allDone && (
             <button
               onClick={() => onLoad(total)}
-              className="flex-1 py-3 bg-red-600 text-white rounded-xl font-semibold text-sm hover:bg-red-700 active:scale-95 transition-all"
+              className="flex-1 py-3 bg-brand-600 text-white rounded-xl font-semibold text-sm hover:bg-brand-700 active:scale-95 transition-all"
             >
               Cargar resultado ({total} pts)
             </button>

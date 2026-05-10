@@ -6,7 +6,7 @@ const CHECKLIST = [
   {
     id: 'shockroom',
     label: 'Trasladar a Shockroom',
-    sub: 'Monitoreo continuo: ECG, SatO₂, PANI',
+    sub: 'Iniciar O₂ solo si SatO₂ < 92%',
     emoji: '🚨',
   },
   {
@@ -18,24 +18,18 @@ const CHECKLIST = [
   {
     id: 'labs',
     label: 'Tomar muestra de laboratorio',
-    sub: 'Hemograma, coagulación, glucemia, función renal, electrolitos, grupo y factor',
+    sub: 'Hemograma, coagulación, glucemia, función renal y electrolitos',
     emoji: '🩸',
   },
   {
     id: 'ct',
     label: 'Solicitar TC de encéfalo sin contraste',
-    sub: 'Excluir hemorragia. Si NIHSS ≥6 agregar angio-TC.',
+    sub: 'Excluir hemorragia intracraneal',
     emoji: '🧠',
-  },
-  {
-    id: 'ecg',
-    label: 'ECG de 12 derivaciones',
-    sub: 'Buscar FA, IAM o arritmias',
-    emoji: '❤️',
   },
 ]
 
-export default function InstructionsStep({ nihssScore, onConfirm }) {
+export default function InstructionsStep({ onConfirm }) {
   const [checked, setChecked] = useState({})
 
   const allChecked = CHECKLIST.every((item) => checked[item.id])
@@ -77,16 +71,6 @@ export default function InstructionsStep({ nihssScore, onConfirm }) {
             )
           })}
         </div>
-
-        {/* NIHSS reminder */}
-        {nihssScore >= 6 && (
-          <div className="mt-4 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
-            <p className="text-xs font-semibold text-amber-700 mb-1">⚡ NIHSS {nihssScore} — Oclusión de gran vaso</p>
-            <p className="text-xs text-amber-600 leading-relaxed">
-              Solicitar angio-TC de encéfalo y cuello. Evaluar trombectomía mecánica (ventana 0–24h con imagen favorable).
-            </p>
-          </div>
-        )}
       </StepCard>
 
       {/* Progress indicator */}
@@ -108,7 +92,7 @@ export default function InstructionsStep({ nihssScore, onConfirm }) {
       <button
         onClick={() => onConfirm({ checklist: checked })}
         disabled={!allChecked}
-        className="w-full flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 active:scale-95 text-white font-semibold py-4 rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+        className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-semibold py-4 rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed"
       >
         Continuar <ChevronRight size={18} />
       </button>

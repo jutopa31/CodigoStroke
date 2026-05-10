@@ -46,7 +46,7 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
               placeholder="Número de documento"
               value={dni}
               onChange={(e) => setDni(e.target.value)}
-              className="w-full border border-gray-200 rounded-xl px-4 py-3.5 text-gray-800 text-base focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-transparent placeholder-gray-300"
+              className="w-full border border-gray-200 rounded-xl px-4 py-3.5 text-gray-800 text-base focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent placeholder-gray-300"
               required
             />
           </div>
@@ -60,7 +60,7 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
               placeholder="Apellido, Nombre"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full border border-gray-200 rounded-xl px-4 py-3.5 text-gray-800 text-base focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-transparent placeholder-gray-300"
+              className="w-full border border-gray-200 rounded-xl px-4 py-3.5 text-gray-800 text-base focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent placeholder-gray-300"
               required
             />
           </div>
@@ -74,7 +74,7 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
               placeholder="Frase de acceso"
               value={passphrase}
               onChange={(e) => setPassphrase(e.target.value)}
-              className="w-full border border-gray-200 rounded-xl px-4 py-3.5 text-gray-800 text-base focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-transparent placeholder-gray-300"
+              className="w-full border border-gray-200 rounded-xl px-4 py-3.5 text-gray-800 text-base focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent placeholder-gray-300"
             />
             <p className="text-xs text-gray-400 mt-1">Requerida para registro completo (próximamente)</p>
           </div>
@@ -82,7 +82,7 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
           <button
             type="submit"
             disabled={!valid}
-            className="w-full flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 active:scale-95 text-white font-semibold py-4 rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed mt-2"
+            className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-semibold py-4 rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed mt-2"
           >
             Confirmar datos <ChevronRight size={18} />
           </button>

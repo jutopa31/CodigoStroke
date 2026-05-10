@@ -8,6 +8,9 @@ import SymptomsStep from './steps/SymptomsStep'
 import VitalsStep from './steps/VitalsStep'
 import NihssStep from './steps/NihssStep'
 import InstructionsStep from './steps/InstructionsStep'
+import CTResultStep from './steps/CTResultStep'
+import ContraindicationsStep from './steps/ContraindicationsStep'
+import DosageStep from './steps/DosageStep'
 import { saveStrokeEvent } from './lib/storage'
 import { sendStrokeAlert } from './lib/emailService'
 
@@ -19,7 +22,10 @@ const STEP = {
   VITALS: 4,
   NIHSS: 5,
   INSTRUCTIONS: 6,
-  DONE: 7,
+  CT_RESULT: 7,
+  CONTRAINDICATIONS: 8,
+  DOSAGE: 9,
+  DONE: 10,
 }
 
 export default function App() {
@@ -29,12 +35,18 @@ export default function App() {
   const [symptoms, setSymptoms] = useState(null)
   const [vitals, setVitals] = useState(null)
   const [nihss, setNihss] = useState(null)
+  const [ctResult, setCtResult] = useState(null)
+  const [contraindications, setContraindications] = useState(null)
+  const [dosage, setDosage] = useState(null)
   const [eventId] = useState(uuidv4)
 
   const symptomsRef = useRef(null)
   const vitalsRef = useRef(null)
   const nihssRef = useRef(null)
   const instructionsRef = useRef(null)
+  const ctResultRef = useRef(null)
+  const contraindicationsRef = useRef(null)
+  const dosageRef = useRef(null)
   const doneRef = useRef(null)
 
   function scrollTo(ref) {
@@ -103,33 +115,111 @@ export default function App() {
       nihss,
       checklist: data.checklist,
     })
+    setStep(STEP.CT_RESULT)
+    scrollTo(ctResultRef)
+  }
+
+  function handleCtResultConfirm(data) {
+    setCtResult(data)
+    if (data.bleeding) {
+      setStep(STEP.DONE)
+      scrollTo(doneRef)
+    } else {
+      setStep(STEP.CONTRAINDICATIONS)
+      scrollTo(contraindicationsRef)
+    }
+  }
+
+  function handleContraindicationsConfirm(data) {
+    setContraindications(data)
+    if (data.hasAbsolute) {
+      setStep(STEP.DONE)
+      scrollTo(doneRef)
+    } else {
+      setStep(STEP.DOSAGE)
+      scrollTo(dosageRef)
+    }
+  }
+
+  function handleDosageConfirm(data) {
+    setDosage(data)
     setStep(STEP.DONE)
     scrollTo(doneRef)
+  }
+
+  function getDoneContent() {
+    if (ctResult?.bleeding) {
+      return {
+        icon: '🔴',
+        iconBg: 'bg-red-100',
+        borderColor: 'border-red-400',
+        title: 'Hemorragia intracraneal',
+        body: 'La TC evidencia hemorragia. Trombolisis contraindicada. Derivar a Neurocirugía.',
+      }
+    }
+    if (contraindications?.hasAbsolute) {
+      return {
+        icon: '🔴',
+        iconBg: 'bg-red-100',
+        borderColor: 'border-red-400',
+        title: 'Contraindicación absoluta presente',
+        body: 'No indicar trombolisis IV. Registrar motivo y continuar manejo de soporte.',
+      }
+    }
+    if (dosage) {
+      const drugName = dosage.drug === 'tnk' ? 'Tenecteplase (TNK)' : 'Alteplase (rtPA)'
+      const doseStr = dosage.drug === 'tnk'
+        ? `${dosage.dose?.total} mg bolo único`
+        : `${dosage.dose?.total} mg total (bolo ${dosage.dose?.bolo} mg + infusión ${dosage.dose?.infusion} mg)`
+      return {
+        icon: '✓',
+        iconBg: 'bg-emerald-100',
+        borderColor: 'border-emerald-500',
+        title: 'Trombolisis indicada',
+        body: `${drugName} — ${doseStr}. Protocolo completo registrado.`,
+      }
+    }
+    if (contraindications?.hasRelative) {
+      return {
+        icon: '🟡',
+        iconBg: 'bg-amber-100',
+        borderColor: 'border-amber-400',
+        title: 'Contraindicación relativa — valorar riesgo/beneficio',
+        body: 'Interconsulta con coordinación antes de proceder. Decisión individualizada.',
+      }
+    }
+    return {
+      icon: '✓',
+      iconBg: 'bg-emerald-100',
+      borderColor: 'border-emerald-500',
+      title: 'Fase inicial completa',
+      body: 'Datos registrados. Continuar con evaluación para trombolisis.',
+    }
   }
 
   if (step === STEP.START) {
     return <StartStep onStart={handleStart} />
   }
 
+  const done = step === STEP.DONE ? getDoneContent() : null
+
   return (
     <div className="min-h-screen bg-gray-50 pb-16">
       <GlobalTimer startTime={timerStart} />
 
-      {/* Patient header bar */}
       {patient && step > STEP.ALERT && (
-        <div className="bg-red-600 px-4 py-3 sticky top-0 z-40">
+        <div className="bg-brand-600 px-4 py-3 sticky top-0 z-40">
           <div className="max-w-md mx-auto flex items-center justify-between">
             <div>
-              <p className="text-red-200 text-xs uppercase tracking-wider">Código Stroke</p>
+              <p className="text-brand-300 text-xs uppercase tracking-wider">Código Stroke</p>
               <p className="text-white font-semibold text-sm">{patient.name}</p>
             </div>
-            <p className="text-red-200 text-xs">DNI {patient.dni}</p>
+            <p className="text-brand-300 text-xs">DNI {patient.dni}</p>
           </div>
         </div>
       )}
 
       <div className="max-w-md mx-auto pt-4 space-y-3">
-        {/* Step 1: Patient */}
         {step >= STEP.PATIENT && (
           <PatientStep
             onConfirm={handlePatientConfirm}
@@ -138,7 +228,6 @@ export default function App() {
           />
         )}
 
-        {/* Alert modal */}
         {step === STEP.ALERT && patient && (
           <AlertModal
             patient={patient}
@@ -147,52 +236,61 @@ export default function App() {
           />
         )}
 
-        {/* Step 2: Symptoms */}
         {step >= STEP.SYMPTOMS && (
           <div ref={symptomsRef}>
             <SymptomsStep onConfirm={handleSymptomsConfirm} />
           </div>
         )}
 
-        {/* Step 3: Vitals */}
         {step >= STEP.VITALS && (
           <div ref={vitalsRef}>
             <VitalsStep onConfirm={handleVitalsConfirm} />
           </div>
         )}
 
-        {/* Step 4: NIHSS */}
         {step >= STEP.NIHSS && (
           <div ref={nihssRef}>
             <NihssStep onConfirm={handleNihssConfirm} />
           </div>
         )}
 
-        {/* Step 5: Instructions */}
         {step >= STEP.INSTRUCTIONS && (
           <div ref={instructionsRef}>
-            <InstructionsStep
-              nihssScore={nihss?.nihssScore ?? 0}
-              onConfirm={handleInstructionsConfirm}
-            />
+            <InstructionsStep onConfirm={handleInstructionsConfirm} />
           </div>
         )}
 
-        {/* Done */}
-        {step === STEP.DONE && (
+        {step >= STEP.CT_RESULT && (
+          <div ref={ctResultRef}>
+            <CTResultStep onConfirm={handleCtResultConfirm} />
+          </div>
+        )}
+
+        {step >= STEP.CONTRAINDICATIONS && (
+          <div ref={contraindicationsRef}>
+            <ContraindicationsStep onConfirm={handleContraindicationsConfirm} />
+          </div>
+        )}
+
+        {step >= STEP.DOSAGE && (
+          <div ref={dosageRef}>
+            <DosageStep onConfirm={handleDosageConfirm} />
+          </div>
+        )}
+
+        {step === STEP.DONE && done && (
           <div ref={doneRef} className="px-4 pb-4 animate-slide-down">
-            <div className="bg-white rounded-xl border-l-4 border-emerald-500 shadow-sm p-6 text-center">
-              <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                </svg>
+            <div className={`bg-white rounded-xl border-l-4 ${done.borderColor} shadow-sm p-6`}>
+              <div className={`w-14 h-14 ${done.iconBg} rounded-full flex items-center justify-center mx-auto mb-4 text-2xl`}>
+                {done.icon === '✓'
+                  ? <svg className="w-7 h-7 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>
+                  : <span>{done.icon}</span>
+                }
               </div>
-              <h2 className="font-display text-gray-800 text-xl mb-2">Fase inicial completa</h2>
-              <p className="text-sm text-gray-400 leading-relaxed">
-                Datos registrados. Continuar con evaluación para trombolisis según NIHSS y ventana terapéutica.
-              </p>
+              <h2 className="font-display text-gray-800 text-xl text-center mb-2">{done.title}</h2>
+              <p className="text-sm text-gray-500 text-center leading-relaxed">{done.body}</p>
               {timerStart && (
-                <div className="mt-4 bg-gray-50 rounded-xl px-4 py-3">
+                <div className="mt-4 bg-gray-50 rounded-xl px-4 py-3 text-center">
                   <p className="text-xs text-gray-400">Inicio del código</p>
                   <p className="text-sm font-mono font-semibold text-gray-700 mt-0.5">
                     {timerStart.toLocaleTimeString('es-AR')}
