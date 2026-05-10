@@ -32,13 +32,6 @@ export default function WakeUpStrokeModal({ elapsedHours, onActivate, onDismiss 
             </p>
           </div>
 
-          <div className="bg-gray-50 rounded-xl px-4 py-3 text-xs text-gray-500 space-y-1">
-            <p className="font-semibold text-gray-600 mb-1.5">Cambios en el algoritmo si se activa:</p>
-            <p>• TC → reemplazada por <strong>RMN con DWI + FLAIR</strong></p>
-            <p>• Criterio: mismatch DWI positivo / FLAIR negativo</p>
-            <p>• Si mismatch presente → continuar evaluación de trombolisis</p>
-            <p>• Si sin mismatch → derivar a trombectomía si corresponde</p>
-          </div>
         </div>
 
         {/* Actions */}
