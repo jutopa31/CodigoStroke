@@ -480,7 +480,7 @@ export default function App() {
         <button
           type="button"
           onClick={() => setShowOutOfWindow(true)}
-          className="fixed bottom-6 left-14 md:left-4 z-40 flex items-center gap-2 bg-slate-700 hover:bg-slate-800 active:scale-95 text-white text-xs font-semibold px-4 py-2.5 rounded-full shadow-lg transition-all"
+          className="fixed bottom-6 left-14 md:left-4 z-40 flex items-center gap-2 bg-slate-700 hover:bg-slate-800 active:scale-95 text-white text-xs font-semibold px-4 py-3 min-h-[44px] rounded-full shadow-lg transition-all"
         >
           <Clock size={14} />
           Fuera de ventana

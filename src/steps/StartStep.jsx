@@ -73,7 +73,7 @@ export default function StartStep({ onStart, onResume }) {
               setResumeId(e.target.value.toUpperCase())
               setError(false)
             }}
-            className="flex-1 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 text-base font-mono tracking-widest focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent placeholder-gray-300 uppercase"
+            className="flex-1 min-w-0 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 text-base font-mono tracking-widest focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent placeholder-gray-300 uppercase"
           />
           <button
             onClick={handleResume}
