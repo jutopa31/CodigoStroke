@@ -23,14 +23,10 @@ const TIME_PRESETS = [
 ]
 
 const WAKE_UP_THRESHOLD_MINUTES = 270 // 4.5 hours
-const ANTICOAGULATION_OPTIONS = [
-  { id: 'acod_dabigatran', label: 'Dabigatrán', group: 'ACOD / NOAC' },
-  { id: 'acod_rivaroxaban', label: 'Rivaroxabán', group: 'ACOD / NOAC' },
-  { id: 'acod_apixaban', label: 'Apixabán', group: 'ACOD / NOAC' },
-  { id: 'acod_edoxaban', label: 'Edoxabán', group: 'ACOD / NOAC' },
-  { id: 'avk', label: 'Warfarina / Acenocumarol', group: 'AVK' },
-  { id: 'hbpm', label: 'HBPM', group: 'Heparinas' },
-  { id: 'hnf', label: 'HNF', group: 'Heparinas' },
+const ANTICOAG_TYPES = [
+  { id: 'doac',         label: 'DOAC' },
+  { id: 'heparina',     label: 'Heparina' },
+  { id: 'acenocumarol', label: 'Acenocumarol' },
 ]
 
 function toLocalInput(date) {
@@ -79,7 +75,7 @@ export default function SymptomsStep({ onConfirm }) {
   const isOverWindow = elapsedMinutes > WAKE_UP_THRESHOLD_MINUTES
   const hasSymptom = Object.values(selected).some(Boolean)
   const needsAnticoagulationType = anticoagulationActive === true
-  const isAcod = anticoagulationType.startsWith('acod_')
+  const isAcod = anticoagulationType === 'doac'
   const valid = hasSymptom && lastSeen && anticoagulationActive !== null && (!needsAnticoagulationType || anticoagulationType)
 
   function toggle(id) {
@@ -229,30 +225,20 @@ export default function SymptomsStep({ onConfirm }) {
 
           {needsAnticoagulationType && (
             <div className="space-y-3">
-              <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Tipo de anticoagulación
-              </p>
-              <div className="space-y-3">
-                {['ACOD / NOAC', 'AVK', 'Heparinas'].map((group) => (
-                  <div key={group}>
-                    <p className="text-xs font-semibold text-gray-600 mb-2">{group}</p>
-                    <div className="grid gap-2">
-                      {ANTICOAGULATION_OPTIONS.filter((option) => option.group === group).map((option) => (
-                        <button
-                          key={option.id}
-                          type="button"
-                          onClick={() => setAnticoagulationType(option.id)}
-                          className={`w-full rounded-xl border px-4 py-3 text-left text-sm transition-all ${
-                            anticoagulationType === option.id
-                              ? 'border-red-400 bg-red-50 text-red-700'
-                              : 'border-gray-200 text-gray-700 hover:border-red-300 hover:bg-red-50/40'
-                          }`}
-                        >
-                          {option.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+              <div className="grid grid-cols-3 gap-2">
+                {ANTICOAG_TYPES.map(({ id, label }) => (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => setAnticoagulationType(id)}
+                    className={`rounded-xl border py-3 text-sm font-medium transition-all active:scale-95 ${
+                      anticoagulationType === id
+                        ? 'border-red-400 bg-red-50 text-red-700'
+                        : 'border-gray-200 text-gray-700 hover:border-red-300 hover:bg-red-50/40'
+                    }`}
+                  >
+                    {label}
+                  </button>
                 ))}
               </div>
 
@@ -261,7 +247,7 @@ export default function SymptomsStep({ onConfirm }) {
                   <div className="flex items-start gap-2">
                     <ShieldAlert size={18} className="shrink-0 mt-0.5" />
                     <p className="text-sm font-medium">
-                      Los ACOD pueden contraindicar la trombólisis. Verificar última dosis y función renal.
+                      Los DOAC pueden contraindicar la trombólisis. Verificar última dosis y función renal.
                     </p>
                   </div>
                 </div>
