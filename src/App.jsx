@@ -536,7 +536,7 @@ export default function App() {
         )}
 
         {/* Main content */}
-      <div className="px-11 sm:px-0 md:min-w-0 max-w-md md:max-w-none mx-auto md:mx-0 pt-4 space-y-3">
+      <div className="px-3 md:px-0 md:min-w-0 w-full md:mx-0 pt-4 space-y-3">
           {step >= STEP.PATIENT && (
             <div className={step > STEP.ALERT ? 'md:hidden' : ''}>
               <PatientStep

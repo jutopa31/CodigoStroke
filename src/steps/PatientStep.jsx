@@ -19,7 +19,7 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
   // Confirmed / locked state
   if (confirmed && patient) {
     return (
-      <div className="px-4 pt-6 pb-2">
+      <div className="pb-2">
         <StepCard step="1" title="Datos del paciente" accent="green">
           <div className="flex items-center justify-between">
             <div>
@@ -48,7 +48,7 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
   }
 
   return (
-    <div className="px-4 pt-6 pb-4">
+    <div className="pb-4">
       <StepCard step="1" title="Datos del paciente" accent="red">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
