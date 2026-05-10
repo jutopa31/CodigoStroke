@@ -4,53 +4,58 @@
 
 ```
 CodigoStroke/
-├── index.html                    # Meta tags mobile (viewport, theme-color, PWA)
+├── index.html                    # Meta tags mobile, PWA apple-touch-icon, theme-color
 ├── package.json
-├── vite.config.js
-├── tailwind.config.js            # Fuentes DM Sans / DM Serif Display, animaciones custom
+├── vite.config.js                # Vite + React + VitePWA plugin
+├── tailwind.config.js            # Fuentes DM Sans / DM Serif Display, color brand, animaciones
 ├── postcss.config.js
-├── .env.example                  # Variables de entorno necesarias (EmailJS, Supabase)
+├── .env.example
 │
 ├── public/
-│   └── favicon.svg
+│   ├── favicon.svg
+│   ├── apple-touch-icon.png      # 180×180 — iOS "Añadir a pantalla de inicio"
+│   ├── icon-192.png              # PWA icon Android
+│   └── icon-512.png              # PWA icon maskable
 │
 └── src/
-    ├── main.jsx                  # Entry point — ReactDOM.createRoot
-    ├── App.jsx                   # Orquestador principal: estado global + render secuencial
-    ├── App.css                   # Vacío (Tailwind maneja todo)
-    ├── index.css                 # Google Fonts import, @tailwind directives, scrollbar, number input
+    ├── main.jsx
+    ├── App.jsx                   # Orquestador: estado global, STEP enum (0–10), handlers
+    ├── App.css
+    ├── index.css                 # Google Fonts, @tailwind, scrollbar, number input
     │
-    ├── components/               # Componentes reutilizables
+    ├── components/
     │   ├── GlobalTimer.jsx       # Cronómetro fijo top-right con hitos clínicos
-    │   ├── AlertModal.jsx        # Modal de alerta al equipo (preview + confirm + email)
-    │   ├── NihssModal.jsx        # Calculadora NIHSS guiada (15 ítems, progreso, resultado)
-    │   └── StepCard.jsx          # Card reutilizable con border-left color-coded y badge de paso
+    │   ├── AlertModal.jsx        # Modal de alerta al equipo + email
+    │   ├── NihssModal.jsx        # Calculadora NIHSS guiada (15 ítems)
+    │   └── StepCard.jsx          # Card reutilizable con border-left color-coded
     │
-    ├── steps/                    # Un componente por paso del protocolo
+    ├── steps/
     │   ├── StartStep.jsx         # Landing: logo, chips, botón "Iniciar Código Stroke"
-    │   ├── PatientStep.jsx       # Formulario DNI + Nombre + Contraseña / Vista confirmada
-    │   ├── SymptomsStep.jsx      # Síntomas (multi-select) + último visto asintomático + timer
-    │   ├── VitalsStep.jsx        # TA (sistólica/diastólica) + Glucemia + alertas automáticas
-    │   ├── NihssStep.jsx         # Input NIHSS + botón abrir calculadora modal
-    │   └── InstructionsStep.jsx  # Checklist 5 acciones + barra de progreso
+    │   ├── PatientStep.jsx       # DNI + Nombre + Contraseña
+    │   ├── SymptomsStep.jsx      # Síntomas + último visto (chips de tiempo rápido)
+    │   ├── VitalsStep.jsx        # TA + Glucemia + alertas automáticas
+    │   ├── NihssStep.jsx         # NIHSS + síntomas discapacitantes (SI/NO, solo si NIHSS < 5)
+    │   ├── InstructionsStep.jsx  # Checklist acciones inmediatas (4 ítems)
+    │   ├── CTResultStep.jsx      # Solicitud TC con timestamp + resultado hemorragia
+    │   ├── ContraindicationsStep.jsx  # Semáforo rojo/amarillo AHA/ASA 2026
+    │   └── DosageStep.jsx        # Selector TNK/rtPA + peso + cálculo + checklist post-trombolisis
     │
     ├── lib/
-    │   ├── emailService.js       # EmailJS wrapper con fallback mock si no hay .env
-    │   ├── storage.js            # Interface localStorage (save/get) lista para swap a Supabase
-    │   └── supabase.js           # Cliente Supabase preparado (comentado, listo para activar)
+    │   ├── emailService.js
+    │   ├── storage.js
+    │   └── supabase.js
     │
     └── content/
-        └── nihss.js              # 15 ítems NIHSS con opciones/puntajes + función getNihssSeverity()
+        └── nihss.js
 ```
 
 ---
 
 ## Estado global — App.jsx
 
-Todo el estado vive en `App.jsx`. No hay Context ni Zustand — la app es de sesión única por código stroke.
+Todo el estado vive en `App.jsx`. No hay Context ni Zustand.
 
 ```js
-// Enum de pasos
 const STEP = {
   START: 0,
   PATIENT: 1,
@@ -59,233 +64,136 @@ const STEP = {
   VITALS: 4,
   NIHSS: 5,
   INSTRUCTIONS: 6,
-  DONE: 7,
+  CT_RESULT: 7,
+  CONTRAINDICATIONS: 8,
+  DOSAGE: 9,
+  DONE: 10,
 }
 
 // Estado
-step          // número del paso actual (STEP enum)
-timerStart    // Date | null — null hasta confirmar el código
-patient       // { dni, name, passphrase } | null
-symptoms      // { weakness, speech, vision, ataxia, other, otherText, lastSeenNormal } | null
-vitals        // { systolic, diastolic, glucose } | null
-nihss         // { nihssScore } | null
-eventId       // UUID generado al montar — identifica el evento en storage
+step             // número del paso actual
+timerStart       // Date | null
+patient          // { dni, name, passphrase } | null
+symptoms         // { symptoms: {…}, lastSeenNormal } | null
+vitals           // { systolic, diastolic, glucose } | null
+nihss            // { nihssScore, hasDisablingSymptoms } | null
+ctResult         // { bleeding, ctRequestTime, ctElapsedSeconds } | null
+contraindications // { red, orange, hasAbsolute, hasRelative } | null
+dosage           // { drug, weight, dose, checklist } | null
+eventId          // UUID
 ```
 
-### Flujo de datos
+### Flujo de datos completo
 
 ```
-PatientStep → handlePatientConfirm(data) → setPatient(data) → setStep(ALERT)
-           → AlertModal → handleAlertConfirm()
-                       → sendStrokeAlert() [EmailJS]
-                       → saveStrokeEvent() [localStorage]
-                       → setTimerStart(new Date())
-                       → setStep(SYMPTOMS)
-                       → scrollTo(symptomsRef)
-
-SymptomsStep → handleSymptomsConfirm(data) → setSymptoms(data) → setStep(VITALS) → scrollTo(vitalsRef)
-VitalsStep   → handleVitalsConfirm(data)   → setVitals(data)   → setStep(NIHSS)  → scrollTo(nihssRef)
-NihssStep    → handleNihssConfirm(data)    → setNihss(data)    → setStep(INSTRUCTIONS) → scrollTo(instructionsRef)
-InstructionsStep → handleInstructionsConfirm(data)
-                → saveStrokeEvent() [localStorage — evento completo]
-                → setStep(DONE)
+PatientStep → AlertModal → sendEmail + saveEvent(básico)
+           → SymptomsStep → VitalsStep → NihssStep
+           → InstructionsStep → saveEvent(completo) → CTResultStep
+           → si bleeding → DONE (hemorragia)
+           → ContraindicationsStep
+           → si hasAbsolute → DONE (contraindicación absoluta)
+           → DosageStep → DONE (trombolisis indicada)
 ```
 
-### Reveal secuencial
+### DONE inteligente
 
-Cada paso se renderiza solo cuando `step >= STEP.X`. El scroll automático se logra con `useRef` + `scrollIntoView({ behavior: 'smooth' })` con 80ms de delay para dar tiempo al DOM.
+El mensaje final cambia según el camino recorrido:
+| Condición | Título | Color |
+|---|---|---|
+| `ctResult.bleeding` | Hemorragia intracraneal | Rojo |
+| `contraindications.hasAbsolute` | Contraindicación absoluta | Rojo |
+| `dosage` presente | Trombolisis indicada | Verde |
+| `contraindications.hasRelative` (sin llegar a dosis) | Valorar riesgo/beneficio | Ámbar |
 
-```jsx
-{step >= STEP.VITALS && (
-  <div ref={vitalsRef}>
-    <VitalsStep onConfirm={handleVitalsConfirm} />
-  </div>
-)}
-```
+---
+
+## Paleta de color
+
+| Uso | Clase Tailwind | Hex |
+|---|---|---|
+| Acciones primarias (botones, badges) | `brand-600` | `#9b2c2c` |
+| Hover | `brand-700` | `#7f2424` |
+| Pulse ring logo | `brand-600` | `#9b2c2c` |
+| Alarma timer ≥60 min | `red-600` | `#DC2626` (intencional) |
+| Background | `gray-50` | `#F9FAFB` |
+| Timer OK | `emerald-600` | |
+| Timer warning | `yellow-500` | |
+| Acento síntomas | `orange-500` | |
+| Acento vitales | `blue-500` | |
+| Acento acciones | `green-500` | |
+| Alerta clínica (VitalAlert) | `red-50/200/500/600` | (alarma, no brand) |
 
 ---
 
 ## Componentes clave
 
-### GlobalTimer (`components/GlobalTimer.jsx`)
+### CTResultStep (`steps/CTResultStep.jsx`)
 
-- `useEffect` con `setInterval(1000ms)` desde `startTime` prop
-- Formato: `MM:SS` → `HH:MM:SS` si supera 1 hora
-- Color: `bg-emerald-600` (0-29min) → `bg-yellow-500` (30-59min) → `bg-red-600` (≥60min)
-- Hitos clínicos: array `MILESTONES = [{minutes: 25, label: 'TC'}, {minutes: 45, label: 'NIHSS'}, {minutes: 60, label: 'Aguja'}]`
-- Muestra tiempo restante al próximo hito (e.g., "→ TC 18'")
-- Fixed z-50 top-right, visible en todos los pasos
+Dos fases en el mismo componente:
+1. **Fase solicitud** — botón "Solicitar TC de encéfalo" → guarda `ctRequestTime = new Date()`
+2. **Fase resultado** — muestra "TC solicitada hace X min" (contador vivo) + botones SÍ/NO para hemorragia
 
-### AlertModal (`components/AlertModal.jsx`)
+Pasa al padre: `{ bleeding, ctRequestTime (ISO), ctElapsedSeconds }`.
 
-- Recibe `{ patient, onConfirm, onClose }`
-- Overlay `fixed inset-0` con `bg-black/50`
-- Header rojo con "CÓDIGO STROKE"
-- Lista de equipo hardcodeada: Neurología 🧠, Terapia Intensiva 🏥, Neurocirugía ⚕️
-- Aviso en amber antes de confirmar
-- `onConfirm` es async (espera `sendStrokeAlert`)
-- Estado `sending` durante el envío para deshabilitar el botón
+### ContraindicationsStep (`steps/ContraindicationsStep.jsx`)
 
-### NihssModal (`components/NihssModal.jsx`)
+- `RED_CONTRAS` (7 ítems): hemorragia previa, infarto extenso, TCE, tumor intra-axial, coagulopatía severa, disección aórtica, endocarditis
+- `ORANGE_CONTRAS` (8 ítems): ACV previo 3m, cirugía reciente, ACODs, sangrado GI/GU, punción arterial, MAV, aneurisma >10mm, disección IC
+- Cada ítem tiene botones NO/SÍ (default NO)
+- Alert rojo si `hasRed`, amber si `hasOrange && !hasRed`
 
-- 15 ítems en `nihssItems` (de `content/nihss.js`)
-- Estado local: `scores = {}`, `current = 0` (índice del ítem activo)
-- Al seleccionar una opción: guarda el score + avanza al siguiente ítem (280ms delay)
-- Barra de progreso: `(answered / nihssItems.length) * 100%`
-- `allDone` = todos los 15 ítems respondidos → muestra puntaje + badge de severidad + botón "Cargar resultado"
-- `onLoad(total)` pasa el puntaje al componente padre y cierra el modal
+### DosageStep (`steps/DosageStep.jsx`)
 
-### StepCard (`components/StepCard.jsx`)
-
-Props: `step` (número/string), `title`, `children`, `accent` (red/blue/orange/green/gray)
-
-```jsx
-// Uso
-<StepCard step="3" title="Signos vitales" accent="blue">
-  ...
-</StepCard>
-```
-
-El badge circular con el número de paso es siempre `bg-red-600`.
-
-### PatientStep (`steps/PatientStep.jsx`)
-
-Dos modos controlados por props:
-- `confirmed={false}` → muestra formulario editable
-- `confirmed={true} patient={...}` → muestra vista compacta con nombre/DNI + checkmark verde
-
-### SymptomsStep (`steps/SymptomsStep.jsx`)
-
-- `selected` = objeto `{ weakness: bool, speech: bool, vision: bool, ataxia: bool, other: bool }`
-- `lastSeen` = string ISO datetime (del input `type="datetime-local"`)
-- `timeSince(dateStr)` = calcula diferencia con `Date.now()` cada segundo via `useEffect` con `setInterval`
-- Validación: `valid = hasSymptom && lastSeen && (!selected.other || otherText.trim())`
-
-### VitalsStep (`steps/VitalsStep.jsx`)
-
-Alertas automáticas:
-- `sysNum > 185` → "TA sistólica >185 mmHg — ajustar antes de trombolisis (meta: ≤185/110)"
-- `diaNum > 110` → "TA diastólica >110 mmHg"
-- `glucNum < 50` → "Hipoglucemia — corregir antes de proceder. Puede mimetizar ACV."
-- `glucNum > 400` → "Hiperglucemia severa — empeora pronóstico neurológico."
+- Selector TNK (default, preferido AHA 2026) / rtPA
+- Input peso + botones −5/−1/+1/+5 + presets 50–100 kg
+- Cálculo en tiempo real:
+  - **TNK:** `min(kg × 0.25, 25)` mg bolo único
+  - **rtPA:** `min(kg × 0.9, 90)` mg total → bolo 10% (1 min) + infusión 90% (60 min)
+- Checklist post-trombolisis de 7 ítems (todos requeridos)
 
 ### NihssStep (`steps/NihssStep.jsx`)
 
-- Input directo + botón "Calcular" que abre `NihssModal`
-- `getNihssSeverity(score)` retorna `{ label, color, bg, border }` para el badge
-- Si `score >= 6`: aviso adicional sobre angio-TC y oclusión de gran vaso
+- Input directo + calculadora modal
+- **Síntomas discapacitantes** (condicional): aparece solo si NIHSS < 5
+  - SI/NO simple + lista expandible de referencia
+  - Si SI → alerta ámbar sobre trombolisis independiente del puntaje
+- `canContinue = valid && (!showDisablingBlock || hasDisabling !== null)`
 
-### InstructionsStep (`steps/InstructionsStep.jsx`)
+### SymptomsStep (`steps/SymptomsStep.jsx`)
 
-- `CHECKLIST` = array de 5 items con id, label, sub, emoji
-- `checked = {}` → toggle por id
-- `allChecked = CHECKLIST.every(item => checked[item.id])`
-- Barra de progreso verde
-- Si `nihssScore >= 6`: warning box sobre thrombectomía
+- `lastSeen` inicializa con `toLocalInput(new Date())` → hora actual por defecto
+- Chips de acceso rápido: Ahora / 15 min / 30 min / 1 hora / 2 horas / 3 horas
+- "Otro" no requiere texto adicional
 
 ---
 
-## Diseño visual
+## PWA
 
-**Tipografía:** DM Sans (body 300-600) + DM Serif Display (headings) — Google Fonts
+Configurado con `vite-plugin-pwa` en `vite.config.js`:
 
-**Paleta:**
-| Uso | Clase Tailwind |
-|---|---|
-| Urgencia / stroke | `red-600` (#DC2626) |
-| Background | `gray-50` (#F9FAFB) |
-| Cards | `white` + shadow-sm |
-| Border-left síntomas | `orange-500` |
-| Border-left vitales | `blue-500` |
-| Border-left acciones | `green-500` |
-| Border-left paciente OK | `green-500` |
-| Timer OK | `emerald-600` |
-| Timer warning | `yellow-500` |
-| Timer crítico | `red-600` |
+```js
+VitePWA({
+  registerType: 'autoUpdate',
+  manifest: {
+    name: 'Código Stroke',
+    short_name: 'Stroke',
+    theme_color: '#9b2c2c',
+    display: 'standalone',
+    orientation: 'portrait',
+    icons: [192, 512, 180 (apple)]
+  },
+  workbox: { globPatterns: ['**/*.{js,css,html,svg,png,woff2}'] }
+})
+```
 
-**Animaciones custom** (en `tailwind.config.js`):
-- `animate-slide-down` → `slideDown 0.45s ease-out` (cada paso nuevo)
-- `animate-fade-in` → `fadeIn 0.3s ease-out` (modales, badges)
-- `animate-pulse-ring` → anillo pulsante en el logo del landing
-
-**Mobile-first:** Tap targets mínimo 48px, `max-w-md mx-auto` en todos los pasos, sin padding lateral >16px.
+- Service Worker precachea todos los assets → **funciona offline**
+- En Chrome Android: banner "Agregar a pantalla de inicio"
+- En iOS Safari: "Añadir a la pantalla de inicio" (icono `apple-touch-icon.png`)
 
 ---
 
 ## Storage (`lib/storage.js`)
 
-Interface uniforme para swap futuro a Supabase:
-
-```js
-saveStrokeEvent(data)      // guarda/actualiza en localStorage
-getStrokeEvents()          // retorna array de todos los eventos
-getStrokeEventById(id)     // retorna evento por UUID
-```
-
-**Estructura de un evento guardado:**
-```json
-{
-  "id": "uuid-v4",
-  "patientDNI": "12345678",
-  "patientName": "García, Juan",
-  "startTime": "2026-05-10T10:35:34.000Z",
-  "symptoms": {
-    "weakness": true,
-    "speech": false,
-    "vision": false,
-    "ataxia": false,
-    "other": false,
-    "otherText": "",
-    "lastSeenNormal": "2026-05-10T08:00"
-  },
-  "vitals": { "systolic": 200, "diastolic": 115, "glucose": 140 },
-  "nihss": { "nihssScore": 8 },
-  "checklist": {
-    "shockroom": true,
-    "ivAccess": true,
-    "labs": true,
-    "ct": true,
-    "ecg": true
-  },
-  "emailSent": true,
-  "savedAt": "2026-05-10T10:35:34.000Z"
-}
-```
-
-`saveStrokeEvent` se llama **dos veces**:
-1. Al confirmar la alerta → guarda datos básicos + `emailSent: true`
-2. Al completar el checklist → guarda evento completo
-
----
-
-## EmailJS (`lib/emailService.js`)
-
-Usa `@emailjs/browser`. Si no hay variables de entorno → `console.info()` + retorna `{ mock: true }`. La app **nunca crashea** por falta de configuración de email.
-
-Variables requeridas (en `.env`):
-```
-VITE_EMAILJS_SERVICE_ID=service_xxxxxxx
-VITE_EMAILJS_TEMPLATE_ID=template_xxxxxxx
-VITE_EMAILJS_PUBLIC_KEY=xxxxxxxxxxxxxxx
-```
-
-Template params enviados:
-```js
-{
-  patient_name: "García, Juan",
-  patient_dni: "12345678",
-  start_time: "10/05/2026, 10:35:34",
-  hospital: "Guardia — Código Stroke"
-}
-```
-
----
-
-## Supabase (`lib/supabase.js`)
-
-El archivo está preparado con el schema SQL comentado. Para activar:
-1. Crear proyecto en supabase.com
-2. Ejecutar el SQL del schema en el SQL Editor
-3. Descomentar el cliente en `supabase.js`
-4. Reemplazar `saveStrokeEvent` en `storage.js` para usar el cliente Supabase
-5. Agregar variables `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY` al `.env`
+`saveStrokeEvent` se llama dos veces:
+1. Al confirmar la alerta → datos básicos + `emailSent: true`
+2. Al completar el checklist de acciones (InstructionsStep) → evento completo con síntomas, vitales, NIHSS y checklist

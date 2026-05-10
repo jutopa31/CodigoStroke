@@ -17,7 +17,6 @@ npm run dev         # http://localhost:5174
 ```
 
 Acceso desde celular en la red local:
-
 ```bash
 npm run dev -- --host 0.0.0.0
 # → http://192.168.0.168:5174
@@ -30,8 +29,8 @@ npm run dev -- --host 0.0.0.0
 | Archivo | Contenido |
 |---|---|
 | `docs/ARCHITECTURE.md` | Estructura de archivos, componentes, estado global, flujo de datos |
-| `docs/IMPLEMENTATION.md` | Stack, configuración de EmailJS, Supabase, deploy en Vercel |
-| `docs/NEXT_STEPS.md` | Roadmap clínico y técnico — todas las fases pendientes |
+| `docs/IMPLEMENTATION.md` | Stack, PWA, EmailJS, Supabase, deploy en Vercel |
+| `docs/NEXT_STEPS.md` | Roadmap clínico y técnico — fases pendientes |
 
 ---
 
@@ -42,31 +41,49 @@ Cada `git push` a `main` redeploya automáticamente en Vercel.
 ```bash
 git add .
 git commit -m "feat: descripción del cambio"
-git push   # Vercel redeploya solo
+git push
 ```
 
 ---
 
 ## Stack
 
-- **React 19** + **Vite 8** — SPA, sin router (estado en memoria por sesión)
-- **Tailwind CSS 3** — mobile-first utility classes
+- **React 19** + **Vite 8** — SPA sin router
+- **Tailwind CSS 3** — mobile-first, color brand `#9b2c2c`
 - **Lucide React** — iconos
-- **EmailJS** (`@emailjs/browser`) — notificaciones email client-side sin backend
-- **uuid** — IDs únicos por evento de stroke
-- **localStorage** — persistencia mock (interfaz lista para Supabase)
+- **vite-plugin-pwa** — PWA instalable, offline-first
+- **EmailJS** — notificaciones email client-side
+- **uuid** — IDs únicos por evento
+- **localStorage** — persistencia (interfaz lista para Supabase)
 
 ---
 
-## Flujo clínico implementado (Fase 1)
+## Flujo clínico implementado
 
 ```
-[Landing] → [Datos Paciente] → [Modal Alerta + Email]
-         → [Síntomas + Último visto asintomático]
-         → [Signos vitales: TA + Glucemia]
-         → [NIHSS: directo o calculadora modal]
-         → [Acciones inmediatas: checklist]
-         → [Fase inicial completa]
+[Landing]
+  → [Datos Paciente]
+  → [Modal Alerta + Email]
+  → [Síntomas + Último visto asintomático]
+  → [Signos vitales: TA + Glucemia]
+  → [NIHSS + síntomas discapacitantes si NIHSS < 5]
+  → [Acciones inmediatas: checklist]
+  → [TC de encéfalo: solicitud (timestamp) + resultado hemorragia]
+  → si sangrado → FIN (contraindicación absoluta)
+  → [Contraindicaciones: semáforo rojo + amarillo AHA/ASA 2026]
+  → si contraindicación absoluta → FIN
+  → [Cálculo de dosis: TNK o rtPA + checklist post-trombolisis]
+  → [FIN: protocolo completo]
 ```
 
 Cronómetro global activo desde la confirmación del código (fixed top-right, color verde/amarillo/rojo según tiempo transcurrido).
+
+---
+
+## PWA — Instalación en celular
+
+La app es instalable como app nativa:
+- **Android**: Chrome → menú ⋮ → "Instalar app"
+- **iOS**: Safari → compartir → "Añadir a la pantalla de inicio"
+
+Funciona **offline** después de la primera carga.
