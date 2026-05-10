@@ -501,20 +501,20 @@ export default function App() {
       )}
 
       {/* Body — two-column on desktop */}
-      <div className={`flex-1 ${step === STEP.PATIENT ? 'flex flex-col justify-center' : ''} md:flex md:max-w-2xl md:mx-auto md:gap-8 md:px-6 md:pt-4 md:items-start`}>
+      <div className={`flex-1 ${step === STEP.PATIENT ? 'flex flex-col justify-center' : ''} md:grid ${patient ? 'md:grid-cols-[280px_1fr]' : 'md:grid-cols-1'} md:max-w-5xl md:mx-auto md:gap-6 md:px-6 md:pt-4`}>
 
         {/* Desktop sidebar */}
         {patient && (
-          <div className="hidden md:flex md:flex-col md:w-44 md:flex-shrink-0 md:sticky md:top-11">
+          <div className="hidden md:flex md:flex-col md:sticky md:top-11 md:self-start">
             {/* Patient card */}
-            <div className="rounded-xl bg-white border border-gray-100 shadow-sm p-3 mb-3">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Paciente</p>
-              <p className="font-semibold text-gray-800 text-sm leading-snug">{patient.name}</p>
-              <p className="text-xs text-gray-500 mt-0.5">DNI {patient.dni}</p>
+            <div className="rounded-xl bg-white border border-gray-100 shadow-sm p-4 mb-3">
+              <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Paciente</p>
+              <p className="font-semibold text-gray-800 text-base leading-snug">{patient.name}</p>
+              <p className="text-sm text-gray-500 mt-0.5">DNI {patient.dni}</p>
               {patientId && (
-                <div className="mt-2 pt-2 border-t border-gray-100">
-                  <p className="text-[10px] text-gray-400 uppercase tracking-wider">ID del caso</p>
-                  <p className="text-xs font-mono font-bold text-brand-600 tracking-widest mt-0.5">{patientId}</p>
+                <div className="mt-3 pt-3 border-t border-gray-100">
+                  <p className="text-xs text-gray-400 uppercase tracking-wider">ID del caso</p>
+                  <p className="text-sm font-mono font-bold text-brand-600 tracking-widest mt-1">{patientId}</p>
                 </div>
               )}
             </div>
@@ -536,7 +536,7 @@ export default function App() {
         )}
 
         {/* Main content */}
-      <div className="px-11 sm:px-0 md:flex-1 max-w-md md:max-w-none mx-auto md:mx-0 pt-4 space-y-3">
+      <div className="px-11 sm:px-0 md:min-w-0 max-w-md md:max-w-none mx-auto md:mx-0 pt-4 space-y-3">
           {step >= STEP.PATIENT && (
             <div className={step > STEP.ALERT ? 'md:hidden' : ''}>
               <PatientStep
