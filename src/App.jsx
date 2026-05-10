@@ -376,7 +376,7 @@ export default function App() {
         />
       )}
 
-      <div className="ml-11 mr-14 pt-4 space-y-3">
+      <div className="pl-11 pr-14 sm:pl-0 sm:pr-0 max-w-md mx-auto pt-4 space-y-3">
           {step >= STEP.PATIENT && (
             <PatientStep
               onConfirm={handlePatientConfirm}
