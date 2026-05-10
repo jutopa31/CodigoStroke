@@ -122,7 +122,7 @@ export default function NihssStep({ onConfirm }) {
           {hasDisabling === true && (
             <div className="mt-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 animate-fade-in">
               <p className="text-xs font-semibold text-amber-700">
-                ⚡ Déficit discapacitante — evaluar indicación de trombolisis independientemente del puntaje NIHSS
+                ⚡ Déficit discapacitante — indicación de trombolisis independientemente del puntaje NIHSS
               </p>
             </div>
           )}
