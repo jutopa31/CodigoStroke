@@ -75,7 +75,6 @@ export default function SymptomsStep({ onConfirm }) {
   const isOverWindow = elapsedMinutes > WAKE_UP_THRESHOLD_MINUTES
   const hasSymptom = Object.values(selected).some(Boolean)
   const needsAnticoagulationType = anticoagulationActive === true
-  const isAcod = anticoagulationType === 'doac'
   const valid = hasSymptom && lastSeen && anticoagulationActive !== null && (!needsAnticoagulationType || anticoagulationType)
 
   function toggle(id) {
@@ -242,12 +241,12 @@ export default function SymptomsStep({ onConfirm }) {
                 ))}
               </div>
 
-              {isAcod && (
+              {anticoagulationType && (
                 <div className="rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-red-800">
                   <div className="flex items-start gap-2">
                     <ShieldAlert size={18} className="shrink-0 mt-0.5" />
                     <p className="text-sm font-medium">
-                      Los DOAC pueden contraindicar la trombólisis. Verificar última dosis y función renal.
+                      Anticoagulación activa — contraindicación relativa para trombólisis. Esperar laboratorio (coagulograma, anti-Xa o TT según droga).
                     </p>
                   </div>
                 </div>
