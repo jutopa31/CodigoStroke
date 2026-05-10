@@ -1,46 +1,82 @@
 import { CheckCircle2 } from 'lucide-react'
 
 const STEPS = [
-  { value: 1,  short: 'Pac.',  long: 'Datos del paciente' },
-  { value: 3,  short: 'Sint.', long: 'Síntomas' },
-  { value: 4,  short: 'SV',    long: 'Signos vitales' },
-  { value: 5,  short: 'NIHSS', long: 'Escala NIHSS' },
-  { value: 6,  short: 'Acc.',  long: 'Acciones inmediatas' },
-  { value: 7,  short: 'TC',    long: 'Resultado TC/RM' },
-  { value: 8,  short: 'CI',    long: 'Contraindicaciones' },
-  { value: 9,  short: 'Dosis', long: 'Dosis trombolítico' },
-  { value: 10, short: 'Trom.', long: 'Trombectomía' },
+  { value: 1,  long: 'Datos del paciente' },
+  { value: 3,  long: 'Síntomas' },
+  { value: 4,  long: 'Signos vitales' },
+  { value: 5,  long: 'Escala NIHSS' },
+  { value: 6,  long: 'Acciones inmediatas' },
+  { value: 7,  long: 'Resultado TC/RM' },
+  { value: 8,  long: 'Contraindicaciones' },
+  { value: 9,  long: 'Dosis trombolítico' },
+  { value: 10, long: 'Trombectomía' },
 ]
 
-export default function StepTimeline({ currentStep, completedSteps = [], onStepClick }) {
+export default function StepTimeline({ currentStep, completedSteps = [], onStepClick, variant = 'mobile' }) {
   if (!currentStep) return null
 
+  if (variant === 'desktop') {
+    return (
+      <nav className="w-full">
+        <div className="relative pl-1">
+          <div className="absolute left-[19px] top-5 bottom-5 w-0.5 bg-gray-200 rounded-full" />
+          <div className="space-y-0.5">
+            {STEPS.map((step, index) => {
+              const isCompleted = completedSteps.includes(step.value)
+              const isActive = currentStep === step.value
+              return (
+                <button
+                  key={step.value}
+                  type="button"
+                  aria-label={step.long}
+                  onClick={() => onStepClick?.(step.value)}
+                  className="relative flex items-center gap-3 w-full text-left rounded-xl py-1.5 pr-2 transition-all hover:bg-gray-50 group focus:outline-none"
+                >
+                  <span
+                    className={`relative z-10 w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center font-black text-lg transition-all ${
+                      isCompleted
+                        ? 'bg-emerald-500 text-white shadow-sm'
+                        : isActive
+                        ? 'bg-brand-600 text-white shadow-md ring-4 ring-brand-100'
+                        : 'bg-gray-100 text-gray-400 group-hover:bg-gray-200'
+                    }`}
+                  >
+                    {isCompleted ? <CheckCircle2 size={19} strokeWidth={2.5} /> : index + 1}
+                  </span>
+                  <span
+                    className={`text-xs leading-tight transition-colors ${
+                      isCompleted
+                        ? 'text-emerald-700 font-medium'
+                        : isActive
+                        ? 'text-brand-700 font-semibold'
+                        : 'text-gray-400 group-hover:text-gray-600'
+                    }`}
+                  >
+                    {step.long}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      </nav>
+    )
+  }
+
+  // Mobile variant — fixed left sidebar
   return (
     <div className="fixed left-0 top-0 bottom-0 z-30 w-11 bg-white/95 border-r border-gray-100 backdrop-blur flex flex-col items-center">
-      {/* Spacer to clear the sticky header (~96px) */}
       <div className="h-24 flex-shrink-0" />
-
-      {/* Stepper container — relative so the line can be positioned absolutely */}
       <div className="relative flex flex-col items-center flex-1 w-full pb-6">
-
-        {/* Background line (full height, gray) */}
         <div
           className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-gray-200"
           style={{ transform: 'translateX(-50%)' }}
         />
-
-        {/* Foreground line (completed portion, brand-600) */}
         {(() => {
           const currentIndex = STEPS.findIndex((s) => s.value === currentStep)
-          const lastCompletedIndex = STEPS.reduce((acc, s, i) => {
-            return completedSteps.includes(s.value) ? i : acc
-          }, -1)
-          // Fill up to and including the active step line (between steps)
+          const lastCompletedIndex = STEPS.reduce((acc, s, i) => (completedSteps.includes(s.value) ? i : acc), -1)
           const fillIndex = Math.max(currentIndex, lastCompletedIndex)
           if (fillIndex > 0) {
-            // Each step occupies (100% / STEPS.length) of the height.
-            // The line starts at the center of the first circle and ends at the
-            // center of the last relevant circle. We approximate with percentages.
             const pct = (fillIndex / (STEPS.length - 1)) * 100
             return (
               <div
@@ -51,13 +87,10 @@ export default function StepTimeline({ currentStep, completedSteps = [], onStepC
           }
           return null
         })()}
-
-        {/* Circles */}
         <div className="relative z-10 flex flex-col items-center justify-between h-full w-full">
           {STEPS.map((step, index) => {
             const isCompleted = completedSteps.includes(step.value)
             const isActive = currentStep === step.value
-
             return (
               <div key={step.value} className="relative group flex items-center">
                 <button
@@ -83,8 +116,6 @@ export default function StepTimeline({ currentStep, completedSteps = [], onStepC
                     </span>
                   )}
                 </button>
-
-                {/* Tooltip — aparece al hacer hover */}
                 <span className="pointer-events-none absolute left-full ml-3 px-2.5 py-1.5 bg-gray-800 text-white text-xs font-medium rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-50 shadow-lg">
                   {step.long}
                 </span>

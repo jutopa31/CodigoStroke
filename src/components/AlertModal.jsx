@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { AlertTriangle, Bell, X, CheckCircle, Brain, Hospital, Stethoscope } from 'lucide-react'
 
 const TEAM = [
@@ -15,6 +15,14 @@ export default function AlertModal({ patient, onConfirm, onClose }) {
     await onConfirm()
     setSending(false)
   }
+
+  useEffect(() => {
+    function onKey(e) {
+      if (e.key === 'Enter' && !sending) handleConfirm()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [sending])
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/50 animate-fade-in">

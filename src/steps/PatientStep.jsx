@@ -71,7 +71,7 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
             </label>
             <input
               type="text"
-              placeholder="Apellido, Nombre"
+              placeholder="Nombre y apellido"
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full border border-gray-200 rounded-xl px-4 py-3.5 text-gray-800 text-base focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent placeholder-gray-300"

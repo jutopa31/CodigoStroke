@@ -84,7 +84,7 @@ export default function ThrombectomyStep({
               <span className="text-xl font-bold font-mono">{aspectNum}</span>
               <span className="text-xs font-semibold">{getAspectLabel(aspectNum)}</span>
               {aspectNum <= 5 && (
-                <span className="ml-auto text-xs font-semibold">⚠ Trombectomía discutible</span>
+                <span className="ml-auto text-xs font-semibold text-red-600">Cambios extensos</span>
               )}
             </div>
           )}

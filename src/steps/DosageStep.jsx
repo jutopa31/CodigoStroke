@@ -1,10 +1,23 @@
 import { useState } from 'react'
-import { ChevronRight, CheckCircle2, Circle, Hospital, Ban, Pill, BarChart2, Brain, Microscope, Heart, Clock } from 'lucide-react'
+import { ChevronRight, CheckCircle2, Circle, Hospital, Ban, Pill, BarChart2, Brain, Microscope, Heart, Clock, Plus } from 'lucide-react'
 import StepCard from '../components/StepCard'
+import NihssModal from '../components/NihssModal'
 
 const WEIGHT_PRESETS = [50, 60, 70, 80, 90, 100]
 
 const POST_CHECKLIST = [
+  {
+    id: 'bp_control',
+    label: 'Control de TA estricto post-trombolisis',
+    sub: 'c/15 min × 2h → c/30 min × 6h → c/1h × 16h  ·  Meta: < 180/105 mmHg',
+    Icon: BarChart2,
+  },
+  {
+    id: 'serial_nihss',
+    label: 'NIHSS seriado',
+    sub: 'Al inicio · 30 min · 1h · 2h · 6h · 24h',
+    Icon: Brain,
+  },
   {
     id: 'icu',
     label: 'Monitoreo continuo en UTI / Shockroom',
@@ -22,18 +35,6 @@ const POST_CHECKLIST = [
     label: 'NO heparina ni antiagregantes 24h',
     sub: 'Iniciar antitrombóticos solo después de TC de control',
     Icon: Pill,
-  },
-  {
-    id: 'bp_control',
-    label: 'Control de TA estricto post-trombolisis',
-    sub: 'c/15 min × 2h → c/30 min × 6h → c/1h × 16h  ·  Meta: < 180/105 mmHg',
-    Icon: BarChart2,
-  },
-  {
-    id: 'serial_nihss',
-    label: 'NIHSS seriado',
-    sub: 'Al inicio · 30 min · 1h · 2h · 6h · 24h',
-    Icon: Brain,
   },
   {
     id: 'ct_control',
@@ -65,10 +66,13 @@ function calcTNK(kg) {
   return { total }
 }
 
-export default function DosageStep({ onConfirm, thrombolyticStartTime = null, onThrombolyticStart }) {
+export default function DosageStep({ onConfirm, thrombolyticStartTime = null, onThrombolyticStart, onAddNihss }) {
   const [drug, setDrug] = useState('tnk')
   const [weightStr, setWeightStr] = useState('')
   const [checked, setChecked] = useState({})
+  const [nihssEntry, setNihssEntry] = useState('')
+  const [showNihssInput, setShowNihssInput] = useState(false)
+  const [showNihssCalc, setShowNihssCalc] = useState(false)
 
   const weight = parseFloat(weightStr)
   const validWeight = !isNaN(weight) && weight > 0 && weight <= 250
@@ -92,6 +96,22 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
 
   function handleThrombolyticStart() {
     onThrombolyticStart?.(new Date())
+  }
+
+  const nihssNum = parseInt(nihssEntry, 10)
+  const nihssValid = nihssEntry !== '' && !isNaN(nihssNum) && nihssNum >= 0 && nihssNum <= 42
+
+  function handleSaveNihss() {
+    if (!nihssValid) return
+    onAddNihss?.(nihssNum)
+    setNihssEntry('')
+    setShowNihssInput(false)
+  }
+
+  function handleNihssCalcResult(score) {
+    setNihssEntry(String(score))
+    setShowNihssCalc(false)
+    setShowNihssInput(true)
   }
 
   return (
@@ -234,6 +254,64 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
             >
               {thrombolyticStartTime ? 'Actualizar inicio' : 'Registrar inicio'}
             </button>
+
+            {thrombolyticStartTime && (
+              <div className="mt-3 border-t border-emerald-200 pt-3">
+                {showNihssInput ? (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs font-medium text-emerald-700">NIHSS intra-infusión (0–42)</p>
+                      <button
+                        type="button"
+                        onClick={() => setShowNihssCalc(true)}
+                        className="text-xs text-brand-600 hover:text-brand-800 underline font-medium transition-colors"
+                      >
+                        Calcular con guía
+                      </button>
+                    </div>
+                    <div className="flex gap-2">
+                      <input
+                        type="number"
+                        inputMode="numeric"
+                        min={0}
+                        max={42}
+                        placeholder="0–42"
+                        value={nihssEntry}
+                        onChange={(e) => setNihssEntry(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === 'Enter' && nihssValid) handleSaveNihss() }}
+                        autoFocus
+                        className="flex-1 border border-emerald-300 rounded-xl px-3 py-2.5 text-gray-800 text-base font-bold text-center focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleSaveNihss}
+                        disabled={!nihssValid}
+                        className="px-4 py-2.5 bg-emerald-600 text-white rounded-xl font-bold text-sm disabled:opacity-40 active:scale-95 transition-all"
+                      >
+                        ✓
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => { setShowNihssInput(false); setNihssEntry('') }}
+                        className="px-3 py-2.5 border border-gray-200 rounded-xl text-gray-500 text-sm active:scale-95 transition-all"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setShowNihssInput(true)}
+                    className="w-full flex items-center justify-center gap-2 py-2.5 border border-emerald-300 text-emerald-700 bg-emerald-50/60 hover:bg-emerald-100 rounded-xl font-medium text-sm transition-colors active:scale-95"
+                  >
+                    <Plus size={14} />
+                    <Brain size={14} />
+                    Nuevo NIHSS intra-infusión
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         )}
       </StepCard>
@@ -301,6 +379,13 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
       >
         Finalizar protocolo <ChevronRight size={18} />
       </button>
+
+      {showNihssCalc && (
+        <NihssModal
+          onLoad={handleNihssCalcResult}
+          onClose={() => setShowNihssCalc(false)}
+        />
+      )}
     </div>
   )
 }

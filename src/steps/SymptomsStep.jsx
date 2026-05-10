@@ -103,6 +103,14 @@ export default function SymptomsStep({ onConfirm }) {
     }
   }
 
+  useEffect(() => {
+    function onKey(e) {
+      if (e.key === 'Enter' && valid && !showWakeUpModal) handleSubmit()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [valid, showWakeUpModal])
+
   function confirm(isWakeUpStroke) {
     onConfirm({
       symptoms: { ...selected },

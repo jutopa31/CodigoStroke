@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ChevronRight, Calculator, ChevronDown, ChevronUp } from 'lucide-react'
 import StepCard from '../components/StepCard'
 import NihssModal from '../components/NihssModal'
@@ -25,6 +25,16 @@ export default function NihssStep({ onConfirm }) {
   const showDisablingBlock = valid && num < 5
 
   const canContinue = valid && (!showDisablingBlock || hasDisabling !== null)
+
+  useEffect(() => {
+    function onKey(e) {
+      if (e.key === 'Enter' && canContinue && !showModal) {
+        onConfirm({ nihssScore: num, hasDisablingSymptoms: hasDisabling })
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [canContinue, showModal, num, hasDisabling])
 
   function handleLoad(result) {
     setScore(String(result))

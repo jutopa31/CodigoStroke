@@ -36,9 +36,9 @@ function getScoreColor(score) {
 }
 
 function getScoreLabel(score) {
-  if (score >= 8) return 'Cambios leves — trombectomía favorable'
-  if (score >= 6) return 'Cambios moderados — valorar individualmente'
-  return 'ASPECTS ≤ 5 — alto riesgo, trombectomía discutible'
+  if (score >= 8) return 'Cambios leves'
+  if (score >= 6) return 'Cambios moderados'
+  return 'Cambios extensos'
 }
 
 export default function AspectModal({ onLoad, onClose }) {

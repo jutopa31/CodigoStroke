@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ChevronRight, AlertTriangle } from 'lucide-react'
 import StepCard from '../components/StepCard'
 
@@ -31,6 +31,14 @@ export default function VitalsStep({ onConfirm }) {
     if (!valid) return
     onConfirm({ systolic: sysNum, diastolic: diaNum, glucose: glucNum })
   }
+
+  useEffect(() => {
+    function onKey(e) {
+      if (e.key === 'Enter' && valid) handleSubmit()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [valid])
 
   return (
     <div className="px-4 pb-4 space-y-3">

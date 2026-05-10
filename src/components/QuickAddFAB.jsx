@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Brain, Heart, Droplets, X } from 'lucide-react'
+import { Brain, Heart, Droplets, X, RotateCcw } from 'lucide-react'
 
 // ─── NIHSS severity helper ────────────────────────────────────────────────────
 function getNihssSeverity(score) {
@@ -224,7 +224,7 @@ function GlucoseQuickModal({ onClose, onConfirm }) {
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
-export default function QuickAddFAB({ onAddNihss, onAddVitals, onAddGlucose }) {
+export default function QuickAddFAB({ onAddNihss, onAddVitals, onAddGlucose, onReset }) {
   const [openModal, setOpenModal] = useState(null) // null | 'nihss' | 'vitals' | 'glucose'
 
   const buttons = [
@@ -263,6 +263,16 @@ export default function QuickAddFAB({ onAddNihss, onAddVitals, onAddGlucose }) {
             <span className="text-[9px] font-bold leading-none">{label}</span>
           </button>
         ))}
+        {onReset && (
+          <button
+            onClick={onReset}
+            title="Reiniciar protocolo"
+            className="w-11 h-11 rounded-full border-2 border-slate-300 bg-white text-slate-500 hover:bg-slate-50 shadow-md flex flex-col items-center justify-center gap-0.5 active:scale-90 transition-transform"
+          >
+            <RotateCcw size={14} />
+            <span className="text-[9px] font-bold leading-none">Reset</span>
+          </button>
+        )}
       </div>
 
       {/* Modales */}

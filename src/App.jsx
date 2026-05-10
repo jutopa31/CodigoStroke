@@ -17,6 +17,7 @@ import MRIResultStep from './steps/MRIResultStep'
 import ContraindicationsStep from './steps/ContraindicationsStep'
 import DosageStep from './steps/DosageStep'
 import ThrombectomyStep from './steps/ThrombectomyStep'
+import TimestampPanel from './components/TimestampPanel'
 import { saveStrokeEvent, generatePatientId, saveSession } from './lib/storage'
 import { sendStrokeAlert } from './lib/emailService'
 
@@ -392,10 +393,10 @@ export default function App() {
     <div className="min-h-screen bg-gray-50 pb-16">
       <GlobalTimer startTime={timerStart} />
 
-      {/* Sticky header — ancho completo, z-50 cubre el sidebar */}
+      {/* Sticky header */}
       {patient && (
         <div className="bg-brand-600 sticky top-0 z-50">
-          <div className="pl-12 pr-4 py-3 flex items-center justify-between gap-3">
+          <div className="pl-12 pr-4 md:pl-4 py-3 flex items-center justify-between gap-3">
             <div className="min-w-0 flex-1">
               <p className="text-brand-300 text-xs uppercase tracking-wider leading-none mb-0.5">Código Stroke</p>
               <p className="text-white font-semibold text-sm truncate leading-tight">{patient.name}</p>
@@ -414,6 +415,16 @@ export default function App() {
               <RotateCcw size={16} />
             </button>
           </div>
+          {/* Mobile timestamp strip */}
+          {step > STEP.ALERT && (
+            <TimestampPanel
+              variant="mobile"
+              arrival={patientArrivalTime}
+              ct={ctRequestTime}
+              thrombolytic={thrombolyticStartTime}
+              angio={angioRequestTime}
+            />
+          )}
         </div>
       )}
 
@@ -426,13 +437,15 @@ export default function App() {
         </div>
       )}
 
-      {/* Sidebar de pasos (z-30, el header z-50 lo tapa en el top) */}
+      {/* Mobile-only fixed sidebar */}
       {patient && (
-        <StepTimeline
-          currentStep={step}
-          completedSteps={sidebarCompletedSteps}
-          onStepClick={handleSidebarStepClick}
-        />
+        <div className="md:hidden">
+          <StepTimeline
+            currentStep={step}
+            completedSteps={sidebarCompletedSteps}
+            onStepClick={handleSidebarStepClick}
+          />
+        </div>
       )}
 
       {/* Botones de registros rápidos — fijos en el costado derecho */}
@@ -442,6 +455,7 @@ export default function App() {
             onAddNihss={handleAddNihss}
             onAddVitals={handleAddVitals}
             onAddGlucose={handleAddGlucose}
+            onReset={handleReset}
           />
         </div>
       )}
@@ -451,7 +465,7 @@ export default function App() {
         <button
           type="button"
           onClick={() => setShowOutOfWindow(true)}
-          className="fixed bottom-6 left-14 z-40 flex items-center gap-2 bg-slate-700 hover:bg-slate-800 active:scale-95 text-white text-xs font-semibold px-4 py-2.5 rounded-full shadow-lg transition-all"
+          className="fixed bottom-6 left-14 md:left-4 z-40 flex items-center gap-2 bg-slate-700 hover:bg-slate-800 active:scale-95 text-white text-xs font-semibold px-4 py-2.5 rounded-full shadow-lg transition-all"
         >
           <Clock size={14} />
           Fuera de ventana
@@ -467,7 +481,30 @@ export default function App() {
         />
       )}
 
-      <div className="pl-11 pr-14 sm:pl-0 sm:pr-0 max-w-md mx-auto pt-4 space-y-3">
+      {/* Body — two-column on desktop */}
+      <div className="md:flex md:max-w-2xl md:mx-auto md:gap-8 md:px-6 md:pt-6 md:items-start">
+
+        {/* Desktop sidebar */}
+        {patient && (
+          <div className="hidden md:flex md:flex-col md:w-44 md:flex-shrink-0 md:sticky md:top-20">
+            <StepTimeline
+              variant="desktop"
+              currentStep={step}
+              completedSteps={sidebarCompletedSteps}
+              onStepClick={handleSidebarStepClick}
+            />
+            <TimestampPanel
+              variant="desktop"
+              arrival={patientArrivalTime}
+              ct={ctRequestTime}
+              thrombolytic={thrombolyticStartTime}
+              angio={angioRequestTime}
+            />
+          </div>
+        )}
+
+        {/* Main content */}
+      <div className="pl-11 pr-14 sm:pl-0 sm:pr-0 md:pl-0 md:pr-0 md:flex-1 max-w-md md:max-w-none mx-auto md:mx-0 pt-4 space-y-3">
           {step >= STEP.PATIENT && (
             <PatientStep
               onConfirm={handlePatientConfirm}
@@ -537,6 +574,7 @@ export default function App() {
                 onConfirm={handleDosageConfirm}
                 thrombolyticStartTime={thrombolyticStartTime}
                 onThrombolyticStart={handleThrombolyticStart}
+                onAddNihss={handleAddNihss}
               />
             </div>
           )}
@@ -576,6 +614,7 @@ export default function App() {
               </div>
             </div>
           )}
+      </div>
       </div>
     </div>
   )
