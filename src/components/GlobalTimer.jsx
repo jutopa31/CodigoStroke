@@ -45,7 +45,7 @@ export default function GlobalTimer({ startTime }) {
   const nextMilestone = MILESTONES.find((m) => minutes < m.minutes)
 
   return (
-    <div className={`fixed top-3 right-3 z-50 rounded-xl shadow-lg px-3 py-2 flex items-center gap-2 ${getTimerColor(elapsed)} animate-fade-in`}>
+    <div className={`fixed top-3 right-3 z-50 rounded-xl shadow-lg px-3 py-2 flex items-center gap-2 max-w-[calc(100vw-1.5rem)] ${getTimerColor(elapsed)} animate-fade-in`}>
       <Clock size={15} className="opacity-80" />
       <span className="font-mono font-semibold text-sm tracking-wide">
         {formatElapsed(elapsed)}
