@@ -394,17 +394,15 @@ export default function App() {
       <GlobalTimer startTime={timerStart} />
 
       {/* Sticky header */}
-      {patient && (
-        <div className="bg-brand-600 sticky top-0 z-50">
-          <div className="pl-12 pr-4 md:pl-4 py-3 flex items-center justify-between gap-3">
+      <div className="bg-brand-600 sticky top-0 z-50">
+        {/* Mobile header row — patient name + reset */}
+        {patient ? (
+          <div className="pl-12 pr-4 py-3 flex items-center justify-between gap-3 md:hidden">
             <div className="min-w-0 flex-1">
               <p className="text-brand-300 text-xs uppercase tracking-wider leading-none mb-0.5">Código Stroke</p>
               <p className="text-white font-semibold text-sm truncate leading-tight">{patient.name}</p>
             </div>
-            <div className="text-right flex-shrink-0 min-w-fit">
-              <p className="text-brand-300 text-xs leading-tight">DNI {patient.dni}</p>
-              <p className="text-white/60 text-xs font-mono tracking-widest leading-tight md:hidden">{patientId}</p>
-            </div>
+            <p className="text-brand-300 text-xs leading-tight flex-shrink-0">DNI {patient.dni}</p>
             <button
               type="button"
               onClick={handleReset}
@@ -415,8 +413,34 @@ export default function App() {
               <RotateCcw size={16} />
             </button>
           </div>
-          {/* Mobile timestamp strip */}
-          {step > STEP.ALERT && (
+        ) : (
+          <div className="pl-12 pr-4 py-3 flex items-center md:hidden">
+            <p className="text-white font-bold text-sm tracking-wide">Código Stroke</p>
+          </div>
+        )}
+
+        {/* Desktop header row — thin brand bar only */}
+        <div className="hidden md:flex px-5 py-2.5 items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-white/60 flex-shrink-0" />
+            <span className="text-white font-bold text-sm tracking-wide">Código Stroke</span>
+          </div>
+          {patient && (
+            <button
+              type="button"
+              onClick={handleReset}
+              className="shrink-0 rounded-full border border-white/20 bg-white/10 p-1.5 text-white transition-colors hover:bg-white/20"
+              title="Reiniciar protocolo"
+              aria-label="Reiniciar protocolo"
+            >
+              <RotateCcw size={14} />
+            </button>
+          )}
+        </div>
+
+        {/* Mobile timestamp strip */}
+        {patient && step > STEP.ALERT && (
+          <div className="md:hidden">
             <TimestampPanel
               variant="mobile"
               arrival={patientArrivalTime}
@@ -424,18 +448,9 @@ export default function App() {
               thrombolytic={thrombolyticStartTime}
               angio={angioRequestTime}
             />
-          )}
-        </div>
-      )}
-
-      {patient && patientId && (
-        <div className="pointer-events-none fixed top-20 right-4 z-40 hidden md:block">
-          <div className="rounded-full border border-brand-200 bg-white/95 px-4 py-2 shadow-lg backdrop-blur">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-500">ID del caso</p>
-            <p className="text-sm font-mono font-bold tracking-[0.25em] text-brand-700">{patientId}</p>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Mobile-only fixed sidebar */}
       {patient && (
@@ -482,11 +497,24 @@ export default function App() {
       )}
 
       {/* Body — two-column on desktop */}
-      <div className="md:flex md:max-w-2xl md:mx-auto md:gap-8 md:px-6 md:pt-6 md:items-start">
+      <div className="md:flex md:max-w-2xl md:mx-auto md:gap-8 md:px-6 md:pt-4 md:items-start">
 
         {/* Desktop sidebar */}
         {patient && (
-          <div className="hidden md:flex md:flex-col md:w-44 md:flex-shrink-0 md:sticky md:top-20">
+          <div className="hidden md:flex md:flex-col md:w-44 md:flex-shrink-0 md:sticky md:top-11">
+            {/* Patient card */}
+            <div className="rounded-xl bg-white border border-gray-100 shadow-sm p-3 mb-3">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Paciente</p>
+              <p className="font-semibold text-gray-800 text-sm leading-snug">{patient.name}</p>
+              <p className="text-xs text-gray-500 mt-0.5">DNI {patient.dni}</p>
+              {patientId && (
+                <div className="mt-2 pt-2 border-t border-gray-100">
+                  <p className="text-[10px] text-gray-400 uppercase tracking-wider">ID del caso</p>
+                  <p className="text-xs font-mono font-bold text-brand-600 tracking-widest mt-0.5">{patientId}</p>
+                </div>
+              )}
+            </div>
+
             <StepTimeline
               variant="desktop"
               currentStep={step}
@@ -506,13 +534,15 @@ export default function App() {
         {/* Main content */}
       <div className="pl-11 pr-14 sm:pl-0 sm:pr-0 md:pl-0 md:pr-0 md:flex-1 max-w-md md:max-w-none mx-auto md:mx-0 pt-4 space-y-3">
           {step >= STEP.PATIENT && (
-            <PatientStep
-              onConfirm={handlePatientConfirm}
-              confirmed={step > STEP.ALERT}
-              patient={patient}
-              patientId={patientId}
-              arrivalTime={patientArrivalTime}
-            />
+            <div className={step > STEP.ALERT ? 'md:hidden' : ''}>
+              <PatientStep
+                onConfirm={handlePatientConfirm}
+                confirmed={step > STEP.ALERT}
+                patient={patient}
+                patientId={patientId}
+                arrivalTime={patientArrivalTime}
+              />
+            </div>
           )}
 
           {step === STEP.ALERT && patient && (
