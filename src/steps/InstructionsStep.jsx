@@ -6,7 +6,7 @@ const CHECKLIST = [
   {
     id: 'shockroom',
     label: 'Trasladar a Shockroom',
-    sub: 'Iniciar O₂ solo si SatO₂ < 92%',
+    sub: 'Iniciar O₂ solo si SatO₂ < 94%',
     Icon: Siren,
   },
   {
