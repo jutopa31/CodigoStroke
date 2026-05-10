@@ -17,7 +17,7 @@ export default function StartStep({ onStart, onResume }) {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-6 bg-gray-50">
+    <div className="min-h-[100dvh] flex flex-col items-center justify-center px-6 bg-gray-50">
       {/* Logo */}
       <div className="relative mb-8">
         <div className="absolute inset-0 rounded-full bg-brand-600 animate-pulse-ring opacity-30 scale-110" />

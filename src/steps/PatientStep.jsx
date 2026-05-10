@@ -8,6 +8,7 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
   const [passphrase, setPassphrase] = useState('')
 
   const valid = dni.trim().length >= 7 && name.trim().length >= 2
+  const showHint = !valid && (dni.length > 0 || name.length > 0)
 
   function handleSubmit(e) {
     e.preventDefault()
@@ -100,6 +101,16 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
           >
             Confirmar datos <ChevronRight size={18} />
           </button>
+
+          {showHint && (
+            <p className="text-xs text-gray-400 text-center mt-2 animate-fade-in">
+              {dni.length < 7 && name.trim().length < 2
+                ? 'Completá el DNI (mín. 7 dígitos) y el nombre'
+                : dni.length < 7
+                ? 'El DNI debe tener al menos 7 dígitos'
+                : 'El nombre debe tener al menos 2 caracteres'}
+            </p>
+          )}
         </form>
       </StepCard>
     </div>

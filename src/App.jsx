@@ -390,7 +390,10 @@ export default function App() {
   const done = step === STEP.DONE ? getDoneContent() : null
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-16">
+    <div
+      className="min-h-[100dvh] bg-gray-50 flex flex-col"
+      style={{ paddingBottom: 'calc(4rem + env(safe-area-inset-bottom, 0px))' }}
+    >
       <GlobalTimer startTime={timerStart} />
 
       {/* Sticky header */}
@@ -480,7 +483,8 @@ export default function App() {
         <button
           type="button"
           onClick={() => setShowOutOfWindow(true)}
-          className="fixed bottom-6 left-14 md:left-4 z-40 flex items-center gap-2 bg-slate-700 hover:bg-slate-800 active:scale-95 text-white text-xs font-semibold px-4 py-3 min-h-[44px] rounded-full shadow-lg transition-all"
+          style={{ bottom: 'calc(1.5rem + env(safe-area-inset-bottom, 0px))' }}
+          className="fixed left-14 md:left-4 z-40 flex items-center gap-2 bg-slate-700 hover:bg-slate-800 active:scale-95 text-white text-xs font-semibold px-4 py-3 min-h-[44px] rounded-full shadow-lg transition-all"
         >
           <Clock size={14} />
           Fuera de ventana
@@ -497,7 +501,7 @@ export default function App() {
       )}
 
       {/* Body — two-column on desktop */}
-      <div className="md:flex md:max-w-2xl md:mx-auto md:gap-8 md:px-6 md:pt-4 md:items-start">
+      <div className={`flex-1 ${step === STEP.PATIENT ? 'flex flex-col justify-center' : ''} md:flex md:max-w-2xl md:mx-auto md:gap-8 md:px-6 md:pt-4 md:items-start`}>
 
         {/* Desktop sidebar */}
         {patient && (
@@ -532,7 +536,7 @@ export default function App() {
         )}
 
         {/* Main content */}
-      <div className="pl-11 pr-14 sm:pl-0 sm:pr-0 md:pl-0 md:pr-0 md:flex-1 max-w-md md:max-w-none mx-auto md:mx-0 pt-4 space-y-3">
+      <div className="px-11 sm:px-0 md:flex-1 max-w-md md:max-w-none mx-auto md:mx-0 pt-4 space-y-3">
           {step >= STEP.PATIENT && (
             <div className={step > STEP.ALERT ? 'md:hidden' : ''}>
               <PatientStep
