@@ -17,6 +17,8 @@ const TIME_PRESETS = [
   { label: '1 hora', mins: 60 },
   { label: '2 horas', mins: 120 },
   { label: '3 horas', mins: 180 },
+  { label: '6 horas', mins: 360 },
+  { label: '12 horas', mins: 720 },
 ]
 
 function toLocalInput(date) {
