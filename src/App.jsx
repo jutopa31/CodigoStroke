@@ -11,6 +11,7 @@ import InstructionsStep from './steps/InstructionsStep'
 import CTResultStep from './steps/CTResultStep'
 import ContraindicationsStep from './steps/ContraindicationsStep'
 import DosageStep from './steps/DosageStep'
+import ThrombectomyStep from './steps/ThrombectomyStep'
 import { saveStrokeEvent } from './lib/storage'
 import { sendStrokeAlert } from './lib/emailService'
 
@@ -25,7 +26,8 @@ const STEP = {
   CT_RESULT: 7,
   CONTRAINDICATIONS: 8,
   DOSAGE: 9,
-  DONE: 10,
+  THROMBECTOMY: 10,
+  DONE: 11,
 }
 
 export default function App() {
@@ -38,6 +40,7 @@ export default function App() {
   const [ctResult, setCtResult] = useState(null)
   const [contraindications, setContraindications] = useState(null)
   const [dosage, setDosage] = useState(null)
+  const [thrombectomy, setThrombectomy] = useState(null)
   const [eventId] = useState(uuidv4)
 
   const symptomsRef = useRef(null)
@@ -47,6 +50,7 @@ export default function App() {
   const ctResultRef = useRef(null)
   const contraindicationsRef = useRef(null)
   const dosageRef = useRef(null)
+  const thrombectomyRef = useRef(null)
   const doneRef = useRef(null)
 
   function scrollTo(ref) {
@@ -133,8 +137,8 @@ export default function App() {
   function handleContraindicationsConfirm(data) {
     setContraindications(data)
     if (data.hasAbsolute) {
-      setStep(STEP.DONE)
-      scrollTo(doneRef)
+      setStep(STEP.THROMBECTOMY)
+      scrollTo(thrombectomyRef)
     } else {
       setStep(STEP.DOSAGE)
       scrollTo(dosageRef)
@@ -143,6 +147,12 @@ export default function App() {
 
   function handleDosageConfirm(data) {
     setDosage(data)
+    setStep(STEP.THROMBECTOMY)
+    scrollTo(thrombectomyRef)
+  }
+
+  function handleThrombectomyConfirm(data) {
+    setThrombectomy(data)
     setStep(STEP.DONE)
     scrollTo(doneRef)
   }
@@ -275,6 +285,15 @@ export default function App() {
         {step >= STEP.DOSAGE && (
           <div ref={dosageRef}>
             <DosageStep onConfirm={handleDosageConfirm} />
+          </div>
+        )}
+
+        {step >= STEP.THROMBECTOMY && (
+          <div ref={thrombectomyRef}>
+            <ThrombectomyStep
+              nihssScore={nihss?.nihssScore ?? 0}
+              onConfirm={handleThrombectomyConfirm}
+            />
           </div>
         )}
 
