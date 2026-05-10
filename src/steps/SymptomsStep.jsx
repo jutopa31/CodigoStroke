@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { ChevronRight, Clock } from 'lucide-react'
 import StepCard from '../components/StepCard'
+import WakeUpStrokeModal from '../components/WakeUpStrokeModal'
 
 const SYMPTOM_OPTIONS = [
   { id: 'weakness', label: 'Debilidad unilateral', sub: 'Brazo, pierna o cara de un lado', emoji: '💪' },
@@ -20,6 +21,8 @@ const TIME_PRESETS = [
   { label: '6 horas', mins: 360 },
   { label: '12 horas', mins: 720 },
 ]
+
+const WAKE_UP_THRESHOLD_MINUTES = 270 // 4.5 hours
 
 function toLocalInput(date) {
   const pad = (n) => String(n).padStart(2, '0')
@@ -44,13 +47,25 @@ function timeSince(dateStr) {
   return `Hace ${m} minutos`
 }
 
+function getElapsedMinutes(dateStr) {
+  if (!dateStr) return 0
+  return (Date.now() - new Date(dateStr).getTime()) / (1000 * 60)
+}
+
+function getElapsedHours(dateStr) {
+  return Math.round(getElapsedMinutes(dateStr) / 60 * 10) / 10
+}
+
 export default function SymptomsStep({ onConfirm }) {
   const [selected, setSelected] = useState({})
   const [lastSeen, setLastSeen] = useState(() => toLocalInput(new Date()))
+  const [showWakeUpModal, setShowWakeUpModal] = useState(false)
 
   useInterval(1000)
 
   const elapsed = timeSince(lastSeen)
+  const elapsedMinutes = getElapsedMinutes(lastSeen)
+  const isOverWindow = elapsedMinutes > WAKE_UP_THRESHOLD_MINUTES
   const hasSymptom = Object.values(selected).some(Boolean)
   const valid = hasSymptom && lastSeen
 
@@ -66,9 +81,18 @@ export default function SymptomsStep({ onConfirm }) {
 
   function handleSubmit() {
     if (!valid) return
+    if (isOverWindow) {
+      setShowWakeUpModal(true)
+    } else {
+      confirm(false)
+    }
+  }
+
+  function confirm(isWakeUpStroke) {
     onConfirm({
       symptoms: { ...selected },
       lastSeenNormal: lastSeen,
+      isWakeUpStroke,
     })
   }
 
@@ -106,7 +130,7 @@ export default function SymptomsStep({ onConfirm }) {
       </StepCard>
 
       {/* Last seen normal */}
-      <StepCard step="" title="" accent="blue">
+      <StepCard step="" title="" accent={isOverWindow ? 'orange' : 'blue'}>
         <label className="text-xs font-medium text-gray-500 uppercase tracking-wider flex items-center gap-1.5 mb-3">
           <Clock size={13} /> Última vez visto asintomático
         </label>
@@ -118,7 +142,11 @@ export default function SymptomsStep({ onConfirm }) {
               key={label}
               type="button"
               onClick={() => applyPreset(mins)}
-              className="px-3 py-1.5 rounded-full border border-blue-200 text-blue-600 text-xs font-medium bg-white hover:bg-blue-50 active:scale-95 transition-all"
+              className={`px-3 py-1.5 rounded-full border text-xs font-medium bg-white active:scale-95 transition-all ${
+                mins >= 360
+                  ? 'border-orange-300 text-orange-600 hover:bg-orange-50'
+                  : 'border-blue-200 text-blue-600 hover:bg-blue-50'
+              }`}
             >
               {label}
             </button>
@@ -132,11 +160,20 @@ export default function SymptomsStep({ onConfirm }) {
           onChange={(e) => setLastSeen(e.target.value)}
           className="w-full border border-gray-200 rounded-xl px-4 py-3.5 text-gray-800 text-base focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
         />
+
         {elapsed && (
-          <div className="mt-3 flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2.5">
-            <Clock size={14} className="text-blue-500 shrink-0" />
-            <span className="text-sm font-semibold text-blue-700">{elapsed}</span>
-            <span className="text-xs text-blue-400 ml-auto">ventana terapéutica activa</span>
+          <div className={`mt-3 flex items-center gap-2 rounded-lg px-3 py-2.5 border ${
+            isOverWindow
+              ? 'bg-orange-50 border-orange-200'
+              : 'bg-blue-50 border-blue-200'
+          }`}>
+            <Clock size={14} className={isOverWindow ? 'text-orange-500 shrink-0' : 'text-blue-500 shrink-0'} />
+            <span className={`text-sm font-semibold ${isOverWindow ? 'text-orange-700' : 'text-blue-700'}`}>
+              {elapsed}
+            </span>
+            <span className={`text-xs ml-auto ${isOverWindow ? 'text-orange-500' : 'text-blue-400'}`}>
+              {isOverWindow ? '⚠ ventana superada' : 'ventana terapéutica activa'}
+            </span>
           </div>
         )}
       </StepCard>
@@ -148,6 +185,14 @@ export default function SymptomsStep({ onConfirm }) {
       >
         Continuar <ChevronRight size={18} />
       </button>
+
+      {showWakeUpModal && (
+        <WakeUpStrokeModal
+          elapsedHours={getElapsedHours(lastSeen)}
+          onActivate={() => { setShowWakeUpModal(false); confirm(true) }}
+          onDismiss={() => { setShowWakeUpModal(false); confirm(false) }}
+        />
+      )}
     </div>
   )
 }
