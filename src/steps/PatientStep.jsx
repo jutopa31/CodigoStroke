@@ -97,7 +97,7 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
           <button
             type="submit"
             disabled={!valid}
-            className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-semibold py-4 rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed mt-2"
+            className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-semibold py-4 rounded-xl transition-all disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed mt-2"
           >
             Confirmar datos <ChevronRight size={18} />
           </button>

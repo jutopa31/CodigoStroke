@@ -479,7 +479,7 @@ export default function App() {
       )}
 
       {/* Botón flotante — ACV fuera de ventana */}
-      {step > STEP.START && (
+      {step > STEP.ALERT && (
         <button
           type="button"
           onClick={() => setShowOutOfWindow(true)}
@@ -501,7 +501,7 @@ export default function App() {
       )}
 
       {/* Body — two-column on desktop */}
-      <div className={`flex-1 ${step === STEP.PATIENT ? 'flex flex-col justify-center' : ''} md:grid ${patient ? 'md:grid-cols-[300px_1fr]' : 'md:grid-cols-1'} w-full md:gap-6 md:px-8 md:pt-4`}>
+      <div className={`flex-1 flex flex-col ${step === STEP.PATIENT ? 'justify-center' : ''} md:grid md:items-start ${patient ? 'md:grid-cols-[300px_1fr]' : 'md:grid-cols-1'} w-full md:gap-6 md:px-8 md:pt-4`}>
 
         {/* Desktop sidebar */}
         {patient && (
