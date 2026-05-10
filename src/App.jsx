@@ -501,11 +501,11 @@ export default function App() {
       )}
 
       {/* Body — two-column on desktop */}
-      <div className={`flex-1 ${step === STEP.PATIENT ? 'flex flex-col justify-center' : ''} md:grid ${patient ? 'md:grid-cols-[280px_1fr]' : 'md:grid-cols-1'} md:max-w-5xl md:mx-auto md:gap-6 md:px-6 md:pt-4`}>
+      <div className={`flex-1 ${step === STEP.PATIENT ? 'flex flex-col justify-center' : ''} md:grid ${patient ? 'md:grid-cols-[300px_1fr]' : 'md:grid-cols-1'} w-full md:gap-6 md:px-8 md:pt-4`}>
 
         {/* Desktop sidebar */}
         {patient && (
-          <div className="hidden md:flex md:flex-col md:sticky md:top-11 md:self-start">
+          <div className="hidden md:flex md:flex-col md:sticky md:top-[44px] md:self-start md:max-h-[calc(100vh-44px)] md:overflow-y-auto">
             {/* Patient card */}
             <div className="rounded-xl bg-white border border-gray-100 shadow-sm p-4 mb-3">
               <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Paciente</p>
