@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react'
-import { ChevronRight, Clock } from 'lucide-react'
+import { ChevronRight, Clock, Zap, MessageSquare, Eye, Scale, FileText } from 'lucide-react'
 import StepCard from '../components/StepCard'
 import WakeUpStrokeModal from '../components/WakeUpStrokeModal'
 
 const SYMPTOM_OPTIONS = [
-  { id: 'weakness', label: 'Debilidad unilateral', sub: 'Brazo, pierna o cara de un lado', emoji: '💪' },
-  { id: 'speech', label: 'Trastorno del habla', sub: 'Afasia, disartria o disfasia', emoji: '🗣️' },
-  { id: 'vision', label: 'Alteración visual', sub: 'Pérdida de visión, diplopía', emoji: '👁️' },
-  { id: 'ataxia', label: 'Ataxia / Inestabilidad', sub: 'Dificultad para caminar', emoji: '⚖️' },
-  { id: 'other', label: 'Otro', sub: 'Otros síntomas', emoji: '📝' },
+  { id: 'weakness', label: 'Debilidad unilateral', sub: 'Brazo, pierna o cara de un lado', Icon: Zap },
+  { id: 'speech', label: 'Trastorno del habla', sub: 'Afasia, disartria o disfasia', Icon: MessageSquare },
+  { id: 'vision', label: 'Alteración visual', sub: 'Pérdida de visión, diplopía', Icon: Eye },
+  { id: 'ataxia', label: 'Ataxia / Inestabilidad', sub: 'Dificultad para caminar', Icon: Scale },
+  { id: 'other', label: 'Otro', sub: 'Otros síntomas', Icon: FileText },
 ]
 
 const TIME_PRESETS = [
@@ -110,7 +110,7 @@ export default function SymptomsStep({ onConfirm }) {
                   : 'border-gray-200 text-gray-700 hover:border-orange-300 hover:bg-orange-50/40'
               }`}
             >
-              <span className="text-xl shrink-0">{opt.emoji}</span>
+              <opt.Icon size={18} className="shrink-0 text-orange-400" />
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-sm">{opt.label}</p>
                 <p className="text-xs text-gray-400 mt-0.5">{opt.sub}</p>

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ChevronRight, CheckCircle2, Circle } from 'lucide-react'
+import { ChevronRight, CheckCircle2, Circle, Hospital, Ban, Pill, BarChart2, Brain, Microscope, Heart } from 'lucide-react'
 import StepCard from '../components/StepCard'
 
 const WEIGHT_PRESETS = [50, 60, 70, 80, 90, 100]
@@ -9,43 +9,43 @@ const POST_CHECKLIST = [
     id: 'icu',
     label: 'Monitoreo continuo en UTI / Shockroom',
     sub: 'ECG, SatO₂, PANI cada 15 min las primeras 2h',
-    emoji: '🏥',
+    Icon: Hospital,
   },
   {
     id: 'no_invasive',
     label: 'Evitar procedimientos invasivos 24h',
     sub: 'NO sonda vesical, SNG ni vía arterial',
-    emoji: '🚫',
+    Icon: Ban,
   },
   {
     id: 'no_antithrombotic',
     label: 'NO heparina ni antiagregantes 24h',
     sub: 'Iniciar antitrombóticos solo después de TC de control',
-    emoji: '💊',
+    Icon: Pill,
   },
   {
     id: 'bp_control',
     label: 'Control de TA estricto post-trombolisis',
     sub: 'c/15 min × 2h → c/30 min × 6h → c/1h × 16h  ·  Meta: < 180/105 mmHg',
-    emoji: '📊',
+    Icon: BarChart2,
   },
   {
     id: 'serial_nihss',
     label: 'NIHSS seriado',
     sub: 'Al inicio · 30 min · 1h · 2h · 6h · 24h',
-    emoji: '🧠',
+    Icon: Brain,
   },
   {
     id: 'ct_control',
     label: 'TC de control a las 24h',
     sub: 'Antes de iniciar anticoagulación o antiagregantes',
-    emoji: '🔬',
+    Icon: Microscope,
   },
   {
     id: 'cardiology',
     label: 'Solicitar ecocardiograma y Holter',
     sub: 'Estudio de fuente embólica cardíaca',
-    emoji: '❤️',
+    Icon: Heart,
   },
 ]
 
@@ -224,7 +224,7 @@ export default function DosageStep({ onConfirm }) {
                   done ? 'bg-green-50 border-green-400' : 'border-gray-200 hover:border-green-300 hover:bg-green-50/40'
                 }`}
               >
-                <span className="text-xl shrink-0 mt-0.5">{item.emoji}</span>
+                <item.Icon size={18} className={`shrink-0 mt-0.5 ${done ? 'text-green-600' : 'text-gray-400'}`} />
                 <div className="flex-1 min-w-0">
                   <p className={`font-medium text-sm ${done ? 'text-green-800 line-through decoration-green-400' : 'text-gray-700'}`}>
                     {item.label}

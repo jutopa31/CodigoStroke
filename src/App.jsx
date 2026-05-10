@@ -172,7 +172,7 @@ export default function App() {
   function getDoneContent() {
     if (ctResult?.bleeding) {
       return {
-        icon: '🔴',
+        icon: 'error',
         iconBg: 'bg-red-100',
         borderColor: 'border-red-400',
         title: 'Hemorragia intracraneal',
@@ -181,7 +181,7 @@ export default function App() {
     }
     if (symptoms?.isWakeUpStroke && ctResult?.mismatch === false) {
       return {
-        icon: '🌙',
+        icon: 'moon',
         iconBg: 'bg-indigo-100',
         borderColor: 'border-indigo-400',
         title: 'ACV del despertar — sin mismatch',
@@ -190,7 +190,7 @@ export default function App() {
     }
     if (contraindications?.hasAbsolute) {
       return {
-        icon: '🔴',
+        icon: 'error',
         iconBg: 'bg-red-100',
         borderColor: 'border-red-400',
         title: 'Contraindicación absoluta presente',
@@ -203,7 +203,7 @@ export default function App() {
         ? `${dosage.dose?.total} mg bolo único`
         : `${dosage.dose?.total} mg total (bolo ${dosage.dose?.bolo} mg + infusión ${dosage.dose?.infusion} mg)`
       return {
-        icon: '✓',
+        icon: 'check',
         iconBg: 'bg-emerald-100',
         borderColor: 'border-emerald-500',
         title: 'Trombolisis indicada',
@@ -212,7 +212,7 @@ export default function App() {
     }
     if (contraindications?.hasRelative) {
       return {
-        icon: '🟡',
+        icon: 'warning',
         iconBg: 'bg-amber-100',
         borderColor: 'border-amber-400',
         title: 'Contraindicación relativa — valorar riesgo/beneficio',
@@ -220,7 +220,7 @@ export default function App() {
       }
     }
     return {
-      icon: '✓',
+      icon: 'check',
       iconBg: 'bg-emerald-100',
       borderColor: 'border-emerald-500',
       title: 'Fase inicial completa',
@@ -324,11 +324,11 @@ export default function App() {
         {step === STEP.DONE && done && (
           <div ref={doneRef} className="px-4 pb-4 animate-slide-down">
             <div className={`bg-white rounded-xl border-l-4 ${done.borderColor} shadow-sm p-6`}>
-              <div className={`w-14 h-14 ${done.iconBg} rounded-full flex items-center justify-center mx-auto mb-4 text-2xl`}>
-                {done.icon === '✓'
-                  ? <svg className="w-7 h-7 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>
-                  : <span>{done.icon}</span>
-                }
+              <div className={`w-14 h-14 ${done.iconBg} rounded-full flex items-center justify-center mx-auto mb-4`}>
+                {done.icon === 'check' && <svg className="w-7 h-7 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>}
+                {done.icon === 'error' && <svg className="w-7 h-7 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" /></svg>}
+                {done.icon === 'warning' && <svg className="w-7 h-7 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" /></svg>}
+                {done.icon === 'moon' && <svg className="w-7 h-7 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" /></svg>}
               </div>
               <h2 className="font-display text-gray-800 text-xl text-center mb-2">{done.title}</h2>
               <p className="text-sm text-gray-500 text-center leading-relaxed">{done.body}</p>

@@ -1,10 +1,10 @@
 import { useState } from 'react'
-import { AlertTriangle, Bell, X, CheckCircle } from 'lucide-react'
+import { AlertTriangle, Bell, X, CheckCircle, Brain, Hospital, Stethoscope } from 'lucide-react'
 
 const TEAM = [
-  { name: 'Neurología', icon: '🧠' },
-  { name: 'Terapia Intensiva', icon: '🏥' },
-  { name: 'Neurocirugía', icon: '⚕️' },
+  { name: 'Neurología', Icon: Brain },
+  { name: 'Terapia Intensiva', Icon: Hospital },
+  { name: 'Neurocirugía', Icon: Stethoscope },
 ]
 
 export default function AlertModal({ patient, onConfirm, onClose }) {
@@ -49,7 +49,7 @@ export default function AlertModal({ patient, onConfirm, onClose }) {
           <div className="space-y-2">
             {TEAM.map((t) => (
               <div key={t.name} className="flex items-center gap-3 bg-gray-50 rounded-lg px-3 py-2.5">
-                <span className="text-lg">{t.icon}</span>
+                <t.Icon size={16} className="text-brand-600 shrink-0" />
                 <span className="font-medium text-gray-700 text-sm">{t.name}</span>
                 <CheckCircle size={16} className="text-emerald-500 ml-auto" />
               </div>

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ChevronRight, CheckCircle2, Circle } from 'lucide-react'
+import { ChevronRight, CheckCircle2, Circle, Siren, Syringe, Droplets, Brain } from 'lucide-react'
 import StepCard from '../components/StepCard'
 
 const CHECKLIST = [
@@ -7,25 +7,25 @@ const CHECKLIST = [
     id: 'shockroom',
     label: 'Trasladar a Shockroom',
     sub: 'Iniciar O₂ solo si SatO₂ < 92%',
-    emoji: '🚨',
+    Icon: Siren,
   },
   {
     id: 'ivAccess',
     label: 'Colocar 2 accesos venosos periféricos',
     sub: 'Calibre 18G o mayor. Evitar brazo parético.',
-    emoji: '💉',
+    Icon: Syringe,
   },
   {
     id: 'labs',
     label: 'Tomar muestra de laboratorio',
     sub: 'Hemograma, coagulación, glucemia, función renal y electrolitos',
-    emoji: '🩸',
+    Icon: Droplets,
   },
   {
     id: 'ct',
     label: 'Solicitar TC de encéfalo sin contraste',
     sub: 'Excluir hemorragia intracraneal',
-    emoji: '🧠',
+    Icon: Brain,
   },
 ]
 
@@ -54,7 +54,7 @@ export default function InstructionsStep({ onConfirm }) {
                     : 'border-gray-200 hover:border-green-300 hover:bg-green-50/40'
                 }`}
               >
-                <span className="text-xl shrink-0 mt-0.5">{item.emoji}</span>
+                <item.Icon size={18} className={`shrink-0 mt-0.5 ${done ? 'text-green-600' : 'text-gray-400'}`} />
                 <div className="flex-1 min-w-0">
                   <p className={`font-medium text-sm ${done ? 'text-green-800 line-through decoration-green-400' : 'text-gray-700'}`}>
                     {item.label}
