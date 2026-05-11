@@ -536,7 +536,7 @@ export default function App() {
         )}
 
         {/* Main content */}
-      <div className="px-3 md:px-0 md:min-w-0 w-full md:mx-0 pt-4 space-y-3">
+      <div className={`${patient ? 'pl-12 pr-3' : 'px-3'} md:px-0 md:min-w-0 w-full md:mx-0 pt-4 space-y-3`}>
           {step >= STEP.PATIENT && (
             <div className={step > STEP.ALERT ? 'md:hidden' : ''}>
               <PatientStep
