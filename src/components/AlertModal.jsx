@@ -26,17 +26,13 @@ export default function AlertModal({ patient, onConfirm, onClose }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-6 bg-black/60 backdrop-blur-sm animate-fade-in"
+      className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-sm animate-fade-in"
       onClick={onClose}
     >
       <div
-        className="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden animate-slide-up"
+        className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-slide-up max-h-[90dvh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Drag handle — mobile only */}
-        <div className="flex justify-center pt-3 pb-0 sm:hidden">
-          <div className="w-10 h-1 rounded-full bg-gray-200" />
-        </div>
 
         {/* Header */}
         <div className="bg-gradient-to-br from-brand-700 via-brand-600 to-brand-500 px-6 pt-5 pb-6">
