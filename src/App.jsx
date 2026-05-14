@@ -837,6 +837,7 @@ export default function App() {
             <div ref={thrombectomyRef}>
               <ThrombectomyStep
                 nihssScore={nihss?.nihssScore ?? 0}
+                isWakeUpStroke={symptoms?.isWakeUpStroke ?? false}
                 onConfirm={handleThrombectomyConfirm}
                 angioRequestTime={angioRequestTime}
                 onAngioRequest={handleAngioRequest}
