@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { RotateCcw, Clock } from 'lucide-react'
 import GlobalTimer from './components/GlobalTimer'
@@ -37,6 +37,12 @@ const STEP = {
 }
 
 const SIDEBAR_VALUES = [1, 3, 4, 5, 6, 7, 8, 9, 10]
+
+const MOCK_PATIENT = {
+  name: 'Paciente Test',
+  dni: '38999123',
+  passphrase: 'mock',
+}
 
 export default function App() {
   const [step, setStep] = useState(STEP.START)
@@ -85,6 +91,55 @@ export default function App() {
     setStep(STEP.PATIENT)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
+
+  useEffect(() => {
+    function activateMockEvaluation() {
+      const now = new Date()
+      const mockPatientId = generatePatientId(MOCK_PATIENT.name, MOCK_PATIENT.dni)
+
+      setPatient(MOCK_PATIENT)
+      setPatientId(mockPatientId)
+      setPatientArrivalTime(now)
+      setTimerStart(now)
+      setCtRequestTime(null)
+      setAngioRequestTime(null)
+      setThrombolyticStartTime(null)
+      setThrombectomyActivationTime(null)
+      setSymptoms(null)
+      setVitals(null)
+      setNihss(null)
+      setCtResult(null)
+      setContraindications(null)
+      setDosage(null)
+      setStep(STEP.SYMPTOMS)
+
+      saveSession(mockPatientId, {
+        patientName: MOCK_PATIENT.name,
+        patientDNI: MOCK_PATIENT.dni,
+        patientArrivalTime: now.toISOString(),
+        startTime: now.toISOString(),
+      })
+
+      setTimeout(() => {
+        symptomsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }, 80)
+    }
+
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('mock') === 'evaluacion') {
+      activateMockEvaluation()
+    }
+
+    function handleDevShortcut(e) {
+      if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'e') {
+        e.preventDefault()
+        activateMockEvaluation()
+      }
+    }
+
+    window.addEventListener('keydown', handleDevShortcut)
+    return () => window.removeEventListener('keydown', handleDevShortcut)
+  }, [])
 
   function handleResume(id, session) {
     setPatientId(id)
@@ -484,7 +539,7 @@ export default function App() {
           type="button"
           onClick={() => setShowOutOfWindow(true)}
           style={{ bottom: 'calc(1.5rem + env(safe-area-inset-bottom, 0px))' }}
-          className="fixed left-14 md:left-4 z-40 flex items-center gap-2 bg-slate-700 hover:bg-slate-800 active:scale-95 text-white text-xs font-semibold px-4 py-3 min-h-[44px] rounded-full shadow-lg transition-all"
+          className="fixed left-14 z-40 flex items-center gap-2 bg-slate-700 hover:bg-slate-800 active:scale-95 text-white text-xs font-semibold px-4 py-3 min-h-[44px] rounded-full shadow-lg transition-all md:hidden"
         >
           <Clock size={14} />
           Fuera de ventana
@@ -501,20 +556,20 @@ export default function App() {
       )}
 
       {/* Body — two-column on desktop */}
-      <div className={`flex-1 flex flex-col ${step === STEP.PATIENT ? 'justify-center' : ''} md:grid md:items-start ${patient ? 'md:grid-cols-[300px_1fr]' : 'md:grid-cols-1'} w-full md:gap-6 md:px-8 md:pt-4`}>
+      <div className={`flex-1 flex flex-col ${step === STEP.PATIENT ? 'justify-center' : ''} md:grid md:items-start ${patient ? 'md:grid-cols-[248px_minmax(0,1fr)]' : 'md:grid-cols-1'} w-full md:gap-8 md:px-6 lg:px-9 md:pt-5`}>
 
         {/* Desktop sidebar */}
         {patient && (
-          <div className="hidden md:flex md:flex-col md:sticky md:top-[44px] md:self-start md:max-h-[calc(100vh-44px)] md:overflow-y-auto">
+          <div className="hidden md:flex md:flex-col md:sticky md:top-[48px] md:self-start md:max-h-[calc(100vh-48px)] md:overflow-y-auto md:pr-1">
             {/* Patient card */}
-            <div className="rounded-xl bg-white border border-gray-100 shadow-sm p-4 mb-3">
-              <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Paciente</p>
-              <p className="font-semibold text-gray-800 text-base leading-snug">{patient.name}</p>
-              <p className="text-sm text-gray-500 mt-0.5">DNI {patient.dni}</p>
+            <div className="rounded-lg bg-white/70 border border-gray-200/70 p-3.5 mb-3">
+              <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 mb-1.5">Paciente</p>
+              <p className="font-semibold text-gray-800 text-sm leading-snug">{patient.name}</p>
+              <p className="text-xs text-gray-500 mt-0.5">DNI {patient.dni}</p>
               {patientId && (
-                <div className="mt-3 pt-3 border-t border-gray-100">
-                  <p className="text-xs text-gray-400 uppercase tracking-wider">ID del caso</p>
-                  <p className="text-sm font-mono font-bold text-brand-600 tracking-widest mt-1">{patientId}</p>
+                <div className="mt-2.5 pt-2.5 border-t border-gray-100">
+                  <p className="text-[10px] text-gray-400 uppercase tracking-wider">ID del caso</p>
+                  <p className="text-xs font-mono font-bold text-brand-600 tracking-widest mt-0.5">{patientId}</p>
                 </div>
               )}
             </div>
@@ -525,6 +580,16 @@ export default function App() {
               completedSteps={sidebarCompletedSteps}
               onStepClick={handleSidebarStepClick}
             />
+            {step > STEP.ALERT && (
+              <button
+                type="button"
+                onClick={() => setShowOutOfWindow(true)}
+                className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border border-slate-200 bg-slate-700 px-3 py-2.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-slate-800 active:scale-[0.99]"
+              >
+                <Clock size={14} />
+                Fuera de ventana
+              </button>
+            )}
             <TimestampPanel
               variant="desktop"
               arrival={patientArrivalTime}
@@ -536,7 +601,7 @@ export default function App() {
         )}
 
         {/* Main content */}
-      <div className={`${patient ? 'pl-12 pr-3' : 'px-3'} md:px-0 md:min-w-0 w-full md:mx-0 pt-4 space-y-3`}>
+      <div className={`${patient ? 'pl-12 pr-3' : 'px-3'} md:px-0 md:min-w-0 w-full md:max-w-4xl md:mx-auto pt-4 md:pt-0 space-y-3 lg:space-y-3.5`}>
           {step >= STEP.PATIENT && (
             <div className={step > STEP.ALERT ? 'md:hidden' : ''}>
               <PatientStep

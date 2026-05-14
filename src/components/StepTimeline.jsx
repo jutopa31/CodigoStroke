@@ -19,8 +19,8 @@ export default function StepTimeline({ currentStep, completedSteps = [], onStepC
     return (
       <nav className="w-full">
         <div className="relative pl-1">
-          <div className="absolute left-[19px] top-5 bottom-5 w-0.5 bg-gray-200 rounded-full" />
-          <div className="space-y-0.5">
+          <div className="absolute left-[15px] top-4 bottom-4 w-px bg-gray-200 rounded-full" />
+          <div className="space-y-0">
             {STEPS.map((step, index) => {
               const isCompleted = completedSteps.includes(step.value)
               const isActive = currentStep === step.value
@@ -30,21 +30,23 @@ export default function StepTimeline({ currentStep, completedSteps = [], onStepC
                   type="button"
                   aria-label={step.long}
                   onClick={() => onStepClick?.(step.value)}
-                  className="relative flex items-center gap-3 w-full text-left rounded-xl py-1.5 pr-2 transition-all hover:bg-gray-50 group focus:outline-none"
+                  className={`relative flex items-center gap-2.5 w-full text-left rounded-lg py-1.5 pr-2 transition-all group focus:outline-none ${
+                    isActive ? 'bg-white shadow-sm ring-1 ring-gray-100' : 'hover:bg-white/70'
+                  }`}
                 >
                   <span
-                    className={`relative z-10 w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center font-black text-lg transition-all ${
+                    className={`relative z-10 w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center font-bold text-sm transition-all ${
                       isCompleted
-                        ? 'bg-emerald-500 text-white shadow-sm'
+                        ? 'bg-emerald-500 text-white'
                         : isActive
-                        ? 'bg-brand-600 text-white shadow-md ring-4 ring-brand-100'
+                        ? 'bg-brand-600 text-white ring-2 ring-brand-100'
                         : 'bg-gray-100 text-gray-400 group-hover:bg-gray-200'
                     }`}
                   >
-                    {isCompleted ? <CheckCircle2 size={19} strokeWidth={2.5} /> : index + 1}
+                    {isCompleted ? <CheckCircle2 size={16} strokeWidth={2.5} /> : index + 1}
                   </span>
                   <span
-                    className={`text-xs leading-tight transition-colors ${
+                    className={`text-[12px] leading-tight transition-colors ${
                       isCompleted
                         ? 'text-emerald-700 font-medium'
                         : isActive
