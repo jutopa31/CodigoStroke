@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { ChevronRight, CheckCircle2, Circle, Siren, Syringe, Droplets, Brain } from 'lucide-react'
+import { ChevronRight, Siren, Syringe, Droplets, Brain } from 'lucide-react'
 import StepCard from '../components/StepCard'
+import { PrimaryAction, SectionPrompt, SelectionCheck } from '../components/GuidedControls'
 
 const CHECKLIST = [
   {
@@ -41,6 +42,13 @@ export default function InstructionsStep({ onConfirm }) {
   return (
     <div className="px-4 pb-4 space-y-3">
       <StepCard step="5" title="Acciones inmediatas" accent="green">
+        <SectionPrompt
+          tone="green"
+          title="Marca cada accion cuando este hecha"
+          helper="Las acciones completas quedan con check y borde verde."
+          complete={allChecked}
+          status={`${Object.values(checked).filter(Boolean).length}/${CHECKLIST.length}`}
+        />
         <div className="space-y-2">
           {CHECKLIST.map((item) => {
             const done = !!checked[item.id]
@@ -48,10 +56,10 @@ export default function InstructionsStep({ onConfirm }) {
               <button
                 key={item.id}
                 onClick={() => toggle(item.id)}
-                className={`w-full flex items-start gap-3 px-4 py-3.5 rounded-xl border text-left transition-all ${
+                className={`w-full flex items-start gap-3 px-4 py-3.5 rounded-xl border-2 text-left transition-all ${
                   done
-                    ? 'bg-green-50 border-green-400'
-                    : 'border-gray-200 hover:border-green-300 hover:bg-green-50/40'
+                    ? 'bg-green-50 border-green-500 text-green-900 shadow-sm ring-2 ring-green-100'
+                    : 'border-gray-200 bg-white hover:border-green-300 hover:bg-green-50/40'
                 }`}
               >
                 <item.Icon size={18} className={`shrink-0 mt-0.5 ${done ? 'text-green-600' : 'text-gray-400'}`} />
@@ -61,12 +69,7 @@ export default function InstructionsStep({ onConfirm }) {
                   </p>
                   <p className="text-xs text-gray-400 mt-0.5 leading-relaxed">{item.sub}</p>
                 </div>
-                <div className="shrink-0 mt-0.5">
-                  {done
-                    ? <CheckCircle2 size={20} className="text-green-500" />
-                    : <Circle size={20} className="text-gray-300" />
-                  }
-                </div>
+                <SelectionCheck active={done} tone="green" />
               </button>
             )
           })}
@@ -89,13 +92,13 @@ export default function InstructionsStep({ onConfirm }) {
         </div>
       </div>
 
-      <button
+      <PrimaryAction
         onClick={() => onConfirm({ checklist: checked })}
-        disabled={!allChecked}
-        className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-semibold py-4 rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+        valid={allChecked}
+        disabledLabel="Completa las acciones inmediatas para continuar"
       >
         Continuar <ChevronRight size={18} />
-      </button>
+      </PrimaryAction>
     </div>
   )
 }

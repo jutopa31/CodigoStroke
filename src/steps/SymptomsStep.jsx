@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { AlertCircle, CheckCircle2, ChevronRight, Clock, Zap, MessageSquare, Eye, Scale, FileText, ShieldAlert } from 'lucide-react'
 import StepCard from '../components/StepCard'
 import WakeUpStrokeModal from '../components/WakeUpStrokeModal'
+import { SelectionCheck, StatusPill } from '../components/GuidedControls'
 
 const SYMPTOM_OPTIONS = [
   { id: 'weakness', label: 'Debilidad unilateral', sub: 'Brazo, pierna o cara de un lado', Icon: Zap },
@@ -61,35 +62,6 @@ function getElapsedMinutes(dateStr) {
 
 function getElapsedHours(dateStr) {
   return Math.round(getElapsedMinutes(dateStr) / 60 * 10) / 10
-}
-
-function StatusPill({ complete, children }) {
-  return (
-    <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[11px] font-bold leading-none ${
-      complete
-        ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-        : 'border-amber-200 bg-amber-50 text-amber-700'
-    }`}>
-      {complete ? <CheckCircle2 size={12} /> : <AlertCircle size={12} />}
-      {children}
-    </span>
-  )
-}
-
-function SelectionCheck({ active, tone = 'blue' }) {
-  const activeClass = tone === 'red'
-    ? 'bg-red-600 border-red-600'
-    : tone === 'orange'
-    ? 'bg-orange-600 border-orange-600'
-    : 'bg-blue-600 border-blue-600'
-
-  return (
-    <span className={`w-6 h-6 rounded-full border-2 shrink-0 flex items-center justify-center transition-colors ${
-      active ? activeClass : 'border-gray-300 bg-white'
-    }`}>
-      {active && <CheckCircle2 size={15} className="text-white" strokeWidth={3} />}
-    </span>
-  )
 }
 
 export default function SymptomsStep({ onConfirm }) {

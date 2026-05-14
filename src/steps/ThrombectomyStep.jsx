@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { ChevronRight, Bell, Calculator, Clock } from 'lucide-react'
 import StepCard from '../components/StepCard'
 import AspectModal from '../components/AspectModal'
+import { SelectionCheck } from '../components/GuidedControls'
 
 function getAspectColor(score) {
   if (score >= 8) return 'text-emerald-600 bg-emerald-50 border-emerald-200'
@@ -100,17 +101,20 @@ export default function ThrombectomyStep({
               onClick={() => { setAngioRequested(false); setNotified(false) }}
               className={`py-5 rounded-xl border-2 font-bold text-xl transition-all active:scale-95 ${
                 angioRequested === false
-                  ? 'bg-gray-300 border-gray-300 text-gray-700'
+                  ? 'bg-slate-100 border-slate-500 text-slate-800 shadow-sm ring-2 ring-slate-100'
                   : 'border-gray-200 text-gray-500 hover:bg-gray-50'
               }`}
             >
-              NO
+              <span className="inline-flex items-center justify-center gap-2">
+                <SelectionCheck active={angioRequested === false} tone="gray" />
+                NO
+              </span>
             </button>
             <button
               onClick={handleAngioRequest}
               className={`py-5 rounded-xl border-2 font-bold text-xl transition-all active:scale-95 ${
                 angioRequested === true
-                  ? 'bg-blue-600 border-blue-600 text-white shadow-md'
+                  ? 'bg-blue-50 border-blue-600 text-blue-900 shadow-sm ring-2 ring-blue-100'
                   : 'border-gray-200 text-gray-500 hover:border-blue-300 hover:bg-blue-50'
               }`}
             >

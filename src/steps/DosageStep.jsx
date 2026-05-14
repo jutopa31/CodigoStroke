@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { ChevronRight, CheckCircle2, Circle, Hospital, Ban, Pill, BarChart2, Brain, Microscope, Heart, Clock, Plus } from 'lucide-react'
 import StepCard from '../components/StepCard'
 import NihssModal from '../components/NihssModal'
+import { SelectionCheck } from '../components/GuidedControls'
 
 const WEIGHT_PRESETS = [50, 60, 70, 80, 90, 100]
 
@@ -126,11 +127,14 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
             onClick={() => setDrug('tnk')}
             className={`py-3 rounded-xl border-2 text-sm font-semibold transition-all ${
               drug === 'tnk'
-                ? 'bg-green-600 border-green-600 text-white'
+                ? 'bg-green-50 border-green-600 text-green-900 shadow-sm ring-2 ring-green-100'
                 : 'border-gray-200 text-gray-600 hover:border-green-300 hover:bg-green-50'
             }`}
           >
-            TNK
+            <span className="inline-flex items-center justify-center gap-2">
+              <SelectionCheck active={drug === 'tnk'} tone="green" />
+              TNK
+            </span>
             <span className={`block text-xs font-normal mt-0.5 ${drug === 'tnk' ? 'text-green-100' : 'text-gray-400'}`}>
               Preferido AHA 2026
             </span>
@@ -139,11 +143,14 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
             onClick={() => setDrug('rtpa')}
             className={`py-3 rounded-xl border-2 text-sm font-semibold transition-all ${
               drug === 'rtpa'
-                ? 'bg-green-600 border-green-600 text-white'
+                ? 'bg-green-50 border-green-600 text-green-900 shadow-sm ring-2 ring-green-100'
                 : 'border-gray-200 text-gray-600 hover:border-green-300 hover:bg-green-50'
             }`}
           >
-            rtPA
+            <span className="inline-flex items-center justify-center gap-2">
+              <SelectionCheck active={drug === 'rtpa'} tone="green" />
+              rtPA
+            </span>
             <span className={`block text-xs font-normal mt-0.5 ${drug === 'rtpa' ? 'text-green-100' : 'text-gray-400'}`}>
               Alteplase
             </span>
@@ -176,9 +183,9 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
             <button
               key={w}
               onClick={() => setWeightStr(String(w))}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
+              className={`px-3 py-1.5 rounded-full text-xs font-bold border-2 transition-all ${
                 weightStr === String(w)
-                  ? 'bg-green-600 border-green-600 text-white'
+                  ? 'bg-green-600 border-green-600 text-white shadow-sm ring-2 ring-green-100'
                   : 'border-gray-200 text-gray-500 hover:border-green-300 hover:bg-green-50'
               }`}
             >
@@ -328,8 +335,8 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
               <button
                 key={item.id}
                 onClick={() => toggleCheck(item.id)}
-                className={`w-full flex items-start gap-3 px-4 py-3.5 rounded-xl border text-left transition-all ${
-                  done ? 'bg-green-50 border-green-400' : 'border-gray-200 hover:border-green-300 hover:bg-green-50/40'
+                className={`w-full flex items-start gap-3 px-4 py-3.5 rounded-xl border-2 text-left transition-all ${
+                  done ? 'bg-green-50 border-green-500 text-green-900 shadow-sm ring-2 ring-green-100' : 'border-gray-200 hover:border-green-300 hover:bg-green-50/40'
                 }`}
               >
                 <item.Icon size={18} className={`shrink-0 mt-0.5 ${done ? 'text-green-600' : 'text-gray-400'}`} />
