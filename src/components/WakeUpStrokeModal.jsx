@@ -9,7 +9,7 @@ export default function WakeUpStrokeModal({ elapsedHours, onActivate, onDismiss 
         <div className="bg-indigo-700 px-5 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Moon size={20} className="text-white" />
-            <span className="text-white font-bold text-base tracking-wide">Ventana superada — {elapsedHours}h</span>
+            <span className="text-white font-bold text-base tracking-wide">Evaluar OGV - {elapsedHours}h</span>
           </div>
           <button onClick={onDismiss} className="text-indigo-300 hover:text-white transition-colors">
             <X size={18} />
@@ -21,14 +21,14 @@ export default function WakeUpStrokeModal({ elapsedHours, onActivate, onDismiss 
           <div className="flex items-start gap-3 bg-indigo-50 border border-indigo-200 rounded-xl px-4 py-3">
             <AlertTriangle size={16} className="text-indigo-600 shrink-0 mt-0.5" />
             <p className="text-xs text-indigo-700 leading-relaxed">
-              El último avistamiento asintomático supera las <strong>4.5 horas</strong>. El algoritmo estándar de trombolisis no aplica directamente.
+              El ultimo avistamiento asintomatico supera las <strong>4.5 horas</strong>, pero esta dentro de las primeras <strong>24 horas</strong>. Evaluar oclusion de gran vaso y criterios de imagen segun protocolo.
             </p>
           </div>
 
           <div>
-            <p className="text-sm font-semibold text-gray-800 mb-1">¿Es un ACV del despertar?</p>
+            <p className="text-sm font-semibold text-gray-800 mb-1">Es un ACV del despertar?</p>
             <p className="text-xs text-gray-500 leading-relaxed">
-              Si el paciente despertó con síntomas y el momento exacto de inicio es desconocido, puede ser elegible para trombolisis mediante <strong>criterios de RMN (mismatch FLAIR-DWI)</strong> según el protocolo WAKE-UP (AHA/ASA 2026).
+              Si el paciente desperto con sintomas y el momento exacto de inicio es desconocido, puede ser elegible para trombolisis mediante <strong>criterios de RMN (mismatch FLAIR-DWI)</strong> segun el protocolo WAKE-UP.
             </p>
           </div>
 
@@ -46,7 +46,7 @@ export default function WakeUpStrokeModal({ elapsedHours, onActivate, onDismiss 
             onClick={onDismiss}
             className="w-full py-3 border border-gray-200 rounded-xl text-gray-600 font-medium text-sm hover:bg-gray-50 transition-colors"
           >
-            Continuar protocolo estándar
+            Continuar protocolo estandar
           </button>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { RotateCcw, Clock } from 'lucide-react'
 import GlobalTimer from './components/GlobalTimer'
@@ -38,6 +38,57 @@ const STEP = {
 
 const SIDEBAR_VALUES = [1, 3, 4, 5, 6, 7, 8, 9, 10]
 
+const MOCK_PATIENT = {
+  name: 'Paciente Test',
+  dni: '38999123',
+  passphrase: 'mock',
+}
+
+const SYMPTOM_LABELS = {
+  weakness: 'Debilidad unilateral',
+  speech: 'Trastorno del habla',
+  vision: 'Alteracion visual',
+  ataxia: 'Ataxia / Inestabilidad',
+  other: 'Otro',
+}
+
+function fmtTime(date) {
+  if (!date) return 'No registrado'
+  return date.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+}
+
+function fmtDateTime(value) {
+  if (!value) return 'No registrado'
+  const date = value instanceof Date ? value : new Date(value)
+  return `${date.toLocaleDateString('es-AR')} ${fmtTime(date)}`
+}
+
+function SummaryRow({ label, value, tone = 'gray' }) {
+  const toneClass = {
+    gray: 'border-gray-200 bg-gray-50 text-gray-800',
+    blue: 'border-blue-200 bg-blue-50 text-blue-800',
+    green: 'border-emerald-200 bg-emerald-50 text-emerald-800',
+    orange: 'border-orange-200 bg-orange-50 text-orange-800',
+    red: 'border-red-200 bg-red-50 text-red-800',
+  }[tone]
+
+  return (
+    <div className={`rounded-lg border px-3 py-2 ${toneClass}`}>
+      <p className="text-[11px] font-bold uppercase tracking-wider opacity-70">{label}</p>
+      <p className="mt-0.5 text-sm font-semibold leading-snug">{value ?? 'No registrado'}</p>
+    </div>
+  )
+}
+
+function SummarySection({ title, children }) {
+  return (
+    <div className="rounded-xl border border-gray-100 bg-white px-4 py-4 shadow-sm">
+      <h3 className="text-sm font-bold uppercase tracking-wider text-gray-500 mb-3">{title}</h3>
+      <div className="grid gap-2 md:grid-cols-2">{children}</div>
+    </div>
+  )
+}
+
 export default function App() {
   const [step, setStep] = useState(STEP.START)
   const [timerStart, setTimerStart] = useState(null)
@@ -54,11 +105,11 @@ export default function App() {
   const [ctResult, setCtResult] = useState(null)
   const [contraindications, setContraindications] = useState(null)
   const [dosage, setDosage] = useState(null)
-  const [, setThrombectomy] = useState(null)
+  const [thrombectomy, setThrombectomy] = useState(null)
   const [eventId] = useState(uuidv4)
-  const [, setNihssReadings] = useState([])
-  const [, setVitalsReadings] = useState([])
-  const [, setGlucoseReadings] = useState([])
+  const [nihssReadings, setNihssReadings] = useState([])
+  const [vitalsReadings, setVitalsReadings] = useState([])
+  const [glucoseReadings, setGlucoseReadings] = useState([])
   const [showOutOfWindow, setShowOutOfWindow] = useState(false)
 
   const symptomsRef = useRef(null)
@@ -85,6 +136,55 @@ export default function App() {
     setStep(STEP.PATIENT)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
+
+  useEffect(() => {
+    function activateMockEvaluation() {
+      const now = new Date()
+      const mockPatientId = generatePatientId(MOCK_PATIENT.name, MOCK_PATIENT.dni)
+
+      setPatient(MOCK_PATIENT)
+      setPatientId(mockPatientId)
+      setPatientArrivalTime(now)
+      setTimerStart(now)
+      setCtRequestTime(null)
+      setAngioRequestTime(null)
+      setThrombolyticStartTime(null)
+      setThrombectomyActivationTime(null)
+      setSymptoms(null)
+      setVitals(null)
+      setNihss(null)
+      setCtResult(null)
+      setContraindications(null)
+      setDosage(null)
+      setStep(STEP.SYMPTOMS)
+
+      saveSession(mockPatientId, {
+        patientName: MOCK_PATIENT.name,
+        patientDNI: MOCK_PATIENT.dni,
+        patientArrivalTime: now.toISOString(),
+        startTime: now.toISOString(),
+      })
+
+      setTimeout(() => {
+        symptomsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }, 80)
+    }
+
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('mock') === 'evaluacion') {
+      activateMockEvaluation()
+    }
+
+    function handleDevShortcut(e) {
+      if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'e') {
+        e.preventDefault()
+        activateMockEvaluation()
+      }
+    }
+
+    window.addEventListener('keydown', handleDevShortcut)
+    return () => window.removeEventListener('keydown', handleDevShortcut)
+  }, [])
 
   function handleResume(id, session) {
     setPatientId(id)
@@ -383,6 +483,40 @@ export default function App() {
     }
   }
 
+  function getSelectedSymptomsSummary() {
+    const selectedSymptoms = symptoms?.symptoms
+      ? Object.entries(symptoms.symptoms)
+        .filter(([, value]) => value)
+        .map(([key]) => SYMPTOM_LABELS[key] ?? key)
+      : []
+
+    return selectedSymptoms.length ? selectedSymptoms.join(', ') : 'No registrado'
+  }
+
+  function getContraSummary() {
+    if (!contraindications) return 'No registrado'
+    if (contraindications.hasAbsolute) return 'Contraindicacion absoluta presente'
+    if (contraindications.hasRelative) return contraindications.decidedNotToThrombolyze
+      ? 'Contraindicacion relativa: no trombolizar'
+      : 'Contraindicacion relativa: trombolisis con precaucion'
+    return 'Sin contraindicaciones registradas'
+  }
+
+  function getDoseSummary() {
+    if (!dosage) return 'No administrada / no registrada'
+    if (dosage.drug === 'tnk') return `Tenecteplase ${dosage.dose?.total ?? '-'} mg bolo IV`
+    return `Alteplase ${dosage.dose?.total ?? '-'} mg total: bolo ${dosage.dose?.bolo ?? '-'} mg + infusion ${dosage.dose?.infusion ?? '-'} mg`
+  }
+
+  function getImagingSummary() {
+    if (!ctResult) return 'No registrado'
+    if (ctResult.bleeding === true) return 'TC con hemorragia intracraneal'
+    if (ctResult.bleeding === false) return 'TC sin hemorragia'
+    if (ctResult.mismatch === true) return 'RMN con mismatch FLAIR-DWI'
+    if (ctResult.mismatch === false) return 'RMN sin mismatch'
+    return 'Imagen registrada'
+  }
+
   if (step === STEP.START) {
     return <StartStep onStart={handleStart} onResume={handleResume} />
   }
@@ -484,7 +618,7 @@ export default function App() {
           type="button"
           onClick={() => setShowOutOfWindow(true)}
           style={{ bottom: 'calc(1.5rem + env(safe-area-inset-bottom, 0px))' }}
-          className="fixed left-14 md:left-4 z-40 flex items-center gap-2 bg-slate-700 hover:bg-slate-800 active:scale-95 text-white text-xs font-semibold px-4 py-3 min-h-[44px] rounded-full shadow-lg transition-all"
+          className="fixed left-14 z-40 flex items-center gap-2 bg-slate-700 hover:bg-slate-800 active:scale-95 text-white text-xs font-semibold px-4 py-3 min-h-[44px] rounded-full shadow-lg transition-all md:hidden"
         >
           <Clock size={14} />
           Fuera de ventana
@@ -501,23 +635,34 @@ export default function App() {
       )}
 
       {/* Body — two-column on desktop */}
-      <div className={`flex-1 flex flex-col ${step === STEP.PATIENT ? 'justify-center' : ''} md:grid md:items-start ${patient ? 'md:grid-cols-[300px_1fr]' : 'md:grid-cols-1'} w-full md:gap-6 md:px-8 md:pt-4`}>
+      <div className={`flex-1 flex flex-col ${step === STEP.PATIENT ? 'justify-center' : ''} md:grid md:items-start ${patient ? 'md:grid-cols-[248px_minmax(0,1fr)]' : 'md:grid-cols-1'} w-full md:gap-8 md:px-6 lg:px-9 md:pt-5`}>
 
         {/* Desktop sidebar */}
         {patient && (
-          <div className="hidden md:flex md:flex-col md:sticky md:top-[44px] md:self-start md:max-h-[calc(100vh-44px)] md:overflow-y-auto">
+          <div className="hidden md:flex md:flex-col md:sticky md:top-[48px] md:self-start md:max-h-[calc(100vh-48px)] md:overflow-y-auto md:pr-1">
             {/* Patient card */}
-            <div className="rounded-xl bg-white border border-gray-100 shadow-sm p-4 mb-3">
-              <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Paciente</p>
-              <p className="font-semibold text-gray-800 text-base leading-snug">{patient.name}</p>
-              <p className="text-sm text-gray-500 mt-0.5">DNI {patient.dni}</p>
+            <div className="rounded-lg bg-white/70 border border-gray-200/70 p-3.5 mb-3">
+              <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 mb-1.5">Paciente</p>
+              <p className="font-semibold text-gray-800 text-sm leading-snug">{patient.name}</p>
+              <p className="text-xs text-gray-500 mt-0.5">DNI {patient.dni}</p>
               {patientId && (
-                <div className="mt-3 pt-3 border-t border-gray-100">
-                  <p className="text-xs text-gray-400 uppercase tracking-wider">ID del caso</p>
-                  <p className="text-sm font-mono font-bold text-brand-600 tracking-widest mt-1">{patientId}</p>
+                <div className="mt-2.5 pt-2.5 border-t border-gray-100">
+                  <p className="text-[10px] text-gray-400 uppercase tracking-wider">ID del caso</p>
+                  <p className="text-xs font-mono font-bold text-brand-600 tracking-widest mt-0.5">{patientId}</p>
                 </div>
               )}
             </div>
+
+            {step > STEP.ALERT && (
+              <button
+                type="button"
+                onClick={() => setShowOutOfWindow(true)}
+                className="mb-3 flex w-full items-center justify-center gap-2 rounded-lg border border-slate-200 bg-slate-700 px-3 py-2.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-slate-800 active:scale-[0.99]"
+              >
+                <Clock size={14} />
+                Fuera de ventana
+              </button>
+            )}
 
             <StepTimeline
               variant="desktop"
@@ -536,7 +681,7 @@ export default function App() {
         )}
 
         {/* Main content */}
-      <div className={`${patient ? 'pl-12 pr-3' : 'px-3'} md:px-0 md:min-w-0 w-full md:mx-0 pt-4 space-y-3`}>
+      <div className={`${patient ? 'pl-12 pr-3' : 'px-3'} md:px-0 md:min-w-0 w-full md:max-w-4xl md:mx-auto pt-4 md:pt-0 space-y-3 lg:space-y-3.5`}>
           {step >= STEP.PATIENT && (
             <div className={step > STEP.ALERT ? 'md:hidden' : ''}>
               <PatientStep
@@ -628,7 +773,7 @@ export default function App() {
 
           {step === STEP.DONE && done && (
             <div ref={doneRef} className="px-4 pb-4 animate-slide-down">
-              <div className={`bg-white rounded-xl border-l-4 ${done.borderColor} shadow-sm p-6`}>
+              <div className={`bg-white rounded-xl border-l-4 ${done.borderColor} shadow-sm p-6 mb-3`}>
                 <div className={`w-14 h-14 ${done.iconBg} rounded-full flex items-center justify-center mx-auto mb-4`}>
                   {done.icon === 'check' && <svg className="w-7 h-7 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>}
                   {done.icon === 'error' && <svg className="w-7 h-7 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" /></svg>}
@@ -644,6 +789,56 @@ export default function App() {
                       {timerStart.toLocaleTimeString('es-AR')}
                     </p>
                   </div>
+                )}
+              </div>
+              <div className="space-y-3">
+                <div className="rounded-xl border border-gray-100 bg-white px-4 py-4 shadow-sm">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400">Resumen del caso</p>
+                      <h2 className="mt-1 text-xl font-bold text-gray-900">{patient?.name ?? 'Paciente'}</h2>
+                      <p className="text-sm text-gray-500">DNI {patient?.dni ?? '-'} · Caso {patientId || '-'}</p>
+                    </div>
+                    <div className="rounded-lg border border-brand-100 bg-brand-50 px-3 py-2 text-right">
+                      <p className="text-[11px] font-bold uppercase tracking-wider text-brand-600">Estado final</p>
+                      <p className="text-sm font-semibold text-brand-700">{done.title}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <SummarySection title="Tiempos">
+                  <SummaryRow label="Ingreso" value={fmtDateTime(patientArrivalTime)} tone="blue" />
+                  <SummaryRow label="Inicio codigo" value={fmtDateTime(timerStart)} tone="blue" />
+                  <SummaryRow label="Ultima vez asintomatico" value={fmtDateTime(symptoms?.lastSeenNormal)} tone="orange" />
+                  <SummaryRow label="Solicitud TC" value={fmtDateTime(ctRequestTime)} tone="blue" />
+                  <SummaryRow label="Inicio trombolitico" value={fmtDateTime(thrombolyticStartTime)} tone={thrombolyticStartTime ? 'green' : 'gray'} />
+                  <SummaryRow label="Angio / trombectomia" value={fmtDateTime(angioRequestTime || thrombectomyActivationTime)} tone={angioRequestTime || thrombectomyActivationTime ? 'blue' : 'gray'} />
+                </SummarySection>
+
+                <SummarySection title="Evaluacion inicial">
+                  <SummaryRow label="Sintomas" value={getSelectedSymptomsSummary()} tone="orange" />
+                  <SummaryRow label="Ventana / OGV" value={symptoms?.isWakeUpStroke ? 'ACV del despertar / evaluar imagen' : 'Segun horario registrado'} tone="orange" />
+                  <SummaryRow label="TA" value={vitals ? `${vitals.systolic}/${vitals.diastolic} mmHg` : 'No registrado'} tone="blue" />
+                  <SummaryRow label="Glucemia" value={vitals ? `${vitals.glucose} mg/dL` : 'No registrado'} tone="blue" />
+                  <SummaryRow label="NIHSS" value={nihss ? `${nihss.nihssScore} puntos${nihss.hasDisablingSymptoms ? ' + deficit discapacitante' : ''}` : 'No registrado'} tone="orange" />
+                  <SummaryRow label="Anticoagulacion" value={symptoms?.anticoagulation?.active ? `Si: ${symptoms.anticoagulation.type || 'tipo no registrado'}` : symptoms?.anticoagulation ? 'No' : 'No registrado'} tone={symptoms?.anticoagulation?.active ? 'red' : 'green'} />
+                </SummarySection>
+
+                <SummarySection title="Imagen y decisiones">
+                  <SummaryRow label="Imagen" value={getImagingSummary()} tone={ctResult?.bleeding ? 'red' : 'blue'} />
+                  <SummaryRow label="Contraindicaciones" value={getContraSummary()} tone={contraindications?.hasAbsolute ? 'red' : contraindications?.hasRelative ? 'orange' : 'green'} />
+                  <SummaryRow label="Trombolisis" value={getDoseSummary()} tone={dosage ? 'green' : 'gray'} />
+                  <SummaryRow label="Peso" value={dosage?.weight ? `${dosage.weight} kg` : 'No registrado'} tone={dosage?.weight ? 'green' : 'gray'} />
+                  <SummaryRow label="AngioTAC" value={thrombectomy?.angioRequested === true ? 'Solicitada' : thrombectomy?.angioRequested === false ? 'No solicitada' : 'No registrado'} tone={thrombectomy?.angioRequested ? 'blue' : 'gray'} />
+                  <SummaryRow label="ASPECTS" value={thrombectomy?.aspectScore ?? 'No registrado'} tone={thrombectomy?.aspectScore !== undefined ? 'blue' : 'gray'} />
+                </SummarySection>
+
+                {(nihssReadings.length > 0 || vitalsReadings.length > 0 || glucoseReadings.length > 0) && (
+                  <SummarySection title="Registros rapidos">
+                    <SummaryRow label="NIHSS adicionales" value={nihssReadings.length ? nihssReadings.map((r) => `${r.score} (${fmtTime(r.timestamp)})`).join(', ') : 'Sin registros'} tone="orange" />
+                    <SummaryRow label="TA adicionales" value={vitalsReadings.length ? vitalsReadings.map((r) => `${r.systolic}/${r.diastolic} (${fmtTime(r.timestamp)})`).join(', ') : 'Sin registros'} tone="blue" />
+                    <SummaryRow label="Glucemias adicionales" value={glucoseReadings.length ? glucoseReadings.map((r) => `${r.value} (${fmtTime(r.timestamp)})`).join(', ') : 'Sin registros'} tone="blue" />
+                  </SummarySection>
                 )}
               </div>
             </div>
