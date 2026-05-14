@@ -20,6 +20,7 @@ const TIME_PRESETS = [
   { label: '3 horas', mins: 180 },
   { label: '6 horas', mins: 360 },
   { label: '12 horas', mins: 720 },
+  { label: '+24 horas', mins: 1500 },
 ]
 
 const IV_WINDOW_MINUTES = 270 // 4.5 hours
@@ -239,7 +240,7 @@ export default function SymptomsStep({ onConfirm }) {
           </p>
         </div>
 
-        <div className="grid grid-cols-4 gap-2 mb-2.5 sm:grid-cols-8">
+        <div className="grid grid-cols-3 gap-2 mb-2.5 sm:grid-cols-9">
           {TIME_PRESETS.map(({ label, mins }) => {
             const active = selectedPreset === mins
             const latePreset = mins >= 360
