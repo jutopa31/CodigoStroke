@@ -54,7 +54,8 @@ export default function App() {
   const [ctResult, setCtResult] = useState(null)
   const [contraindications, setContraindications] = useState(null)
   const [dosage, setDosage] = useState(null)
-  const [, setThrombectomy] = useState(null)
+  const [thrombectomy, setThrombectomy] = useState(null)
+  const [copied, setCopied] = useState(false)
   const [eventId] = useState(uuidv4)
   const [, setNihssReadings] = useState([])
   const [, setVitalsReadings] = useState([])
@@ -233,8 +234,14 @@ export default function App() {
       setStep(STEP.DONE)
       scrollTo(doneRef)
     } else {
-      advanceTo(STEP.CONTRAINDICATIONS)
-      scrollTo(contraindicationsRef)
+      const indicated = nihss?.nihssScore >= 5 || nihss?.hasDisablingSymptoms === true
+      if (indicated) {
+        advanceTo(STEP.CONTRAINDICATIONS)
+        scrollTo(contraindicationsRef)
+      } else {
+        advanceTo(STEP.THROMBECTOMY)
+        scrollTo(thrombectomyRef)
+      }
     }
   }
 
@@ -315,6 +322,73 @@ export default function App() {
     : SIDEBAR_VALUES.filter((v) => v < step)
   const protocolUnlocked = step >= STEP.SYMPTOMS
 
+  // Trombolisis potencialmente indicada: NIHSS≥5, o NIHSS<5 con síntomas discapacitantes,
+  // o wake-up con mismatch positivo en RMN
+  const thrombolysisPathActive = !ctResult?.bleeding && (
+    symptoms?.isWakeUpStroke
+      ? ctResult?.mismatch === true
+      : (nihss?.nihssScore >= 5 || nihss?.hasDisablingSymptoms === true)
+  )
+
+  const RED_CONTRA_LABELS = {
+    prior_ich:         'Hemorragia intracraneal previa o actual',
+    large_infarct:     'Infarto extenso en TC (ASPECTS < 3)',
+    tce:               'TCE grave o cirugía intracraneal reciente',
+    axial_tumor:       'Tumor intra-axial',
+    coagulopathy:      'Coagulopatía severa',
+    aortic_dissection: 'Disección aórtica',
+    endocarditis:      'Endocarditis infecciosa activa',
+  }
+
+  function generateSummaryText() {
+    const lines = ['=== CÓDIGO STROKE ===']
+    if (patient) lines.push(`Paciente: ${patient.name} · DNI ${patient.dni}`)
+    if (timerStart) lines.push(`Inicio del código: ${timerStart.toLocaleTimeString('es-AR')}`)
+    if (patientArrivalTime && ctRequestTime) {
+      const mins = Math.round((ctRequestTime - patientArrivalTime) / 60000)
+      lines.push(`Tiempo puerta-imagen: ${mins} min`)
+    }
+    if (patientArrivalTime && thrombolyticStartTime) {
+      const mins = Math.round((thrombolyticStartTime - patientArrivalTime) / 60000)
+      lines.push(`Tiempo puerta-aguja: ${mins} min`)
+    }
+    lines.push('')
+    if (nihss) lines.push(`NIHSS: ${nihss.nihssScore}`)
+    if (ctResult?.bleeding) {
+      lines.push('TC: Hemorragia intracraneal — trombolisis contraindicada')
+    } else if (ctResult) {
+      lines.push('TC: Sin hemorragia')
+    }
+    if (contraindications?.hasAbsolute) {
+      const names = Object.entries(contraindications.red || {})
+        .filter(([, v]) => v)
+        .map(([k]) => RED_CONTRA_LABELS[k])
+        .filter(Boolean)
+      lines.push(`Contraindicaciones: ${names.length ? names.join('; ') : 'Contraindicación absoluta'}`)
+    } else if (contraindications?.hasRelative && contraindications?.decidedNotToThrombolyze) {
+      lines.push('Trombolisis: No indicada (contraindicación relativa — decisión de no trombolizar)')
+    }
+    if (dosage) {
+      const drug = dosage.drug === 'tnk' ? 'TNK' : 'rtPA'
+      const dose = dosage.drug === 'tnk'
+        ? `${dosage.dose?.total} mg bolo único`
+        : `${dosage.dose?.total} mg total (bolo ${dosage.dose?.bolo} mg + infusión ${dosage.dose?.infusion} mg)`
+      lines.push(`Trombolisis: ${drug} — ${dose}`)
+      if (thrombolyticStartTime) lines.push(`Inicio trombolisis: ${thrombolyticStartTime.toLocaleTimeString('es-AR')}`)
+    }
+    if (thrombectomy) {
+      const angio = thrombectomy.angioRequested ? 'Sí' : 'No'
+      lines.push(`AngioTAC solicitada: ${angio}`)
+      if (thrombectomy.angioRequested) {
+        lines.push(`OGV: ${thrombectomy.ogvFound === true ? 'Sí' : thrombectomy.ogvFound === false ? 'No' : 'Pendiente'}`)
+      }
+      if (thrombectomy.thrombectomyActivationTime) {
+        lines.push(`Trombectomía activada: ${new Date(thrombectomy.thrombectomyActivationTime).toLocaleTimeString('es-AR')}`)
+      }
+    }
+    return lines.join('\n')
+  }
+
   function getDoneContent() {
     if (ctResult?.bleeding) {
       return {
@@ -335,12 +409,17 @@ export default function App() {
       }
     }
     if (contraindications?.hasAbsolute) {
+      const activeNames = Object.entries(contraindications.red || {})
+        .filter(([, v]) => v)
+        .map(([k]) => RED_CONTRA_LABELS[k])
+        .filter(Boolean)
+      const motivo = activeNames.length ? activeNames.join('; ') : 'Contraindicación absoluta'
       return {
         icon: 'error',
         iconBg: 'bg-red-100',
         borderColor: 'border-red-400',
-        title: 'Contraindicación absoluta presente',
-        body: 'No indicar trombolisis IV. Registrar motivo y continuar manejo de soporte.',
+        title: 'Contraindicación absoluta — trombolisis NO indicada',
+        body: `Motivo: ${motivo}. Continuar manejo de soporte y evaluar trombectomía mecánica.`,
       }
     }
     if (dosage) {
@@ -596,13 +675,13 @@ export default function App() {
             </div>
           )}
 
-          {step >= STEP.CONTRAINDICATIONS && (
+          {step >= STEP.CONTRAINDICATIONS && thrombolysisPathActive && (
             <div ref={contraindicationsRef}>
               <ContraindicationsStep onConfirm={handleContraindicationsConfirm} />
             </div>
           )}
 
-          {step >= STEP.DOSAGE && (
+          {step >= STEP.DOSAGE && thrombolysisPathActive && !contraindications?.hasAbsolute && !contraindications?.decidedNotToThrombolyze && (
             <div ref={dosageRef}>
               <DosageStep
                 onConfirm={handleDosageConfirm}
@@ -645,6 +724,21 @@ export default function App() {
                     </p>
                   </div>
                 )}
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText(generateSummaryText()).then(() => {
+                      setCopied(true)
+                      setTimeout(() => setCopied(false), 2500)
+                    })
+                  }}
+                  className="mt-4 w-full flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-gray-50 hover:bg-gray-100 active:scale-95 text-gray-600 text-sm font-semibold py-3 transition-all"
+                >
+                  {copied
+                    ? <><svg className="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg> Copiado</>
+                    : <><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg> Copiar resumen</>
+                  }
+                </button>
               </div>
             </div>
           )}
