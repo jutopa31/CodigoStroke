@@ -192,6 +192,17 @@ export default function ThrombectomyStep({
         </div>
       </StepCard>
 
+      {!canContinue && (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 space-y-1">
+          <p className="font-semibold text-amber-900">Para finalizar el protocolo falta:</p>
+          <ul className="list-disc list-inside space-y-0.5 text-amber-800">
+            {angioRequested === null && <li>Indicar si se solicitó AngioTAC</li>}
+            {!aspectValid && <li>Registrar el puntaje ASPECTS (0–10)</li>}
+            {needsThrombectomyTime && !thrombectomyActivationTime && <li>Registrar la activación de trombectomía</li>}
+          </ul>
+        </div>
+      )}
+
       <button
         onClick={() => onConfirm({
           angioRequested,

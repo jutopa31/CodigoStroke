@@ -422,6 +422,17 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
         </div>
       </StepCard>
 
+      {!canContinue && (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 space-y-1">
+          <p className="font-semibold text-amber-900">Para finalizar el protocolo falta:</p>
+          <ul className="list-disc list-inside space-y-0.5 text-amber-800">
+            {!validWeight && <li>Ingresar el peso del paciente</li>}
+            {!thrombolyticStartTime && <li>Registrar el inicio del trombolítico</li>}
+            {!allChecked && <li>Completar todas las indicaciones post-trombolisis</li>}
+          </ul>
+        </div>
+      )}
+
       <button
         onClick={() => onConfirm({
           drug,
