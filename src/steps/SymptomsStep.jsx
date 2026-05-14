@@ -22,7 +22,8 @@ const TIME_PRESETS = [
   { label: '12 horas', mins: 720 },
 ]
 
-const WAKE_UP_THRESHOLD_MINUTES = 270 // 4.5 hours
+const IV_WINDOW_MINUTES = 270 // 4.5 hours
+const OGV_WINDOW_MINUTES = 1440 // 24 hours
 const ANTICOAG_TYPES = [
   { id: 'doac', label: 'DOAC' },
   { id: 'heparina', label: 'Heparina' },
@@ -102,7 +103,14 @@ export default function SymptomsStep({ onConfirm }) {
 
   const elapsed = timeSince(lastSeen)
   const elapsedMinutes = getElapsedMinutes(lastSeen)
-  const isOverWindow = elapsedMinutes > WAKE_UP_THRESHOLD_MINUTES
+  const shouldEvaluateOgv = elapsedMinutes > IV_WINDOW_MINUTES && elapsedMinutes <= OGV_WINDOW_MINUTES
+  const isOutOfWindow = elapsedMinutes > OGV_WINDOW_MINUTES
+  const timeAccent = isOutOfWindow ? 'red' : shouldEvaluateOgv ? 'orange' : 'blue'
+  const timeStatusLabel = isOutOfWindow
+    ? 'Fuera de ventana'
+    : shouldEvaluateOgv
+    ? 'Evaluar OGV'
+    : 'ventana activa'
   const hasSymptom = Object.values(selected).some(Boolean)
   const selectedCount = Object.values(selected).filter(Boolean).length
   const needsAnticoagulationType = anticoagulationActive === true
@@ -135,7 +143,7 @@ export default function SymptomsStep({ onConfirm }) {
 
   function handleSubmit() {
     if (!valid) return
-    if (isOverWindow) {
+    if (shouldEvaluateOgv) {
       setShowWakeUpModal(true)
     } else {
       confirm(false)
@@ -206,13 +214,17 @@ export default function SymptomsStep({ onConfirm }) {
         </div>
       </StepCard>
 
-      <StepCard step="" title="" accent={isOverWindow ? 'orange' : 'blue'}>
+      <StepCard step="" title="" accent={timeAccent}>
         <div className={`mb-3 rounded-lg border px-3 py-2 ${
-          isOverWindow ? 'border-orange-200 bg-orange-50/70' : 'border-blue-100 bg-blue-50/60'
+          isOutOfWindow
+            ? 'border-red-200 bg-red-50/70'
+            : shouldEvaluateOgv
+            ? 'border-orange-200 bg-orange-50/70'
+            : 'border-blue-100 bg-blue-50/60'
         }`}>
           <div className="flex flex-wrap items-center justify-between gap-2">
             <label className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 ${
-              isOverWindow ? 'text-orange-800' : 'text-blue-800'
+              isOutOfWindow ? 'text-red-800' : shouldEvaluateOgv ? 'text-orange-800' : 'text-blue-800'
             }`}>
               <Clock size={13} /> Ultima vez visto asintomatico
             </label>
@@ -220,7 +232,9 @@ export default function SymptomsStep({ onConfirm }) {
               {lastSeen ? 'Completo' : 'Pendiente'}
             </StatusPill>
           </div>
-          <p className={`mt-1 text-xs ${isOverWindow ? 'text-orange-700' : 'text-blue-700'}`}>
+          <p className={`mt-1 text-xs ${
+            isOutOfWindow ? 'text-red-700' : shouldEvaluateOgv ? 'text-orange-700' : 'text-blue-700'
+          }`}>
             Elegi un atajo o ajusta fecha y hora manualmente.
           </p>
         </div>
@@ -263,7 +277,9 @@ export default function SymptomsStep({ onConfirm }) {
             setLastSeen(e.target.value)
           }}
           className={`w-full rounded-lg border-2 px-3 py-2.5 text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:border-transparent ${
-            isOverWindow
+            isOutOfWindow
+              ? 'border-red-300 bg-red-50/40 focus:ring-red-400'
+              : shouldEvaluateOgv
               ? 'border-orange-300 bg-orange-50/40 focus:ring-orange-400'
               : 'border-blue-300 bg-blue-50/40 focus:ring-blue-400'
           }`}
@@ -271,16 +287,28 @@ export default function SymptomsStep({ onConfirm }) {
 
         {elapsed && (
           <div className={`mt-2 flex items-center gap-2 rounded-lg px-3 py-2.5 border-2 ${
-            isOverWindow
+            isOutOfWindow
+              ? 'bg-red-50 border-red-300'
+              : shouldEvaluateOgv
               ? 'bg-orange-50 border-orange-300'
               : 'bg-blue-50 border-blue-300'
           }`}>
-            <Clock size={14} className={isOverWindow ? 'text-orange-500 shrink-0' : 'text-blue-500 shrink-0'} />
-            <span className={`text-sm font-semibold ${isOverWindow ? 'text-orange-700' : 'text-blue-700'}`}>
+            <Clock size={14} className={
+              isOutOfWindow
+                ? 'text-red-500 shrink-0'
+                : shouldEvaluateOgv
+                ? 'text-orange-500 shrink-0'
+                : 'text-blue-500 shrink-0'
+            } />
+            <span className={`text-sm font-semibold ${
+              isOutOfWindow ? 'text-red-700' : shouldEvaluateOgv ? 'text-orange-700' : 'text-blue-700'
+            }`}>
               {elapsed}
             </span>
-            <span className={`text-xs ml-auto ${isOverWindow ? 'text-orange-500' : 'text-blue-500'}`}>
-              {isOverWindow ? 'ventana superada' : 'ventana activa'}
+            <span className={`text-xs font-semibold ml-auto ${
+              isOutOfWindow ? 'text-red-600' : shouldEvaluateOgv ? 'text-orange-600' : 'text-blue-500'
+            }`}>
+              {timeStatusLabel}
             </span>
           </div>
         )}
