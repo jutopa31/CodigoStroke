@@ -32,9 +32,50 @@ const ANTICOAG_TYPES = [
   { id: 'acenocumarol', label: 'Acenocumarol' },
 ]
 
-function toLocalInput(date) {
+function toLocalDateInput(date) {
   const pad = (n) => String(n).padStart(2, '0')
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
+}
+
+function toLocalTimeInput(date) {
+  const pad = (n) => String(n).padStart(2, '0')
+  return `${pad(date.getHours())}:${pad(date.getMinutes())}`
+}
+
+function combineDateTime(datePart, timePart) {
+  if (!datePart || !timePart) return ''
+  return `${datePart}T${timePart}`
+}
+
+function parseClockEntry(value) {
+  const trimmed = value.trim()
+  const colonMatch = trimmed.match(/^(\d{1,2}):(\d{1,2})$/)
+  let hours
+  let minutes
+
+  if (colonMatch) {
+    hours = Number(colonMatch[1])
+    minutes = Number(colonMatch[2])
+  } else {
+    const digits = trimmed.replace(/\D/g, '')
+    if (!digits) return null
+    if (digits.length <= 2) {
+      hours = Number(digits)
+      minutes = 0
+    } else if (digits.length === 3) {
+      hours = Number(digits.slice(0, 1))
+      minutes = Number(digits.slice(1))
+    } else {
+      hours = Number(digits.slice(0, 2))
+      minutes = Number(digits.slice(2, 4))
+    }
+  }
+
+  if (!Number.isInteger(hours) || !Number.isInteger(minutes) || hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
+    return null
+  }
+
+  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`
 }
 
 function useInterval(ms) {
@@ -66,7 +107,9 @@ function getElapsedHours(dateStr) {
 
 export default function SymptomsStep({ onConfirm }) {
   const [selected, setSelected] = useState({})
-  const [lastSeen, setLastSeen] = useState(() => toLocalInput(new Date()))
+  const [lastSeenDate, setLastSeenDate] = useState(() => toLocalDateInput(new Date()))
+  const [lastSeenTime, setLastSeenTime] = useState(() => toLocalTimeInput(new Date()))
+  const [lastSeenTimeText, setLastSeenTimeText] = useState(() => toLocalTimeInput(new Date()))
   const [selectedPreset, setSelectedPreset] = useState(0)
   const [showWakeUpModal, setShowWakeUpModal] = useState(false)
   const [anticoagulationActive, setAnticoagulationActive] = useState(null)
@@ -74,6 +117,7 @@ export default function SymptomsStep({ onConfirm }) {
 
   useInterval(1000)
 
+  const lastSeen = combineDateTime(lastSeenDate, lastSeenTime)
   const elapsed = timeSince(lastSeen)
   const elapsedMinutes = getElapsedMinutes(lastSeen)
   const shouldEvaluateOgv = elapsedMinutes > IV_WINDOW_MINUTES && elapsedMinutes <= OGV_WINDOW_MINUTES
@@ -104,7 +148,39 @@ export default function SymptomsStep({ onConfirm }) {
     const d = new Date()
     d.setMinutes(d.getMinutes() - mins)
     setSelectedPreset(mins)
-    setLastSeen(toLocalInput(d))
+    const nextDate = toLocalDateInput(d)
+    const nextTime = toLocalTimeInput(d)
+    setLastSeenDate(nextDate)
+    setLastSeenTime(nextTime)
+    setLastSeenTimeText(nextTime)
+  }
+
+  function handleDateChange(value) {
+    setSelectedPreset(null)
+    setLastSeenDate(value)
+  }
+
+  function commitTimeText(value) {
+    const parsed = parseClockEntry(value)
+    if (!parsed) {
+      setLastSeenTimeText(lastSeenTime)
+      return
+    }
+    setLastSeenTime(parsed)
+    setLastSeenTimeText(parsed)
+  }
+
+  function handleTimeTextChange(value) {
+    setSelectedPreset(null)
+    setLastSeenTimeText(value)
+    const parsed = parseClockEntry(value)
+    if (parsed) setLastSeenTime(parsed)
+  }
+
+  function handleClockPickerChange(value) {
+    setSelectedPreset(null)
+    setLastSeenTime(value)
+    setLastSeenTimeText(value)
   }
 
   function handleAnticoagulationAnswer(active) {
@@ -241,22 +317,63 @@ export default function SymptomsStep({ onConfirm }) {
           })}
         </div>
 
-        <input
-          type="datetime-local"
-          value={lastSeen}
-          max={toLocalInput(new Date())}
-          onChange={(e) => {
-            setSelectedPreset(null)
-            setLastSeen(e.target.value)
-          }}
-          className={`w-full rounded-lg border-2 px-3 py-2.5 text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:border-transparent ${
-            isOutOfWindow
-              ? 'border-red-300 bg-red-50/40 focus:ring-red-400'
-              : shouldEvaluateOgv
-              ? 'border-orange-300 bg-orange-50/40 focus:ring-orange-400'
-              : 'border-blue-300 bg-blue-50/40 focus:ring-blue-400'
-          }`}
-        />
+        <div className="grid gap-2 md:grid-cols-[1fr_1fr_150px]">
+          <label className="block">
+            <span className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-gray-500">Dia</span>
+            <input
+              type="date"
+              value={lastSeenDate}
+              max={toLocalDateInput(new Date())}
+              onChange={(e) => handleDateChange(e.target.value)}
+              className={`w-full rounded-lg border-2 px-3 py-2.5 text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:border-transparent ${
+                isOutOfWindow
+                  ? 'border-red-300 bg-red-50/40 focus:ring-red-400'
+                  : shouldEvaluateOgv
+                  ? 'border-orange-300 bg-orange-50/40 focus:ring-orange-400'
+                  : 'border-blue-300 bg-blue-50/40 focus:ring-blue-400'
+              }`}
+            />
+          </label>
+
+          <label className="block">
+            <span className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-gray-500">Hora manual</span>
+            <input
+              type="text"
+              inputMode="numeric"
+              placeholder="930, 09:30, 15"
+              value={lastSeenTimeText}
+              onChange={(e) => handleTimeTextChange(e.target.value)}
+              onBlur={(e) => commitTimeText(e.target.value)}
+              className={`w-full rounded-lg border-2 px-3 py-2.5 text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:border-transparent ${
+                isOutOfWindow
+                  ? 'border-red-300 bg-red-50/40 focus:ring-red-400'
+                  : shouldEvaluateOgv
+                  ? 'border-orange-300 bg-orange-50/40 focus:ring-orange-400'
+                  : 'border-blue-300 bg-blue-50/40 focus:ring-blue-400'
+              }`}
+            />
+          </label>
+
+          <label className="block">
+            <span className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-gray-500">Reloj</span>
+            <input
+              type="time"
+              value={lastSeenTime}
+              onChange={(e) => handleClockPickerChange(e.target.value)}
+              className={`w-full rounded-lg border-2 px-3 py-2.5 text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:border-transparent ${
+                isOutOfWindow
+                  ? 'border-red-300 bg-red-50/40 focus:ring-red-400'
+                  : shouldEvaluateOgv
+                  ? 'border-orange-300 bg-orange-50/40 focus:ring-orange-400'
+                  : 'border-blue-300 bg-blue-50/40 focus:ring-blue-400'
+              }`}
+            />
+          </label>
+        </div>
+
+        <p className="mt-1.5 text-xs text-gray-400">
+          Atajos de hora: 930 = 09:30, 1530 = 15:30, 15 = 15:00.
+        </p>
 
         {elapsed && (
           <div className={`mt-2 flex items-center gap-2 rounded-lg px-3 py-2.5 border-2 ${
