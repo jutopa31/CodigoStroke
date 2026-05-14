@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react'
-import { ChevronRight, Clock, Zap, MessageSquare, Eye, Scale, FileText, ShieldAlert } from 'lucide-react'
+import { AlertCircle, CheckCircle2, ChevronRight, Clock, Zap, MessageSquare, Eye, Scale, FileText, ShieldAlert } from 'lucide-react'
 import StepCard from '../components/StepCard'
 import WakeUpStrokeModal from '../components/WakeUpStrokeModal'
+import { SelectionCheck, StatusPill } from '../components/GuidedControls'
 
 const SYMPTOM_OPTIONS = [
   { id: 'weakness', label: 'Debilidad unilateral', sub: 'Brazo, pierna o cara de un lado', Icon: Zap },
   { id: 'speech', label: 'Trastorno del habla', sub: 'Afasia, disartria o disfasia', Icon: MessageSquare },
-  { id: 'vision', label: 'Alteración visual', sub: 'Pérdida de visión, diplopía', Icon: Eye },
+  { id: 'vision', label: 'Alteracion visual', sub: 'Perdida de vision, diplopia', Icon: Eye },
   { id: 'ataxia', label: 'Ataxia / Inestabilidad', sub: 'Dificultad para caminar', Icon: Scale },
-  { id: 'other', label: 'Otro', sub: 'Otros síntomas', Icon: FileText },
+  { id: 'other', label: 'Otro', sub: 'Otros sintomas', Icon: FileText },
 ]
 
 const TIME_PRESETS = [
@@ -20,18 +21,61 @@ const TIME_PRESETS = [
   { label: '3 horas', mins: 180 },
   { label: '6 horas', mins: 360 },
   { label: '12 horas', mins: 720 },
+  { label: '+24 horas', mins: 1500 },
 ]
 
-const WAKE_UP_THRESHOLD_MINUTES = 270 // 4.5 hours
+const IV_WINDOW_MINUTES = 270 // 4.5 hours
+const OGV_WINDOW_MINUTES = 1440 // 24 hours
 const ANTICOAG_TYPES = [
-  { id: 'doac',         label: 'DOAC' },
-  { id: 'heparina',     label: 'Heparina' },
+  { id: 'doac', label: 'DOAC' },
+  { id: 'heparina', label: 'Heparina' },
   { id: 'acenocumarol', label: 'Acenocumarol' },
 ]
 
-function toLocalInput(date) {
+function toLocalDateInput(date) {
   const pad = (n) => String(n).padStart(2, '0')
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
+}
+
+function toLocalTimeInput(date) {
+  const pad = (n) => String(n).padStart(2, '0')
+  return `${pad(date.getHours())}:${pad(date.getMinutes())}`
+}
+
+function combineDateTime(datePart, timePart) {
+  if (!datePart || !timePart) return ''
+  return `${datePart}T${timePart}`
+}
+
+function parseClockEntry(value) {
+  const trimmed = value.trim()
+  const colonMatch = trimmed.match(/^(\d{1,2}):(\d{1,2})$/)
+  let hours
+  let minutes
+
+  if (colonMatch) {
+    hours = Number(colonMatch[1])
+    minutes = Number(colonMatch[2])
+  } else {
+    const digits = trimmed.replace(/\D/g, '')
+    if (!digits) return null
+    if (digits.length <= 2) {
+      hours = Number(digits)
+      minutes = 0
+    } else if (digits.length === 3) {
+      hours = Number(digits.slice(0, 1))
+      minutes = Number(digits.slice(1))
+    } else {
+      hours = Number(digits.slice(0, 2))
+      minutes = Number(digits.slice(2, 4))
+    }
+  }
+
+  if (!Number.isInteger(hours) || !Number.isInteger(minutes) || hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
+    return null
+  }
+
+  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`
 }
 
 function useInterval(ms) {
@@ -45,7 +89,7 @@ function useInterval(ms) {
 function timeSince(dateStr) {
   if (!dateStr) return null
   const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000)
-  if (diff < 0) return 'Tiempo inválido'
+  if (diff < 0) return 'Tiempo invalido'
   const h = Math.floor(diff / 3600)
   const m = Math.floor((diff % 3600) / 60)
   if (h > 0) return `Hace ${h}h ${m}min`
@@ -63,19 +107,38 @@ function getElapsedHours(dateStr) {
 
 export default function SymptomsStep({ onConfirm }) {
   const [selected, setSelected] = useState({})
-  const [lastSeen, setLastSeen] = useState(() => toLocalInput(new Date()))
+  const [lastSeenDate, setLastSeenDate] = useState(() => toLocalDateInput(new Date()))
+  const [lastSeenTime, setLastSeenTime] = useState(() => toLocalTimeInput(new Date()))
+  const [lastSeenTimeText, setLastSeenTimeText] = useState(() => toLocalTimeInput(new Date()))
+  const [selectedPreset, setSelectedPreset] = useState(0)
   const [showWakeUpModal, setShowWakeUpModal] = useState(false)
   const [anticoagulationActive, setAnticoagulationActive] = useState(null)
   const [anticoagulationType, setAnticoagulationType] = useState('')
 
   useInterval(1000)
 
+  const lastSeen = combineDateTime(lastSeenDate, lastSeenTime)
   const elapsed = timeSince(lastSeen)
   const elapsedMinutes = getElapsedMinutes(lastSeen)
-  const isOverWindow = elapsedMinutes > WAKE_UP_THRESHOLD_MINUTES
+  const shouldEvaluateOgv = elapsedMinutes > IV_WINDOW_MINUTES && elapsedMinutes <= OGV_WINDOW_MINUTES
+  const isOutOfWindow = elapsedMinutes > OGV_WINDOW_MINUTES
+  const timeAccent = isOutOfWindow ? 'red' : shouldEvaluateOgv ? 'orange' : 'blue'
+  const timeStatusLabel = isOutOfWindow
+    ? 'Fuera de ventana'
+    : shouldEvaluateOgv
+    ? 'Evaluar OGV'
+    : 'ventana activa'
   const hasSymptom = Object.values(selected).some(Boolean)
+  const selectedCount = Object.values(selected).filter(Boolean).length
   const needsAnticoagulationType = anticoagulationActive === true
-  const valid = hasSymptom && lastSeen && anticoagulationActive !== null && (!needsAnticoagulationType || anticoagulationType)
+  const anticoagulationComplete = anticoagulationActive !== null && (!needsAnticoagulationType || anticoagulationType)
+  const valid = hasSymptom && lastSeen && anticoagulationComplete
+  const missingItems = [
+    !hasSymptom && 'seleccionar al menos un sintoma',
+    !lastSeen && 'indicar ultima vez visto asintomatico',
+    anticoagulationActive === null && 'responder anticoagulacion',
+    needsAnticoagulationType && !anticoagulationType && 'elegir tipo de anticoagulante',
+  ].filter(Boolean)
 
   function toggle(id) {
     setSelected((s) => ({ ...s, [id]: !s[id] }))
@@ -84,7 +147,40 @@ export default function SymptomsStep({ onConfirm }) {
   function applyPreset(mins) {
     const d = new Date()
     d.setMinutes(d.getMinutes() - mins)
-    setLastSeen(toLocalInput(d))
+    setSelectedPreset(mins)
+    const nextDate = toLocalDateInput(d)
+    const nextTime = toLocalTimeInput(d)
+    setLastSeenDate(nextDate)
+    setLastSeenTime(nextTime)
+    setLastSeenTimeText(nextTime)
+  }
+
+  function handleDateChange(value) {
+    setSelectedPreset(null)
+    setLastSeenDate(value)
+  }
+
+  function commitTimeText(value) {
+    const parsed = parseClockEntry(value)
+    if (!parsed) {
+      setLastSeenTimeText(lastSeenTime)
+      return
+    }
+    setLastSeenTime(parsed)
+    setLastSeenTimeText(parsed)
+  }
+
+  function handleTimeTextChange(value) {
+    setSelectedPreset(null)
+    setLastSeenTimeText(value)
+    const parsed = parseClockEntry(value)
+    if (parsed) setLastSeenTime(parsed)
+  }
+
+  function handleClockPickerChange(value) {
+    setSelectedPreset(null)
+    setLastSeenTime(value)
+    setLastSeenTimeText(value)
   }
 
   function handleAnticoagulationAnswer(active) {
@@ -96,7 +192,7 @@ export default function SymptomsStep({ onConfirm }) {
 
   function handleSubmit() {
     if (!valid) return
-    if (isOverWindow) {
+    if (shouldEvaluateOgv) {
       setShowWakeUpModal(true)
     } else {
       confirm(false)
@@ -124,137 +220,256 @@ export default function SymptomsStep({ onConfirm }) {
   }
 
   return (
-    <div className="px-4 pb-4 space-y-3">
-      <StepCard step="2" title="Síntomas presentes" accent="orange">
-        <div className="space-y-2">
-          {SYMPTOM_OPTIONS.map((opt) => (
-            <button
-              key={opt.id}
-              onClick={() => toggle(opt.id)}
-              className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl border transition-all text-left ${
-                selected[opt.id]
-                  ? 'bg-orange-50 border-orange-400 text-orange-800'
-                  : 'border-gray-200 text-gray-700 hover:border-orange-300 hover:bg-orange-50/40'
-              }`}
-            >
-              <opt.Icon size={18} className="shrink-0 text-orange-400" />
-              <div className="flex-1 min-w-0">
-                <p className="font-medium text-sm">{opt.label}</p>
-                <p className="text-xs text-gray-400 mt-0.5">{opt.sub}</p>
-              </div>
-              <div className={`w-5 h-5 rounded-full border-2 shrink-0 flex items-center justify-center transition-colors ${
-                selected[opt.id] ? 'bg-orange-500 border-orange-500' : 'border-gray-300'
-              }`}>
-                {selected[opt.id] && (
-                  <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                  </svg>
-                )}
-              </div>
-            </button>
-          ))}
+    <div className="px-4 pb-4 space-y-2.5">
+      <StepCard step="2" title="Sintomas presentes" accent="orange">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-orange-100 bg-orange-50/60 px-3 py-2">
+          <div>
+            <p className="text-sm font-bold text-orange-900">Selecciona uno o mas sintomas</p>
+            <p className="text-xs text-orange-700">Toca una tarjeta para marcarla como presente.</p>
+          </div>
+          <StatusPill complete={hasSymptom}>
+            {hasSymptom ? `${selectedCount} seleccionado${selectedCount === 1 ? '' : 's'}` : 'Pendiente'}
+          </StatusPill>
+        </div>
+
+        <div className="grid gap-2 md:grid-cols-2">
+          {SYMPTOM_OPTIONS.map((opt) => {
+            const active = Boolean(selected[opt.id])
+            return (
+              <button
+                key={opt.id}
+                type="button"
+                aria-pressed={active}
+                onClick={() => toggle(opt.id)}
+                className={`w-full min-h-[66px] flex items-center gap-2.5 px-3 py-2.5 rounded-lg border-2 transition-all text-left ${
+                  active
+                    ? 'bg-orange-50 border-orange-500 text-orange-950 shadow-sm ring-2 ring-orange-100'
+                    : 'border-gray-200 text-gray-700 hover:border-orange-300 hover:bg-orange-50/40'
+                }`}
+              >
+                <span className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                  active ? 'bg-orange-100 text-orange-600' : 'bg-gray-50 text-orange-400'
+                }`}>
+                  <opt.Icon size={17} />
+                </span>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-sm leading-snug">{opt.label}</p>
+                  <p className="text-[12px] leading-snug text-gray-400 mt-0.5">{opt.sub}</p>
+                </div>
+                <SelectionCheck active={active} tone="orange" />
+              </button>
+            )
+          })}
         </div>
       </StepCard>
 
-      {/* Last seen normal */}
-      <StepCard step="" title="" accent={isOverWindow ? 'orange' : 'blue'}>
-        <label className="text-xs font-medium text-gray-500 uppercase tracking-wider flex items-center gap-1.5 mb-3">
-          <Clock size={13} /> Última vez visto asintomático
-        </label>
-
-        {/* Quick time presets */}
-        <div className="flex gap-2 flex-wrap mb-3">
-          {TIME_PRESETS.map(({ label, mins }) => (
-            <button
-              key={label}
-              type="button"
-              onClick={() => applyPreset(mins)}
-              className={`px-3 py-1.5 rounded-full border text-xs font-medium bg-white active:scale-95 transition-all ${
-                mins >= 360
-                  ? 'border-orange-300 text-orange-600 hover:bg-orange-50'
-                  : 'border-blue-200 text-blue-600 hover:bg-blue-50'
-              }`}
-            >
-              {label}
-            </button>
-          ))}
+      <StepCard step="" title="" accent={timeAccent}>
+        <div className={`mb-3 rounded-lg border px-3 py-2 ${
+          isOutOfWindow
+            ? 'border-red-200 bg-red-50/70'
+            : shouldEvaluateOgv
+            ? 'border-orange-200 bg-orange-50/70'
+            : 'border-blue-100 bg-blue-50/60'
+        }`}>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <label className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 ${
+              isOutOfWindow ? 'text-red-800' : shouldEvaluateOgv ? 'text-orange-800' : 'text-blue-800'
+            }`}>
+              <Clock size={13} /> Ultima vez visto asintomatico
+            </label>
+            <StatusPill complete={Boolean(lastSeen)}>
+              {lastSeen ? 'Completo' : 'Pendiente'}
+            </StatusPill>
+          </div>
+          <p className={`mt-1 text-xs ${
+            isOutOfWindow ? 'text-red-700' : shouldEvaluateOgv ? 'text-orange-700' : 'text-blue-700'
+          }`}>
+            Elegi un atajo o ajusta fecha y hora manualmente.
+          </p>
         </div>
 
-        <input
-          type="datetime-local"
-          value={lastSeen}
-          max={toLocalInput(new Date())}
-          onChange={(e) => setLastSeen(e.target.value)}
-          className="w-full border border-gray-200 rounded-xl px-4 py-3.5 text-gray-800 text-base focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
-        />
+        <div className="grid grid-cols-3 gap-2 mb-2.5 sm:grid-cols-9">
+          {TIME_PRESETS.map(({ label, mins }) => {
+            const active = selectedPreset === mins
+            const latePreset = mins >= 360
+            return (
+              <button
+                key={label}
+                type="button"
+                aria-pressed={active}
+                onClick={() => applyPreset(mins)}
+                className={`min-h-[38px] rounded-lg border-2 px-2 py-1 text-xs font-bold active:scale-95 transition-all ${
+                  active
+                    ? latePreset
+                      ? 'border-orange-500 bg-orange-500 text-white shadow-sm ring-2 ring-orange-100'
+                      : 'border-blue-600 bg-blue-600 text-white shadow-sm ring-2 ring-blue-100'
+                    : latePreset
+                      ? 'border-orange-200 bg-white text-orange-600 hover:border-orange-400 hover:bg-orange-50'
+                      : 'border-blue-200 bg-white text-blue-600 hover:border-blue-400 hover:bg-blue-50'
+                }`}
+              >
+                <span className="inline-flex items-center justify-center gap-1">
+                  {active && <CheckCircle2 size={12} />}
+                  {label}
+                </span>
+              </button>
+            )
+          })}
+        </div>
+
+        <div className="grid gap-2 md:grid-cols-[1fr_1fr_150px]">
+          <label className="block">
+            <span className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-gray-500">Dia</span>
+            <input
+              type="date"
+              value={lastSeenDate}
+              max={toLocalDateInput(new Date())}
+              onChange={(e) => handleDateChange(e.target.value)}
+              className={`w-full rounded-lg border-2 px-3 py-2.5 text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:border-transparent ${
+                isOutOfWindow
+                  ? 'border-red-300 bg-red-50/40 focus:ring-red-400'
+                  : shouldEvaluateOgv
+                  ? 'border-orange-300 bg-orange-50/40 focus:ring-orange-400'
+                  : 'border-blue-300 bg-blue-50/40 focus:ring-blue-400'
+              }`}
+            />
+          </label>
+
+          <label className="block">
+            <span className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-gray-500">Hora manual</span>
+            <input
+              type="text"
+              inputMode="numeric"
+              placeholder="930, 09:30, 15"
+              value={lastSeenTimeText}
+              onChange={(e) => handleTimeTextChange(e.target.value)}
+              onBlur={(e) => commitTimeText(e.target.value)}
+              className={`w-full rounded-lg border-2 px-3 py-2.5 text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:border-transparent ${
+                isOutOfWindow
+                  ? 'border-red-300 bg-red-50/40 focus:ring-red-400'
+                  : shouldEvaluateOgv
+                  ? 'border-orange-300 bg-orange-50/40 focus:ring-orange-400'
+                  : 'border-blue-300 bg-blue-50/40 focus:ring-blue-400'
+              }`}
+            />
+          </label>
+
+          <label className="block">
+            <span className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-gray-500">Reloj</span>
+            <input
+              type="time"
+              value={lastSeenTime}
+              onChange={(e) => handleClockPickerChange(e.target.value)}
+              className={`w-full rounded-lg border-2 px-3 py-2.5 text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:border-transparent ${
+                isOutOfWindow
+                  ? 'border-red-300 bg-red-50/40 focus:ring-red-400'
+                  : shouldEvaluateOgv
+                  ? 'border-orange-300 bg-orange-50/40 focus:ring-orange-400'
+                  : 'border-blue-300 bg-blue-50/40 focus:ring-blue-400'
+              }`}
+            />
+          </label>
+        </div>
+
+        <p className="mt-1.5 text-xs text-gray-400">
+          Atajos de hora: 930 = 09:30, 1530 = 15:30, 15 = 15:00.
+        </p>
 
         {elapsed && (
-          <div className={`mt-3 flex items-center gap-2 rounded-lg px-3 py-2.5 border ${
-            isOverWindow
-              ? 'bg-orange-50 border-orange-200'
-              : 'bg-blue-50 border-blue-200'
+          <div className={`mt-2 flex items-center gap-2 rounded-lg px-3 py-2.5 border-2 ${
+            isOutOfWindow
+              ? 'bg-red-50 border-red-300'
+              : shouldEvaluateOgv
+              ? 'bg-orange-50 border-orange-300'
+              : 'bg-blue-50 border-blue-300'
           }`}>
-            <Clock size={14} className={isOverWindow ? 'text-orange-500 shrink-0' : 'text-blue-500 shrink-0'} />
-            <span className={`text-sm font-semibold ${isOverWindow ? 'text-orange-700' : 'text-blue-700'}`}>
+            <Clock size={14} className={
+              isOutOfWindow
+                ? 'text-red-500 shrink-0'
+                : shouldEvaluateOgv
+                ? 'text-orange-500 shrink-0'
+                : 'text-blue-500 shrink-0'
+            } />
+            <span className={`text-sm font-semibold ${
+              isOutOfWindow ? 'text-red-700' : shouldEvaluateOgv ? 'text-orange-700' : 'text-blue-700'
+            }`}>
               {elapsed}
             </span>
-            <span className={`text-xs ml-auto ${isOverWindow ? 'text-orange-500' : 'text-blue-400'}`}>
-              {isOverWindow ? '⚠ ventana superada' : 'ventana terapéutica activa'}
+            <span className={`text-xs font-semibold ml-auto ${
+              isOutOfWindow ? 'text-red-600' : shouldEvaluateOgv ? 'text-orange-600' : 'text-blue-500'
+            }`}>
+              {timeStatusLabel}
             </span>
           </div>
         )}
 
-        <div className="mt-4 border-t border-gray-100 pt-4 space-y-3">
+        <div className="mt-3 border-t border-gray-100 pt-3 space-y-2.5">
           <div>
-            <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">
-              ¿El paciente recibe anticoagulación?
-            </p>
-            <div className="mt-3 grid grid-cols-2 gap-2">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="text-xs font-bold text-red-700 uppercase tracking-wider">
+                El paciente recibe anticoagulacion?
+              </p>
+              <StatusPill complete={anticoagulationComplete}>
+                {anticoagulationComplete ? 'Completo' : 'Pendiente'}
+              </StatusPill>
+            </div>
+
+            <div className="mt-2 grid grid-cols-2 gap-2">
               {[
-                { label: 'Sí', value: true },
+                { label: 'Si', value: true },
                 { label: 'No', value: false },
-              ].map((option) => (
-                <button
-                  key={option.label}
-                  type="button"
-                  onClick={() => handleAnticoagulationAnswer(option.value)}
-                  className={`rounded-xl border px-4 py-3 text-sm font-medium transition-all ${
-                    anticoagulationActive === option.value
-                      ? 'border-red-400 bg-red-50 text-red-700'
-                      : 'border-gray-200 text-gray-700 hover:border-red-300 hover:bg-red-50/40'
-                  }`}
-                >
-                  {option.label}
-                </button>
-              ))}
+              ].map((option) => {
+                const active = anticoagulationActive === option.value
+                return (
+                  <button
+                    key={option.label}
+                    type="button"
+                    aria-pressed={active}
+                    onClick={() => handleAnticoagulationAnswer(option.value)}
+                    className={`flex items-center justify-center gap-2 rounded-lg border-2 px-4 py-3 text-sm font-bold transition-all ${
+                      active
+                        ? 'border-red-500 bg-red-50 text-red-800 shadow-sm ring-2 ring-red-100'
+                        : 'border-gray-200 bg-white text-gray-700 hover:border-red-300 hover:bg-red-50/40'
+                    }`}
+                  >
+                    <SelectionCheck active={active} tone="red" />
+                    {option.label}
+                  </button>
+                )
+              })}
             </div>
           </div>
 
           {needsAnticoagulationType && (
-            <div className="space-y-3">
+            <div className="space-y-2.5">
               <div className="grid grid-cols-3 gap-2">
-                {ANTICOAG_TYPES.map(({ id, label }) => (
-                  <button
-                    key={id}
-                    type="button"
-                    onClick={() => setAnticoagulationType(id)}
-                    className={`rounded-xl border py-3 text-sm font-medium transition-all active:scale-95 ${
-                      anticoagulationType === id
-                        ? 'border-red-400 bg-red-50 text-red-700'
-                        : 'border-gray-200 text-gray-700 hover:border-red-300 hover:bg-red-50/40'
-                    }`}
-                  >
-                    {label}
-                  </button>
-                ))}
+                {ANTICOAG_TYPES.map(({ id, label }) => {
+                  const active = anticoagulationType === id
+                  return (
+                    <button
+                      key={id}
+                      type="button"
+                      aria-pressed={active}
+                      onClick={() => setAnticoagulationType(id)}
+                      className={`flex items-center justify-center gap-2 rounded-lg border-2 py-3 text-sm font-bold transition-all active:scale-95 ${
+                        active
+                          ? 'border-red-500 bg-red-50 text-red-800 shadow-sm ring-2 ring-red-100'
+                          : 'border-gray-200 bg-white text-gray-700 hover:border-red-300 hover:bg-red-50/40'
+                      }`}
+                    >
+                      <SelectionCheck active={active} tone="red" />
+                      {label}
+                    </button>
+                  )
+                })}
               </div>
 
               {anticoagulationType && (
-                <div className="rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-red-800">
+                <div className="rounded-lg border-2 border-red-300 bg-red-50 px-3 py-2.5 text-red-800">
                   <div className="flex items-start gap-2">
-                    <ShieldAlert size={18} className="shrink-0 mt-0.5" />
-                    <p className="text-sm font-medium">
-                      Anticoagulación activa — contraindicación relativa para trombólisis. Esperar laboratorio (coagulograma, anti-Xa o TT según droga).
+                    <ShieldAlert size={16} className="shrink-0 mt-0.5" />
+                    <p className="text-sm font-medium leading-snug">
+                      Anticoagulacion activa: contraindicacion relativa para trombolisis. Esperar laboratorio segun droga.
                     </p>
                   </div>
                 </div>
@@ -267,10 +482,19 @@ export default function SymptomsStep({ onConfirm }) {
       <button
         onClick={handleSubmit}
         disabled={!valid}
-        className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-semibold py-4 rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+        className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-semibold py-3.5 rounded-lg transition-all disabled:bg-gray-200 disabled:text-gray-500 disabled:opacity-100 disabled:cursor-not-allowed"
       >
-        Continuar <ChevronRight size={18} />
+        {valid ? 'Continuar' : 'Completa lo pendiente para continuar'} <ChevronRight size={18} />
       </button>
+
+      {!valid && (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+          <div className="flex items-start gap-2">
+            <AlertCircle size={16} className="mt-0.5 shrink-0" />
+            <p>Falta: {missingItems.join(', ')}.</p>
+          </div>
+        </div>
+      )}
 
       {showWakeUpModal && (
         <WakeUpStrokeModal

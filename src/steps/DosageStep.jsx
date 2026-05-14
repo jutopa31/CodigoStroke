@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { ChevronRight, CheckCircle2, Circle, Hospital, Ban, Pill, BarChart2, Brain, Microscope, Heart, Clock, Plus } from 'lucide-react'
 import StepCard from '../components/StepCard'
 import NihssModal from '../components/NihssModal'
+import { SelectionCheck } from '../components/GuidedControls'
 
 const WEIGHT_PRESETS = [50, 60, 70, 80, 90, 100]
 
@@ -71,8 +72,10 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
   const [weightStr, setWeightStr] = useState('')
   const [checked, setChecked] = useState({})
   const [nihssEntry, setNihssEntry] = useState('')
+  const [nihssRecords, setNihssRecords] = useState([])
   const [showNihssInput, setShowNihssInput] = useState(false)
   const [showNihssCalc, setShowNihssCalc] = useState(false)
+  const [nihssEntrySource, setNihssEntrySource] = useState('manual')
 
   const weight = parseFloat(weightStr)
   const validWeight = !isNaN(weight) && weight > 0 && weight <= 250
@@ -101,10 +104,20 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
   const nihssNum = parseInt(nihssEntry, 10)
   const nihssValid = nihssEntry !== '' && !isNaN(nihssNum) && nihssNum >= 0 && nihssNum <= 42
 
-  function handleSaveNihss() {
+  function handleSaveNihss(source = nihssEntrySource) {
     if (!nihssValid) return
+    setNihssRecords((records) => [
+      ...records,
+      {
+        id: `${Date.now()}-${nihssNum}`,
+        score: nihssNum,
+        timestamp: new Date(),
+        source,
+      },
+    ])
     onAddNihss?.(nihssNum)
     setNihssEntry('')
+    setNihssEntrySource('manual')
     setShowNihssInput(false)
   }
 
@@ -112,6 +125,7 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
     setNihssEntry(String(score))
     setShowNihssCalc(false)
     setShowNihssInput(true)
+    setNihssEntrySource('calculadora')
   }
 
   return (
@@ -126,24 +140,30 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
             onClick={() => setDrug('tnk')}
             className={`py-3 rounded-xl border-2 text-sm font-semibold transition-all ${
               drug === 'tnk'
-                ? 'bg-green-600 border-green-600 text-white'
+                ? 'bg-green-50 border-green-600 text-green-900 shadow-sm ring-2 ring-green-100'
                 : 'border-gray-200 text-gray-600 hover:border-green-300 hover:bg-green-50'
             }`}
           >
-            TNK
+            <span className="inline-flex items-center justify-center gap-2">
+              <SelectionCheck active={drug === 'tnk'} tone="green" />
+              TNK
+            </span>
             <span className={`block text-xs font-normal mt-0.5 ${drug === 'tnk' ? 'text-green-100' : 'text-gray-400'}`}>
-              Preferido AHA 2026
+              Tenecteplase
             </span>
           </button>
           <button
             onClick={() => setDrug('rtpa')}
             className={`py-3 rounded-xl border-2 text-sm font-semibold transition-all ${
               drug === 'rtpa'
-                ? 'bg-green-600 border-green-600 text-white'
+                ? 'bg-green-50 border-green-600 text-green-900 shadow-sm ring-2 ring-green-100'
                 : 'border-gray-200 text-gray-600 hover:border-green-300 hover:bg-green-50'
             }`}
           >
-            rtPA
+            <span className="inline-flex items-center justify-center gap-2">
+              <SelectionCheck active={drug === 'rtpa'} tone="green" />
+              rtPA
+            </span>
             <span className={`block text-xs font-normal mt-0.5 ${drug === 'rtpa' ? 'text-green-100' : 'text-gray-400'}`}>
               Alteplase
             </span>
@@ -176,9 +196,9 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
             <button
               key={w}
               onClick={() => setWeightStr(String(w))}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
+              className={`px-3 py-1.5 rounded-full text-xs font-bold border-2 transition-all ${
                 weightStr === String(w)
-                  ? 'bg-green-600 border-green-600 text-white'
+                  ? 'bg-green-600 border-green-600 text-white shadow-sm ring-2 ring-green-100'
                   : 'border-gray-200 text-gray-500 hover:border-green-300 hover:bg-green-50'
               }`}
             >
@@ -257,6 +277,39 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
 
             {thrombolyticStartTime && (
               <div className="mt-3 border-t border-emerald-200 pt-3">
+                {nihssRecords.length > 0 && (
+                  <div className="mb-3 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs font-bold uppercase tracking-wider text-emerald-700">
+                        NIHSS intra-infusion registrados
+                      </p>
+                      <span className="rounded-full border border-emerald-200 bg-white px-2 py-1 text-[11px] font-bold text-emerald-700">
+                        {nihssRecords.length}
+                      </span>
+                    </div>
+                    <div className="space-y-1.5">
+                      {nihssRecords.map((record) => (
+                        <div
+                          key={record.id}
+                          className="flex items-center gap-3 rounded-lg border-2 border-emerald-200 bg-white px-3 py-2"
+                        >
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-600 text-sm font-black text-white">
+                            {record.score}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm font-semibold text-emerald-900">NIHSS {record.score}</p>
+                            <p className="text-xs text-emerald-700">
+                              {record.timestamp.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                              {' · '}
+                              {record.source === 'calculadora' ? 'calculadora guiada' : 'manual'}
+                            </p>
+                          </div>
+                          <CheckCircle2 size={18} className="shrink-0 text-emerald-600" />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 {showNihssInput ? (
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
@@ -277,7 +330,10 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
                         max={42}
                         placeholder="0–42"
                         value={nihssEntry}
-                        onChange={(e) => setNihssEntry(e.target.value)}
+                        onChange={(e) => {
+                          setNihssEntry(e.target.value)
+                          setNihssEntrySource('manual')
+                        }}
                         onKeyDown={(e) => { if (e.key === 'Enter' && nihssValid) handleSaveNihss() }}
                         autoFocus
                         className="flex-1 border border-emerald-300 rounded-xl px-3 py-2.5 text-gray-800 text-base font-bold text-center focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent"
@@ -328,8 +384,8 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
               <button
                 key={item.id}
                 onClick={() => toggleCheck(item.id)}
-                className={`w-full flex items-start gap-3 px-4 py-3.5 rounded-xl border text-left transition-all ${
-                  done ? 'bg-green-50 border-green-400' : 'border-gray-200 hover:border-green-300 hover:bg-green-50/40'
+                className={`w-full flex items-start gap-3 px-4 py-3.5 rounded-xl border-2 text-left transition-all ${
+                  done ? 'bg-green-50 border-green-500 text-green-900 shadow-sm ring-2 ring-green-100' : 'border-gray-200 hover:border-green-300 hover:bg-green-50/40'
                 }`}
               >
                 <item.Icon size={18} className={`shrink-0 mt-0.5 ${done ? 'text-green-600' : 'text-gray-400'}`} />
@@ -365,6 +421,17 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
           </div>
         </div>
       </StepCard>
+
+      {!canContinue && (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 space-y-1">
+          <p className="font-semibold text-amber-900">Para finalizar el protocolo falta:</p>
+          <ul className="list-disc list-inside space-y-0.5 text-amber-800">
+            {!validWeight && <li>Ingresar el peso del paciente</li>}
+            {!thrombolyticStartTime && <li>Registrar el inicio del trombolítico</li>}
+            {!allChecked && <li>Completar todas las indicaciones post-trombolisis</li>}
+          </ul>
+        </div>
+      )}
 
       <button
         onClick={() => onConfirm({

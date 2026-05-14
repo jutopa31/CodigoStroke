@@ -14,8 +14,13 @@ export default function NihssModal({ onLoad, onClose }) {
 
   function select(score) {
     const next = { ...scores, [item.id]: score }
+    const nextTotal = Object.values(next).reduce((a, b) => a + b, 0)
+    const nextAllDone = Object.keys(next).length === nihssItems.length
     setScores(next)
-    if (current < nihssItems.length - 1) {
+
+    if (nextAllDone && current === nihssItems.length - 1) {
+      setTimeout(() => onLoad(nextTotal), 280)
+    } else if (current < nihssItems.length - 1) {
       setTimeout(() => setCurrent((c) => c + 1), 280)
     }
   }
