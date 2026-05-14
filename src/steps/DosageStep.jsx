@@ -72,8 +72,10 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
   const [weightStr, setWeightStr] = useState('')
   const [checked, setChecked] = useState({})
   const [nihssEntry, setNihssEntry] = useState('')
+  const [nihssRecords, setNihssRecords] = useState([])
   const [showNihssInput, setShowNihssInput] = useState(false)
   const [showNihssCalc, setShowNihssCalc] = useState(false)
+  const [nihssEntrySource, setNihssEntrySource] = useState('manual')
 
   const weight = parseFloat(weightStr)
   const validWeight = !isNaN(weight) && weight > 0 && weight <= 250
@@ -102,10 +104,20 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
   const nihssNum = parseInt(nihssEntry, 10)
   const nihssValid = nihssEntry !== '' && !isNaN(nihssNum) && nihssNum >= 0 && nihssNum <= 42
 
-  function handleSaveNihss() {
+  function handleSaveNihss(source = nihssEntrySource) {
     if (!nihssValid) return
+    setNihssRecords((records) => [
+      ...records,
+      {
+        id: `${Date.now()}-${nihssNum}`,
+        score: nihssNum,
+        timestamp: new Date(),
+        source,
+      },
+    ])
     onAddNihss?.(nihssNum)
     setNihssEntry('')
+    setNihssEntrySource('manual')
     setShowNihssInput(false)
   }
 
@@ -113,6 +125,7 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
     setNihssEntry(String(score))
     setShowNihssCalc(false)
     setShowNihssInput(true)
+    setNihssEntrySource('calculadora')
   }
 
   return (
@@ -264,6 +277,39 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
 
             {thrombolyticStartTime && (
               <div className="mt-3 border-t border-emerald-200 pt-3">
+                {nihssRecords.length > 0 && (
+                  <div className="mb-3 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs font-bold uppercase tracking-wider text-emerald-700">
+                        NIHSS intra-infusion registrados
+                      </p>
+                      <span className="rounded-full border border-emerald-200 bg-white px-2 py-1 text-[11px] font-bold text-emerald-700">
+                        {nihssRecords.length}
+                      </span>
+                    </div>
+                    <div className="space-y-1.5">
+                      {nihssRecords.map((record) => (
+                        <div
+                          key={record.id}
+                          className="flex items-center gap-3 rounded-lg border-2 border-emerald-200 bg-white px-3 py-2"
+                        >
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-600 text-sm font-black text-white">
+                            {record.score}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm font-semibold text-emerald-900">NIHSS {record.score}</p>
+                            <p className="text-xs text-emerald-700">
+                              {record.timestamp.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                              {' · '}
+                              {record.source === 'calculadora' ? 'calculadora guiada' : 'manual'}
+                            </p>
+                          </div>
+                          <CheckCircle2 size={18} className="shrink-0 text-emerald-600" />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 {showNihssInput ? (
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
@@ -284,7 +330,10 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
                         max={42}
                         placeholder="0–42"
                         value={nihssEntry}
-                        onChange={(e) => setNihssEntry(e.target.value)}
+                        onChange={(e) => {
+                          setNihssEntry(e.target.value)
+                          setNihssEntrySource('manual')
+                        }}
                         onKeyDown={(e) => { if (e.key === 'Enter' && nihssValid) handleSaveNihss() }}
                         autoFocus
                         className="flex-1 border border-emerald-300 rounded-xl px-3 py-2.5 text-gray-800 text-base font-bold text-center focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent"
