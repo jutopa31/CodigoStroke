@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react'
 import { v4 as uuidv4 } from 'uuid'
-import { RotateCcw, Clock } from 'lucide-react'
+import { RotateCcw, Clock, Copy, Check } from 'lucide-react'
 import GlobalTimer from './components/GlobalTimer'
 import AlertModal from './components/AlertModal'
 import StepTimeline from './components/StepTimeline'
@@ -112,6 +112,7 @@ export default function App() {
   const [glucoseReadings, setGlucoseReadings] = useState([])
   const [showOutOfWindow, setShowOutOfWindow] = useState(false)
   const [caseSaved, setCaseSaved] = useState(false)
+  const [copied, setCopied] = useState(false)
 
   const symptomsRef = useRef(null)
   const vitalsRef = useRef(null)
@@ -429,6 +430,53 @@ export default function App() {
       outcome: getDoneContent()?.title,
     })
     setCaseSaved(true)
+  }
+
+  function buildSummaryText() {
+    const done = getDoneContent()
+    const lines = [
+      `CÓDIGO STROKE — Resumen del caso`,
+      `Paciente: ${patient?.name ?? '-'}  |  DNI: ${patient?.dni ?? '-'}  |  ID: ${patientId || '-'}`,
+      `Estado final: ${done?.title ?? '-'}`,
+      ``,
+      `--- TIEMPOS ---`,
+      `Ingreso:                  ${fmtDateTime(patientArrivalTime)}`,
+      `Inicio código:            ${fmtDateTime(timerStart)}`,
+      `Última vez asintomático:  ${fmtDateTime(symptoms?.lastSeenNormal)}`,
+      `Solicitud TC:             ${fmtDateTime(ctRequestTime)}`,
+      `Inicio trombolítico:      ${fmtDateTime(thrombolyticStartTime)}`,
+      `Angio / trombectomía:     ${fmtDateTime(angioRequestTime || thrombectomyActivationTime)}`,
+      ``,
+      `--- EVALUACIÓN INICIAL ---`,
+      `Síntomas:        ${getSelectedSymptomsSummary()}`,
+      `Ventana / OGV:   ${symptoms?.isWakeUpStroke ? 'ACV del despertar / evaluar imagen' : 'Según horario registrado'}`,
+      `TA:              ${vitals ? `${vitals.systolic}/${vitals.diastolic} mmHg` : 'No registrado'}`,
+      `Glucemia:        ${vitals ? `${vitals.glucose} mg/dL` : 'No registrado'}`,
+      `NIHSS:           ${nihss ? `${nihss.nihssScore} puntos${nihss.hasDisablingSymptoms ? ' + déficit discapacitante' : ''}` : 'No registrado'}`,
+      `Anticoagulación: ${symptoms?.anticoagulation?.active ? `Sí: ${symptoms.anticoagulation.type || 'tipo no registrado'}` : symptoms?.anticoagulation ? 'No' : 'No registrado'}`,
+      ``,
+      `--- IMAGEN Y DECISIONES ---`,
+      `Imagen:            ${getImagingSummary()}`,
+      `Contraindicaciones:${getContraSummary()}`,
+      `Trombolisis:       ${getDoseSummary()}`,
+      `Peso:              ${dosage?.weight ? `${dosage.weight} kg` : 'No registrado'}`,
+      `AngioTAC:          ${thrombectomy?.angioRequested === true ? 'Solicitada' : thrombectomy?.angioRequested === false ? 'No solicitada' : 'No registrado'}`,
+      `ASPECTS:           ${thrombectomy?.aspectScore ?? 'No registrado'}`,
+    ]
+    if (nihssReadings.length > 0)
+      lines.push(`\nNIHSS adicionales: ${nihssReadings.map((r) => `${r.score} (${fmtTime(r.timestamp)})`).join(', ')}`)
+    if (vitalsReadings.length > 0)
+      lines.push(`TA adicionales: ${vitalsReadings.map((r) => `${r.systolic}/${r.diastolic} (${fmtTime(r.timestamp)})`).join(', ')}`)
+    if (glucoseReadings.length > 0)
+      lines.push(`Glucemias adicionales: ${glucoseReadings.map((r) => `${r.value} (${fmtTime(r.timestamp)})`).join(', ')}`)
+    return lines.join('\n')
+  }
+
+  function handleCopy() {
+    navigator.clipboard.writeText(buildSummaryText()).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    })
   }
 
   function handleReset() {
@@ -826,9 +874,20 @@ export default function App() {
                       <h2 className="mt-1 text-xl font-bold text-gray-900">{patient?.name ?? 'Paciente'}</h2>
                       <p className="text-sm text-gray-500">DNI {patient?.dni ?? '-'} · Caso {patientId || '-'}</p>
                     </div>
-                    <div className="rounded-lg border border-brand-100 bg-brand-50 px-3 py-2 text-right">
-                      <p className="text-[11px] font-bold uppercase tracking-wider text-brand-600">Estado final</p>
-                      <p className="text-sm font-semibold text-brand-700">{done.title}</p>
+                    <div className="flex items-start gap-2">
+                      <button
+                        type="button"
+                        onClick={handleCopy}
+                        className={`flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-semibold transition-all active:scale-95 ${copied ? 'border-emerald-300 bg-emerald-50 text-emerald-700' : 'border-gray-200 bg-gray-50 text-gray-600 hover:border-gray-300 hover:bg-gray-100'}`}
+                        title="Copiar resumen al portapapeles"
+                      >
+                        {copied ? <Check size={13} /> : <Copy size={13} />}
+                        {copied ? 'Copiado' : 'Copiar'}
+                      </button>
+                      <div className="rounded-lg border border-brand-100 bg-brand-50 px-3 py-2 text-right">
+                        <p className="text-[11px] font-bold uppercase tracking-wider text-brand-600">Estado final</p>
+                        <p className="text-sm font-semibold text-brand-700">{done.title}</p>
+                      </div>
                     </div>
                   </div>
                 </div>
