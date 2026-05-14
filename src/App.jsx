@@ -601,55 +601,6 @@ export default function App() {
     endocarditis:      'Endocarditis infecciosa activa',
   }
 
-  function generateSummaryText() {
-    const lines = ['=== CÓDIGO STROKE ===']
-    if (patient) lines.push(`Paciente: ${patient.name} · DNI ${patient.dni}`)
-    if (timerStart) lines.push(`Inicio del código: ${timerStart.toLocaleTimeString('es-AR')}`)
-    if (patientArrivalTime && ctRequestTime) {
-      const mins = Math.round((ctRequestTime - patientArrivalTime) / 60000)
-      lines.push(`Tiempo puerta-imagen: ${mins} min`)
-    }
-    if (patientArrivalTime && thrombolyticStartTime) {
-      const mins = Math.round((thrombolyticStartTime - patientArrivalTime) / 60000)
-      lines.push(`Tiempo puerta-aguja: ${mins} min`)
-    }
-    lines.push('')
-    if (nihss) lines.push(`NIHSS: ${nihss.nihssScore}`)
-    if (ctResult?.bleeding) {
-      lines.push('TC: Hemorragia intracraneal — trombolisis contraindicada')
-    } else if (ctResult) {
-      lines.push('TC: Sin hemorragia')
-    }
-    if (contraindications?.hasAbsolute) {
-      const names = Object.entries(contraindications.red || {})
-        .filter(([, v]) => v)
-        .map(([k]) => RED_CONTRA_LABELS[k])
-        .filter(Boolean)
-      lines.push(`Contraindicaciones: ${names.length ? names.join('; ') : 'Contraindicación absoluta'}`)
-    } else if (contraindications?.hasRelative && contraindications?.decidedNotToThrombolyze) {
-      lines.push('Trombolisis: No indicada (contraindicación relativa — decisión de no trombolizar)')
-    }
-    if (dosage) {
-      const drug = dosage.drug === 'tnk' ? 'TNK' : 'rtPA'
-      const dose = dosage.drug === 'tnk'
-        ? `${dosage.dose?.total} mg bolo único`
-        : `${dosage.dose?.total} mg total (bolo ${dosage.dose?.bolo} mg + infusión ${dosage.dose?.infusion} mg)`
-      lines.push(`Trombolisis: ${drug} — ${dose}`)
-      if (thrombolyticStartTime) lines.push(`Inicio trombolisis: ${thrombolyticStartTime.toLocaleTimeString('es-AR')}`)
-    }
-    if (thrombectomy) {
-      const angio = thrombectomy.angioRequested ? 'Sí' : 'No'
-      lines.push(`AngioTAC solicitada: ${angio}`)
-      if (thrombectomy.angioRequested) {
-        lines.push(`OGV: ${thrombectomy.ogvFound === true ? 'Sí' : thrombectomy.ogvFound === false ? 'No' : 'Pendiente'}`)
-      }
-      if (thrombectomy.thrombectomyActivationTime) {
-        lines.push(`Trombectomía activada: ${new Date(thrombectomy.thrombectomyActivationTime).toLocaleTimeString('es-AR')}`)
-      }
-    }
-    return lines.join('\n')
-  }
-
   function getDoneContent() {
     if (ctResult?.bleeding) {
       return {
@@ -735,7 +686,13 @@ export default function App() {
 
   function getContraSummary() {
     if (!contraindications) return 'No registrado'
-    if (contraindications.hasAbsolute) return 'Contraindicacion absoluta presente'
+    if (contraindications.hasAbsolute) {
+      const names = Object.entries(contraindications.red || {})
+        .filter(([, v]) => v)
+        .map(([k]) => RED_CONTRA_LABELS[k])
+        .filter(Boolean)
+      return names.length ? `Contraindicacion absoluta: ${names.join('; ')}` : 'Contraindicacion absoluta presente'
+    }
     if (contraindications.hasRelative) return contraindications.decidedNotToThrombolyze
       ? 'Contraindicacion relativa: no trombolizar'
       : 'Contraindicacion relativa: trombolisis con precaucion'
