@@ -111,6 +111,7 @@ export default function App() {
   const [vitalsReadings, setVitalsReadings] = useState([])
   const [glucoseReadings, setGlucoseReadings] = useState([])
   const [showOutOfWindow, setShowOutOfWindow] = useState(false)
+  const [caseSaved, setCaseSaved] = useState(false)
 
   const symptomsRef = useRef(null)
   const vitalsRef = useRef(null)
@@ -402,6 +403,32 @@ export default function App() {
     const ref = refMap[stepValue]
     if (ref) scrollTo(ref)
     else window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  function handleSaveCase() {
+    saveStrokeEvent({
+      id: eventId,
+      patientId,
+      patient,
+      timerStart: timerStart?.toISOString(),
+      patientArrivalTime: patientArrivalTime?.toISOString(),
+      ctRequestTime: ctRequestTime?.toISOString(),
+      thrombolyticStartTime: thrombolyticStartTime?.toISOString(),
+      angioRequestTime: angioRequestTime?.toISOString(),
+      thrombectomyActivationTime: thrombectomyActivationTime?.toISOString(),
+      symptoms,
+      vitals,
+      nihss,
+      ctResult,
+      contraindications,
+      dosage,
+      thrombectomy,
+      nihssReadings,
+      vitalsReadings,
+      glucoseReadings,
+      outcome: getDoneContent()?.title,
+    })
+    setCaseSaved(true)
   }
 
   function handleReset() {
@@ -839,6 +866,28 @@ export default function App() {
                     <SummaryRow label="TA adicionales" value={vitalsReadings.length ? vitalsReadings.map((r) => `${r.systolic}/${r.diastolic} (${fmtTime(r.timestamp)})`).join(', ') : 'Sin registros'} tone="blue" />
                     <SummaryRow label="Glucemias adicionales" value={glucoseReadings.length ? glucoseReadings.map((r) => `${r.value} (${fmtTime(r.timestamp)})`).join(', ') : 'Sin registros'} tone="blue" />
                   </SummarySection>
+                )}
+
+                {caseSaved ? (
+                  <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-4 text-center">
+                    <p className="text-sm font-semibold text-emerald-800">Caso guardado correctamente</p>
+                    <p className="text-xs text-emerald-600 mt-1">ID: {patientId || eventId.slice(0, 8).toUpperCase()}</p>
+                    <button
+                      type="button"
+                      onClick={handleReset}
+                      className="mt-3 w-full rounded-xl border border-emerald-300 bg-white px-4 py-3 text-sm font-semibold text-emerald-700 transition-all hover:bg-emerald-100 active:scale-95"
+                    >
+                      Nuevo protocolo
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleSaveCase}
+                    className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-semibold py-4 rounded-xl transition-all"
+                  >
+                    Cerrar y guardar caso
+                  </button>
                 )}
               </div>
             </div>
