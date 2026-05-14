@@ -113,7 +113,6 @@ export default function App() {
   const [glucoseReadings, setGlucoseReadings] = useState([])
   const [showOutOfWindow, setShowOutOfWindow] = useState(false)
   const [caseSaved, setCaseSaved] = useState(false)
-  const [copied, setCopied] = useState(false)
 
   const symptomsRef = useRef(null)
   const vitalsRef = useRef(null)
