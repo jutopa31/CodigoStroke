@@ -574,22 +574,23 @@ export default function App() {
               )}
             </div>
 
+            {step > STEP.ALERT && (
+              <button
+                type="button"
+                onClick={() => setShowOutOfWindow(true)}
+                className="mb-3 flex w-full items-center justify-center gap-2 rounded-lg border border-slate-200 bg-slate-700 px-3 py-2.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-slate-800 active:scale-[0.99]"
+              >
+                <Clock size={14} />
+                Fuera de ventana
+              </button>
+            )}
+
             <StepTimeline
               variant="desktop"
               currentStep={step}
               completedSteps={sidebarCompletedSteps}
               onStepClick={handleSidebarStepClick}
             />
-            {step > STEP.ALERT && (
-              <button
-                type="button"
-                onClick={() => setShowOutOfWindow(true)}
-                className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border border-slate-200 bg-slate-700 px-3 py-2.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-slate-800 active:scale-[0.99]"
-              >
-                <Clock size={14} />
-                Fuera de ventana
-              </button>
-            )}
             <TimestampPanel
               variant="desktop"
               arrival={patientArrivalTime}
