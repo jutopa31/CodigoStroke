@@ -136,7 +136,7 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
               TNK
             </span>
             <span className={`block text-xs font-normal mt-0.5 ${drug === 'tnk' ? 'text-green-100' : 'text-gray-400'}`}>
-              Preferido AHA 2026
+              Tenecteplase
             </span>
           </button>
           <button
