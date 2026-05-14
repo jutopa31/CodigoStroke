@@ -6,9 +6,9 @@ import WakeUpStrokeModal from '../components/WakeUpStrokeModal'
 const SYMPTOM_OPTIONS = [
   { id: 'weakness', label: 'Debilidad unilateral', sub: 'Brazo, pierna o cara de un lado', Icon: Zap },
   { id: 'speech', label: 'Trastorno del habla', sub: 'Afasia, disartria o disfasia', Icon: MessageSquare },
-  { id: 'vision', label: 'Alteración visual', sub: 'Pérdida de visión, diplopía', Icon: Eye },
+  { id: 'vision', label: 'Alteracion visual', sub: 'Perdida de vision, diplopia', Icon: Eye },
   { id: 'ataxia', label: 'Ataxia / Inestabilidad', sub: 'Dificultad para caminar', Icon: Scale },
-  { id: 'other', label: 'Otro', sub: 'Otros síntomas', Icon: FileText },
+  { id: 'other', label: 'Otro', sub: 'Otros sintomas', Icon: FileText },
 ]
 
 const TIME_PRESETS = [
@@ -24,8 +24,8 @@ const TIME_PRESETS = [
 
 const WAKE_UP_THRESHOLD_MINUTES = 270 // 4.5 hours
 const ANTICOAG_TYPES = [
-  { id: 'doac',         label: 'DOAC' },
-  { id: 'heparina',     label: 'Heparina' },
+  { id: 'doac', label: 'DOAC' },
+  { id: 'heparina', label: 'Heparina' },
   { id: 'acenocumarol', label: 'Acenocumarol' },
 ]
 
@@ -45,7 +45,7 @@ function useInterval(ms) {
 function timeSince(dateStr) {
   if (!dateStr) return null
   const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000)
-  if (diff < 0) return 'Tiempo inválido'
+  if (diff < 0) return 'Tiempo invalido'
   const h = Math.floor(diff / 3600)
   const m = Math.floor((diff % 3600) / 60)
   if (h > 0) return `Hace ${h}h ${m}min`
@@ -74,9 +74,26 @@ function StatusPill({ complete, children }) {
   )
 }
 
+function SelectionCheck({ active, tone = 'blue' }) {
+  const activeClass = tone === 'red'
+    ? 'bg-red-600 border-red-600'
+    : tone === 'orange'
+    ? 'bg-orange-600 border-orange-600'
+    : 'bg-blue-600 border-blue-600'
+
+  return (
+    <span className={`w-6 h-6 rounded-full border-2 shrink-0 flex items-center justify-center transition-colors ${
+      active ? activeClass : 'border-gray-300 bg-white'
+    }`}>
+      {active && <CheckCircle2 size={15} className="text-white" strokeWidth={3} />}
+    </span>
+  )
+}
+
 export default function SymptomsStep({ onConfirm }) {
   const [selected, setSelected] = useState({})
   const [lastSeen, setLastSeen] = useState(() => toLocalInput(new Date()))
+  const [selectedPreset, setSelectedPreset] = useState(0)
   const [showWakeUpModal, setShowWakeUpModal] = useState(false)
   const [anticoagulationActive, setAnticoagulationActive] = useState(null)
   const [anticoagulationType, setAnticoagulationType] = useState('')
@@ -89,12 +106,12 @@ export default function SymptomsStep({ onConfirm }) {
   const hasSymptom = Object.values(selected).some(Boolean)
   const selectedCount = Object.values(selected).filter(Boolean).length
   const needsAnticoagulationType = anticoagulationActive === true
-  const valid = hasSymptom && lastSeen && anticoagulationActive !== null && (!needsAnticoagulationType || anticoagulationType)
   const anticoagulationComplete = anticoagulationActive !== null && (!needsAnticoagulationType || anticoagulationType)
+  const valid = hasSymptom && lastSeen && anticoagulationComplete
   const missingItems = [
-    !hasSymptom && 'seleccionar al menos un sÃ­ntoma',
-    !lastSeen && 'indicar Ãºltima vez visto asintomÃ¡tico',
-    anticoagulationActive === null && 'responder anticoagulaciÃ³n',
+    !hasSymptom && 'seleccionar al menos un sintoma',
+    !lastSeen && 'indicar ultima vez visto asintomatico',
+    anticoagulationActive === null && 'responder anticoagulacion',
     needsAnticoagulationType && !anticoagulationType && 'elegir tipo de anticoagulante',
   ].filter(Boolean)
 
@@ -105,6 +122,7 @@ export default function SymptomsStep({ onConfirm }) {
   function applyPreset(mins) {
     const d = new Date()
     d.setMinutes(d.getMinutes() - mins)
+    setSelectedPreset(mins)
     setLastSeen(toLocalInput(d))
   }
 
@@ -146,7 +164,7 @@ export default function SymptomsStep({ onConfirm }) {
 
   return (
     <div className="px-4 pb-4 space-y-2.5">
-      <StepCard step="2" title="Síntomas presentes" accent="orange">
+      <StepCard step="2" title="Sintomas presentes" accent="orange">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-orange-100 bg-orange-50/60 px-3 py-2">
           <div>
             <p className="text-sm font-bold text-orange-900">Selecciona uno o mas sintomas</p>
@@ -156,89 +174,113 @@ export default function SymptomsStep({ onConfirm }) {
             {hasSymptom ? `${selectedCount} seleccionado${selectedCount === 1 ? '' : 's'}` : 'Pendiente'}
           </StatusPill>
         </div>
+
         <div className="grid gap-2 md:grid-cols-2">
-          {SYMPTOM_OPTIONS.map((opt) => (
-            <button
-              key={opt.id}
-              type="button"
-              aria-pressed={Boolean(selected[opt.id])}
-              onClick={() => toggle(opt.id)}
-              className={`w-full min-h-[66px] flex items-center gap-2.5 px-3 py-2.5 rounded-lg border-2 transition-all text-left ${
-                selected[opt.id]
-                  ? 'bg-orange-50 border-orange-500 text-orange-950 shadow-sm ring-2 ring-orange-100'
-                  : 'border-gray-200 text-gray-700 hover:border-orange-300 hover:bg-orange-50/40'
-              }`}
-            >
-              <span className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-                selected[opt.id] ? 'bg-orange-100 text-orange-600' : 'bg-gray-50 text-orange-400'
-              }`}>
-                <opt.Icon size={17} />
-              </span>
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-sm leading-snug">{opt.label}</p>
-                <p className="text-[12px] leading-snug text-gray-400 mt-0.5">{opt.sub}</p>
-              </div>
-              <div className={`w-6 h-6 rounded-full border-2 shrink-0 flex items-center justify-center transition-colors ${
-                selected[opt.id] ? 'bg-orange-600 border-orange-600' : 'border-gray-300 bg-white'
-              }`}>
-                {selected[opt.id] && (
-                  <CheckCircle2 size={15} className="text-white" strokeWidth={3} />
-                )}
-              </div>
-            </button>
-          ))}
+          {SYMPTOM_OPTIONS.map((opt) => {
+            const active = Boolean(selected[opt.id])
+            return (
+              <button
+                key={opt.id}
+                type="button"
+                aria-pressed={active}
+                onClick={() => toggle(opt.id)}
+                className={`w-full min-h-[66px] flex items-center gap-2.5 px-3 py-2.5 rounded-lg border-2 transition-all text-left ${
+                  active
+                    ? 'bg-orange-50 border-orange-500 text-orange-950 shadow-sm ring-2 ring-orange-100'
+                    : 'border-gray-200 text-gray-700 hover:border-orange-300 hover:bg-orange-50/40'
+                }`}
+              >
+                <span className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                  active ? 'bg-orange-100 text-orange-600' : 'bg-gray-50 text-orange-400'
+                }`}>
+                  <opt.Icon size={17} />
+                </span>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-sm leading-snug">{opt.label}</p>
+                  <p className="text-[12px] leading-snug text-gray-400 mt-0.5">{opt.sub}</p>
+                </div>
+                <SelectionCheck active={active} tone="orange" />
+              </button>
+            )
+          })}
         </div>
       </StepCard>
 
-      {/* Last seen normal */}
       <StepCard step="" title="" accent={isOverWindow ? 'orange' : 'blue'}>
-        <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2">
-          <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
-          <Clock size={13} /> Última vez visto asintomático
-          </label>
-          <StatusPill complete={Boolean(lastSeen)}>
-            {lastSeen ? 'Completo' : 'Pendiente'}
-          </StatusPill>
+        <div className={`mb-3 rounded-lg border px-3 py-2 ${
+          isOverWindow ? 'border-orange-200 bg-orange-50/70' : 'border-blue-100 bg-blue-50/60'
+        }`}>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <label className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 ${
+              isOverWindow ? 'text-orange-800' : 'text-blue-800'
+            }`}>
+              <Clock size={13} /> Ultima vez visto asintomatico
+            </label>
+            <StatusPill complete={Boolean(lastSeen)}>
+              {lastSeen ? 'Completo' : 'Pendiente'}
+            </StatusPill>
+          </div>
+          <p className={`mt-1 text-xs ${isOverWindow ? 'text-orange-700' : 'text-blue-700'}`}>
+            Elegi un atajo o ajusta fecha y hora manualmente.
+          </p>
         </div>
 
-        {/* Quick time presets */}
-        <div className="flex gap-1.5 flex-wrap mb-2.5">
-          {TIME_PRESETS.map(({ label, mins }) => (
-            <button
-              key={label}
-              type="button"
-              onClick={() => applyPreset(mins)}
-              className={`px-2.5 py-1 rounded-full border text-xs font-medium bg-white active:scale-95 transition-all ${
-                mins >= 360
-                  ? 'border-orange-300 text-orange-600 hover:bg-orange-50'
-                  : 'border-blue-200 text-blue-600 hover:bg-blue-50'
-              }`}
-            >
-              {label}
-            </button>
-          ))}
+        <div className="grid grid-cols-4 gap-2 mb-2.5 sm:grid-cols-8">
+          {TIME_PRESETS.map(({ label, mins }) => {
+            const active = selectedPreset === mins
+            const latePreset = mins >= 360
+            return (
+              <button
+                key={label}
+                type="button"
+                aria-pressed={active}
+                onClick={() => applyPreset(mins)}
+                className={`min-h-[38px] rounded-lg border-2 px-2 py-1 text-xs font-bold active:scale-95 transition-all ${
+                  active
+                    ? latePreset
+                      ? 'border-orange-500 bg-orange-500 text-white shadow-sm ring-2 ring-orange-100'
+                      : 'border-blue-600 bg-blue-600 text-white shadow-sm ring-2 ring-blue-100'
+                    : latePreset
+                      ? 'border-orange-200 bg-white text-orange-600 hover:border-orange-400 hover:bg-orange-50'
+                      : 'border-blue-200 bg-white text-blue-600 hover:border-blue-400 hover:bg-blue-50'
+                }`}
+              >
+                <span className="inline-flex items-center justify-center gap-1">
+                  {active && <CheckCircle2 size={12} />}
+                  {label}
+                </span>
+              </button>
+            )
+          })}
         </div>
 
         <input
           type="datetime-local"
           value={lastSeen}
           max={toLocalInput(new Date())}
-          onChange={(e) => setLastSeen(e.target.value)}
-          className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+          onChange={(e) => {
+            setSelectedPreset(null)
+            setLastSeen(e.target.value)
+          }}
+          className={`w-full rounded-lg border-2 px-3 py-2.5 text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:border-transparent ${
+            isOverWindow
+              ? 'border-orange-300 bg-orange-50/40 focus:ring-orange-400'
+              : 'border-blue-300 bg-blue-50/40 focus:ring-blue-400'
+          }`}
         />
 
         {elapsed && (
-          <div className={`mt-2 flex items-center gap-2 rounded-lg px-3 py-2.5 border ${
+          <div className={`mt-2 flex items-center gap-2 rounded-lg px-3 py-2.5 border-2 ${
             isOverWindow
-              ? 'bg-orange-50 border-orange-200'
-              : 'bg-blue-50 border-blue-200'
+              ? 'bg-orange-50 border-orange-300'
+              : 'bg-blue-50 border-blue-300'
           }`}>
             <Clock size={14} className={isOverWindow ? 'text-orange-500 shrink-0' : 'text-blue-500 shrink-0'} />
             <span className={`text-sm font-semibold ${isOverWindow ? 'text-orange-700' : 'text-blue-700'}`}>
               {elapsed}
             </span>
-            <span className={`text-xs ml-auto ${isOverWindow ? 'text-orange-500' : 'text-blue-400'}`}>
-              {isOverWindow ? '⚠ ventana superada' : 'ventana terapéutica activa'}
+            <span className={`text-xs ml-auto ${isOverWindow ? 'text-orange-500' : 'text-blue-500'}`}>
+              {isOverWindow ? 'ventana superada' : 'ventana activa'}
             </span>
           </div>
         )}
@@ -246,59 +288,70 @@ export default function SymptomsStep({ onConfirm }) {
         <div className="mt-3 border-t border-gray-100 pt-3 space-y-2.5">
           <div>
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-              ¿El paciente recibe anticoagulación?
+              <p className="text-xs font-bold text-red-700 uppercase tracking-wider">
+                El paciente recibe anticoagulacion?
               </p>
               <StatusPill complete={anticoagulationComplete}>
                 {anticoagulationComplete ? 'Completo' : 'Pendiente'}
               </StatusPill>
             </div>
+
             <div className="mt-2 grid grid-cols-2 gap-2">
               {[
-                { label: 'Sí', value: true },
+                { label: 'Si', value: true },
                 { label: 'No', value: false },
-              ].map((option) => (
-                <button
-                  key={option.label}
-                  type="button"
-                  onClick={() => handleAnticoagulationAnswer(option.value)}
-                  className={`rounded-lg border px-4 py-2.5 text-sm font-medium transition-all ${
-                    anticoagulationActive === option.value
-                      ? 'border-red-400 bg-red-50 text-red-700'
-                      : 'border-gray-200 text-gray-700 hover:border-red-300 hover:bg-red-50/40'
-                  }`}
-                >
-                  {option.label}
-                </button>
-              ))}
+              ].map((option) => {
+                const active = anticoagulationActive === option.value
+                return (
+                  <button
+                    key={option.label}
+                    type="button"
+                    aria-pressed={active}
+                    onClick={() => handleAnticoagulationAnswer(option.value)}
+                    className={`flex items-center justify-center gap-2 rounded-lg border-2 px-4 py-3 text-sm font-bold transition-all ${
+                      active
+                        ? 'border-red-500 bg-red-50 text-red-800 shadow-sm ring-2 ring-red-100'
+                        : 'border-gray-200 bg-white text-gray-700 hover:border-red-300 hover:bg-red-50/40'
+                    }`}
+                  >
+                    <SelectionCheck active={active} tone="red" />
+                    {option.label}
+                  </button>
+                )
+              })}
             </div>
           </div>
 
           {needsAnticoagulationType && (
             <div className="space-y-2.5">
               <div className="grid grid-cols-3 gap-2">
-                {ANTICOAG_TYPES.map(({ id, label }) => (
-                  <button
-                    key={id}
-                    type="button"
-                    onClick={() => setAnticoagulationType(id)}
-                    className={`rounded-lg border py-2.5 text-sm font-medium transition-all active:scale-95 ${
-                      anticoagulationType === id
-                        ? 'border-red-400 bg-red-50 text-red-700'
-                        : 'border-gray-200 text-gray-700 hover:border-red-300 hover:bg-red-50/40'
-                    }`}
-                  >
-                    {label}
-                  </button>
-                ))}
+                {ANTICOAG_TYPES.map(({ id, label }) => {
+                  const active = anticoagulationType === id
+                  return (
+                    <button
+                      key={id}
+                      type="button"
+                      aria-pressed={active}
+                      onClick={() => setAnticoagulationType(id)}
+                      className={`flex items-center justify-center gap-2 rounded-lg border-2 py-3 text-sm font-bold transition-all active:scale-95 ${
+                        active
+                          ? 'border-red-500 bg-red-50 text-red-800 shadow-sm ring-2 ring-red-100'
+                          : 'border-gray-200 bg-white text-gray-700 hover:border-red-300 hover:bg-red-50/40'
+                      }`}
+                    >
+                      <SelectionCheck active={active} tone="red" />
+                      {label}
+                    </button>
+                  )
+                })}
               </div>
 
               {anticoagulationType && (
-                <div className="rounded-lg border border-red-300 bg-red-50 px-3 py-2.5 text-red-800">
+                <div className="rounded-lg border-2 border-red-300 bg-red-50 px-3 py-2.5 text-red-800">
                   <div className="flex items-start gap-2">
                     <ShieldAlert size={16} className="shrink-0 mt-0.5" />
                     <p className="text-sm font-medium leading-snug">
-                      Anticoagulación activa — contraindicación relativa para trombólisis. Esperar laboratorio (coagulograma, anti-Xa o TT según droga).
+                      Anticoagulacion activa: contraindicacion relativa para trombolisis. Esperar laboratorio segun droga.
                     </p>
                   </div>
                 </div>
@@ -320,9 +373,7 @@ export default function SymptomsStep({ onConfirm }) {
         <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
           <div className="flex items-start gap-2">
             <AlertCircle size={16} className="mt-0.5 shrink-0" />
-            <p>
-              Falta: {missingItems.join(', ')}.
-            </p>
+            <p>Falta: {missingItems.join(', ')}.</p>
           </div>
         </div>
       )}
