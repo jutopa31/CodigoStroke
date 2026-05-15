@@ -18,6 +18,7 @@ import ContraindicationsStep from './steps/ContraindicationsStep'
 import DosageStep from './steps/DosageStep'
 import ThrombectomyStep from './steps/ThrombectomyStep'
 import TimestampPanel from './components/TimestampPanel'
+import UpdatePrompt from './components/UpdatePrompt'
 import { saveStrokeEvent, generatePatientId, saveSession } from './lib/storage'
 import { getNihssSeverity } from './content/nihss'
 import { sendStrokeAlert } from './lib/emailService'
@@ -736,6 +737,7 @@ export default function App() {
       className="min-h-[100dvh] bg-gray-50 flex flex-col"
       style={{ paddingBottom: 'calc(4rem + env(safe-area-inset-bottom, 0px))' }}
     >
+      <UpdatePrompt />
       <GlobalTimer startTime={timerStart} />
 
       {/* Sticky header */}
