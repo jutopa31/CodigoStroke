@@ -159,12 +159,19 @@ export default function ThrombectomyStep({
                 <p className="text-xs text-blue-600 leading-relaxed">
                   Si confirma oclusión de ICA, M1 o M2 → notificar a hemodinamia.
                 </p>
+              </div>
+
+              {/* OGV result question */}
+              <div className="border-t border-gray-100 pt-4">
+                <p className="text-sm font-medium text-gray-700 mb-3">
+                  {isWakeUpStroke ? '¿AngioRMN/TOF positivo para OGV (oclusión de gran vaso)?' : '¿AngioTAC positivo para OGV (oclusión de gran vaso)?'}
+                </p>
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     onClick={() => { setOgvFound(false); setNotified(false) }}
                     className={`py-4 rounded-xl border-2 font-bold text-lg transition-all active:scale-95 ${
                       ogvFound === false
-                        ? 'bg-gray-300 border-gray-300 text-gray-700'
+                        ? 'bg-slate-100 border-slate-500 text-slate-800 shadow-sm'
                         : 'border-gray-200 text-gray-500 hover:bg-gray-50'
                     }`}
                   >
@@ -174,7 +181,7 @@ export default function ThrombectomyStep({
                     onClick={() => setOgvFound(true)}
                     className={`py-4 rounded-xl border-2 font-bold text-lg transition-all active:scale-95 ${
                       ogvFound === true
-                        ? 'bg-blue-600 border-blue-600 text-white shadow-md'
+                        ? 'bg-blue-50 border-blue-600 text-blue-900 shadow-sm'
                         : 'border-gray-200 text-gray-500 hover:border-blue-300 hover:bg-blue-50'
                     }`}
                   >
@@ -250,6 +257,7 @@ export default function ThrombectomyStep({
           <ul className="list-disc list-inside space-y-0.5 text-amber-800">
             {angioRequested === null && <li>Indicar si se solicitó AngioTAC</li>}
             {!aspectValid && <li>Registrar el puntaje ASPECTS (0–10)</li>}
+            {needsOGVAnswer && ogvFound === null && <li>Indicar si el AngioTAC fue positivo para OGV</li>}
             {needsThrombectomyTime && !thrombectomyActivationTime && <li>Registrar la activación de trombectomía</li>}
           </ul>
         </div>
