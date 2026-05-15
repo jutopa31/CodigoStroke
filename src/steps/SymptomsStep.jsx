@@ -25,7 +25,7 @@ const TIME_PRESETS = [
 ]
 
 const IV_WINDOW_MINUTES = 270 // 4.5 hours
-const OGV_WINDOW_MINUTES = 1440 // 24 hours
+const OGV_WINDOW_MINUTES = 540 // 9 hours (WakeUp/mismatch window)
 const ANTICOAG_TYPES = [
   { id: 'doac', label: 'DOAC' },
   { id: 'heparina', label: 'Heparina' },
@@ -203,7 +203,13 @@ export default function SymptomsStep({ onConfirm }) {
   function handleSubmit() {
     if (!valid) return
     if (isIncierto) {
-      confirm(true)
+      if (elapsedMinutes < IV_WINDOW_MINUTES) {
+        confirm(false) // < 4.5h: ventana clásica con TAC
+      } else if (elapsedMinutes <= OGV_WINDOW_MINUTES) {
+        confirm(true)  // 4.5–9h: protocolo WakeUp con RMN
+      } else {
+        confirm(false) // > 9h: fuera de ventana
+      }
     } else if (shouldEvaluateOgv) {
       setShowWakeUpModal(true)
     } else {
