@@ -11,7 +11,6 @@ import StartStep from './steps/StartStep'
 import PatientStep from './steps/PatientStep'
 import SymptomsStep from './steps/SymptomsStep'
 import VitalsStep from './steps/VitalsStep'
-import NihssStep from './steps/NihssStep'
 import InstructionsStep from './steps/InstructionsStep'
 import CTResultStep from './steps/CTResultStep'
 import MRIResultStep from './steps/MRIResultStep'
@@ -38,7 +37,7 @@ const STEP = {
   DONE: 11,
 }
 
-const SIDEBAR_VALUES = [1, 3, 4, 5, 6, 7, 8, 9, 10]
+const SIDEBAR_VALUES = [1, 3, 4, 6, 7, 8, 9, 10]
 
 const MOCK_PATIENT = {
   name: 'Paciente Test',
@@ -118,7 +117,6 @@ export default function App() {
 
   const symptomsRef = useRef(null)
   const vitalsRef = useRef(null)
-  const nihssRef = useRef(null)
   const instructionsRef = useRef(null)
   const ctResultRef = useRef(null)
   const contraindicationsRef = useRef(null)
@@ -382,19 +380,20 @@ export default function App() {
   }
 
   function handleSymptomsConfirm(data) {
-    setSymptoms(data)
+    const { nihss: nihssData, ...symptomsData } = data
+    setSymptoms(symptomsData)
+    setNihss(nihssData)
     advanceTo(STEP.VITALS)
     scrollTo(vitalsRef)
   }
 
   function handleVitalsConfirm(data) {
-    setVitals(data)
-    advanceTo(STEP.NIHSS)
-    scrollTo(nihssRef)
-  }
-
-  function handleNihssConfirm(data) {
-    setNihss(data)
+    const { modifiedRankinScale, ...vitalsData } = data
+    setVitals(vitalsData)
+    setSymptoms((prev) => ({
+      ...prev,
+      modifiedRankinScale,
+    }))
     advanceTo(STEP.INSTRUCTIONS)
     scrollTo(instructionsRef)
   }
@@ -426,7 +425,7 @@ export default function App() {
       scrollTo(doneRef)
     } else {
       const indicated = nihss?.nihssScore >= 5 || nihss?.hasDisablingSymptoms === true
-      if (indicated) {
+      if (indicated && !symptoms?.anticoagulation?.active) {
         advanceTo(STEP.CONTRAINDICATIONS)
         scrollTo(contraindicationsRef)
       } else {
@@ -438,7 +437,7 @@ export default function App() {
 
   function handleMRIResultConfirm(data) {
     setCtResult(data)
-    if (data.mismatch) {
+    if (data.mismatch && !symptoms?.anticoagulation?.active) {
       advanceTo(STEP.CONTRAINDICATIONS)
       scrollTo(contraindicationsRef)
     } else {
@@ -490,7 +489,6 @@ export default function App() {
     const refMap = {
       3: symptomsRef,
       4: vitalsRef,
-      5: nihssRef,
       6: instructionsRef,
       7: ctResultRef,
       8: contraindicationsRef,
@@ -593,7 +591,7 @@ export default function App() {
     symptoms?.isWakeUpStroke
       ? ctResult?.mismatch === true
       : (nihss?.nihssScore >= 5 || nihss?.hasDisablingSymptoms === true)
-  )
+  ) && !symptoms?.anticoagulation?.active
 
   const RED_CONTRA_LABELS = {
     prior_ich:         'Hemorragia intracraneal previa o actual',
@@ -622,6 +620,15 @@ export default function App() {
         borderColor: 'border-indigo-400',
         title: 'ACV del despertar — sin mismatch',
         body: 'No se cumplen criterios WAKE-UP para trombolisis IV. Evaluar trombectomía mecánica si corresponde.',
+      }
+    }
+    if (symptoms?.anticoagulation?.active && !dosage) {
+      return {
+        icon: 'warning',
+        iconBg: 'bg-red-100',
+        borderColor: 'border-red-400',
+        title: 'Anticoagulacion activa',
+        body: `Trombolisis IV contraindicada o condicionada por anticoagulacion (${symptoms.anticoagulation.type || 'tipo no registrado'}). Evaluar OGV/trombectomia y verificar ultima dosis, droga y laboratorio.`,
       }
     }
     if (contraindications?.hasAbsolute) {
@@ -953,12 +960,6 @@ export default function App() {
           {protocolUnlocked && (
             <div ref={vitalsRef}>
               <VitalsStep onConfirm={handleVitalsConfirm} />
-            </div>
-          )}
-
-          {protocolUnlocked && (
-            <div ref={nihssRef}>
-              <NihssStep onConfirm={handleNihssConfirm} />
             </div>
           )}
 

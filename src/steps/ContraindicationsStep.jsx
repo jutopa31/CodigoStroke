@@ -104,7 +104,7 @@ export default function ContraindicationsStep({ onConfirm }) {
 
   return (
     <div className="px-4 pb-4 space-y-3">
-      <StepCard step="7" title="Contraindicaciones absolutas" accent="red">
+      <StepCard step="6" title="Contraindicaciones absolutas" accent="red">
         <SectionPrompt
           tone="red"
           title="Descarta contraindicaciones absolutas"
@@ -131,7 +131,7 @@ export default function ContraindicationsStep({ onConfirm }) {
         )}
       </StepCard>
 
-      <StepCard step="" title="Contraindicaciones relativas" accent="orange" rail railStep="7">
+      <StepCard step="" title="Contraindicaciones relativas" accent="orange" rail railStep="6">
         <SectionPrompt
           tone="orange"
           title="Revisa contraindicaciones relativas"

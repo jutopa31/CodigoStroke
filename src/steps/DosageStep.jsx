@@ -132,7 +132,7 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
     <div className="px-4 pb-4 space-y-3">
 
       {/* Drug selector */}
-      <StepCard step="8" title="Cálculo de dosis" accent="green">
+      <StepCard step="7" title="Cálculo de dosis" accent="green">
         <p className="text-xs text-gray-400 mb-4">Seleccioná el trombolítico a utilizar.</p>
 
         <div className="grid grid-cols-2 gap-2 mb-5">
@@ -373,7 +373,7 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
       </StepCard>
 
       {/* Post-thrombolysis checklist */}
-      <StepCard step="" title="Indicaciones post-trombolisis" accent="green" rail railStep="8">
+      <StepCard step="" title="Indicaciones post-trombolisis" accent="green" rail railStep="7">
         <p className="text-xs text-gray-400 mb-3 leading-relaxed">
           Confirmá cada medida antes de continuar.
         </p>

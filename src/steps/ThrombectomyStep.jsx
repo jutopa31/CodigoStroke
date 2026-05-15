@@ -52,7 +52,7 @@ export default function ThrombectomyStep({
 
   return (
     <div className="px-4 pb-4 space-y-3">
-      <StepCard step="9" title="Trombectomía mecánica — Evaluación" accent="blue">
+      <StepCard step="8" title="Trombectomía mecánica — Evaluación" accent="blue">
 
         {highNihss && (
           <div className="mb-4 bg-blue-50 border border-blue-200 rounded-xl px-4 py-3">

@@ -36,7 +36,7 @@ export default function CTResultStep({ onConfirm, initialCtRequestTime = null, o
 
   return (
     <div className="px-4 pb-4 space-y-3">
-      <StepCard step="6" title="TC de encefalo" accent="blue">
+      <StepCard step="5" title="TC de encefalo" accent="blue">
         {!ctRequestTime && (
           <>
             <SectionPrompt

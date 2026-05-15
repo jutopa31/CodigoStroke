@@ -30,7 +30,7 @@ export default function MRIResultStep({ onConfirm }) {
 
   return (
     <div className="px-4 pb-4 space-y-3">
-      <StepCard step="6" title="RMN de encefalo - ACV del despertar" accent="blue">
+      <StepCard step="5" title="RMN de encefalo - ACV del despertar" accent="blue">
         <div className="flex items-center gap-2 mb-4 bg-indigo-50 border-2 border-indigo-200 rounded-lg px-3 py-2">
           <Moon size={14} className="text-indigo-600 shrink-0" />
           <span className="text-xs text-indigo-700 font-medium">Protocolo WAKE-UP activo: evaluar mismatch</span>
