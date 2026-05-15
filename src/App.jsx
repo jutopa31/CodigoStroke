@@ -173,6 +173,7 @@ export default function App() {
         lastSeenNormal,
         isWakeUpStroke: isWakeUp,
         anticoagulation: { active: false, type: '' },
+        modifiedRankinScale: { score: Math.floor(Math.random() * 4), label: 'Mock mRS' },
       }
 
       const vitalsData = {
@@ -549,6 +550,7 @@ export default function App() {
       `Glucemia:        ${vitals ? `${vitals.glucose} mg/dL` : 'No registrado'}`,
       `NIHSS:           ${nihss ? `${nihss.nihssScore} puntos${nihss.hasDisablingSymptoms ? ' + déficit discapacitante' : ''}` : 'No registrado'}`,
       `Anticoagulación: ${symptoms?.anticoagulation?.active ? `Sí: ${symptoms.anticoagulation.type || 'tipo no registrado'}` : symptoms?.anticoagulation ? 'No' : 'No registrado'}`,
+      `mRS previo:      ${symptoms?.modifiedRankinScale ? `${symptoms.modifiedRankinScale.score} - ${symptoms.modifiedRankinScale.label}` : 'No registrado'}`,
       ``,
       `--- IMAGEN Y DECISIONES ---`,
       `Imagen:            ${getImagingSummary()}`,
@@ -1082,6 +1084,7 @@ export default function App() {
                     <SummaryRow label="Glucemia" value={vitals ? `${vitals.glucose} mg/dL` : 'No registrado'} tone="blue" />
                     <SummaryRow label="NIHSS" value={nihss ? `${nihss.nihssScore} puntos${nihss.hasDisablingSymptoms ? ' + deficit discapacitante' : ''}` : 'No registrado'} tone="orange" />
                     <SummaryRow label="Anticoagulacion" value={symptoms?.anticoagulation?.active ? `Si: ${symptoms.anticoagulation.type || 'tipo no registrado'}` : symptoms?.anticoagulation ? 'No' : 'No registrado'} tone={symptoms?.anticoagulation?.active ? 'red' : 'green'} />
+                    <SummaryRow label="mRS previo" value={symptoms?.modifiedRankinScale ? `${symptoms.modifiedRankinScale.score} - ${symptoms.modifiedRankinScale.label}` : 'No registrado'} tone="gray" />
                   </SummarySection>
 
                   <SummarySection title="Imagen y decisiones">

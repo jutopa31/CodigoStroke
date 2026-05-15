@@ -32,6 +32,15 @@ const ANTICOAG_TYPES = [
   { id: 'acenocumarol', label: 'Acenocumarol' },
 ]
 
+const MRS_OPTIONS = [
+  { score: 0, label: 'Sin sintomas', description: 'No presenta sintomas.' },
+  { score: 1, label: 'Sin discapacidad significativa', description: 'Puede realizar actividades habituales pese a los sintomas.' },
+  { score: 2, label: 'Discapacidad leve', description: 'Maneja sus asuntos sin ayuda, pero no todas sus actividades previas.' },
+  { score: 3, label: 'Discapacidad moderada', description: 'Necesita algo de ayuda, pero camina sin asistencia.' },
+  { score: 4, label: 'Discapacidad moderadamente severa', description: 'No camina sin asistencia ni atiende sus necesidades sin ayuda.' },
+  { score: 5, label: 'Discapacidad severa', description: 'Postrado, incontinente, requiere cuidados constantes.' },
+]
+
 function toLocalDateInput(date) {
   const pad = (n) => String(n).padStart(2, '0')
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
@@ -115,6 +124,7 @@ export default function SymptomsStep({ onConfirm }) {
   const [showWakeUpModal, setShowWakeUpModal] = useState(false)
   const [anticoagulationActive, setAnticoagulationActive] = useState(null)
   const [anticoagulationType, setAnticoagulationType] = useState('')
+  const [mrsScore, setMrsScore] = useState(null)
 
   useInterval(1000)
 
@@ -133,12 +143,14 @@ export default function SymptomsStep({ onConfirm }) {
   const selectedCount = Object.values(selected).filter(Boolean).length
   const needsAnticoagulationType = anticoagulationActive === true
   const anticoagulationComplete = anticoagulationActive !== null && (!needsAnticoagulationType || anticoagulationType)
-  const valid = hasSymptom && lastSeen && anticoagulationComplete
+  const mrsComplete = mrsScore !== null
+  const valid = hasSymptom && lastSeen && anticoagulationComplete && mrsComplete
   const missingItems = [
     !hasSymptom && 'seleccionar al menos un sintoma',
     !lastSeen && 'indicar ultima vez visto asintomatico',
     anticoagulationActive === null && 'responder anticoagulacion',
     needsAnticoagulationType && !anticoagulationType && 'elegir tipo de anticoagulante',
+    !mrsComplete && 'registrar escala mRS',
   ].filter(Boolean)
 
   function toggle(id) {
@@ -233,6 +245,10 @@ export default function SymptomsStep({ onConfirm }) {
       anticoagulation: {
         active: anticoagulationActive,
         type: anticoagulationActive ? anticoagulationType : '',
+      },
+      modifiedRankinScale: {
+        score: mrsScore,
+        label: MRS_OPTIONS.find((option) => option.score === mrsScore)?.label ?? '',
       },
     })
   }
@@ -537,6 +553,54 @@ export default function SymptomsStep({ onConfirm }) {
               )}
             </div>
           )}
+
+          <div className="border-t border-gray-100 pt-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <p className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                  Escala de Rankin modificada (mRS)
+                </p>
+                <p className="mt-0.5 text-xs text-gray-500">
+                  Estado funcional previo al evento.
+                </p>
+              </div>
+              <StatusPill complete={mrsComplete}>
+                {mrsComplete ? `mRS ${mrsScore}` : 'Pendiente'}
+              </StatusPill>
+            </div>
+
+            <div className="mt-2 grid gap-2 md:grid-cols-2">
+              {MRS_OPTIONS.map((option) => {
+                const active = mrsScore === option.score
+                return (
+                  <button
+                    key={option.score}
+                    type="button"
+                    aria-pressed={active}
+                    onClick={() => setMrsScore(option.score)}
+                    className={`min-h-[74px] rounded-lg border-2 px-3 py-2.5 text-left transition-all ${
+                      active
+                        ? 'border-slate-700 bg-slate-50 text-slate-900 shadow-sm ring-2 ring-slate-100'
+                        : 'border-gray-200 bg-white text-gray-700 hover:border-slate-300 hover:bg-slate-50/60'
+                    }`}
+                  >
+                    <div className="flex items-start gap-2.5">
+                      <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
+                        active ? 'bg-slate-700 text-white' : 'bg-gray-100 text-gray-500'
+                      }`}>
+                        {option.score}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-bold leading-snug">{option.label}</p>
+                        <p className="mt-0.5 text-xs leading-snug text-gray-500">{option.description}</p>
+                      </div>
+                      <SelectionCheck active={active} tone="gray" />
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
         </div>
       </StepCard>
 
