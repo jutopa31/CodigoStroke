@@ -281,7 +281,14 @@ export default function SymptomsStep({ onConfirm }) {
         </div>
       </StepCard>
 
-      <StepCard step="" title="" accent={timeAccent}>
+      <StepCard
+        step=""
+        title=""
+        accent={timeAccent}
+        rail
+        railStep="2"
+        railLabel="ultima vez visto asintomatico"
+      >
         <div className={`mb-3 rounded-lg border px-3 py-2 ${
           isIncierto
             ? 'border-indigo-200 bg-indigo-50/70'

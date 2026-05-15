@@ -86,7 +86,7 @@ export default function NihssStep({ onConfirm }) {
       </StepCard>
 
       {showDisablingBlock && (
-        <StepCard step="" title="Sintomas discapacitantes" accent="orange">
+        <StepCard step="" title="Sintomas discapacitantes" accent="orange" rail railStep="4">
           <SectionPrompt
             tone="orange"
             title="Confirma si el deficit es discapacitante"
