@@ -927,6 +927,8 @@ export default function App() {
 
           {step === STEP.DONE && done && (
             <div ref={doneRef} className="px-4 pb-4 animate-slide-down">
+
+              {/* Outcome banner — always visible */}
               <div className={`bg-white rounded-xl border-l-4 ${done.borderColor} shadow-sm p-6 mb-3`}>
                 <div className={`w-14 h-14 ${done.iconBg} rounded-full flex items-center justify-center mx-auto mb-4`}>
                   {done.icon === 'check' && <svg className="w-7 h-7 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>}
@@ -944,84 +946,89 @@ export default function App() {
                     </p>
                   </div>
                 )}
-                <button
-                  type="button"
-                  onClick={() => {
-                    navigator.clipboard.writeText(generateSummaryText()).then(() => {
-                      setCopied(true)
-                      setTimeout(() => setCopied(false), 2500)
-                    })
-                  }}
-                  className="mt-4 w-full flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-gray-50 hover:bg-gray-100 active:scale-95 text-gray-600 text-sm font-semibold py-3 transition-all"
-                >
-                  {copied
-                    ? <><svg className="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg> Copiado</>
-                    : <><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg> Copiar resumen</>
-                  }
-                </button>
               </div>
-              <div className="space-y-3">
-                <div className="rounded-xl border border-gray-100 bg-white px-4 py-4 shadow-sm">
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400">Resumen del caso</p>
-                      <h2 className="mt-1 text-xl font-bold text-gray-900">{patient?.name ?? 'Paciente'}</h2>
-                      <p className="text-sm text-gray-500">DNI {patient?.dni ?? '-'} · Caso {patientId || '-'}</p>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <button
-                        type="button"
-                        onClick={handleCopy}
-                        className={`flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-semibold transition-all active:scale-95 ${copied ? 'border-emerald-300 bg-emerald-50 text-emerald-700' : 'border-gray-200 bg-gray-50 text-gray-600 hover:border-gray-300 hover:bg-gray-100'}`}
-                        title="Copiar resumen al portapapeles"
-                      >
-                        {copied ? <Check size={13} /> : <Copy size={13} />}
-                        {copied ? 'Copiado' : 'Copiar'}
-                      </button>
+
+              {!caseSaved ? (
+                /* PRE-SAVE: only the save button */
+                <div className="space-y-3">
+                  <p className="text-center text-sm text-gray-500 px-2">
+                    Guardá el caso para acceder al resumen clínico y copiarlo.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleSaveCase}
+                    className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-bold py-5 rounded-xl transition-all text-base shadow-md"
+                  >
+                    Guardar y finalizar caso
+                  </button>
+                </div>
+              ) : (
+                /* POST-SAVE: full summary + copy + new protocol */
+                <div className="space-y-3">
+                  <div className="rounded-xl border border-gray-100 bg-white px-4 py-4 shadow-sm">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <p className="text-xs font-bold uppercase tracking-wider text-gray-400">Resumen del caso</p>
+                        <h2 className="mt-1 text-xl font-bold text-gray-900">{patient?.name ?? 'Paciente'}</h2>
+                        <p className="text-sm text-gray-500">DNI {patient?.dni ?? '-'} · Caso {patientId || '-'}</p>
+                      </div>
                       <div className="rounded-lg border border-brand-100 bg-brand-50 px-3 py-2 text-right">
                         <p className="text-[11px] font-bold uppercase tracking-wider text-brand-600">Estado final</p>
                         <p className="text-sm font-semibold text-brand-700">{done.title}</p>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                <SummarySection title="Tiempos">
-                  <SummaryRow label="Ingreso" value={fmtDateTime(patientArrivalTime)} tone="blue" />
-                  <SummaryRow label="Inicio codigo" value={fmtDateTime(timerStart)} tone="blue" />
-                  <SummaryRow label="Ultima vez asintomatico" value={fmtDateTime(symptoms?.lastSeenNormal)} tone="orange" />
-                  <SummaryRow label="Solicitud TC" value={fmtDateTime(ctRequestTime)} tone="blue" />
-                  <SummaryRow label="Inicio trombolitico" value={fmtDateTime(thrombolyticStartTime)} tone={thrombolyticStartTime ? 'green' : 'gray'} />
-                  <SummaryRow label="Angio / trombectomia" value={fmtDateTime(angioRequestTime || thrombectomyActivationTime)} tone={angioRequestTime || thrombectomyActivationTime ? 'blue' : 'gray'} />
-                </SummarySection>
-
-                <SummarySection title="Evaluacion inicial">
-                  <SummaryRow label="Sintomas" value={getSelectedSymptomsSummary()} tone="orange" />
-                  <SummaryRow label="Ventana / OGV" value={symptoms?.isWakeUpStroke ? 'ACV del despertar / evaluar imagen' : 'Segun horario registrado'} tone="orange" />
-                  <SummaryRow label="TA" value={vitals ? `${vitals.systolic}/${vitals.diastolic} mmHg` : 'No registrado'} tone="blue" />
-                  <SummaryRow label="Glucemia" value={vitals ? `${vitals.glucose} mg/dL` : 'No registrado'} tone="blue" />
-                  <SummaryRow label="NIHSS" value={nihss ? `${nihss.nihssScore} puntos${nihss.hasDisablingSymptoms ? ' + deficit discapacitante' : ''}` : 'No registrado'} tone="orange" />
-                  <SummaryRow label="Anticoagulacion" value={symptoms?.anticoagulation?.active ? `Si: ${symptoms.anticoagulation.type || 'tipo no registrado'}` : symptoms?.anticoagulation ? 'No' : 'No registrado'} tone={symptoms?.anticoagulation?.active ? 'red' : 'green'} />
-                </SummarySection>
-
-                <SummarySection title="Imagen y decisiones">
-                  <SummaryRow label="Imagen" value={getImagingSummary()} tone={ctResult?.bleeding ? 'red' : 'blue'} />
-                  <SummaryRow label="Contraindicaciones" value={getContraSummary()} tone={contraindications?.hasAbsolute ? 'red' : contraindications?.hasRelative ? 'orange' : 'green'} />
-                  <SummaryRow label="Trombolisis" value={getDoseSummary()} tone={dosage ? 'green' : 'gray'} />
-                  <SummaryRow label="Peso" value={dosage?.weight ? `${dosage.weight} kg` : 'No registrado'} tone={dosage?.weight ? 'green' : 'gray'} />
-                  <SummaryRow label="AngioTAC" value={thrombectomy?.angioRequested === true ? 'Solicitada' : thrombectomy?.angioRequested === false ? 'No solicitada' : 'No registrado'} tone={thrombectomy?.angioRequested ? 'blue' : 'gray'} />
-                  <SummaryRow label="ASPECTS" value={thrombectomy?.aspectScore ?? 'No registrado'} tone={thrombectomy?.aspectScore !== undefined ? 'blue' : 'gray'} />
-                </SummarySection>
-
-                {(nihssReadings.length > 0 || vitalsReadings.length > 0 || glucoseReadings.length > 0) && (
-                  <SummarySection title="Registros rapidos">
-                    <SummaryRow label="NIHSS adicionales" value={nihssReadings.length ? nihssReadings.map((r) => `${r.score} (${fmtTime(r.timestamp)})`).join(', ') : 'Sin registros'} tone="orange" />
-                    <SummaryRow label="TA adicionales" value={vitalsReadings.length ? vitalsReadings.map((r) => `${r.systolic}/${r.diastolic} (${fmtTime(r.timestamp)})`).join(', ') : 'Sin registros'} tone="blue" />
-                    <SummaryRow label="Glucemias adicionales" value={glucoseReadings.length ? glucoseReadings.map((r) => `${r.value} (${fmtTime(r.timestamp)})`).join(', ') : 'Sin registros'} tone="blue" />
+                  <SummarySection title="Tiempos">
+                    <SummaryRow label="Ingreso" value={fmtDateTime(patientArrivalTime)} tone="blue" />
+                    <SummaryRow label="Inicio codigo" value={fmtDateTime(timerStart)} tone="blue" />
+                    <SummaryRow label="Ultima vez asintomatico" value={fmtDateTime(symptoms?.lastSeenNormal)} tone="orange" />
+                    <SummaryRow label="Solicitud TC" value={fmtDateTime(ctRequestTime)} tone="blue" />
+                    <SummaryRow label="Inicio trombolitico" value={fmtDateTime(thrombolyticStartTime)} tone={thrombolyticStartTime ? 'green' : 'gray'} />
+                    <SummaryRow label="Angio / trombectomia" value={fmtDateTime(angioRequestTime || thrombectomyActivationTime)} tone={angioRequestTime || thrombectomyActivationTime ? 'blue' : 'gray'} />
                   </SummarySection>
-                )}
 
-                {caseSaved ? (
+                  <SummarySection title="Evaluacion inicial">
+                    <SummaryRow label="Sintomas" value={getSelectedSymptomsSummary()} tone="orange" />
+                    <SummaryRow label="Ventana / OGV" value={symptoms?.isWakeUpStroke ? 'ACV del despertar / evaluar imagen' : 'Segun horario registrado'} tone="orange" />
+                    <SummaryRow label="TA" value={vitals ? `${vitals.systolic}/${vitals.diastolic} mmHg` : 'No registrado'} tone="blue" />
+                    <SummaryRow label="Glucemia" value={vitals ? `${vitals.glucose} mg/dL` : 'No registrado'} tone="blue" />
+                    <SummaryRow label="NIHSS" value={nihss ? `${nihss.nihssScore} puntos${nihss.hasDisablingSymptoms ? ' + deficit discapacitante' : ''}` : 'No registrado'} tone="orange" />
+                    <SummaryRow label="Anticoagulacion" value={symptoms?.anticoagulation?.active ? `Si: ${symptoms.anticoagulation.type || 'tipo no registrado'}` : symptoms?.anticoagulation ? 'No' : 'No registrado'} tone={symptoms?.anticoagulation?.active ? 'red' : 'green'} />
+                  </SummarySection>
+
+                  <SummarySection title="Imagen y decisiones">
+                    <SummaryRow label="Imagen" value={getImagingSummary()} tone={ctResult?.bleeding ? 'red' : 'blue'} />
+                    <SummaryRow label="Contraindicaciones" value={getContraSummary()} tone={contraindications?.hasAbsolute ? 'red' : contraindications?.hasRelative ? 'orange' : 'green'} />
+                    <SummaryRow label="Trombolisis" value={getDoseSummary()} tone={dosage ? 'green' : 'gray'} />
+                    <SummaryRow label="Peso" value={dosage?.weight ? `${dosage.weight} kg` : 'No registrado'} tone={dosage?.weight ? 'green' : 'gray'} />
+                    <SummaryRow label="AngioTAC" value={thrombectomy?.angioRequested === true ? 'Solicitada' : thrombectomy?.angioRequested === false ? 'No solicitada' : 'No registrado'} tone={thrombectomy?.angioRequested ? 'blue' : 'gray'} />
+                    <SummaryRow label="ASPECTS" value={thrombectomy?.aspectScore ?? 'No registrado'} tone={thrombectomy?.aspectScore !== undefined ? 'blue' : 'gray'} />
+                  </SummarySection>
+
+                  {(nihssReadings.length > 0 || vitalsReadings.length > 0 || glucoseReadings.length > 0) && (
+                    <SummarySection title="Registros rapidos">
+                      <SummaryRow label="NIHSS adicionales" value={nihssReadings.length ? nihssReadings.map((r) => `${r.score} (${fmtTime(r.timestamp)})`).join(', ') : 'Sin registros'} tone="orange" />
+                      <SummaryRow label="TA adicionales" value={vitalsReadings.length ? vitalsReadings.map((r) => `${r.systolic}/${r.diastolic} (${fmtTime(r.timestamp)})`).join(', ') : 'Sin registros'} tone="blue" />
+                      <SummaryRow label="Glucemias adicionales" value={glucoseReadings.length ? glucoseReadings.map((r) => `${r.value} (${fmtTime(r.timestamp)})`).join(', ') : 'Sin registros'} tone="blue" />
+                    </SummarySection>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={handleCopy}
+                    className={`w-full flex items-center justify-center gap-2 py-4 rounded-xl font-semibold text-sm transition-all active:scale-95 border-2 ${
+                      copied
+                        ? 'border-emerald-400 bg-emerald-50 text-emerald-700'
+                        : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'
+                    }`}
+                  >
+                    {copied
+                      ? <><Check size={16} className="text-emerald-500" /> Resumen copiado</>
+                      : <><Copy size={16} /> Copiar resumen clinico</>
+                    }
+                  </button>
+
                   <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-4 text-center">
                     <p className="text-sm font-semibold text-emerald-800">Caso guardado correctamente</p>
                     <p className="text-xs text-emerald-600 mt-1">ID: {patientId || eventId.slice(0, 8).toUpperCase()}</p>
@@ -1033,16 +1040,8 @@ export default function App() {
                       Nuevo protocolo
                     </button>
                   </div>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={handleSaveCase}
-                    className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-semibold py-4 rounded-xl transition-all"
-                  >
-                    Cerrar y guardar caso
-                  </button>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           )}
       </div>
