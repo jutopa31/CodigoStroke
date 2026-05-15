@@ -140,47 +140,134 @@ export default function App() {
   }
 
   useEffect(() => {
-    function activateMockEvaluation() {
+    function activateMockComplete() {
       const now = new Date()
       const mockPatientId = generatePatientId(MOCK_PATIENT.name, MOCK_PATIENT.dni)
+      const ago = (mins) => new Date(now.getTime() - mins * 60000)
+      const pick = (arr) => arr[Math.floor(Math.random() * arr.length)]
+
+      // 5 escenarios clínicos aleatorios
+      const scenario = Math.floor(Math.random() * 5)
+
+      const arrivalTime = ago(45 + Math.floor(Math.random() * 20))
+      const startTime   = ago(40 + Math.floor(Math.random() * 15))
+
+      // Síntomas aleatorios (1-3 síntomas)
+      const symptomKeys = ['weakness', 'speech', 'vision', 'ataxia', 'other']
+      const numSymp = 1 + Math.floor(Math.random() * 3)
+      const shuffled = [...symptomKeys].sort(() => Math.random() - 0.5)
+      const selectedSymptoms = Object.fromEntries(shuffled.slice(0, numSymp).map((k) => [k, true]))
+
+      const isWakeUp = scenario === 3 || scenario === 4
+      const lastSeenMins = isWakeUp
+        ? 330 + Math.floor(Math.random() * 150)   // 5.5–8h → ventana WakeUp
+        : 60  + Math.floor(Math.random() * 120)   // 1–3h   → ventana estándar
+      const lastSeenDate = ago(lastSeenMins)
+      const pad = (n) => String(n).padStart(2, '0')
+      const lastSeenNormal = `${lastSeenDate.getFullYear()}-${pad(lastSeenDate.getMonth() + 1)}-${pad(lastSeenDate.getDate())}T${pad(lastSeenDate.getHours())}:${pad(lastSeenDate.getMinutes())}`
+
+      const symptomsData = {
+        symptoms: selectedSymptoms,
+        lastSeenNormal,
+        isWakeUpStroke: isWakeUp,
+        anticoagulation: { active: false, type: '' },
+      }
+
+      const vitalsData = {
+        systolic: 130 + Math.floor(Math.random() * 50),
+        diastolic: 80  + Math.floor(Math.random() * 30),
+        glucose:   90  + Math.floor(Math.random() * 60),
+      }
+
+      const nihssScore = scenario === 1 ? 1 + Math.floor(Math.random() * 3) : 6 + Math.floor(Math.random() * 14)
+      const nihssData = { nihssScore, hasDisablingSymptoms: nihssScore < 5 && Math.random() > 0.5 }
+
+      const weight = 60 + Math.floor(Math.random() * 31) // 60–90 kg
+      const ctReqTime = ago(22 + Math.floor(Math.random() * 10))
+
+      const RED_IDS   = ['prior_ich','large_infarct','tce','axial_tumor','coagulopathy','aortic_dissection','endocarditis']
+      const ORANGE_IDS = ['prev_stroke','major_surgery','acod','gi_bleed','arterial_puncture','avm','aneurysm','ic_dissection']
+      const allNo = (ids) => Object.fromEntries(ids.map((k) => [k, false]))
+
+      const rtpaDose = (w) => {
+        const total = Math.round(w * 0.9 * 10) / 10
+        const bolo  = Math.round(total * 0.1 * 10) / 10
+        return { total, bolo, infusion: Math.round((total - bolo) * 10) / 10 }
+      }
+
+      let ctResultData, contraindicationsData = null, dosageData = null
+      let thrombolyticStart = null, angioReqTime = null, thrombectomyActTime = null
+      let thrombectomyData = null
+
+      if (scenario === 0) {
+        // Trombolisis + trombectomía estándar
+        ctResultData = { bleeding: false, ctRequestTime: ctReqTime.toISOString(), ctElapsedSeconds: 600 }
+        contraindicationsData = { red: allNo(RED_IDS), orange: allNo(ORANGE_IDS), hasAbsolute: false, hasRelative: false, decidedNotToThrombolyze: false }
+        thrombolyticStart = ago(10)
+        dosageData = { drug: 'rtpa', weight, dose: rtpaDose(weight), checklist: {}, thrombolyticStartTime: thrombolyticStart.toISOString() }
+        angioReqTime = ago(8); thrombectomyActTime = ago(5)
+        thrombectomyData = { angioRequested: true, angioRequestTime: angioReqTime.toISOString(), hemodinamisNotified: true, aspectScore: 7 + Math.floor(Math.random() * 3), thrombectomyActivationTime: thrombectomyActTime.toISOString() }
+
+      } else if (scenario === 1) {
+        // Hemorragia en TC → fin inmediato
+        ctResultData = { bleeding: true, ctRequestTime: ctReqTime.toISOString(), ctElapsedSeconds: 600 }
+
+      } else if (scenario === 2) {
+        // Contraindicación absoluta → trombectomía sin trombolisis
+        ctResultData = { bleeding: false, ctRequestTime: ctReqTime.toISOString(), ctElapsedSeconds: 600 }
+        const redAnswers = { ...allNo(RED_IDS), prior_ich: true }
+        contraindicationsData = { red: redAnswers, orange: allNo(ORANGE_IDS), hasAbsolute: true, hasRelative: false, decidedNotToThrombolyze: false }
+        angioReqTime = ago(8)
+        thrombectomyData = { angioRequested: true, angioRequestTime: angioReqTime.toISOString(), hemodinamisNotified: true, aspectScore: 8, thrombectomyActivationTime: null }
+
+      } else if (scenario === 3) {
+        // WakeUp Stroke con mismatch → trombolisis + trombectomía
+        ctResultData = { mismatch: true, mriRequestTime: ctReqTime.toISOString(), mriElapsedSeconds: 900 }
+        contraindicationsData = { red: allNo(RED_IDS), orange: allNo(ORANGE_IDS), hasAbsolute: false, hasRelative: false, decidedNotToThrombolyze: false }
+        thrombolyticStart = ago(10)
+        dosageData = { drug: pick(['rtpa','tnk']), weight, dose: rtpaDose(weight), checklist: {}, thrombolyticStartTime: thrombolyticStart.toISOString() }
+        angioReqTime = ago(8); thrombectomyActTime = ago(5)
+        thrombectomyData = { angioRequested: true, angioRequestTime: angioReqTime.toISOString(), hemodinamisNotified: true, aspectScore: 7 + Math.floor(Math.random() * 3), thrombectomyActivationTime: thrombectomyActTime.toISOString() }
+
+      } else {
+        // scenario 4: WakeUp Stroke sin mismatch → trombectomía directa
+        ctResultData = { mismatch: false, mriRequestTime: ctReqTime.toISOString(), mriElapsedSeconds: 900 }
+        angioReqTime = ago(8)
+        thrombectomyData = { angioRequested: true, angioRequestTime: angioReqTime.toISOString(), hemodinamisNotified: true, aspectScore: 6 + Math.floor(Math.random() * 4), thrombectomyActivationTime: ago(5).toISOString() }
+      }
 
       setPatient(MOCK_PATIENT)
       setPatientId(mockPatientId)
-      setPatientArrivalTime(now)
-      setTimerStart(now)
-      setCtRequestTime(null)
-      setAngioRequestTime(null)
-      setThrombolyticStartTime(null)
-      setThrombectomyActivationTime(null)
-      setSymptoms(null)
-      setVitals(null)
-      setNihss(null)
-      setCtResult(null)
-      setContraindications(null)
-      setDosage(null)
-      setStep(STEP.SYMPTOMS)
-
-      saveSession(mockPatientId, {
-        patientName: MOCK_PATIENT.name,
-        patientDNI: MOCK_PATIENT.dni,
-        patientArrivalTime: now.toISOString(),
-        startTime: now.toISOString(),
-      })
+      setPatientArrivalTime(arrivalTime)
+      setTimerStart(startTime)
+      setCtRequestTime(ctReqTime)
+      setAngioRequestTime(angioReqTime)
+      setThrombolyticStartTime(thrombolyticStart)
+      setThrombectomyActivationTime(thrombectomyActTime)
+      setSymptoms(symptomsData)
+      setVitals(vitalsData)
+      setNihss(nihssData)
+      setCtResult(ctResultData)
+      setContraindications(contraindicationsData)
+      setDosage(dosageData)
+      setThrombectomy(thrombectomyData)
+      setCaseSaved(false)
+      setStep(STEP.DONE)
 
       setTimeout(() => {
-        symptomsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        doneRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
       }, 80)
     }
 
     const params = new URLSearchParams(window.location.search)
     if (params.get('mock') === 'evaluacion') {
-      activateMockEvaluation()
+      activateMockComplete()
     }
 
     function handleDevShortcut(e) {
       if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'e') {
         e.preventDefault()
-        activateMockEvaluation()
+        activateMockComplete()
       }
     }
 
