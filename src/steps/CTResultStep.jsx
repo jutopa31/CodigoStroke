@@ -63,12 +63,7 @@ export default function CTResultStep({ onConfirm, initialCtRequestTime = null, o
               <span className="text-xs text-blue-700 font-medium">TC solicitada hace {elapsed}</span>
             </div>
 
-            <SectionPrompt
-              tone="blue"
-              title="Registra resultado de TC"
-              helper="Selecciona SI si hay hemorragia; NO si permite continuar evaluacion."
-              complete={bleeding !== null}
-            />
+            <p className="text-sm font-semibold text-gray-700 mb-3">¿Hay hemorragia?</p>
 
             <div className="grid grid-cols-2 gap-3">
               <SelectableButton
