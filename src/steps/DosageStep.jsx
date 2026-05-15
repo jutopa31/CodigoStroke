@@ -373,7 +373,7 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
       </StepCard>
 
       {/* Post-thrombolysis checklist */}
-      <StepCard step="" title="Indicaciones post-trombolisis" accent="green">
+      <StepCard step="" title="Indicaciones post-trombolisis" accent="green" rail railStep="8">
         <p className="text-xs text-gray-400 mb-3 leading-relaxed">
           Confirmá cada medida antes de continuar.
         </p>

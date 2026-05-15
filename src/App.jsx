@@ -4,6 +4,7 @@ import { RotateCcw, Clock, Copy, Check } from 'lucide-react'
 import GlobalTimer from './components/GlobalTimer'
 import AlertModal from './components/AlertModal'
 import StepTimeline from './components/StepTimeline'
+import StepProgressProvider from './components/StepProgressProvider'
 import QuickAddFAB from './components/QuickAddFAB'
 import OutOfWindowModal from './components/OutOfWindowModal'
 import StartStep from './steps/StartStep'
@@ -732,6 +733,11 @@ export default function App() {
     : vitals?.glucose ?? null
 
   return (
+    <StepProgressProvider
+      currentStep={step}
+      completedSteps={sidebarCompletedSteps}
+      onStepClick={handleSidebarStepClick}
+    >
     <div
       className="min-h-[100dvh] bg-gray-50 flex flex-col"
       style={{ paddingBottom: 'calc(4rem + env(safe-area-inset-bottom, 0px))' }}
@@ -742,7 +748,7 @@ export default function App() {
       <div className="bg-brand-600 sticky top-0 z-50">
         {/* Mobile header row — patient name + reset */}
         {patient ? (
-          <div className="pl-12 pr-4 py-3 flex items-center justify-between gap-3 md:hidden">
+          <div className="px-4 py-3 flex items-center justify-between gap-3 md:hidden">
             <div className="min-w-0 flex-1">
               <p className="text-brand-300 text-xs uppercase tracking-wider leading-none mb-0.5">Código Stroke</p>
               <p className="text-white font-semibold text-sm truncate leading-tight">{patient.name}</p>
@@ -759,7 +765,7 @@ export default function App() {
             </button>
           </div>
         ) : (
-          <div className="pl-12 pr-4 py-3 flex items-center md:hidden">
+          <div className="px-4 py-3 flex items-center md:hidden">
             <p className="text-white font-bold text-sm tracking-wide">Código Stroke</p>
           </div>
         )}
@@ -797,17 +803,6 @@ export default function App() {
         )}
       </div>
 
-      {/* Mobile-only fixed sidebar */}
-      {patient && (
-        <div className="md:hidden">
-          <StepTimeline
-            currentStep={step}
-            completedSteps={sidebarCompletedSteps}
-            onStepClick={handleSidebarStepClick}
-          />
-        </div>
-      )}
-
       {/* Botones de registros rápidos — fijos en el costado derecho */}
       {patient && step > STEP.ALERT && (
         <div className="fixed right-3 top-1/3 z-40">
@@ -829,7 +824,7 @@ export default function App() {
           type="button"
           onClick={() => setShowOutOfWindow(true)}
           style={{ bottom: 'calc(1.5rem + env(safe-area-inset-bottom, 0px))' }}
-          className="fixed left-14 z-40 flex items-center gap-2 bg-slate-700 hover:bg-slate-800 active:scale-95 text-white text-xs font-semibold px-4 py-3 min-h-[44px] rounded-full shadow-lg transition-all md:hidden"
+          className="fixed left-3 z-40 flex items-center gap-2 bg-slate-700 hover:bg-slate-800 active:scale-95 text-white text-xs font-semibold px-4 py-3 min-h-[44px] rounded-full shadow-lg transition-all md:hidden"
         >
           <Clock size={14} />
           Fuera de ventana
@@ -923,7 +918,10 @@ export default function App() {
         )}
 
         {/* Main content */}
-      <div className={`${patient ? 'pl-12 pr-3' : 'px-3'} md:px-0 md:min-w-0 w-full md:max-w-4xl md:mx-auto pt-4 md:pt-0 space-y-3 lg:space-y-3.5`}>
+      <div className="relative px-3 md:px-0 md:min-w-0 w-full md:max-w-4xl md:mx-auto pt-4 md:pt-0 space-y-3 lg:space-y-3.5">
+          {patient && (
+            <div className="pointer-events-none absolute left-[21px] top-4 bottom-0 z-0 w-0.5 bg-brand-500 md:hidden" />
+          )}
           {step >= STEP.PATIENT && (
             <div className={step > STEP.ALERT ? 'md:hidden' : ''}>
               <PatientStep
@@ -1136,5 +1134,6 @@ export default function App() {
       </div>
       </div>
     </div>
+    </StepProgressProvider>
   )
 }
