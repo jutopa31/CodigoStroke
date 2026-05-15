@@ -8,16 +8,17 @@ import QuickAddFAB from './components/QuickAddFAB'
 import OutOfWindowModal from './components/OutOfWindowModal'
 import StartStep from './steps/StartStep'
 import PatientStep from './steps/PatientStep'
-import SymptomsStep from './steps/SymptomsStep'
+import TimeStep from './steps/TimeStep'
 import VitalsStep from './steps/VitalsStep'
-import NihssStep from './steps/NihssStep'
-import InstructionsStep from './steps/InstructionsStep'
+import SymptomsNihssStep from './steps/SymptomsNihssStep'
 import CTResultStep from './steps/CTResultStep'
 import MRIResultStep from './steps/MRIResultStep'
 import ContraindicationsStep from './steps/ContraindicationsStep'
 import DosageStep from './steps/DosageStep'
 import ThrombectomyStep from './steps/ThrombectomyStep'
 import TimestampPanel from './components/TimestampPanel'
+import AnticoagModal from './components/AnticoagModal'
+import AvisoModal from './components/AvisoModal'
 import { saveStrokeEvent, generatePatientId, saveSession } from './lib/storage'
 import { sendStrokeAlert } from './lib/emailService'
 
@@ -25,18 +26,17 @@ const STEP = {
   START: 0,
   PATIENT: 1,
   ALERT: 2,
-  SYMPTOMS: 3,
+  TIME: 3,
   VITALS: 4,
-  NIHSS: 5,
-  INSTRUCTIONS: 6,
-  CT_RESULT: 7,
-  CONTRAINDICATIONS: 8,
-  DOSAGE: 9,
-  THROMBECTOMY: 10,
-  DONE: 11,
+  NIHSS_SYMPTOMS: 5,
+  CT_RESULT: 6,
+  CONTRAINDICATIONS: 7,
+  DOSAGE: 8,
+  THROMBECTOMY: 9,
+  DONE: 10,
 }
 
-const SIDEBAR_VALUES = [1, 3, 4, 5, 6, 7, 8, 9, 10]
+const SIDEBAR_VALUES = [1, 3, 4, 5, 6, 7, 8, 9]
 
 const MOCK_PATIENT = {
   name: 'Paciente Test',
@@ -112,12 +112,13 @@ export default function App() {
   const [vitalsReadings, setVitalsReadings] = useState([])
   const [glucoseReadings, setGlucoseReadings] = useState([])
   const [showOutOfWindow, setShowOutOfWindow] = useState(false)
+  const [showAnticoagModal, setShowAnticoagModal] = useState(false)
+  const [showAvisoModal, setShowAvisoModal] = useState(false)
   const [caseSaved, setCaseSaved] = useState(false)
 
-  const symptomsRef = useRef(null)
+  const timeRef = useRef(null)
   const vitalsRef = useRef(null)
   const nihssRef = useRef(null)
-  const instructionsRef = useRef(null)
   const ctResultRef = useRef(null)
   const contraindicationsRef = useRef(null)
   const dosageRef = useRef(null)
@@ -284,7 +285,7 @@ export default function App() {
     if (session.angioRequestTime) setAngioRequestTime(new Date(session.angioRequestTime))
     if (session.thrombolyticStartTime) setThrombolyticStartTime(new Date(session.thrombolyticStartTime))
     if (session.thrombectomyActivationTime) setThrombectomyActivationTime(new Date(session.thrombectomyActivationTime))
-    setStep(STEP.SYMPTOMS)
+    setStep(STEP.TIME)
   }
 
   function handlePatientConfirm(data) {
@@ -298,8 +299,8 @@ export default function App() {
   async function handleAlertConfirm() {
     const now = new Date()
     setTimerStart(now)
-    setStep(STEP.SYMPTOMS)
-    scrollTo(symptomsRef)
+    setStep(STEP.TIME)
+    scrollTo(timeRef)
 
     saveSession(patientId, {
       patientName: patient.name,
@@ -378,39 +379,37 @@ export default function App() {
     })
   }
 
-  function handleSymptomsConfirm(data) {
-    setSymptoms(data)
-    advanceTo(STEP.VITALS)
-    scrollTo(vitalsRef)
+  function handleTimeConfirm(data) {
+    setSymptoms((prev) => ({ ...prev, ...data }))
   }
 
   function handleVitalsConfirm(data) {
     setVitals(data)
-    advanceTo(STEP.NIHSS)
-    scrollTo(nihssRef)
   }
 
-  function handleNihssConfirm(data) {
-    setNihss(data)
-    advanceTo(STEP.INSTRUCTIONS)
-    scrollTo(instructionsRef)
+  function handleSymptomsNihssConfirm(data) {
+    const nihssData = { nihssScore: data.nihssScore, hasDisablingSymptoms: data.hasDisablingSymptoms }
+    setNihss(nihssData)
+    setSymptoms((prev) => ({ ...prev, symptoms: data.symptoms }))
+    setShowAnticoagModal(true)
   }
 
-  function handleInstructionsConfirm(data) {
-    saveStrokeEvent({
-      id: eventId,
-      patientDNI: patient.dni,
-      patientName: patient.name,
-      patientArrivalTime: patientArrivalTime?.toISOString(),
-      startTime: timerStart?.toISOString(),
-      ctRequestTime: ctRequestTime?.toISOString(),
-      thrombolyticStartTime: thrombolyticStartTime?.toISOString(),
-      thrombectomyActivationTime: thrombectomyActivationTime?.toISOString(),
-      symptoms,
-      vitals,
-      nihss,
-      checklist: data.checklist,
-    })
+  function handleAnticoagConfirm(anticoag) {
+    setSymptoms((prev) => ({ ...prev, anticoagulation: anticoag }))
+    setShowAnticoagModal(false)
+    const nihssScore = nihss?.nihssScore ?? 0
+    const hasDisabling = nihss?.hasDisablingSymptoms ?? false
+    const indicated = nihssScore >= 5 || hasDisabling
+    if (indicated) {
+      setShowAvisoModal(true)
+    } else {
+      advanceTo(STEP.CT_RESULT)
+      scrollTo(ctResultRef)
+    }
+  }
+
+  function handleAvisoClose() {
+    setShowAvisoModal(false)
     advanceTo(STEP.CT_RESULT)
     scrollTo(ctResultRef)
   }
@@ -422,7 +421,7 @@ export default function App() {
       setStep(STEP.DONE)
       scrollTo(doneRef)
     } else {
-      const indicated = nihss?.nihssScore >= 5 || nihss?.hasDisablingSymptoms === true
+      const indicated = (nihss?.nihssScore ?? 0) >= 5 || nihss?.hasDisablingSymptoms === true
       if (indicated) {
         advanceTo(STEP.CONTRAINDICATIONS)
         scrollTo(contraindicationsRef)
@@ -485,14 +484,13 @@ export default function App() {
 
   function handleSidebarStepClick(stepValue) {
     const refMap = {
-      3: symptomsRef,
+      3: timeRef,
       4: vitalsRef,
       5: nihssRef,
-      6: instructionsRef,
-      7: ctResultRef,
-      8: contraindicationsRef,
-      9: dosageRef,
-      10: thrombectomyRef,
+      6: ctResultRef,
+      7: contraindicationsRef,
+      8: dosageRef,
+      9: thrombectomyRef,
     }
     const ref = refMap[stepValue]
     if (ref) scrollTo(ref)
@@ -581,7 +579,7 @@ export default function App() {
   const sidebarCompletedSteps = step === STEP.DONE
     ? SIDEBAR_VALUES
     : SIDEBAR_VALUES.filter((v) => v < step)
-  const protocolUnlocked = step >= STEP.SYMPTOMS
+  const protocolUnlocked = step >= STEP.TIME
 
   // Trombolisis potencialmente indicada: NIHSS≥5, o NIHSS<5 con síntomas discapacitantes,
   // o wake-up con mismatch positivo en RMN
@@ -900,8 +898,8 @@ export default function App() {
           )}
 
           {protocolUnlocked && (
-            <div ref={symptomsRef}>
-              <SymptomsStep onConfirm={handleSymptomsConfirm} />
+            <div ref={timeRef}>
+              <TimeStep onConfirm={handleTimeConfirm} />
             </div>
           )}
 
@@ -913,13 +911,7 @@ export default function App() {
 
           {protocolUnlocked && (
             <div ref={nihssRef}>
-              <NihssStep onConfirm={handleNihssConfirm} />
-            </div>
-          )}
-
-          {protocolUnlocked && (
-            <div ref={instructionsRef}>
-              <InstructionsStep onConfirm={handleInstructionsConfirm} />
+              <SymptomsNihssStep onConfirm={handleSymptomsNihssConfirm} />
             </div>
           )}
 
@@ -968,6 +960,9 @@ export default function App() {
               />
             </div>
           )}
+
+          <AnticoagModal isOpen={showAnticoagModal} onConfirm={handleAnticoagConfirm} />
+          <AvisoModal isOpen={showAvisoModal} onClose={handleAvisoClose} />
 
           {step === STEP.DONE && done && (
             <div ref={doneRef} className="px-4 pb-4 animate-slide-down">

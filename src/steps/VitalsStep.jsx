@@ -43,7 +43,7 @@ export default function VitalsStep({ onConfirm }) {
 
   return (
     <div className="px-4 pb-4 space-y-3">
-      <StepCard step="3" title="Signos vitales" accent="blue">
+      <StepCard step="2" title="SV y Status previo" accent="blue">
         <SectionPrompt
           tone="blue"
           title="Completa tension arterial y glucemia"
