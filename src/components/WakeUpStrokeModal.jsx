@@ -21,7 +21,7 @@ export default function WakeUpStrokeModal({ elapsedHours, onActivate, onDismiss 
           <div className="flex items-start gap-3 bg-indigo-50 border border-indigo-200 rounded-xl px-4 py-3">
             <AlertTriangle size={16} className="text-indigo-600 shrink-0 mt-0.5" />
             <p className="text-xs text-indigo-700 leading-relaxed">
-              El ultimo avistamiento asintomatico supera las <strong>4.5 horas</strong>, pero esta dentro de las primeras <strong>24 horas</strong>. Evaluar oclusion de gran vaso y criterios de imagen segun protocolo.
+              El ultimo avistamiento asintomatico supera las <strong>4.5 horas</strong>, pero esta dentro de las primeras <strong>9 horas</strong>. Evaluar oclusion de gran vaso y criterios de imagen segun protocolo.
             </p>
           </div>
 
