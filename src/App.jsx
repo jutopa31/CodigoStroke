@@ -19,6 +19,7 @@ import DosageStep from './steps/DosageStep'
 import ThrombectomyStep from './steps/ThrombectomyStep'
 import TimestampPanel from './components/TimestampPanel'
 import { saveStrokeEvent, generatePatientId, saveSession } from './lib/storage'
+import { getNihssSeverity } from './content/nihss'
 import { sendStrokeAlert } from './lib/emailService'
 
 const STEP = {
@@ -720,6 +721,16 @@ export default function App() {
 
   const done = step === STEP.DONE ? getDoneContent() : null
 
+  const latestNihss = nihssReadings.length > 0
+    ? nihssReadings[nihssReadings.length - 1].score
+    : nihss?.nihssScore ?? null
+  const latestVitals = vitalsReadings.length > 0
+    ? vitalsReadings[vitalsReadings.length - 1]
+    : vitals ? { systolic: vitals.systolic, diastolic: vitals.diastolic } : null
+  const latestGlucose = glucoseReadings.length > 0
+    ? glucoseReadings[glucoseReadings.length - 1].value
+    : vitals?.glucose ?? null
+
   return (
     <div
       className="min-h-[100dvh] bg-gray-50 flex flex-col"
@@ -805,6 +816,9 @@ export default function App() {
             onAddVitals={handleAddVitals}
             onAddGlucose={handleAddGlucose}
             onReset={handleReset}
+            latestNihss={latestNihss}
+            latestVitals={latestVitals}
+            latestGlucose={latestGlucose}
           />
         </div>
       )}
@@ -846,6 +860,37 @@ export default function App() {
                 <div className="mt-2.5 pt-2.5 border-t border-gray-100">
                   <p className="text-[10px] text-gray-400 uppercase tracking-wider">ID del caso</p>
                   <p className="text-xs font-mono font-bold text-brand-600 tracking-widest mt-0.5">{patientId}</p>
+                </div>
+              )}
+              {(latestNihss !== null || latestVitals || latestGlucose !== null) && (
+                <div className="mt-2.5 pt-2.5 border-t border-gray-100 space-y-1.5">
+                  {latestNihss !== null && (() => {
+                    const sev = getNihssSeverity(latestNihss)
+                    return (
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">NIHSS</span>
+                        <span className={`text-xs font-bold px-2 py-0.5 rounded-full border ${sev.bg} ${sev.color} ${sev.border}`}>
+                          {latestNihss} — {sev.label}
+                        </span>
+                      </div>
+                    )
+                  })()}
+                  {latestVitals && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">TA</span>
+                      <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${latestVitals.systolic > 185 ? 'bg-red-100 text-red-700' : 'bg-blue-50 text-blue-700'}`}>
+                        {latestVitals.systolic}/{latestVitals.diastolic}
+                      </span>
+                    </div>
+                  )}
+                  {latestGlucose !== null && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">GLC</span>
+                      <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${latestGlucose < 50 ? 'bg-red-100 text-red-700' : latestGlucose > 400 ? 'bg-orange-100 text-orange-700' : 'bg-violet-50 text-violet-700'}`}>
+                        {latestGlucose} mg/dL
+                      </span>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
