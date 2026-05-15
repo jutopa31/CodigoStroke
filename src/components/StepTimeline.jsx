@@ -1,15 +1,14 @@
 import { CheckCircle2 } from 'lucide-react'
 
 const STEPS = [
-  { value: 1,  long: 'Datos del paciente' },
-  { value: 3,  long: 'Síntomas' },
-  { value: 4,  long: 'Signos vitales' },
-  { value: 5,  long: 'Escala NIHSS' },
-  { value: 6,  long: 'Acciones inmediatas' },
-  { value: 7,  long: 'Resultado TC/RM' },
-  { value: 8,  long: 'Contraindicaciones' },
-  { value: 9,  long: 'Dosis trombolítico' },
-  { value: 10, long: 'Trombectomía' },
+  { value: 1, long: 'Datos del paciente' },
+  { value: 3, long: 'Sintomas / NIHSS' },
+  { value: 4, long: 'mRS + vitales' },
+  { value: 6, long: 'Acciones inmediatas' },
+  { value: 7, long: 'Resultado TC/RM' },
+  { value: 8, long: 'Contraindicaciones' },
+  { value: 9, long: 'Dosis trombolitico' },
+  { value: 10, long: 'Trombectomia' },
 ]
 
 export default function StepTimeline({ currentStep, completedSteps = [], onStepClick, variant = 'mobile' }) {
@@ -65,7 +64,6 @@ export default function StepTimeline({ currentStep, completedSteps = [], onStepC
     )
   }
 
-  // Mobile variant — fixed left sidebar
   return (
     <div className="fixed left-0 top-0 bottom-0 z-30 w-11 bg-white/95 border-r border-gray-100 backdrop-blur flex flex-col items-center">
       <div className="h-24 flex-shrink-0" />
