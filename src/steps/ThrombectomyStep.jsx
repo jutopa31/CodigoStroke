@@ -18,6 +18,7 @@ function getAspectLabel(score) {
 
 export default function ThrombectomyStep({
   nihssScore,
+  isWakeUpStroke = false,
   onConfirm,
   angioRequestTime = null,
   onAngioRequest,
@@ -97,7 +98,9 @@ export default function ThrombectomyStep({
 
         <div className="border-t border-gray-100 pt-4">
           <p className="text-sm font-medium text-gray-700 mb-4">
-            ¿Se solicitó AngioTAC de encéfalo y cuello para descartar OGV?
+            {isWakeUpStroke
+              ? '¿Se solicitó AngioRMN / TOF-MRA de encéfalo y cuello para descartar OGV?'
+              : '¿Se solicitó AngioTAC de encéfalo y cuello para descartar OGV?'}
           </p>
 
           <div className="grid grid-cols-2 gap-3">
@@ -129,7 +132,7 @@ export default function ThrombectomyStep({
             <div className="mt-2 flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2 animate-fade-in">
               <Clock size={13} className="text-blue-500 shrink-0" />
               <span className="text-xs text-blue-700 font-medium">
-                AngioTAC solicitada a las {angioRequestTime.toLocaleTimeString('es-AR')}
+                {isWakeUpStroke ? 'AngioRMN/TOF' : 'AngioTAC'} solicitada a las {angioRequestTime.toLocaleTimeString('es-AR')}
               </span>
             </div>
           )}
@@ -137,7 +140,9 @@ export default function ThrombectomyStep({
           {angioRequested === false && (
             <div className="mt-4 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 animate-fade-in">
               <p className="text-xs font-semibold text-amber-700 mb-1">
-                {highNihss ? '⚠ NIHSS ≥ 6 — considerar solicitar AngioTAC' : '⚠ Considerar AngioTAC si hay sospecha clínica de OGV'}
+                {highNihss
+                  ? `⚠ NIHSS ≥ 6 — considerar solicitar ${isWakeUpStroke ? 'AngioRMN/TOF-MRA' : 'AngioTAC'}`
+                  : `⚠ Considerar ${isWakeUpStroke ? 'AngioRMN/TOF-MRA' : 'AngioTAC'} si hay sospecha clínica de OGV`}
               </p>
               <p className="text-xs text-amber-600 leading-relaxed">
                 Ventana para trombectomía: hasta 6h (estándar) · hasta 24h con perfusión favorable (DAWN/DEFUSE-3).
@@ -147,10 +152,12 @@ export default function ThrombectomyStep({
 
           {angioRequested === true && (
             <div className="mt-4 space-y-3 animate-fade-in">
-              {/* OGV result question */}
-              <div className="border-t border-gray-100 pt-4">
-                <p className="text-sm font-medium text-gray-700 mb-3">
-                  ¿AngioTAC positivo para OGV (oclusión de gran vaso)?
+              <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3">
+                <p className="text-xs font-semibold text-blue-700 mb-1">
+                  {isWakeUpStroke ? 'AngioRMN/TOF-MRA solicitada — pendiente resultado' : 'AngioTAC solicitada — pendiente resultado'}
+                </p>
+                <p className="text-xs text-blue-600 leading-relaxed">
+                  Si confirma oclusión de ICA, M1 o M2 → notificar a hemodinamia.
                 </p>
                 <div className="grid grid-cols-2 gap-3">
                   <button

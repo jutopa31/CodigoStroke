@@ -111,6 +111,7 @@ export default function SymptomsStep({ onConfirm }) {
   const [lastSeenTime, setLastSeenTime] = useState(() => toLocalTimeInput(new Date()))
   const [lastSeenTimeText, setLastSeenTimeText] = useState(() => toLocalTimeInput(new Date()))
   const [selectedPreset, setSelectedPreset] = useState(0)
+  const [isIncierto, setIsIncierto] = useState(false)
   const [showWakeUpModal, setShowWakeUpModal] = useState(false)
   const [anticoagulationActive, setAnticoagulationActive] = useState(null)
   const [anticoagulationType, setAnticoagulationType] = useState('')
@@ -148,6 +149,7 @@ export default function SymptomsStep({ onConfirm }) {
     const d = new Date()
     d.setMinutes(d.getMinutes() - mins)
     setSelectedPreset(mins)
+    setIsIncierto(false)
     const nextDate = toLocalDateInput(d)
     const nextTime = toLocalTimeInput(d)
     setLastSeenDate(nextDate)
@@ -157,6 +159,7 @@ export default function SymptomsStep({ onConfirm }) {
 
   function handleDateChange(value) {
     setSelectedPreset(null)
+    setIsIncierto(false)
     setLastSeenDate(value)
   }
 
@@ -172,6 +175,7 @@ export default function SymptomsStep({ onConfirm }) {
 
   function handleTimeTextChange(value) {
     setSelectedPreset(null)
+    setIsIncierto(false)
     setLastSeenTimeText(value)
     const parsed = parseClockEntry(value)
     if (parsed) setLastSeenTime(parsed)
@@ -179,8 +183,14 @@ export default function SymptomsStep({ onConfirm }) {
 
   function handleClockPickerChange(value) {
     setSelectedPreset(null)
+    setIsIncierto(false)
     setLastSeenTime(value)
     setLastSeenTimeText(value)
+  }
+
+  function handleInciertoClick() {
+    setIsIncierto(true)
+    setSelectedPreset(null)
   }
 
   function handleAnticoagulationAnswer(active) {
@@ -192,7 +202,9 @@ export default function SymptomsStep({ onConfirm }) {
 
   function handleSubmit() {
     if (!valid) return
-    if (shouldEvaluateOgv) {
+    if (isIncierto) {
+      confirm(true)
+    } else if (shouldEvaluateOgv) {
       setShowWakeUpModal(true)
     } else {
       confirm(false)
@@ -265,7 +277,9 @@ export default function SymptomsStep({ onConfirm }) {
 
       <StepCard step="" title="" accent={timeAccent}>
         <div className={`mb-3 rounded-lg border px-3 py-2 ${
-          isOutOfWindow
+          isIncierto
+            ? 'border-indigo-200 bg-indigo-50/70'
+            : isOutOfWindow
             ? 'border-red-200 bg-red-50/70'
             : shouldEvaluateOgv
             ? 'border-orange-200 bg-orange-50/70'
@@ -273,24 +287,33 @@ export default function SymptomsStep({ onConfirm }) {
         }`}>
           <div className="flex flex-wrap items-center justify-between gap-2">
             <label className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 ${
-              isOutOfWindow ? 'text-red-800' : shouldEvaluateOgv ? 'text-orange-800' : 'text-blue-800'
+              isIncierto ? 'text-indigo-800' : isOutOfWindow ? 'text-red-800' : shouldEvaluateOgv ? 'text-orange-800' : 'text-blue-800'
             }`}>
-              <Clock size={13} /> Ultima vez visto asintomatico
+              <Clock size={13} /> {isIncierto ? 'Ultima vez visto bien (inicio incierto)' : 'Ultima vez visto asintomatico'}
             </label>
-            <StatusPill complete={Boolean(lastSeen)}>
-              {lastSeen ? 'Completo' : 'Pendiente'}
-            </StatusPill>
+            <div className="flex items-center gap-2">
+              {isIncierto && (
+                <span className="text-[11px] font-bold bg-indigo-700 text-white rounded-full px-2 py-0.5">
+                  WakeUp Stroke
+                </span>
+              )}
+              <StatusPill complete={Boolean(lastSeen)}>
+                {lastSeen ? 'Completo' : 'Pendiente'}
+              </StatusPill>
+            </div>
           </div>
           <p className={`mt-1 text-xs ${
-            isOutOfWindow ? 'text-red-700' : shouldEvaluateOgv ? 'text-orange-700' : 'text-blue-700'
+            isIncierto ? 'text-indigo-700' : isOutOfWindow ? 'text-red-700' : shouldEvaluateOgv ? 'text-orange-700' : 'text-blue-700'
           }`}>
-            Elegi un atajo o ajusta fecha y hora manualmente.
+            {isIncierto
+              ? 'Ingresa la ultima hora conocida en que el paciente estaba bien.'
+              : 'Elegi un atajo o ajusta fecha y hora manualmente.'}
           </p>
         </div>
 
         <div className="grid grid-cols-3 gap-2 mb-2.5 sm:grid-cols-9">
           {TIME_PRESETS.map(({ label, mins }) => {
-            const active = selectedPreset === mins
+            const active = selectedPreset === mins && !isIncierto
             const latePreset = mins >= 360
             return (
               <button
@@ -315,6 +338,21 @@ export default function SymptomsStep({ onConfirm }) {
               </button>
             )
           })}
+          <button
+            type="button"
+            aria-pressed={isIncierto}
+            onClick={handleInciertoClick}
+            className={`min-h-[38px] col-span-3 sm:col-span-9 rounded-lg border-2 px-2 py-1 text-xs font-bold active:scale-95 transition-all ${
+              isIncierto
+                ? 'border-indigo-600 bg-indigo-600 text-white shadow-sm ring-2 ring-indigo-100'
+                : 'border-indigo-200 bg-white text-indigo-600 hover:border-indigo-400 hover:bg-indigo-50'
+            }`}
+          >
+            <span className="inline-flex items-center justify-center gap-1">
+              {isIncierto && <CheckCircle2 size={12} />}
+              Incierto — Ultima vez visto bien
+            </span>
+          </button>
         </div>
 
         <div className="grid gap-2 md:grid-cols-[1fr_1fr_150px]">
@@ -326,7 +364,9 @@ export default function SymptomsStep({ onConfirm }) {
               max={toLocalDateInput(new Date())}
               onChange={(e) => handleDateChange(e.target.value)}
               className={`w-full rounded-lg border-2 px-3 py-2.5 text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:border-transparent ${
-                isOutOfWindow
+                isIncierto
+                  ? 'border-indigo-300 bg-indigo-50/40 focus:ring-indigo-400'
+                  : isOutOfWindow
                   ? 'border-red-300 bg-red-50/40 focus:ring-red-400'
                   : shouldEvaluateOgv
                   ? 'border-orange-300 bg-orange-50/40 focus:ring-orange-400'
@@ -345,7 +385,9 @@ export default function SymptomsStep({ onConfirm }) {
               onChange={(e) => handleTimeTextChange(e.target.value)}
               onBlur={(e) => commitTimeText(e.target.value)}
               className={`w-full rounded-lg border-2 px-3 py-2.5 text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:border-transparent ${
-                isOutOfWindow
+                isIncierto
+                  ? 'border-indigo-300 bg-indigo-50/40 focus:ring-indigo-400'
+                  : isOutOfWindow
                   ? 'border-red-300 bg-red-50/40 focus:ring-red-400'
                   : shouldEvaluateOgv
                   ? 'border-orange-300 bg-orange-50/40 focus:ring-orange-400'
@@ -361,7 +403,9 @@ export default function SymptomsStep({ onConfirm }) {
               value={lastSeenTime}
               onChange={(e) => handleClockPickerChange(e.target.value)}
               className={`w-full rounded-lg border-2 px-3 py-2.5 text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:border-transparent ${
-                isOutOfWindow
+                isIncierto
+                  ? 'border-indigo-300 bg-indigo-50/40 focus:ring-indigo-400'
+                  : isOutOfWindow
                   ? 'border-red-300 bg-red-50/40 focus:ring-red-400'
                   : shouldEvaluateOgv
                   ? 'border-orange-300 bg-orange-50/40 focus:ring-orange-400'
@@ -377,28 +421,32 @@ export default function SymptomsStep({ onConfirm }) {
 
         {elapsed && (
           <div className={`mt-2 flex items-center gap-2 rounded-lg px-3 py-2.5 border-2 ${
-            isOutOfWindow
+            isIncierto
+              ? 'bg-indigo-50 border-indigo-300'
+              : isOutOfWindow
               ? 'bg-red-50 border-red-300'
               : shouldEvaluateOgv
               ? 'bg-orange-50 border-orange-300'
               : 'bg-blue-50 border-blue-300'
           }`}>
             <Clock size={14} className={
-              isOutOfWindow
+              isIncierto
+                ? 'text-indigo-500 shrink-0'
+                : isOutOfWindow
                 ? 'text-red-500 shrink-0'
                 : shouldEvaluateOgv
                 ? 'text-orange-500 shrink-0'
                 : 'text-blue-500 shrink-0'
             } />
             <span className={`text-sm font-semibold ${
-              isOutOfWindow ? 'text-red-700' : shouldEvaluateOgv ? 'text-orange-700' : 'text-blue-700'
+              isIncierto ? 'text-indigo-700' : isOutOfWindow ? 'text-red-700' : shouldEvaluateOgv ? 'text-orange-700' : 'text-blue-700'
             }`}>
               {elapsed}
             </span>
             <span className={`text-xs font-semibold ml-auto ${
-              isOutOfWindow ? 'text-red-600' : shouldEvaluateOgv ? 'text-orange-600' : 'text-blue-500'
+              isIncierto ? 'text-indigo-600' : isOutOfWindow ? 'text-red-600' : shouldEvaluateOgv ? 'text-orange-600' : 'text-blue-500'
             }`}>
-              {timeStatusLabel}
+              {isIncierto ? 'Inicio incierto' : timeStatusLabel}
             </span>
           </div>
         )}
