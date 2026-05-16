@@ -5,6 +5,10 @@ import WakeUpStrokeModal from '../components/WakeUpStrokeModal'
 import { StatusPill } from '../components/GuidedControls'
 
 const IV_WINDOW_MINUTES = 270
+const OGV_WINDOW_MINUTES = 1440
+const MAX_SLIDER_MINUTES = 1440
+const IV_WINDOW_PERCENT = `${(IV_WINDOW_MINUTES / MAX_SLIDER_MINUTES) * 100}%`
+const OGV_WINDOW_PERCENT = `${(OGV_WINDOW_MINUTES / MAX_SLIDER_MINUTES) * 100}%`
 const OGV_WINDOW_MINUTES = 540
 const MAX_SLIDER_MINUTES = 720
 const IV_WINDOW_PERCENT = `${(IV_WINDOW_MINUTES / MAX_SLIDER_MINUTES) * 100}%`
@@ -101,6 +105,7 @@ export default function TimeStep({ onConfirm }) {
   const shouldEvaluateOgv = elapsedMinutes > IV_WINDOW_MINUTES && elapsedMinutes <= OGV_WINDOW_MINUTES
   const isOutOfWindow = elapsedMinutes > OGV_WINDOW_MINUTES
   const timeTone = isOutOfWindow ? 'red' : shouldEvaluateOgv ? 'orange' : 'blue'
+  const timeStatusLabel = isOutOfWindow ? 'Fuera de ventana' : shouldEvaluateOgv ? 'Fuera ventana IV - Evaluar OGV' : 'Ventana IV activa'
   const timeStatusLabel = isOutOfWindow ? 'Fuera de ventana' : shouldEvaluateOgv ? 'Evaluar OGV' : 'Ventana activa'
 
   function applyOffset(mins) {
@@ -204,6 +209,17 @@ export default function TimeStep({ onConfirm }) {
           >
             <span className="h-2.5 w-0.5 rounded-full bg-orange-400" />
             <span className="rounded-full border border-orange-200 bg-white px-1.5 py-px shadow-sm text-[10px]">4.5 h</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => applyOffset(OGV_WINDOW_MINUTES)}
+            className="absolute top-5 flex -translate-x-full flex-col items-end gap-0.5 text-[11px] font-bold text-red-700 transition hover:text-red-800 focus:outline-none"
+            style={{ left: OGV_WINDOW_PERCENT }}
+            aria-label="Marcar 24 horas"
+            title="Marcar 24 horas"
+          >
+            <span className="h-2.5 w-0.5 rounded-full bg-red-400" />
+            <span className="rounded-full border border-red-200 bg-white px-1.5 py-px shadow-sm text-[10px]">24 h</span>
           </button>
         </div>
 

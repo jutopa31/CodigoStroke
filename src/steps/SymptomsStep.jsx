@@ -27,9 +27,10 @@ const SYMPTOM_OPTIONS = [
 ]
 
 const IV_WINDOW_MINUTES = 270
-const OGV_WINDOW_MINUTES = 540
-const MAX_SLIDER_MINUTES = 720
+const OGV_WINDOW_MINUTES = 1440
+const MAX_SLIDER_MINUTES = 1440
 const IV_WINDOW_PERCENT = `${(IV_WINDOW_MINUTES / MAX_SLIDER_MINUTES) * 100}%`
+const OGV_WINDOW_PERCENT = `${(OGV_WINDOW_MINUTES / MAX_SLIDER_MINUTES) * 100}%`
 
 const ANTICOAG_TYPES = [
   { id: 'doac', label: 'DOAC' },
@@ -342,7 +343,7 @@ export default function SymptomsStep({ onConfirm }) {
   const shouldEvaluateOgv = elapsedMinutes > IV_WINDOW_MINUTES && elapsedMinutes <= OGV_WINDOW_MINUTES
   const isOutOfWindow = elapsedMinutes > OGV_WINDOW_MINUTES
   const timeTone = getTimeTone(elapsedMinutes)
-  const timeStatusLabel = isOutOfWindow ? 'Fuera de ventana' : shouldEvaluateOgv ? 'Evaluar OGV' : 'Ventana activa'
+  const timeStatusLabel = isOutOfWindow ? 'Fuera de ventana' : shouldEvaluateOgv ? 'Fuera ventana IV - Evaluar OGV' : 'Ventana IV activa'
   const hasSymptom = Object.values(selected).some(Boolean)
   const selectedCount = Object.values(selected).filter(Boolean).length
   const nihssNum = parseInt(nihssScore, 10)
@@ -510,6 +511,17 @@ export default function SymptomsStep({ onConfirm }) {
                 >
                   <span className="h-3 w-0.5 rounded-full bg-orange-500" />
                   <span className="rounded-full border border-orange-200 bg-white px-2 py-0.5 shadow-sm">4.5 h</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => applyOffset(OGV_WINDOW_MINUTES)}
+                  className="absolute top-5 flex -translate-x-full flex-col items-end gap-1 text-[11px] font-bold text-red-700 transition hover:text-red-800 focus:outline-none"
+                  style={{ left: OGV_WINDOW_PERCENT }}
+                  aria-label="Marcar 24 horas"
+                  title="Marcar 24 horas"
+                >
+                  <span className="h-3 w-0.5 rounded-full bg-red-500" />
+                  <span className="rounded-full border border-red-200 bg-white px-2 py-0.5 shadow-sm">24 h</span>
                 </button>
               </div>
               <div className="rounded-lg border border-white/70 bg-white px-3 py-2 text-right shadow-sm">

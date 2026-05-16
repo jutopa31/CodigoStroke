@@ -117,6 +117,7 @@ export default function App() {
   const [showOutOfWindow, setShowOutOfWindow] = useState(false)
   const [showAnticoagModal, setShowAnticoagModal] = useState(false)
   const [showAvisoModal, setShowAvisoModal] = useState(false)
+  const [showAlertModal, setShowAlertModal] = useState(false)
   const [showVitalsModal, setShowVitalsModal] = useState(false)
   const [caseSaved, setCaseSaved] = useState(false)
 
@@ -299,6 +300,19 @@ export default function App() {
     setPatientArrivalTime(now)
     setPatientId(generatePatientId(data.name, data.dni))
     setStep(STEP.ALERT)
+    setShowAlertModal(true)
+  }
+
+  function handleAlertConfirm() {
+    setShowAlertModal(false)
+    setShowVitalsModal(true)
+  }
+
+  function handleAlertClose() {
+    setShowAlertModal(false)
+    setStep(STEP.PATIENT)
+  }
+
     setShowVitalsModal(true)
   }
 
@@ -885,8 +899,8 @@ export default function App() {
       onStepClick={handleSidebarStepClick}
     >
     <div
-      className="min-h-[100dvh] bg-gray-50 flex flex-col"
-      style={{ paddingBottom: 'calc(4rem + env(safe-area-inset-bottom, 0px))' }}
+      className="min-h-[100dvh] bg-slate-50 flex flex-col"
+      style={{ paddingBottom: 'calc(9.5rem + env(safe-area-inset-bottom, 0px))' }}
     >
       <GlobalTimer startTime={timerStart} timestamps={{ ctRequest: ctRequestTime?.toISOString(), thrombolyticStart: thrombolyticStartTime?.toISOString() }} />
 
@@ -968,12 +982,15 @@ export default function App() {
 
       {/* Botones de registros rápidos — fijos en el costado derecho */}
       {patient && step > STEP.ALERT && (
-        <div className="fixed right-3 top-1/3 z-40">
+        <div
+          className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 px-3 pb-3 pt-2 shadow-[0_-6px_18px_rgba(15,23,42,0.08)] backdrop-blur md:hidden"
+          style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}
+        >
           <QuickAddFAB
+            variant="mobile-toolbar"
             onAddNihss={handleAddNihss}
             onAddVitals={handleAddVitals}
             onAddGlucose={handleAddGlucose}
-            onReset={handleReset}
             latestNihss={latestNihss}
             latestVitals={latestVitals}
             latestGlucose={latestGlucose}
@@ -986,8 +1003,8 @@ export default function App() {
         <button
           type="button"
           onClick={() => setShowOutOfWindow(true)}
-          style={{ bottom: 'calc(1.5rem + env(safe-area-inset-bottom, 0px))' }}
-          className="fixed left-3 z-40 flex items-center gap-2 bg-slate-700 hover:bg-slate-800 active:scale-95 text-white text-xs font-semibold px-4 py-3 min-h-[44px] rounded-full shadow-lg transition-all md:hidden"
+          style={{ bottom: 'calc(4.75rem + env(safe-area-inset-bottom, 0px))' }}
+          className="fixed left-3 z-40 flex items-center gap-2 bg-slate-800 hover:bg-slate-900 active:scale-95 text-white text-xs font-semibold px-4 py-3 min-h-[44px] rounded-full shadow-lg transition-all md:hidden"
         >
           <Clock size={14} />
           Fuera de ventana
@@ -1004,13 +1021,13 @@ export default function App() {
       )}
 
       {/* Body — two-column on desktop */}
-      <div className={`flex-1 flex flex-col ${step === STEP.PATIENT ? 'justify-center' : ''} md:grid md:items-start ${patient ? 'md:grid-cols-[248px_minmax(0,1fr)]' : 'md:grid-cols-1'} w-full md:gap-8 md:px-6 lg:px-9 md:pt-5`}>
+      <div className={`flex-1 flex flex-col ${step === STEP.PATIENT ? 'justify-center' : ''} md:grid md:items-start ${patient ? 'md:grid-cols-[260px_minmax(0,1fr)]' : 'md:grid-cols-1'} w-full md:gap-8 md:px-6 lg:px-9 md:pt-5`}>
 
         {/* Desktop sidebar */}
         {patient && (
-          <div className="hidden md:flex md:flex-col md:sticky md:top-[48px] md:self-start md:max-h-[calc(100vh-48px)] md:overflow-y-auto md:pr-1">
+          <div className="hidden md:flex md:flex-col md:sticky md:top-[96px] md:self-start md:max-h-[calc(100vh-104px)] md:overflow-y-auto md:pr-1">
             {/* Patient card */}
-            <div className="rounded-lg bg-white/70 border border-gray-200/70 p-3.5 mb-3">
+            <div className="rounded-lg bg-white border border-slate-200/80 p-3.5 mb-3 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
               <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 mb-1.5">Paciente</p>
               <p className="font-semibold text-gray-800 text-sm leading-snug">{patient.name}</p>
               <p className="text-xs text-gray-500 mt-0.5">DNI {patient.dni}</p>
@@ -1054,14 +1071,29 @@ export default function App() {
             </div>
 
             {step > STEP.ALERT && (
-              <button
-                type="button"
-                onClick={() => setShowOutOfWindow(true)}
-                className="mb-3 flex w-full items-center justify-center gap-2 rounded-lg border border-slate-200 bg-slate-700 px-3 py-2.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-slate-800 active:scale-[0.99]"
-              >
-                <Clock size={14} />
-                Fuera de ventana
-              </button>
+              <>
+                <div className="mb-3">
+                  <p className="mb-1.5 text-[10px] font-bold uppercase tracking-widest text-slate-500">Registros rapidos</p>
+                  <QuickAddFAB
+                    variant="sidebar"
+                    onAddNihss={handleAddNihss}
+                    onAddVitals={handleAddVitals}
+                    onAddGlucose={handleAddGlucose}
+                    onReset={handleReset}
+                    latestNihss={latestNihss}
+                    latestVitals={latestVitals}
+                    latestGlucose={latestGlucose}
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowOutOfWindow(true)}
+                  className="mb-3 flex w-full items-center justify-center gap-2 rounded-lg border border-slate-700 bg-slate-800 px-3 py-2.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-slate-900 active:scale-[0.99]"
+                >
+                  <Clock size={14} />
+                  Fuera de ventana
+                </button>
+              </>
             )}
 
             <StepTimeline
@@ -1081,9 +1113,9 @@ export default function App() {
         )}
 
         {/* Main content */}
-      <div className="relative px-3 md:px-0 md:min-w-0 w-full md:max-w-4xl md:mx-auto pt-4 md:pt-0 space-y-3 lg:space-y-3.5">
+      <div className="relative w-full space-y-3 px-4 pt-4 md:mx-auto md:min-w-0 md:max-w-4xl md:px-0 md:pt-0 lg:space-y-3.5">
           {patient && (
-            <div className="pointer-events-none absolute left-[21px] top-4 bottom-0 z-0 w-0.5 bg-brand-500 md:hidden" />
+            <div className="pointer-events-none absolute bottom-0 left-[22px] top-4 z-0 w-px bg-slate-200 md:hidden" />
           )}
           {step >= STEP.PATIENT && (
             <div>
@@ -1098,6 +1130,21 @@ export default function App() {
             </div>
           )}
 
+          {showAlertModal && patient && (
+            <AlertModal
+              patient={patient}
+              onConfirm={handleAlertConfirm}
+              onClose={handleAlertClose}
+            />
+          )}
+
+          {protocolUnlocked && (
+            <div ref={timeRef}>
+              <TimeStep onConfirm={handleTimeConfirm} />
+            </div>
+          )}
+
+          {protocolUnlocked && (
           {/* AlertModal eliminado — la activación se integra en PatientStep */}
 
           {protocolUnlocked && (

@@ -24,7 +24,7 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
   if (confirmed && patient) {
     const v = vitals
     return (
-      <div className="px-4 pb-2">
+      <div className="pb-2">
         <StepCard step="1" title="Datos del paciente" accent="green">
           <div className="flex items-start gap-3">
             {/* Left: patient info */}
@@ -83,7 +83,7 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
   if (confirmed) return null
 
   return (
-    <div className="px-4 pb-4">
+    <div className="pb-4">
       <StepCard step="1" title="Datos del paciente" accent="red">
         <form onSubmit={handleSubmit} className="space-y-3">
           {/* Identificación */}

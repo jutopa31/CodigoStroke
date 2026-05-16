@@ -69,14 +69,14 @@ export default function StepCard({
         onClick={() => onStepClick?.(stepValue)}
         className={`absolute z-10 flex items-center justify-center rounded-full shadow-sm ring-4 transition-all active:scale-95 md:hidden ${
           hasStepDot
-            ? `left-[-20px] top-[14px] h-7 w-7 text-xs font-bold ${
+            ? `left-[-8px] top-[14px] h-7 w-7 text-xs font-bold ${
                 isCompleted
                   ? 'bg-emerald-500 text-white ring-emerald-100'
                   : isActive
                     ? `${dotAccents[accent]} text-white shadow-md`
                     : 'border-2 border-gray-200 bg-white text-gray-400 ring-white'
               }`
-            : `left-[-14px] top-[18px] h-4 w-4 ${
+            : `left-[-2px] top-[18px] h-4 w-4 ${
                 isCompleted
                   ? 'bg-emerald-500 ring-emerald-100'
                   : isActive
