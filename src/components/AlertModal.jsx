@@ -16,17 +16,6 @@ export default function AlertModal({ patient, onConfirm, onClose }) {
             <AlertTriangle size={20} className="text-white" />
           </div>
           <div>
-            <p className="text-white font-bold text-lg leading-tight">Activar Codigo Stroke?</p>
-            <p className="text-white/70 text-sm mt-0.5">{patient.name} - DNI {patient.dni}</p>
-          </div>
-        </div>
-
-        <div className="px-6 py-5">
-          <p className="text-sm text-gray-600 leading-relaxed">
-            Se registrara el evento y el cronometro iniciara en este momento.
-          </p>
-        </div>
-
             <p className="text-white font-bold text-lg leading-tight">¿Activar Código Stroke?</p>
             <p className="text-white/70 text-sm mt-0.5">{patient.name} · DNI {patient.dni}</p>
           </div>
@@ -53,7 +42,6 @@ export default function AlertModal({ patient, onConfirm, onClose }) {
             onClick={onConfirm}
             className="flex-[2] py-3.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-bold text-sm active:scale-95 transition-all"
           >
-            Si, activar
             Sí, activar
           </button>
         </div>
