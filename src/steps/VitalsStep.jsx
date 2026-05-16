@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { AlertTriangle, ChevronRight, HelpCircle } from 'lucide-react'
 import StepCard from '../components/StepCard'
-import { PrimaryAction, StatusPill } from '../components/GuidedControls'
+import { PrimaryAction, SectionPrompt, StatusPill } from '../components/GuidedControls'
 
 const MRS_OPTIONS = [
   { score: 0, label: 'Sin sintomas' },
