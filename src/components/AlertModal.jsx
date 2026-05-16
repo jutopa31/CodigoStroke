@@ -3,44 +3,44 @@ import { AlertTriangle } from 'lucide-react'
 export default function AlertModal({ patient, onConfirm, onClose }) {
   return (
     <div
-      className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in"
+      className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-fade-in"
       onClick={onClose}
     >
       <div
-        className="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden animate-slide-up"
+        className="bg-white w-full max-w-sm rounded-2xl shadow-modal overflow-hidden animate-scale-in"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="bg-brand-600 px-6 py-5 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center shrink-0">
-            <AlertTriangle size={20} className="text-white" />
+        <div className="bg-brand-600 px-5 py-4 flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+            <AlertTriangle size={20} className="text-white" strokeWidth={2} />
           </div>
           <div>
-            <p className="text-white font-bold text-lg leading-tight">¿Activar Código Stroke?</p>
-            <p className="text-white/70 text-sm mt-0.5">{patient.name} · DNI {patient.dni}</p>
+            <p className="text-white font-semibold text-base leading-tight">¿Activar Código Stroke?</p>
+            <p className="text-white/70 text-sm mt-0.5">{patient.name}</p>
           </div>
         </div>
 
         {/* Body */}
-        <div className="px-6 py-5">
-          <p className="text-sm text-gray-600 leading-relaxed">
+        <div className="px-5 py-5">
+          <p className="text-sm text-neutral-600 leading-relaxed">
             Se registrará el evento y el cronómetro iniciará en este momento.
           </p>
         </div>
 
         {/* Actions */}
-        <div className="px-6 pb-6 flex gap-3">
+        <div className="px-5 pb-5 flex gap-3">
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-3.5 border-2 border-gray-200 rounded-xl text-gray-600 font-semibold text-sm hover:bg-gray-50 active:scale-95 transition-all"
+            className="flex-1 py-3 border border-neutral-200 rounded-xl text-neutral-600 font-medium text-sm hover:bg-neutral-50 active:scale-[0.98] transition-all"
           >
-            No
+            Cancelar
           </button>
           <button
             type="button"
             onClick={onConfirm}
-            className="flex-[2] py-3.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-bold text-sm active:scale-95 transition-all"
+            className="flex-[2] py-3 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-semibold text-sm active:scale-[0.98] transition-all"
           >
             Sí, activar
           </button>

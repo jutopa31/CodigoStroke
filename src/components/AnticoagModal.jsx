@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ShieldAlert, X, ChevronRight } from 'lucide-react'
+import { ShieldAlert, ChevronRight } from 'lucide-react'
 import { SelectionCheck } from './GuidedControls'
 
 const ANTICOAG_TYPES = [
@@ -28,24 +28,24 @@ export default function AnticoagModal({ isOpen, onConfirm }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden animate-slide-down">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-modal overflow-hidden animate-scale-in">
         {/* Header */}
-        <div className="bg-red-600 px-6 py-4">
+        <div className="bg-red-600 px-5 py-4">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center shrink-0">
-              <ShieldAlert size={18} className="text-white" />
+            <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+              <ShieldAlert size={18} className="text-white" strokeWidth={2} />
             </div>
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-widest text-red-200">Evaluación</p>
-              <h2 className="text-white font-bold text-lg leading-tight">Anticoagulación</h2>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-red-200">Evaluación</p>
+              <h2 className="text-white font-semibold text-base leading-tight">Anticoagulación</h2>
             </div>
           </div>
         </div>
 
         {/* Body */}
-        <div className="px-6 py-5 space-y-4">
-          <p className="text-sm font-semibold text-gray-700">
+        <div className="px-5 py-5 space-y-4">
+          <p className="text-sm font-medium text-neutral-700">
             ¿El paciente recibe anticoagulación?
           </p>
 
@@ -61,12 +61,12 @@ export default function AnticoagModal({ isOpen, onConfirm }) {
                   type="button"
                   aria-pressed={isActive}
                   onClick={() => handleAnswer(option.value)}
-                  className={`flex items-center justify-center gap-2 rounded-xl border-2 px-4 py-4 text-base font-bold transition-all active:scale-95 ${
+                  className={`flex items-center justify-center gap-2 rounded-xl border px-4 py-3.5 text-sm font-semibold transition-all active:scale-[0.98] ${
                     isActive
                       ? option.value
-                        ? 'border-red-500 bg-red-50 text-red-800 shadow-sm ring-2 ring-red-100'
-                        : 'border-emerald-500 bg-emerald-50 text-emerald-800 shadow-sm ring-2 ring-emerald-100'
-                      : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'
+                        ? 'border-red-200 bg-red-50 text-red-700'
+                        : 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                      : 'border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50'
                   }`}
                 >
                   <SelectionCheck active={isActive} tone={option.value ? 'red' : 'green'} />
@@ -78,7 +78,7 @@ export default function AnticoagModal({ isOpen, onConfirm }) {
 
           {needsType && (
             <div className="space-y-3 animate-fade-in">
-              <p className="text-xs font-bold uppercase tracking-wider text-gray-500">Tipo de anticoagulante</p>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-500">Tipo de anticoagulante</p>
               <div className="grid grid-cols-3 gap-2">
                 {ANTICOAG_TYPES.map(({ id, label }) => {
                   const isActive = type === id
@@ -88,10 +88,10 @@ export default function AnticoagModal({ isOpen, onConfirm }) {
                       type="button"
                       aria-pressed={isActive}
                       onClick={() => setType(id)}
-                      className={`flex items-center justify-center gap-1.5 rounded-lg border-2 py-3 text-sm font-bold transition-all active:scale-95 ${
+                      className={`flex items-center justify-center gap-1.5 rounded-xl border py-2.5 text-xs font-medium transition-all active:scale-[0.98] ${
                         isActive
-                          ? 'border-red-500 bg-red-50 text-red-800 shadow-sm ring-2 ring-red-100'
-                          : 'border-gray-200 bg-white text-gray-700 hover:border-red-300 hover:bg-red-50/40'
+                          ? 'border-red-200 bg-red-50 text-red-700'
+                          : 'border-neutral-200 bg-white text-neutral-600 hover:border-red-200 hover:bg-red-50/30'
                       }`}
                     >
                       <SelectionCheck active={isActive} tone="red" />
@@ -102,11 +102,11 @@ export default function AnticoagModal({ isOpen, onConfirm }) {
               </div>
 
               {type && (
-                <div className="rounded-lg border-2 border-red-300 bg-red-50 px-4 py-3">
+                <div className="rounded-xl border border-red-200 bg-red-50/50 px-4 py-3">
                   <div className="flex items-start gap-2">
-                    <ShieldAlert size={15} className="shrink-0 mt-0.5 text-red-600" />
-                    <p className="text-xs font-medium text-red-700 leading-snug">
-                      Anticoagulacion activa: contraindicacion relativa para trombolisis. Esperar laboratorio segun droga.
+                    <ShieldAlert size={14} className="shrink-0 mt-0.5 text-red-500" strokeWidth={2} />
+                    <p className="text-xs text-red-600 leading-snug">
+                      Anticoagulación activa: contraindicación relativa para trombolisis. Esperar laboratorio según droga.
                     </p>
                   </div>
                 </div>
@@ -115,21 +115,21 @@ export default function AnticoagModal({ isOpen, onConfirm }) {
           )}
 
           {active === false && (
-            <div className="rounded-lg border-2 border-emerald-200 bg-emerald-50 px-4 py-3 animate-fade-in">
-              <p className="text-xs font-medium text-emerald-700">Sin anticoagulacion activa — continuar evaluacion.</p>
+            <div className="rounded-xl border border-emerald-100 bg-emerald-50/50 px-4 py-3 animate-fade-in">
+              <p className="text-xs text-emerald-600">Sin anticoagulación activa — continuar evaluación.</p>
             </div>
           )}
         </div>
 
         {/* Footer */}
-        <div className="px-6 pb-6">
+        <div className="px-5 pb-5">
           <button
             type="button"
             onClick={handleConfirm}
             disabled={!canConfirm}
-            className="w-full flex items-center justify-center gap-2 py-4 rounded-xl font-bold text-base transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed bg-brand-600 hover:bg-brand-700 text-white"
+            className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-semibold text-sm transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed bg-brand-600 hover:bg-brand-700 text-white"
           >
-            Continuar <ChevronRight size={18} />
+            Continuar <ChevronRight size={16} strokeWidth={2} />
           </button>
         </div>
       </div>
