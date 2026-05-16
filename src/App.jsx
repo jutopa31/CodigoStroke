@@ -10,7 +10,6 @@ import OutOfWindowModal from './components/OutOfWindowModal'
 import StartStep from './steps/StartStep'
 import PatientStep from './steps/PatientStep'
 import TimeStep from './steps/TimeStep'
-import VitalsStep from './steps/VitalsStep'
 import SymptomsNihssStep from './steps/SymptomsNihssStep'
 import CTResultStep from './steps/CTResultStep'
 import MRIResultStep from './steps/MRIResultStep'
@@ -403,10 +402,6 @@ export default function App() {
     setSymptoms((prev) => ({ ...prev, ...data }))
   }
 
-  function handleVitalsConfirm(data) {
-    setVitals(data)
-  }
-
   function handleSymptomsNihssConfirm(data) {
     const nihssData = { nihssScore: data.nihssScore, hasDisablingSymptoms: data.hasDisablingSymptoms }
     setNihss(nihssData)
@@ -742,27 +737,22 @@ export default function App() {
     return 'Imagen registrada'
   }
 
-  function DoneScreen({
+  function renderDoneScreen({
     done, patient, patientId, eventId, timerStart,
     patientArrivalTime, ctRequestTime, thrombolyticStartTime,
     angioRequestTime, thrombectomyActivationTime,
     symptoms, vitals, nihss, ctResult, contraindications,
     dosage, thrombectomy, nihssReadings, vitalsReadings,
-    glucoseReadings, doneRef, onSave, onCopy, copied, onReset,
+    glucoseReadings, onCopy, copied, onReset, summaryText,
     getSelectedSymptomsSummary, getContraSummary, getDoseSummary, getImagingSummary,
   }) {
-    useEffect(() => {
-      if (!caseSaved) onSave()
-    }, [])
-
-    const summaryText = buildSummaryText()
     function handleShareWhatsApp() {
       const url = `https://wa.me/?text=${encodeURIComponent(summaryText)}`
       window.open(url, '_blank')
     }
 
     return (
-      <div ref={doneRef} className="px-4 pb-4 animate-slide-down">
+      <div className="px-4 pb-4 animate-slide-down">
         <div className={`bg-white rounded-2xl border ${done.borderColor} p-6 mb-4`}>
           <div className={`w-12 h-12 ${done.iconBg} rounded-xl flex items-center justify-center mx-auto mb-4`}>
             {done.icon === 'check' && <svg className="w-6 h-6 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>}
@@ -874,11 +864,18 @@ export default function App() {
     )
   }
 
+  const done = step === STEP.DONE ? getDoneContent() : null
+
+  useEffect(() => {
+    if (step === STEP.DONE && !caseSaved) {
+      const timeout = setTimeout(handleSaveCase, 0)
+      return () => clearTimeout(timeout)
+    }
+  }, [step, caseSaved, handleSaveCase])
+
   if (step === STEP.START) {
     return <StartStep onStart={handleStart} onResume={handleResume} />
   }
-
-  const done = step === STEP.DONE ? getDoneContent() : null
 
   const latestNihss = nihssReadings.length > 0
     ? nihssReadings[nihssReadings.length - 1].score
@@ -1200,37 +1197,38 @@ export default function App() {
           <AvisoModal isOpen={showAvisoModal} onClose={handleAvisoClose} />
 
           {step === STEP.DONE && done && (
-            <DoneScreen
-              done={done}
-              patient={patient}
-              patientId={patientId}
-              eventId={eventId}
-              timerStart={timerStart}
-              patientArrivalTime={patientArrivalTime}
-              ctRequestTime={ctRequestTime}
-              thrombolyticStartTime={thrombolyticStartTime}
-              angioRequestTime={angioRequestTime}
-              thrombectomyActivationTime={thrombectomyActivationTime}
-              symptoms={symptoms}
-              vitals={vitals}
-              nihss={nihss}
-              ctResult={ctResult}
-              contraindications={contraindications}
-              dosage={dosage}
-              thrombectomy={thrombectomy}
-              nihssReadings={nihssReadings}
-              vitalsReadings={vitalsReadings}
-              glucoseReadings={glucoseReadings}
-              doneRef={doneRef}
-              onSave={handleSaveCase}
-              onCopy={handleCopy}
-              copied={copied}
-              onReset={handleReset}
-              getSelectedSymptomsSummary={getSelectedSymptomsSummary}
-              getContraSummary={getContraSummary}
-              getDoseSummary={getDoseSummary}
-              getImagingSummary={getImagingSummary}
-            />
+            <div ref={doneRef}>
+              {renderDoneScreen({
+              done,
+              patient,
+              patientId,
+              eventId,
+              timerStart,
+              patientArrivalTime,
+              ctRequestTime,
+              thrombolyticStartTime,
+              angioRequestTime,
+              thrombectomyActivationTime,
+              symptoms,
+              vitals,
+              nihss,
+              ctResult,
+              contraindications,
+              dosage,
+              thrombectomy,
+              nihssReadings,
+              vitalsReadings,
+              glucoseReadings,
+              onCopy: handleCopy,
+              copied,
+              onReset: handleReset,
+              summaryText: buildSummaryText(),
+              getSelectedSymptomsSummary,
+              getContraSummary,
+              getDoseSummary,
+              getImagingSummary,
+              })}
+            </div>
           )}
       </div>
       </div>

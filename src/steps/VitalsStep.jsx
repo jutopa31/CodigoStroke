@@ -96,7 +96,7 @@ export default function VitalsStep({ onConfirm }) {
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [valid])
+  }, [valid, handleSubmit])
 
   return (
     <div className="px-4 pb-4 space-y-3">
@@ -155,7 +155,7 @@ export default function VitalsStep({ onConfirm }) {
               <button
                 key={option.score}
                 type="button"
-                onClick={() => setMrs(String(option.score))}
+                onClick={() => handleMrsChange(String(option.score))}
                 className={`py-2.5 rounded-lg border-2 text-sm font-bold transition-all active:scale-95 ${
                   mrsNum === option.score
                     ? 'border-blue-500 bg-blue-50 text-blue-700 ring-2 ring-blue-100'

@@ -113,7 +113,7 @@ function AnticoagulationModal({ onClose, onConfirm }) {
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [canContinue, active, type])
+  }, [canContinue, onClose, submit])
 
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/55 p-4 backdrop-blur-sm animate-fade-in">
@@ -386,7 +386,7 @@ export default function SymptomsStep({ onConfirm }) {
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [valid, showWakeUpModal, showAnticoagulationModal])
+  }, [valid, showWakeUpModal, showAnticoagulationModal, handleSubmit])
 
   function confirm(isWakeUpStroke, anticoagulation) {
     onConfirm({

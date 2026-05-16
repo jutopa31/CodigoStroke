@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Activity, Zap, RotateCcw, Clock, ChevronRight } from 'lucide-react'
 import { loadSession, getSessions } from '../lib/storage'
 
@@ -26,11 +26,8 @@ export default function StartStep({ onStart, onResume }) {
   const [resumeId, setResumeId] = useState('')
   const [error, setError] = useState(false)
   const [showManualResume, setShowManualResume] = useState(false)
-  const [recentSession, setRecentSession] = useState(null)
-
-  useEffect(() => {
-    setRecentSession(getRecentSession())
-  }, [])
+  const [recentSession] = useState(() => getRecentSession())
+  const [now] = useState(() => Date.now())
 
   function handleResume() {
     const session = loadSession(resumeId)
@@ -92,7 +89,7 @@ export default function StartStep({ onStart, onResume }) {
                 {recentSession.patientName || 'Paciente'}
               </p>
               <p className="text-xs text-amber-500 mt-0.5">
-                {recentSession.id} · hace {formatElapsed(Date.now() - recentSession.updated)}
+                {recentSession.id} · hace {formatElapsed(now - recentSession.updated)}
               </p>
             </div>
             <ChevronRight size={18} className="text-amber-400 shrink-0 mt-2.5" />

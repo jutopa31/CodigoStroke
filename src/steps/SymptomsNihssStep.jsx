@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { ChevronRight, Zap, MessageSquare, Eye, Scale, FileText } from 'lucide-react'
 import StepCard from '../components/StepCard'
 import { PrimaryAction } from '../components/GuidedControls'
@@ -123,6 +123,7 @@ export default function SymptomsNihssStep({ onConfirm }) {
   const [flash, setFlash] = useState(null)
   const [hasDisabling, setHasDisabling] = useState(null)
   const [showDisablingList, setShowDisablingList] = useState(false)
+  const flashKeyRef = useRef(0)
 
   const hasSymptom = Object.values(selected).some(Boolean)
   const activeSymptoms = SYMPTOMS.filter((s) => selected[s.id])
@@ -157,7 +158,8 @@ export default function SymptomsNihssStep({ onConfirm }) {
         return updated
       })
       if (sym.flashPts > 0) {
-        setFlash({ pts: sym.flashPts, key: Date.now() })
+        flashKeyRef.current += 1
+        setFlash({ pts: sym.flashPts, key: flashKeyRef.current })
       }
     }
   }

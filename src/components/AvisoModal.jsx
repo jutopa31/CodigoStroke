@@ -16,8 +16,10 @@ export default function AvisoModal({ isOpen, onClose }) {
 
   useEffect(() => {
     if (!isOpen) return
-    setRemaining(COUNTDOWN_SECONDS)
-    setDone(false)
+    const reset = setTimeout(() => {
+      setRemaining(COUNTDOWN_SECONDS)
+      setDone(false)
+    }, 0)
 
     const interval = setInterval(() => {
       setRemaining((prev) => {
@@ -30,7 +32,10 @@ export default function AvisoModal({ isOpen, onClose }) {
       })
     }, 1000)
 
-    return () => clearInterval(interval)
+    return () => {
+      clearTimeout(reset)
+      clearInterval(interval)
+    }
   }, [isOpen])
 
   useEffect(() => {
