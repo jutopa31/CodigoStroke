@@ -99,28 +99,43 @@ export default function VitalsStep({ onConfirm }) {
 
   return (
     <div className="px-4 pb-4 space-y-3">
-      <StepCard step="3" title="mRS + signos vitales" accent="blue">
-        <div className="mb-3 flex items-center justify-between gap-2 rounded-lg border border-blue-100 bg-blue-50/60 px-3 py-2">
-          <p className="text-sm font-bold text-blue-900">Carga compacta inicial</p>
-          <StatusPill complete={Boolean(valid)}>{valid ? 'Completo' : 'Pendiente'}</StatusPill>
-        </div>
-
-        <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
-          <div className="relative">
-            <div className="mb-1 flex items-center justify-between gap-1">
-              <span className="block truncate text-[11px] font-bold uppercase tracking-wider text-slate-500">mRS previo</span>
-              <button
-                type="button"
-                onMouseEnter={() => setShowMrsHelp(true)}
-                onMouseLeave={() => setShowMrsHelp(false)}
-                onFocus={() => setShowMrsHelp(true)}
-                onBlur={() => setShowMrsHelp(false)}
-                onClick={() => setShowMrsHelp((current) => !current)}
-                className="flex h-5 w-5 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-600"
-                aria-label="Ver valores de mRS"
-              >
-                <HelpCircle size={13} />
-              </button>
+      <StepCard step="2" title="SV y Status previo" accent="blue">
+        <SectionPrompt
+          tone="blue"
+          title="Completa tension arterial y glucemia"
+          helper="Los campos completos quedan marcados; los valores criticos se destacan en rojo."
+          complete={Boolean(valid)}
+        />
+        {/* TA */}
+        <div className="mb-4">
+          <label className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2 block">
+            Tensión arterial (mmHg)
+          </label>
+          <div className="flex items-center gap-3">
+            <div className="flex-1">
+              <input
+                type="number"
+                inputMode="numeric"
+                placeholder="Sistólica"
+                value={sys}
+                onChange={(e) => setSys(e.target.value)}
+                className={`w-full border rounded-xl px-4 py-3.5 text-gray-800 text-base focus:outline-none focus:ring-2 placeholder-gray-300 ${
+                  taCritical ? 'border-red-400 bg-red-50/40 focus:ring-red-400' : sys ? 'border-blue-500 bg-blue-50/40 ring-2 ring-blue-100 focus:ring-blue-400' : 'border-gray-200 focus:ring-blue-400'
+                }`}
+              />
+            </div>
+            <span className="text-gray-300 font-light text-2xl">/</span>
+            <div className="flex-1">
+              <input
+                type="number"
+                inputMode="numeric"
+                placeholder="Diastólica"
+                value={dia}
+                onChange={(e) => setDia(e.target.value)}
+                className={`w-full border rounded-xl px-4 py-3.5 text-gray-800 text-base focus:outline-none focus:ring-2 placeholder-gray-300 ${
+                  taDia ? 'border-red-400 bg-red-50/40 focus:ring-red-400' : dia ? 'border-blue-500 bg-blue-50/40 ring-2 ring-blue-100 focus:ring-blue-400' : 'border-gray-200 focus:ring-blue-400'
+                }`}
+              />
             </div>
             <input
               type="text"

@@ -2,13 +2,13 @@ import { CheckCircle2 } from 'lucide-react'
 
 const STEPS = [
   { value: 1, long: 'Datos del paciente' },
-  { value: 3, long: 'Sintomas / NIHSS' },
-  { value: 4, long: 'mRS + vitales' },
-  { value: 6, long: 'Acciones inmediatas' },
-  { value: 7, long: 'Resultado TC/RM' },
-  { value: 8, long: 'Contraindicaciones' },
-  { value: 9, long: 'Dosis trombolitico' },
-  { value: 10, long: 'Trombectomia' },
+  { value: 3, long: 'Última vez asintomático' },
+  { value: 4, long: 'SV y Status previo' },
+  { value: 5, long: 'Síntomas NIHSS' },
+  { value: 6, long: 'TAC de encéfalo' },
+  { value: 7, long: 'Contraindicaciones' },
+  { value: 8, long: 'Dosis trombolítico' },
+  { value: 9, long: 'Trombectomía' },
 ]
 
 export default function StepTimeline({ currentStep, completedSteps = [], onStepClick, variant = 'mobile' }) {
