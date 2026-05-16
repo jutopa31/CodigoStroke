@@ -89,7 +89,6 @@ function formatClock(dateStr) {
 export default function TimeStep({ onConfirm }) {
   const [lastSeenDate, setLastSeenDate] = useState(() => toLocalDateInput(new Date()))
   const [lastSeenTime, setLastSeenTime] = useState(() => toLocalTimeInput(new Date()))
-  const [lastSeenTimeText, setLastSeenTimeText] = useState(() => toLocalTimeInput(new Date()))
   const [offsetMinutes, setOffsetMinutes] = useState(0)
   const [showWakeUpModal, setShowWakeUpModal] = useState(false)
   const [confirmed, setConfirmed] = useState(false)
@@ -111,38 +110,6 @@ export default function TimeStep({ onConfirm }) {
     setLastSeenDate(toLocalDateInput(date))
     setLastSeenTime(toLocalTimeInput(date))
     setLastSeenTimeText(toLocalTimeInput(date))
-    setConfirmed(false)
-  }
-
-  function handleDateChange(value) {
-    setOffsetMinutes(null)
-    setLastSeenDate(value)
-    setConfirmed(false)
-  }
-
-  function commitTimeText(value) {
-    const parsed = parseClockEntry(value)
-    if (!parsed) {
-      setLastSeenTimeText(lastSeenTime)
-      return
-    }
-    setOffsetMinutes(null)
-    setLastSeenTime(parsed)
-    setLastSeenTimeText(parsed)
-  }
-
-  function handleTimeTextChange(value) {
-    setOffsetMinutes(null)
-    setLastSeenTimeText(value)
-    const parsed = parseClockEntry(value)
-    if (parsed) setLastSeenTime(parsed)
-    setConfirmed(false)
-  }
-
-  function handleClockPickerChange(value) {
-    setOffsetMinutes(null)
-    setLastSeenTime(value)
-    setLastSeenTimeText(value)
     setConfirmed(false)
   }
 
@@ -243,65 +210,27 @@ export default function TimeStep({ onConfirm }) {
         </div>
       </div>
 
-      {/* Manual date/time inputs */}
-      <div className="grid gap-2 md:grid-cols-[1fr_1fr_150px]">
-        <label className="block">
-          <span className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-gray-500">Dia</span>
-          <input
-            type="date"
-            value={lastSeenDate}
-            max={toLocalDateInput(new Date())}
-            onChange={(e) => handleDateChange(e.target.value)}
-            className={`w-full rounded-lg border-2 px-3 py-2.5 text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:border-transparent ${toneColors.input}`}
-          />
-        </label>
-
-        <label className="block">
-          <span className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-gray-500">Hora manual</span>
-          <input
-            type="text"
-            inputMode="numeric"
-            placeholder="930, 09:30, 15"
-            value={lastSeenTimeText}
-            onChange={(e) => handleTimeTextChange(e.target.value)}
-            onBlur={(e) => commitTimeText(e.target.value)}
-            className={`w-full rounded-lg border-2 px-3 py-2.5 text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:border-transparent ${toneColors.input}`}
-          />
-        </label>
-
-        <label className="block">
-          <span className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-gray-500">Reloj</span>
-          <input
-            type="time"
-            value={lastSeenTime}
-            onChange={(e) => handleClockPickerChange(e.target.value)}
-            className={`w-full rounded-lg border-2 px-3 py-2.5 text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:border-transparent ${toneColors.input}`}
-          />
-        </label>
+      {/* Compact register button — bottom-left */}
+      <div className="mt-2 flex items-center justify-start">
+        <button
+          type="button"
+          onClick={handleSubmit}
+          disabled={!lastSeen}
+          className={`flex items-center gap-1.5 px-4 py-2 rounded-lg font-semibold text-sm transition-all active:scale-95 ${
+            confirmed
+              ? 'bg-emerald-50 border-2 border-emerald-400 text-emerald-700'
+              : lastSeen
+              ? 'bg-blue-600 hover:bg-blue-700 text-white'
+              : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+          }`}
+        >
+          {confirmed ? (
+            <><CheckCircle2 size={14} /> Registrado</>
+          ) : (
+            'Registrar horario'
+          )}
+        </button>
       </div>
-
-      <p className="mt-1.5 text-xs text-gray-400">
-        Atajos de hora: 930 = 09:30, 1530 = 15:30, 15 = 15:00.
-      </p>
-
-      <button
-        type="button"
-        onClick={handleSubmit}
-        disabled={!lastSeen}
-        className={`mt-3 w-full flex items-center justify-center gap-2 py-3 rounded-lg font-semibold text-sm transition-all active:scale-95 ${
-          confirmed
-            ? 'bg-emerald-50 border-2 border-emerald-400 text-emerald-700'
-            : lastSeen
-            ? 'bg-blue-600 hover:bg-blue-700 text-white'
-            : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-        }`}
-      >
-        {confirmed ? (
-          <><CheckCircle2 size={16} /> Horario registrado — edita si necesitas corregir</>
-        ) : (
-          'Registrar horario'
-        )}
-      </button>
 
       {showWakeUpModal && (
         <WakeUpStrokeModal

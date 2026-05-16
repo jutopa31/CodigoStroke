@@ -38,7 +38,7 @@ const STEP = {
   DONE: 10,
 }
 
-const SIDEBAR_VALUES = [1, 3, 4, 5, 6, 7, 8, 9]
+const SIDEBAR_VALUES = [1, 3, 5, 6, 7, 8, 9]
 
 const MOCK_PATIENT = {
   name: 'Paciente Test',
@@ -293,9 +293,11 @@ export default function App() {
 
   function handlePatientConfirm(data) {
     const now = new Date()
-    setPatient(data)
+    const { systolic, diastolic, glucose, modifiedRankinScale, ...patientData } = data
+    setPatient(patientData)
+    setVitals({ systolic, diastolic, glucose, modifiedRankinScale })
     setPatientArrivalTime(now)
-    setPatientId(generatePatientId(data.name, data.dni))
+    setPatientId(generatePatientId(patientData.name, patientData.dni))
     setStep(STEP.ALERT)
   }
 
@@ -939,6 +941,7 @@ export default function App() {
                 patient={patient}
                 patientId={patientId}
                 arrivalTime={patientArrivalTime}
+                vitals={vitals}
               />
             </div>
           )}
@@ -954,12 +957,6 @@ export default function App() {
           {protocolUnlocked && (
             <div ref={timeRef}>
               <TimeStep onConfirm={handleTimeConfirm} />
-            </div>
-          )}
-
-          {protocolUnlocked && (
-            <div ref={vitalsRef}>
-              <VitalsStep onConfirm={handleVitalsConfirm} />
             </div>
           )}
 

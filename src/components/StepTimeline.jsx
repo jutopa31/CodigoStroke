@@ -3,7 +3,6 @@ import { CheckCircle2 } from 'lucide-react'
 const STEPS = [
   { value: 1, long: 'Datos del paciente' },
   { value: 3, long: 'Última vez asintomático' },
-  { value: 4, long: 'SV y Status previo' },
   { value: 5, long: 'Síntomas NIHSS' },
   { value: 6, long: 'TAC de encéfalo' },
   { value: 7, long: 'Contraindicaciones' },
