@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { ChevronRight, Zap, MessageSquare, Eye, Scale, FileText } from 'lucide-react'
-import StepCard from '../components/StepCard'
+import StepCard, { CollapsedStep } from '../components/StepCard'
 import { PrimaryAction } from '../components/GuidedControls'
 import { nihssItems, getNihssSeverity } from '../content/nihss'
 
@@ -116,7 +116,7 @@ function ItemRow({ itemId, score, onChange }) {
   )
 }
 
-export default function SymptomsNihssStep({ onConfirm }) {
+export default function SymptomsNihssStep({ onConfirm, isCollapsed = false }) {
   const [selected, setSelected] = useState({})
   const [subscaleScores, setSubscaleScores] = useState({})
   const [otherScore, setOtherScore] = useState('')
@@ -177,6 +177,15 @@ export default function SymptomsNihssStep({ onConfirm }) {
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [canContinue, selected, total, hasDisabling, onConfirm])
+
+  if (isCollapsed && hasSymptom) {
+    const activeLabels = activeSymptoms.map((s) => s.label).join(', ')
+    return (
+      <CollapsedStep title="Síntomas / NIHSS">
+        NIHSS {total}{severity ? ` — ${severity.label}` : ''}{activeLabels ? ` · ${activeLabels}` : ''}
+      </CollapsedStep>
+    )
+  }
 
   return (
     <div className="space-y-3">

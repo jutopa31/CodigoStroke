@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react'
 import { ChevronRight, ChevronDown, Info, ShieldCheck } from 'lucide-react'
-import StepCard from '../components/StepCard'
+import StepCard, { CollapsedStep } from '../components/StepCard'
 import { SectionPrompt, SelectableButton } from '../components/GuidedControls'
 
 const RED_CONTRAS = [
@@ -169,7 +169,7 @@ function ContraRow({ item, value, onChange, color, expanded, onToggleExpand }) {
   )
 }
 
-export default function ContraindicationsStep({ onConfirm }) {
+export default function ContraindicationsStep({ onConfirm, isCollapsed = false }) {
   const [redAnswers, setRedAnswers] = useState({})
   const [orangeAnswers, setOrangeAnswers] = useState({})
   const [expandedRow, setExpandedRow] = useState(null)
@@ -213,6 +213,16 @@ export default function ContraindicationsStep({ onConfirm }) {
 
   const allRedAnswered = RED_CONTRAS.every((c) => redAnswers[c.id] !== undefined)
   const allOrangeAnswered = ORANGE_CONTRAS.every((c) => orangeAnswers[c.id] !== undefined)
+
+  const allAnswered = allRedAnswered && allOrangeAnswered
+  if (isCollapsed && allAnswered) {
+    const summary = hasRed
+      ? `Contraindicación absoluta: ${RED_CONTRAS.find((c) => redAnswers[c.id])?.short ?? '—'}`
+      : hasOrange
+        ? 'Contraindicación relativa presente'
+        : 'Sin contraindicaciones'
+    return <CollapsedStep title="Contraindicaciones">{summary}</CollapsedStep>
+  }
 
   return (
     <div className="px-4 pb-4 space-y-3">

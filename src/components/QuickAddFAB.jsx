@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Brain, Heart, Droplets, X, RotateCcw } from 'lucide-react'
+import { Brain, Heart, Droplets, X, RotateCcw, Clock } from 'lucide-react'
 import NihssModal from './NihssModal'
 
 function getNihssSeverity(score) {
@@ -243,6 +243,7 @@ export default function QuickAddFAB({
   onAddVitals,
   onAddGlucose,
   onReset,
+  onOutOfWindow,
   latestNihss = null,
   latestVitals = null,
   latestGlucose = null,
@@ -279,10 +280,13 @@ export default function QuickAddFAB({
 
   const isSidebar = variant === 'sidebar'
   const isMobileToolbar = variant === 'mobile-toolbar'
+
+  const has4thBtn = onOutOfWindow || onReset
+
   const containerClass = isMobileToolbar
-    ? 'grid w-full grid-cols-4 gap-2'
+    ? `grid w-full ${has4thBtn ? 'grid-cols-4' : 'grid-cols-3'} gap-2`
     : isSidebar
-      ? 'grid grid-cols-4 gap-2'
+      ? `grid ${has4thBtn ? 'grid-cols-4' : 'grid-cols-3'} gap-2`
       : 'flex flex-col gap-2'
   const buttonClass = isMobileToolbar || isSidebar
     ? 'relative flex min-h-[44px] min-w-0 flex-col items-center justify-center gap-0.5 rounded-xl border text-[10px] font-semibold active:scale-[0.98] transition-transform'
@@ -290,7 +294,7 @@ export default function QuickAddFAB({
   const resetClass = isMobileToolbar || isSidebar
     ? 'relative flex min-h-[44px] min-w-0 flex-col items-center justify-center gap-0.5 rounded-xl border border-neutral-200 bg-white text-neutral-500 hover:bg-neutral-50 text-[10px] font-semibold active:scale-[0.98] transition-transform'
     : 'w-10 h-10 rounded-xl border border-neutral-200 bg-white text-neutral-500 hover:bg-neutral-50 flex flex-col items-center justify-center gap-0.5 active:scale-95 transition-transform'
-  const iconSize = isMobileToolbar || isSidebar ? 14 : 14
+  const iconSize = 14
   const labelClass = isMobileToolbar || isSidebar ? 'text-[10px] font-semibold leading-none' : 'text-[9px] font-semibold leading-none'
 
   return (
@@ -312,6 +316,16 @@ export default function QuickAddFAB({
             )}
           </button>
         ))}
+        {onOutOfWindow && (isMobileToolbar || isSidebar) && (
+          <button
+            onClick={onOutOfWindow}
+            title="Fuera de ventana"
+            className="relative flex min-h-[44px] min-w-0 flex-col items-center justify-center gap-0.5 rounded-xl border border-neutral-700 bg-neutral-800 text-white text-[10px] font-semibold active:scale-[0.98] transition-transform hover:bg-neutral-900"
+          >
+            <Clock size={iconSize} strokeWidth={2} />
+            <span className={labelClass}>F. Ventana</span>
+          </button>
+        )}
         {onReset && (
           <button
             onClick={onReset}

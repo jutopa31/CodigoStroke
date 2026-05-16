@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { CheckCircle2, Clock } from 'lucide-react'
-import StepCard from '../components/StepCard'
+import StepCard, { CollapsedStep } from '../components/StepCard'
 import { StatusPill } from '../components/GuidedControls'
 
 const IV_WINDOW_MINUTES = 270
@@ -51,7 +51,7 @@ function formatClock(dateStr) {
   return new Date(dateStr).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
 }
 
-export default function TimeStep({ onConfirm }) {
+export default function TimeStep({ onConfirm, isCollapsed = false }) {
   const [lastSeenDate, setLastSeenDate] = useState(() => toLocalDateInput(new Date()))
   const [lastSeenTime, setLastSeenTime] = useState(() => toLocalTimeInput(new Date()))
   const [offsetMinutes, setOffsetMinutes] = useState(0)
@@ -114,6 +114,14 @@ export default function TimeStep({ onConfirm }) {
 
   const stepTitle = isIncierto ? 'Última vez asintomático' : 'Inicio de síntomas'
   const sliderLabel = isIncierto ? 'Última vez visto asintomático' : 'Inicio de síntomas'
+
+  if (isCollapsed && confirmed) {
+    return (
+      <CollapsedStep title={stepTitle}>
+        {formatClock(lastSeen)} · {formatElapsed(elapsedMinutes)} · {timeStatusLabel}
+      </CollapsedStep>
+    )
+  }
 
   return (
     <StepCard step="2" title={stepTitle} accent={timeTone}>
