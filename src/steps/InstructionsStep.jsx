@@ -41,7 +41,7 @@ export default function InstructionsStep({ onConfirm }) {
 
   return (
     <div className="px-4 pb-4 space-y-3">
-      <StepCard step="5" title="Acciones inmediatas" accent="green">
+      <StepCard step="4" title="Acciones inmediatas" accent="green">
         <SectionPrompt
           tone="green"
           title="Marca cada accion cuando este hecha"

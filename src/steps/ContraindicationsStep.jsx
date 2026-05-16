@@ -225,7 +225,7 @@ export default function ContraindicationsStep({ onConfirm }) {
         )}
       </StepCard>
 
-      <StepCard step="" title="Contraindicaciones relativas" accent="orange">
+      <StepCard step="" title="Contraindicaciones relativas" accent="orange" rail railStep="6">
         <SectionPrompt
           tone="orange"
           title="Revisa contraindicaciones relativas"

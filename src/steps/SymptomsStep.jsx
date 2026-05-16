@@ -1,8 +1,22 @@
 import { useState, useEffect } from 'react'
-import { AlertCircle, CheckCircle2, ChevronRight, Clock, Zap, MessageSquare, Eye, Scale, FileText, ShieldAlert } from 'lucide-react'
+import {
+  AlertCircle,
+  Calculator,
+  ChevronRight,
+  Clock,
+  Eye,
+  FileText,
+  MessageSquare,
+  Scale,
+  ShieldAlert,
+  X,
+  Zap,
+} from 'lucide-react'
 import StepCard from '../components/StepCard'
+import NihssModal from '../components/NihssModal'
 import WakeUpStrokeModal from '../components/WakeUpStrokeModal'
 import { SelectionCheck, StatusPill } from '../components/GuidedControls'
+import { getNihssSeverity } from '../content/nihss'
 
 const SYMPTOM_OPTIONS = [
   { id: 'weakness', label: 'Debilidad unilateral', sub: 'Brazo, pierna o cara de un lado', Icon: Zap },
@@ -12,24 +26,16 @@ const SYMPTOM_OPTIONS = [
   { id: 'other', label: 'Otro', sub: 'Otros sintomas', Icon: FileText },
 ]
 
-const TIME_PRESETS = [
-  { label: 'Ahora', mins: 0 },
-  { label: '15 min', mins: 15 },
-  { label: '30 min', mins: 30 },
-  { label: '1 hora', mins: 60 },
-  { label: '2 horas', mins: 120 },
-  { label: '3 horas', mins: 180 },
-  { label: '6 horas', mins: 360 },
-  { label: '12 horas', mins: 720 },
-  { label: '+24 horas', mins: 1500 },
-]
+const IV_WINDOW_MINUTES = 270
+const OGV_WINDOW_MINUTES = 540
+const MAX_SLIDER_MINUTES = 720
+const IV_WINDOW_PERCENT = `${(IV_WINDOW_MINUTES / MAX_SLIDER_MINUTES) * 100}%`
 
-const IV_WINDOW_MINUTES = 270 // 4.5 hours
-const OGV_WINDOW_MINUTES = 540 // 9 hours (WakeUp/mismatch window)
 const ANTICOAG_TYPES = [
   { id: 'doac', label: 'DOAC' },
   { id: 'heparina', label: 'Heparina' },
   { id: 'acenocumarol', label: 'Acenocumarol' },
+  { id: 'otro', label: 'Otro / no sabe' },
 ]
 
 function toLocalDateInput(date) {
@@ -47,37 +53,6 @@ function combineDateTime(datePart, timePart) {
   return `${datePart}T${timePart}`
 }
 
-function parseClockEntry(value) {
-  const trimmed = value.trim()
-  const colonMatch = trimmed.match(/^(\d{1,2}):(\d{1,2})$/)
-  let hours
-  let minutes
-
-  if (colonMatch) {
-    hours = Number(colonMatch[1])
-    minutes = Number(colonMatch[2])
-  } else {
-    const digits = trimmed.replace(/\D/g, '')
-    if (!digits) return null
-    if (digits.length <= 2) {
-      hours = Number(digits)
-      minutes = 0
-    } else if (digits.length === 3) {
-      hours = Number(digits.slice(0, 1))
-      minutes = Number(digits.slice(1))
-    } else {
-      hours = Number(digits.slice(0, 2))
-      minutes = Number(digits.slice(2, 4))
-    }
-  }
-
-  if (!Number.isInteger(hours) || !Number.isInteger(minutes) || hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
-    return null
-  }
-
-  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`
-}
-
 function useInterval(ms) {
   const [, setTick] = useState(0)
   useEffect(() => {
@@ -86,450 +61,480 @@ function useInterval(ms) {
   }, [ms])
 }
 
-function timeSince(dateStr) {
-  if (!dateStr) return null
-  const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000)
-  if (diff < 0) return 'Tiempo invalido'
-  const h = Math.floor(diff / 3600)
-  const m = Math.floor((diff % 3600) / 60)
-  if (h > 0) return `Hace ${h}h ${m}min`
-  return `Hace ${m} minutos`
-}
-
 function getElapsedMinutes(dateStr) {
   if (!dateStr) return 0
-  return (Date.now() - new Date(dateStr).getTime()) / (1000 * 60)
+  return Math.max(0, (Date.now() - new Date(dateStr).getTime()) / (1000 * 60))
 }
 
 function getElapsedHours(dateStr) {
   return Math.round(getElapsedMinutes(dateStr) / 60 * 10) / 10
 }
 
+function formatElapsed(minutes) {
+  const rounded = Math.max(0, Math.round(minutes))
+  const h = Math.floor(rounded / 60)
+  const m = rounded % 60
+  if (h > 0 && m > 0) return `Hace ${h}h ${m}min`
+  if (h > 0) return `Hace ${h}h`
+  return `Hace ${m} min`
+}
+
+function formatClock(dateStr) {
+  if (!dateStr) return '--:--'
+  return new Date(dateStr).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
+}
+
+function getTimeTone(minutes) {
+  if (minutes > OGV_WINDOW_MINUTES) return 'red'
+  if (minutes > IV_WINDOW_MINUTES) return 'orange'
+  return 'blue'
+}
+
+function AnticoagulationModal({ onClose, onConfirm }) {
+  const [active, setActive] = useState(null)
+  const [type, setType] = useState('')
+  const needsType = active === true
+  const canContinue = active === false || (active === true && type)
+
+  function submit() {
+    if (!canContinue) return
+    onConfirm({
+      active,
+      type: active ? type : '',
+      thrombolysisBlocked: active === true,
+    })
+  }
+
+  useEffect(() => {
+    function onKey(event) {
+      if (event.key === 'Escape') onClose()
+      if (event.key === 'Enter' && canContinue) submit()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [canContinue, active, type])
+
+  return (
+    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/55 p-4 backdrop-blur-sm animate-fade-in">
+      <div className="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl animate-slide-up">
+        <div className="flex items-start justify-between gap-4 border-b border-slate-100 px-5 py-4">
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-brand-600">Alerta antes de avanzar</p>
+            <h3 className="mt-1 text-xl font-bold text-slate-900">Anticoagulacion</h3>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition hover:bg-slate-50"
+            aria-label="Cerrar"
+          >
+            <X size={16} />
+          </button>
+        </div>
+
+        <div className="px-5 py-5">
+          <p className="text-sm font-semibold text-slate-800">El paciente recibe anticoagulacion?</p>
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            {[
+              { label: 'No', value: false },
+              { label: 'Si', value: true },
+            ].map((option) => {
+              const selected = active === option.value
+              return (
+                <button
+                  key={option.label}
+                  type="button"
+                  aria-pressed={selected}
+                  onClick={() => {
+                    setActive(option.value)
+                    if (!option.value) setType('')
+                  }}
+                  className={`flex min-h-[48px] items-center justify-center gap-2 rounded-lg border-2 text-sm font-bold transition-all active:scale-[0.99] ${
+                    selected
+                      ? option.value
+                        ? 'border-red-500 bg-red-50 text-red-800 ring-2 ring-red-100'
+                        : 'border-emerald-500 bg-emerald-50 text-emerald-800 ring-2 ring-emerald-100'
+                      : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                  }`}
+                >
+                  <SelectionCheck active={selected} tone={option.value ? 'red' : 'green'} />
+                  {option.label}
+                </button>
+              )
+            })}
+          </div>
+
+          {needsType && (
+            <div className="mt-4 animate-fade-in">
+              <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Cual usa?</p>
+              <div className="mt-2 grid grid-cols-2 gap-2">
+                {ANTICOAG_TYPES.map((option) => {
+                  const selected = type === option.id
+                  return (
+                    <button
+                      key={option.id}
+                      type="button"
+                      aria-pressed={selected}
+                      onClick={() => setType(option.id)}
+                      className={`rounded-lg border-2 px-3 py-3 text-sm font-bold transition-all active:scale-[0.99] ${
+                        selected
+                          ? 'border-red-500 bg-red-50 text-red-800 ring-2 ring-red-100'
+                          : 'border-slate-200 bg-white text-slate-700 hover:border-red-200 hover:bg-red-50/40'
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  )
+                })}
+              </div>
+
+              <div className="mt-3 rounded-lg border-2 border-red-200 bg-red-50 px-3 py-3 text-red-800">
+                <div className="flex gap-2">
+                  <ShieldAlert size={17} className="mt-0.5 shrink-0" />
+                  <p className="text-sm font-medium leading-snug">
+                    Anticoagulacion activa: contraindica o condiciona trombolisis IV. Verificar droga, ultima dosis y laboratorio.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="flex gap-2 border-t border-slate-100 px-5 py-4">
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex-1 rounded-lg border-2 border-slate-200 px-4 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 active:scale-[0.99]"
+          >
+            Revisar
+          </button>
+          <button
+            type="button"
+            onClick={submit}
+            disabled={!canContinue}
+            className="flex-[1.6] rounded-lg bg-brand-600 px-4 py-3 text-sm font-bold text-white transition hover:bg-brand-700 active:scale-[0.99] disabled:bg-slate-200 disabled:text-slate-500"
+          >
+            Continuar
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function NihssCompactPanel({ score, onScoreChange, hasDisabling, onDisablingChange }) {
+  const [showModal, setShowModal] = useState(false)
+  const num = parseInt(score, 10)
+  const valid = score !== '' && Number.isInteger(num) && num >= 0 && num <= 42
+  const severity = valid ? getNihssSeverity(num) : null
+  const needsDisabling = valid && num < 5
+
+  function handleScoreChange(value) {
+    const digits = value.replace(/\D/g, '').slice(0, 2)
+    if (digits === '') {
+      onScoreChange('')
+      onDisablingChange(null)
+      return
+    }
+    const next = Number(digits)
+    if (next <= 42) {
+      onScoreChange(String(next))
+      if (next >= 5) onDisablingChange(null)
+    }
+  }
+
+  return (
+    <div className="rounded-lg border border-orange-100 bg-white px-3 py-3">
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <label htmlFor="nihss-score" className="text-xs font-bold uppercase tracking-wider text-orange-800">
+          NIHSS
+        </label>
+        <button
+          type="button"
+          onClick={() => setShowModal(true)}
+          className="flex h-8 w-8 items-center justify-center rounded-full border border-orange-200 bg-orange-50 text-orange-700 transition hover:bg-orange-100"
+          aria-label="Abrir calculadora NIHSS"
+          title="Calculadora NIHSS"
+        >
+          <Calculator size={15} />
+        </button>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <input
+          id="nihss-score"
+          type="text"
+          inputMode="numeric"
+          maxLength={2}
+          placeholder="0-42"
+          value={score}
+          onChange={(event) => handleScoreChange(event.target.value)}
+          className={`h-12 w-24 rounded-lg border-2 bg-slate-50 text-center text-xl font-bold outline-none transition ${
+            valid
+              ? 'border-orange-400 text-orange-900 ring-2 ring-orange-100 focus:border-orange-500'
+              : 'border-slate-200 text-slate-900 focus:border-orange-400 focus:ring-2 focus:ring-orange-100'
+          }`}
+        />
+        <div className="min-w-0 flex-1">
+          <p className={`truncate text-sm font-bold ${severity ? severity.color : 'text-slate-700'}`}>
+            {severity ? severity.label : 'Pendiente'}
+          </p>
+        </div>
+      </div>
+
+      {needsDisabling && (
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          {[
+            { label: 'No discap.', value: false },
+            { label: 'Discap.', value: true },
+          ].map((option) => {
+            const active = hasDisabling === option.value
+            return (
+              <button
+                key={option.label}
+                type="button"
+                aria-pressed={active}
+                onClick={() => onDisablingChange(option.value)}
+                className={`rounded-lg border px-2 py-2 text-xs font-bold transition ${
+                  active
+                    ? option.value
+                      ? 'border-orange-400 bg-orange-50 text-orange-800'
+                      : 'border-slate-300 bg-slate-50 text-slate-700'
+                    : 'border-slate-200 bg-white text-slate-500 hover:bg-slate-50'
+                }`}
+              >
+                {option.label}
+              </button>
+            )
+          })}
+        </div>
+      )}
+
+      {showModal && (
+        <NihssModal
+          onLoad={(result) => {
+            handleScoreChange(String(result))
+            setShowModal(false)
+          }}
+          onClose={() => setShowModal(false)}
+        />
+      )}
+    </div>
+  )
+}
+
 export default function SymptomsStep({ onConfirm }) {
   const [selected, setSelected] = useState({})
   const [lastSeenDate, setLastSeenDate] = useState(() => toLocalDateInput(new Date()))
   const [lastSeenTime, setLastSeenTime] = useState(() => toLocalTimeInput(new Date()))
-  const [lastSeenTimeText, setLastSeenTimeText] = useState(() => toLocalTimeInput(new Date()))
-  const [selectedPreset, setSelectedPreset] = useState(0)
+  const [offsetMinutes, setOffsetMinutes] = useState(0)
   const [isIncierto, setIsIncierto] = useState(false)
   const [showWakeUpModal, setShowWakeUpModal] = useState(false)
-  const [anticoagulationActive, setAnticoagulationActive] = useState(null)
-  const [anticoagulationType, setAnticoagulationType] = useState('')
+  const [pendingAnticoagulation, setPendingAnticoagulation] = useState(null)
+  const [showAnticoagulationModal, setShowAnticoagulationModal] = useState(false)
+  const [nihssScore, setNihssScore] = useState('')
+  const [hasDisablingSymptoms, setHasDisablingSymptoms] = useState(null)
 
   useInterval(1000)
 
   const lastSeen = combineDateTime(lastSeenDate, lastSeenTime)
-  const elapsed = timeSince(lastSeen)
   const elapsedMinutes = getElapsedMinutes(lastSeen)
   const shouldEvaluateOgv = elapsedMinutes > IV_WINDOW_MINUTES && elapsedMinutes <= OGV_WINDOW_MINUTES
   const isOutOfWindow = elapsedMinutes > OGV_WINDOW_MINUTES
-  const timeAccent = isOutOfWindow ? 'red' : shouldEvaluateOgv ? 'orange' : 'blue'
-  const timeStatusLabel = isOutOfWindow
-    ? 'Fuera de ventana'
-    : shouldEvaluateOgv
-    ? 'Evaluar OGV'
-    : 'ventana activa'
+  const timeTone = getTimeTone(elapsedMinutes)
+  const timeStatusLabel = isOutOfWindow ? 'Fuera de ventana' : shouldEvaluateOgv ? 'Evaluar OGV' : 'Ventana activa'
   const hasSymptom = Object.values(selected).some(Boolean)
   const selectedCount = Object.values(selected).filter(Boolean).length
-  const needsAnticoagulationType = anticoagulationActive === true
-  const anticoagulationComplete = anticoagulationActive !== null && (!needsAnticoagulationType || anticoagulationType)
-  const valid = hasSymptom && lastSeen && anticoagulationComplete
+  const nihssNum = parseInt(nihssScore, 10)
+  const nihssValid = nihssScore !== '' && Number.isInteger(nihssNum) && nihssNum >= 0 && nihssNum <= 42
+  const disablingComplete = !nihssValid || nihssNum >= 5 || hasDisablingSymptoms !== null
+  const valid = hasSymptom && lastSeen && nihssValid && disablingComplete
   const missingItems = [
     !hasSymptom && 'seleccionar al menos un sintoma',
     !lastSeen && 'indicar ultima vez visto asintomatico',
-    anticoagulationActive === null && 'responder anticoagulacion',
-    needsAnticoagulationType && !anticoagulationType && 'elegir tipo de anticoagulante',
+    !nihssValid && 'registrar NIHSS',
+    nihssValid && nihssNum < 5 && hasDisablingSymptoms === null && 'definir si el deficit es discapacitante',
   ].filter(Boolean)
 
   function toggle(id) {
     setSelected((s) => ({ ...s, [id]: !s[id] }))
   }
 
-  function applyPreset(mins) {
-    const d = new Date()
-    d.setMinutes(d.getMinutes() - mins)
-    setSelectedPreset(mins)
+  function applyOffset(mins) {
+    const rounded = Number(mins)
+    const date = new Date()
+    date.setMinutes(date.getMinutes() - rounded)
+    setOffsetMinutes(rounded)
     setIsIncierto(false)
-    const nextDate = toLocalDateInput(d)
-    const nextTime = toLocalTimeInput(d)
-    setLastSeenDate(nextDate)
-    setLastSeenTime(nextTime)
-    setLastSeenTimeText(nextTime)
-  }
-
-  function handleDateChange(value) {
-    setSelectedPreset(null)
-    setIsIncierto(false)
-    setLastSeenDate(value)
-  }
-
-  function commitTimeText(value) {
-    const parsed = parseClockEntry(value)
-    if (!parsed) {
-      setLastSeenTimeText(lastSeenTime)
-      return
-    }
-    setLastSeenTime(parsed)
-    setLastSeenTimeText(parsed)
-  }
-
-  function handleTimeTextChange(value) {
-    setSelectedPreset(null)
-    setIsIncierto(false)
-    setLastSeenTimeText(value)
-    const parsed = parseClockEntry(value)
-    if (parsed) setLastSeenTime(parsed)
-  }
-
-  function handleClockPickerChange(value) {
-    setSelectedPreset(null)
-    setIsIncierto(false)
-    setLastSeenTime(value)
-    setLastSeenTimeText(value)
+    setLastSeenDate(toLocalDateInput(date))
+    setLastSeenTime(toLocalTimeInput(date))
   }
 
   function handleInciertoClick() {
-    setIsIncierto(true)
-    setSelectedPreset(null)
-  }
-
-  function handleAnticoagulationAnswer(active) {
-    setAnticoagulationActive(active)
-    if (!active) {
-      setAnticoagulationType('')
-    }
+    setIsIncierto((current) => !current)
   }
 
   function handleSubmit() {
     if (!valid) return
-    if (isIncierto) {
-      if (elapsedMinutes < IV_WINDOW_MINUTES) {
-        confirm(false) // < 4.5h: ventana clásica con TAC
-      } else if (elapsedMinutes <= OGV_WINDOW_MINUTES) {
-        confirm(true)  // 4.5–9h: protocolo WakeUp con RMN
-      } else {
-        confirm(false) // > 9h: fuera de ventana
-      }
-    } else if (shouldEvaluateOgv) {
-      setShowWakeUpModal(true)
-    } else {
-      confirm(false)
-    }
+    setShowAnticoagulationModal(true)
   }
 
   useEffect(() => {
     function onKey(e) {
-      if (e.key === 'Enter' && valid && !showWakeUpModal) handleSubmit()
+      if (e.key === 'Enter' && valid && !showWakeUpModal && !showAnticoagulationModal) handleSubmit()
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [valid, showWakeUpModal])
+  }, [valid, showWakeUpModal, showAnticoagulationModal])
 
-  function confirm(isWakeUpStroke) {
+  function confirm(isWakeUpStroke, anticoagulation) {
     onConfirm({
       symptoms: { ...selected },
       lastSeenNormal: lastSeen,
       isWakeUpStroke,
-      anticoagulation: {
-        active: anticoagulationActive,
-        type: anticoagulationActive ? anticoagulationType : '',
+      anticoagulation,
+      nihss: {
+        nihssScore: nihssNum,
+        hasDisablingSymptoms: nihssNum < 5 ? hasDisablingSymptoms : null,
       },
     })
   }
 
+  function continueAfterAnticoagulation(anticoagulation) {
+    setShowAnticoagulationModal(false)
+    setPendingAnticoagulation(anticoagulation)
+
+    if (isIncierto) {
+      if (elapsedMinutes < IV_WINDOW_MINUTES) {
+        confirm(false, anticoagulation)
+      } else if (elapsedMinutes <= OGV_WINDOW_MINUTES) {
+        confirm(true, anticoagulation)
+      } else {
+        confirm(false, anticoagulation)
+      }
+    } else if (shouldEvaluateOgv) {
+      setShowWakeUpModal(true)
+    } else {
+      confirm(false, anticoagulation)
+    }
+  }
+
   return (
     <div className="px-4 pb-4 space-y-2.5">
-      <StepCard step="2" title="Sintomas presentes" accent="orange">
+      <StepCard step="2" title="Sintomas /// NIHSS" accent="orange">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-orange-100 bg-orange-50/60 px-3 py-2">
-          <div>
-            <p className="text-sm font-bold text-orange-900">Selecciona uno o mas sintomas</p>
-            <p className="text-xs text-orange-700">Toca una tarjeta para marcarla como presente.</p>
-          </div>
+          <p className="text-sm font-bold text-orange-900">Selecciona sintomas y carga NIHSS</p>
           <StatusPill complete={hasSymptom}>
             {hasSymptom ? `${selectedCount} seleccionado${selectedCount === 1 ? '' : 's'}` : 'Pendiente'}
           </StatusPill>
         </div>
 
-        <div className="grid gap-2 md:grid-cols-2">
-          {SYMPTOM_OPTIONS.map((opt) => {
-            const active = Boolean(selected[opt.id])
-            return (
-              <button
-                key={opt.id}
-                type="button"
-                aria-pressed={active}
-                onClick={() => toggle(opt.id)}
-                className={`w-full min-h-[66px] flex items-center gap-2.5 px-3 py-2.5 rounded-lg border-2 transition-all text-left ${
-                  active
-                    ? 'bg-orange-50 border-orange-500 text-orange-950 shadow-sm ring-2 ring-orange-100'
-                    : 'border-gray-200 text-gray-700 hover:border-orange-300 hover:bg-orange-50/40'
-                }`}
-              >
-                <span className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-                  active ? 'bg-orange-100 text-orange-600' : 'bg-gray-50 text-orange-400'
-                }`}>
-                  <opt.Icon size={17} />
-                </span>
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-sm leading-snug">{opt.label}</p>
-                  <p className="text-[12px] leading-snug text-gray-400 mt-0.5">{opt.sub}</p>
-                </div>
-                <SelectionCheck active={active} tone="orange" />
-              </button>
-            )
-          })}
+        <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_260px]">
+          <div className="grid grid-cols-5 gap-2">
+            {SYMPTOM_OPTIONS.map((opt) => {
+              const active = Boolean(selected[opt.id])
+              return (
+                <button
+                  key={opt.id}
+                  type="button"
+                  aria-pressed={active}
+                  onClick={() => toggle(opt.id)}
+                  title={`${opt.label}: ${opt.sub}`}
+                  aria-label={`${opt.label}: ${opt.sub}`}
+                  className={`group relative flex min-h-[58px] flex-col items-center justify-center gap-1 rounded-lg border px-2 py-2 transition-all ${
+                    active
+                      ? 'border-orange-400 bg-orange-50 text-orange-700 shadow-sm ring-2 ring-orange-100'
+                      : 'border-gray-200 bg-white text-gray-500 hover:border-orange-300 hover:bg-orange-50/40'
+                  }`}
+                >
+                  <opt.Icon size={20} />
+                  <span className="max-w-full truncate text-[10px] font-bold leading-none">
+                    {opt.label.split(' ')[0]}
+                  </span>
+                  <span className="pointer-events-none absolute left-1/2 top-full z-20 mt-2 hidden w-52 -translate-x-1/2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-left text-xs font-medium leading-snug text-slate-700 shadow-xl group-hover:block group-focus-visible:block">
+                    <strong className="block text-slate-900">{opt.label}</strong>
+                    {opt.sub}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+
+          <NihssCompactPanel
+            score={nihssScore}
+            onScoreChange={setNihssScore}
+            hasDisabling={hasDisablingSymptoms}
+            onDisablingChange={setHasDisablingSymptoms}
+          />
         </div>
       </StepCard>
 
-      <StepCard step="" title="" accent={timeAccent}>
-        <div className={`mb-3 rounded-lg border px-3 py-2 ${
-          isIncierto
-            ? 'border-indigo-200 bg-indigo-50/70'
-            : isOutOfWindow
-            ? 'border-red-200 bg-red-50/70'
-            : shouldEvaluateOgv
-            ? 'border-orange-200 bg-orange-50/70'
-            : 'border-blue-100 bg-blue-50/60'
-        }`}>
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <label className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 ${
-              isIncierto ? 'text-indigo-800' : isOutOfWindow ? 'text-red-800' : shouldEvaluateOgv ? 'text-orange-800' : 'text-blue-800'
-            }`}>
-              <Clock size={13} /> {isIncierto ? 'Ultima vez visto bien (inicio incierto)' : 'Ultima vez visto asintomatico'}
-            </label>
-            <div className="flex items-center gap-2">
-              {isIncierto && (
-                <span className="text-[11px] font-bold bg-indigo-700 text-white rounded-full px-2 py-0.5">
-                  WakeUp Stroke
-                </span>
-              )}
-              <StatusPill complete={Boolean(lastSeen)}>
-                {lastSeen ? 'Completo' : 'Pendiente'}
-              </StatusPill>
-            </div>
-          </div>
-          <p className={`mt-1 text-xs ${
-            isIncierto ? 'text-indigo-700' : isOutOfWindow ? 'text-red-700' : shouldEvaluateOgv ? 'text-orange-700' : 'text-blue-700'
+      <StepCard step="" title="" accent={timeTone} rail railStep="2" railLabel="ultima vez visto asintomatico">
+        <div>
+          <section className={`rounded-lg border px-3 py-3 ${
+            timeTone === 'red'
+              ? 'border-red-200 bg-red-50/70'
+              : timeTone === 'orange'
+              ? 'border-orange-200 bg-orange-50/70'
+              : 'border-blue-100 bg-blue-50/60'
           }`}>
-            {isIncierto
-              ? 'Ingresa la ultima hora conocida en que el paciente estaba bien.'
-              : 'Elegi un atajo o ajusta fecha y hora manualmente.'}
-          </p>
-        </div>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <label htmlFor="last-seen-slider" className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 ${
+                timeTone === 'red' ? 'text-red-800' : timeTone === 'orange' ? 'text-orange-800' : 'text-blue-800'
+              }`}>
+                <Clock size={13} /> Ultima vez asintomatico
+              </label>
+              <StatusPill complete={Boolean(lastSeen)}>{timeStatusLabel}</StatusPill>
+            </div>
 
-        <div className="grid grid-cols-3 gap-2 mb-2.5 sm:grid-cols-9">
-          {TIME_PRESETS.map(({ label, mins }) => {
-            const active = selectedPreset === mins && !isIncierto
-            const latePreset = mins >= 360
-            return (
+            <div className="mt-4 grid gap-3 md:grid-cols-[1fr_132px] md:items-center">
+              <div className="relative pb-7">
+                <input
+                  id="last-seen-slider"
+                  type="range"
+                  min="0"
+                  max={MAX_SLIDER_MINUTES}
+                  step="5"
+                  value={offsetMinutes}
+                  onChange={(event) => applyOffset(event.target.value)}
+                  className="h-2 w-full cursor-pointer accent-brand-600"
+                  aria-label="Minutos desde ultima vez asintomatico"
+                />
+                <button
+                  type="button"
+                  onClick={() => applyOffset(IV_WINDOW_MINUTES)}
+                  className="absolute top-5 flex -translate-x-1/2 flex-col items-center gap-1 text-[11px] font-bold text-orange-700 transition hover:text-orange-800 focus:outline-none"
+                  style={{ left: IV_WINDOW_PERCENT }}
+                  aria-label="Marcar 4.5 horas"
+                  title="Marcar 4.5 horas"
+                >
+                  <span className="h-3 w-0.5 rounded-full bg-orange-500" />
+                  <span className="rounded-full border border-orange-200 bg-white px-2 py-0.5 shadow-sm">4.5 h</span>
+                </button>
+              </div>
+              <div className="rounded-lg border border-white/70 bg-white px-3 py-2 text-right shadow-sm">
+                <p className="text-lg font-bold leading-tight text-slate-900">{formatElapsed(elapsedMinutes)}</p>
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">{formatClock(lastSeen)}</p>
+              </div>
+            </div>
+
+            <div className="mt-3 flex justify-end">
               <button
-                key={label}
                 type="button"
-                aria-pressed={active}
-                onClick={() => applyPreset(mins)}
-                className={`min-h-[38px] rounded-lg border-2 px-2 py-1 text-xs font-bold active:scale-95 transition-all ${
-                  active
-                    ? latePreset
-                      ? 'border-orange-500 bg-orange-500 text-white shadow-sm ring-2 ring-orange-100'
-                      : 'border-blue-600 bg-blue-600 text-white shadow-sm ring-2 ring-blue-100'
-                    : latePreset
-                      ? 'border-orange-200 bg-white text-orange-600 hover:border-orange-400 hover:bg-orange-50'
-                      : 'border-blue-200 bg-white text-blue-600 hover:border-blue-400 hover:bg-blue-50'
+                aria-pressed={isIncierto}
+                aria-label="Inicio incierto"
+                title="Inicio incierto"
+                onClick={handleInciertoClick}
+                className={`flex h-9 w-9 items-center justify-center rounded-full border transition ${
+                  isIncierto
+                    ? 'border-indigo-300 bg-indigo-50 text-indigo-700'
+                    : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
                 }`}
               >
-                <span className="inline-flex items-center justify-center gap-1">
-                  {active && <CheckCircle2 size={12} />}
-                  {label}
-                </span>
+                <Clock size={15} />
               </button>
-            )
-          })}
-          <button
-            type="button"
-            aria-pressed={isIncierto}
-            onClick={handleInciertoClick}
-            className={`min-h-[38px] col-span-3 sm:col-span-9 rounded-lg border-2 px-2 py-1 text-xs font-bold active:scale-95 transition-all ${
-              isIncierto
-                ? 'border-indigo-600 bg-indigo-600 text-white shadow-sm ring-2 ring-indigo-100'
-                : 'border-indigo-200 bg-white text-indigo-600 hover:border-indigo-400 hover:bg-indigo-50'
-            }`}
-          >
-            <span className="inline-flex items-center justify-center gap-1">
-              {isIncierto && <CheckCircle2 size={12} />}
-              Incierto — Ultima vez visto bien
-            </span>
-          </button>
-        </div>
-
-        <div className="grid gap-2 md:grid-cols-[1fr_1fr_150px]">
-          <label className="block">
-            <span className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-gray-500">Dia</span>
-            <input
-              type="date"
-              value={lastSeenDate}
-              max={toLocalDateInput(new Date())}
-              onChange={(e) => handleDateChange(e.target.value)}
-              className={`w-full rounded-lg border-2 px-3 py-2.5 text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:border-transparent ${
-                isIncierto
-                  ? 'border-indigo-300 bg-indigo-50/40 focus:ring-indigo-400'
-                  : isOutOfWindow
-                  ? 'border-red-300 bg-red-50/40 focus:ring-red-400'
-                  : shouldEvaluateOgv
-                  ? 'border-orange-300 bg-orange-50/40 focus:ring-orange-400'
-                  : 'border-blue-300 bg-blue-50/40 focus:ring-blue-400'
-              }`}
-            />
-          </label>
-
-          <label className="block">
-            <span className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-gray-500">Hora manual</span>
-            <input
-              type="text"
-              inputMode="numeric"
-              placeholder="930, 09:30, 15"
-              value={lastSeenTimeText}
-              onChange={(e) => handleTimeTextChange(e.target.value)}
-              onBlur={(e) => commitTimeText(e.target.value)}
-              className={`w-full rounded-lg border-2 px-3 py-2.5 text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:border-transparent ${
-                isIncierto
-                  ? 'border-indigo-300 bg-indigo-50/40 focus:ring-indigo-400'
-                  : isOutOfWindow
-                  ? 'border-red-300 bg-red-50/40 focus:ring-red-400'
-                  : shouldEvaluateOgv
-                  ? 'border-orange-300 bg-orange-50/40 focus:ring-orange-400'
-                  : 'border-blue-300 bg-blue-50/40 focus:ring-blue-400'
-              }`}
-            />
-          </label>
-
-          <label className="block">
-            <span className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-gray-500">Reloj</span>
-            <input
-              type="time"
-              value={lastSeenTime}
-              onChange={(e) => handleClockPickerChange(e.target.value)}
-              className={`w-full rounded-lg border-2 px-3 py-2.5 text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:border-transparent ${
-                isIncierto
-                  ? 'border-indigo-300 bg-indigo-50/40 focus:ring-indigo-400'
-                  : isOutOfWindow
-                  ? 'border-red-300 bg-red-50/40 focus:ring-red-400'
-                  : shouldEvaluateOgv
-                  ? 'border-orange-300 bg-orange-50/40 focus:ring-orange-400'
-                  : 'border-blue-300 bg-blue-50/40 focus:ring-blue-400'
-              }`}
-            />
-          </label>
-        </div>
-
-        <p className="mt-1.5 text-xs text-gray-400">
-          Atajos de hora: 930 = 09:30, 1530 = 15:30, 15 = 15:00.
-        </p>
-
-        {elapsed && (
-          <div className={`mt-2 flex items-center gap-2 rounded-lg px-3 py-2.5 border-2 ${
-            isIncierto
-              ? 'bg-indigo-50 border-indigo-300'
-              : isOutOfWindow
-              ? 'bg-red-50 border-red-300'
-              : shouldEvaluateOgv
-              ? 'bg-orange-50 border-orange-300'
-              : 'bg-blue-50 border-blue-300'
-          }`}>
-            <Clock size={14} className={
-              isIncierto
-                ? 'text-indigo-500 shrink-0'
-                : isOutOfWindow
-                ? 'text-red-500 shrink-0'
-                : shouldEvaluateOgv
-                ? 'text-orange-500 shrink-0'
-                : 'text-blue-500 shrink-0'
-            } />
-            <span className={`text-sm font-semibold ${
-              isIncierto ? 'text-indigo-700' : isOutOfWindow ? 'text-red-700' : shouldEvaluateOgv ? 'text-orange-700' : 'text-blue-700'
-            }`}>
-              {elapsed}
-            </span>
-            <span className={`text-xs font-semibold ml-auto ${
-              isIncierto ? 'text-indigo-600' : isOutOfWindow ? 'text-red-600' : shouldEvaluateOgv ? 'text-orange-600' : 'text-blue-500'
-            }`}>
-              {isIncierto ? 'Inicio incierto' : timeStatusLabel}
-            </span>
-          </div>
-        )}
-
-        <div className="mt-3 border-t border-gray-100 pt-3 space-y-2.5">
-          <div>
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <p className="text-xs font-bold text-red-700 uppercase tracking-wider">
-                El paciente recibe anticoagulacion?
-              </p>
-              <StatusPill complete={anticoagulationComplete}>
-                {anticoagulationComplete ? 'Completo' : 'Pendiente'}
-              </StatusPill>
             </div>
-
-            <div className="mt-2 grid grid-cols-2 gap-2">
-              {[
-                { label: 'Si', value: true },
-                { label: 'No', value: false },
-              ].map((option) => {
-                const active = anticoagulationActive === option.value
-                return (
-                  <button
-                    key={option.label}
-                    type="button"
-                    aria-pressed={active}
-                    onClick={() => handleAnticoagulationAnswer(option.value)}
-                    className={`flex items-center justify-center gap-2 rounded-lg border-2 px-4 py-3 text-sm font-bold transition-all ${
-                      active
-                        ? 'border-red-500 bg-red-50 text-red-800 shadow-sm ring-2 ring-red-100'
-                        : 'border-gray-200 bg-white text-gray-700 hover:border-red-300 hover:bg-red-50/40'
-                    }`}
-                  >
-                    <SelectionCheck active={active} tone="red" />
-                    {option.label}
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-
-          {needsAnticoagulationType && (
-            <div className="space-y-2.5">
-              <div className="grid grid-cols-3 gap-2">
-                {ANTICOAG_TYPES.map(({ id, label }) => {
-                  const active = anticoagulationType === id
-                  return (
-                    <button
-                      key={id}
-                      type="button"
-                      aria-pressed={active}
-                      onClick={() => setAnticoagulationType(id)}
-                      className={`flex items-center justify-center gap-2 rounded-lg border-2 py-3 text-sm font-bold transition-all active:scale-95 ${
-                        active
-                          ? 'border-red-500 bg-red-50 text-red-800 shadow-sm ring-2 ring-red-100'
-                          : 'border-gray-200 bg-white text-gray-700 hover:border-red-300 hover:bg-red-50/40'
-                      }`}
-                    >
-                      <SelectionCheck active={active} tone="red" />
-                      {label}
-                    </button>
-                  )
-                })}
-              </div>
-
-              {anticoagulationType && (
-                <div className="rounded-lg border-2 border-red-300 bg-red-50 px-3 py-2.5 text-red-800">
-                  <div className="flex items-start gap-2">
-                    <ShieldAlert size={16} className="shrink-0 mt-0.5" />
-                    <p className="text-sm font-medium leading-snug">
-                      Anticoagulacion activa: contraindicacion relativa para trombolisis. Esperar laboratorio segun droga.
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
+          </section>
         </div>
       </StepCard>
 
@@ -550,11 +555,18 @@ export default function SymptomsStep({ onConfirm }) {
         </div>
       )}
 
+      {showAnticoagulationModal && (
+        <AnticoagulationModal
+          onClose={() => setShowAnticoagulationModal(false)}
+          onConfirm={continueAfterAnticoagulation}
+        />
+      )}
+
       {showWakeUpModal && (
         <WakeUpStrokeModal
           elapsedHours={getElapsedHours(lastSeen)}
-          onActivate={() => { setShowWakeUpModal(false); confirm(true) }}
-          onDismiss={() => { setShowWakeUpModal(false); confirm(false) }}
+          onActivate={() => { setShowWakeUpModal(false); confirm(true, pendingAnticoagulation) }}
+          onDismiss={() => { setShowWakeUpModal(false); confirm(false, pendingAnticoagulation) }}
         />
       )}
     </div>

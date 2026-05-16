@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Brain, Heart, Droplets, X, RotateCcw } from 'lucide-react'
+import NihssModal from './NihssModal'
 
 // ─── NIHSS severity helper ────────────────────────────────────────────────────
 function getNihssSeverity(score) {
@@ -61,6 +62,7 @@ function ModalShell({ title, onClose, onConfirm, confirmLabel = 'Registrar', con
 // ─── NIHSS modal ──────────────────────────────────────────────────────────────
 function NihssQuickModal({ onClose, onConfirm }) {
   const [value, setValue] = useState('')
+  const [showCalculator, setShowCalculator] = useState(false)
 
   const num = parseInt(value, 10)
   const isValid = value !== '' && !isNaN(num) && num >= 0 && num <= 42
@@ -70,6 +72,15 @@ function NihssQuickModal({ onClose, onConfirm }) {
     if (!isValid) return
     onConfirm(num)
     onClose()
+  }
+
+  if (showCalculator) {
+    return (
+      <NihssModal
+        onLoad={(score) => { onConfirm(score); onClose() }}
+        onClose={() => setShowCalculator(false)}
+      />
+    )
   }
 
   return (
@@ -102,6 +113,14 @@ function NihssQuickModal({ onClose, onConfirm }) {
       {value !== '' && !isValid && (
         <p className="mt-2 text-xs text-red-500 text-center">Ingresá un valor entre 0 y 42</p>
       )}
+
+      <button
+        type="button"
+        onClick={() => setShowCalculator(true)}
+        className="mt-3 w-full text-xs text-brand-600 font-semibold text-center underline underline-offset-2 hover:text-brand-700 transition-colors"
+      >
+        Usar calculadora NIHSS completa
+      </button>
     </ModalShell>
   )
 }
@@ -224,7 +243,7 @@ function GlucoseQuickModal({ onClose, onConfirm }) {
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
-export default function QuickAddFAB({ onAddNihss, onAddVitals, onAddGlucose, onReset }) {
+export default function QuickAddFAB({ onAddNihss, onAddVitals, onAddGlucose, onReset, latestNihss = null, latestVitals = null, latestGlucose = null }) {
   const [openModal, setOpenModal] = useState(null) // null | 'nihss' | 'vitals' | 'glucose'
 
   const buttons = [
@@ -233,18 +252,24 @@ export default function QuickAddFAB({ onAddNihss, onAddVitals, onAddGlucose, onR
       label: 'NIHSS',
       Icon: Brain,
       colorClass: 'bg-white text-amber-600 border-amber-300 hover:bg-amber-50 shadow-md',
+      badge: latestNihss !== null ? String(latestNihss) : null,
+      badgeClass: 'bg-amber-500 text-white',
     },
     {
       id: 'vitals',
       label: 'TA',
       Icon: Heart,
       colorClass: 'bg-white text-blue-600 border-blue-300 hover:bg-blue-50 shadow-md',
+      badge: latestVitals ? String(latestVitals.systolic) : null,
+      badgeClass: latestVitals && latestVitals.systolic > 185 ? 'bg-red-500 text-white' : 'bg-blue-500 text-white',
     },
     {
       id: 'glucose',
       label: 'GLC',
       Icon: Droplets,
       colorClass: 'bg-white text-violet-600 border-violet-300 hover:bg-violet-50 shadow-md',
+      badge: latestGlucose !== null ? String(latestGlucose) : null,
+      badgeClass: latestGlucose < 50 ? 'bg-red-500 text-white' : latestGlucose > 400 ? 'bg-orange-500 text-white' : 'bg-violet-500 text-white',
     },
   ]
 
@@ -252,15 +277,20 @@ export default function QuickAddFAB({ onAddNihss, onAddVitals, onAddGlucose, onR
     <>
       {/* Botones circulares verticales fijos en el costado */}
       <div className="flex flex-col gap-2">
-        {buttons.map(({ id, label, Icon, colorClass }) => (
+        {buttons.map(({ id, label, Icon, colorClass, badge, badgeClass }) => (
           <button
             key={id}
             onClick={() => setOpenModal(id)}
             title={`Agregar ${label}`}
-            className={`w-11 h-11 rounded-full border-2 flex flex-col items-center justify-center gap-0.5 active:scale-90 transition-transform ${colorClass}`}
+            className={`relative w-11 h-11 rounded-full border-2 flex flex-col items-center justify-center gap-0.5 active:scale-90 transition-transform ${colorClass}`}
           >
             <Icon size={15} />
             <span className="text-[9px] font-bold leading-none">{label}</span>
+            {badge !== null && (
+              <span className={`absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-0.5 rounded-full text-[8px] font-bold flex items-center justify-center leading-none ${badgeClass}`}>
+                {badge}
+              </span>
+            )}
           </button>
         ))}
         {onReset && (

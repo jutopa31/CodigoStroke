@@ -64,7 +64,6 @@ export default function StepTimeline({ currentStep, completedSteps = [], onStepC
     )
   }
 
-  // Mobile variant — fixed left sidebar
   return (
     <div className="fixed left-0 top-0 bottom-0 z-30 w-11 bg-white/95 border-r border-gray-100 backdrop-blur flex flex-col items-center">
       <div className="h-24 flex-shrink-0" />

@@ -4,6 +4,7 @@ import { RotateCcw, Clock, Copy, Check } from 'lucide-react'
 import GlobalTimer from './components/GlobalTimer'
 import AlertModal from './components/AlertModal'
 import StepTimeline from './components/StepTimeline'
+import StepProgressProvider from './components/StepProgressProvider'
 import QuickAddFAB from './components/QuickAddFAB'
 import OutOfWindowModal from './components/OutOfWindowModal'
 import StartStep from './steps/StartStep'
@@ -20,6 +21,7 @@ import TimestampPanel from './components/TimestampPanel'
 import AnticoagModal from './components/AnticoagModal'
 import AvisoModal from './components/AvisoModal'
 import { saveStrokeEvent, generatePatientId, saveSession } from './lib/storage'
+import { getNihssSeverity } from './content/nihss'
 import { sendStrokeAlert } from './lib/emailService'
 
 const STEP = {
@@ -172,6 +174,7 @@ export default function App() {
         lastSeenNormal,
         isWakeUpStroke: isWakeUp,
         anticoagulation: { active: false, type: '' },
+        modifiedRankinScale: { score: Math.floor(Math.random() * 4), label: 'Mock mRS' },
       }
 
       const vitalsData = {
@@ -434,7 +437,7 @@ export default function App() {
 
   function handleMRIResultConfirm(data) {
     setCtResult(data)
-    if (data.mismatch) {
+    if (data.mismatch && !symptoms?.anticoagulation?.active) {
       advanceTo(STEP.CONTRAINDICATIONS)
       scrollTo(contraindicationsRef)
     } else {
@@ -545,6 +548,7 @@ export default function App() {
       `Glucemia:        ${vitals ? `${vitals.glucose} mg/dL` : 'No registrado'}`,
       `NIHSS:           ${nihss ? `${nihss.nihssScore} puntos${nihss.hasDisablingSymptoms ? ' + déficit discapacitante' : ''}` : 'No registrado'}`,
       `Anticoagulación: ${symptoms?.anticoagulation?.active ? `Sí: ${symptoms.anticoagulation.type || 'tipo no registrado'}` : symptoms?.anticoagulation ? 'No' : 'No registrado'}`,
+      `mRS previo:      ${symptoms?.modifiedRankinScale ? `${symptoms.modifiedRankinScale.score} - ${symptoms.modifiedRankinScale.label}` : 'No registrado'}`,
       ``,
       `--- IMAGEN Y DECISIONES ---`,
       `Imagen:            ${getImagingSummary()}`,
@@ -587,7 +591,7 @@ export default function App() {
     symptoms?.isWakeUpStroke
       ? ctResult?.mismatch === true
       : (nihss?.nihssScore >= 5 || nihss?.hasDisablingSymptoms === true)
-  )
+  ) && !symptoms?.anticoagulation?.active
 
   const RED_CONTRA_LABELS = {
     prior_ich:         'Hemorragia intracraneal previa o actual',
@@ -616,6 +620,15 @@ export default function App() {
         borderColor: 'border-indigo-400',
         title: 'ACV del despertar — sin mismatch',
         body: 'No se cumplen criterios WAKE-UP para trombolisis IV. Evaluar trombectomía mecánica si corresponde.',
+      }
+    }
+    if (symptoms?.anticoagulation?.active && !dosage) {
+      return {
+        icon: 'warning',
+        iconBg: 'bg-red-100',
+        borderColor: 'border-red-400',
+        title: 'Anticoagulacion activa',
+        body: `Trombolisis IV contraindicada o condicionada por anticoagulacion (${symptoms.anticoagulation.type || 'tipo no registrado'}). Evaluar OGV/trombectomia y verificar ultima dosis, droga y laboratorio.`,
       }
     }
     if (contraindications?.hasAbsolute) {
@@ -718,7 +731,22 @@ export default function App() {
 
   const done = step === STEP.DONE ? getDoneContent() : null
 
+  const latestNihss = nihssReadings.length > 0
+    ? nihssReadings[nihssReadings.length - 1].score
+    : nihss?.nihssScore ?? null
+  const latestVitals = vitalsReadings.length > 0
+    ? vitalsReadings[vitalsReadings.length - 1]
+    : vitals ? { systolic: vitals.systolic, diastolic: vitals.diastolic } : null
+  const latestGlucose = glucoseReadings.length > 0
+    ? glucoseReadings[glucoseReadings.length - 1].value
+    : vitals?.glucose ?? null
+
   return (
+    <StepProgressProvider
+      currentStep={step}
+      completedSteps={sidebarCompletedSteps}
+      onStepClick={handleSidebarStepClick}
+    >
     <div
       className="min-h-[100dvh] bg-gray-50 flex flex-col"
       style={{ paddingBottom: 'calc(4rem + env(safe-area-inset-bottom, 0px))' }}
@@ -729,7 +757,7 @@ export default function App() {
       <div className="bg-brand-600 sticky top-0 z-50">
         {/* Mobile header row — patient name + reset */}
         {patient ? (
-          <div className="pl-12 pr-4 py-3 flex items-center justify-between gap-3 md:hidden">
+          <div className="px-4 py-3 flex items-center justify-between gap-3 md:hidden">
             <div className="min-w-0 flex-1">
               <p className="text-brand-300 text-xs uppercase tracking-wider leading-none mb-0.5">Código Stroke</p>
               <p className="text-white font-semibold text-sm truncate leading-tight">{patient.name}</p>
@@ -746,7 +774,7 @@ export default function App() {
             </button>
           </div>
         ) : (
-          <div className="pl-12 pr-4 py-3 flex items-center md:hidden">
+          <div className="px-4 py-3 flex items-center md:hidden">
             <p className="text-white font-bold text-sm tracking-wide">Código Stroke</p>
           </div>
         )}
@@ -784,17 +812,6 @@ export default function App() {
         )}
       </div>
 
-      {/* Mobile-only fixed sidebar */}
-      {patient && (
-        <div className="md:hidden">
-          <StepTimeline
-            currentStep={step}
-            completedSteps={sidebarCompletedSteps}
-            onStepClick={handleSidebarStepClick}
-          />
-        </div>
-      )}
-
       {/* Botones de registros rápidos — fijos en el costado derecho */}
       {patient && step > STEP.ALERT && (
         <div className="fixed right-3 top-1/3 z-40">
@@ -803,6 +820,9 @@ export default function App() {
             onAddVitals={handleAddVitals}
             onAddGlucose={handleAddGlucose}
             onReset={handleReset}
+            latestNihss={latestNihss}
+            latestVitals={latestVitals}
+            latestGlucose={latestGlucose}
           />
         </div>
       )}
@@ -813,7 +833,7 @@ export default function App() {
           type="button"
           onClick={() => setShowOutOfWindow(true)}
           style={{ bottom: 'calc(1.5rem + env(safe-area-inset-bottom, 0px))' }}
-          className="fixed left-14 z-40 flex items-center gap-2 bg-slate-700 hover:bg-slate-800 active:scale-95 text-white text-xs font-semibold px-4 py-3 min-h-[44px] rounded-full shadow-lg transition-all md:hidden"
+          className="fixed left-3 z-40 flex items-center gap-2 bg-slate-700 hover:bg-slate-800 active:scale-95 text-white text-xs font-semibold px-4 py-3 min-h-[44px] rounded-full shadow-lg transition-all md:hidden"
         >
           <Clock size={14} />
           Fuera de ventana
@@ -846,6 +866,37 @@ export default function App() {
                   <p className="text-xs font-mono font-bold text-brand-600 tracking-widest mt-0.5">{patientId}</p>
                 </div>
               )}
+              {(latestNihss !== null || latestVitals || latestGlucose !== null) && (
+                <div className="mt-2.5 pt-2.5 border-t border-gray-100 space-y-1.5">
+                  {latestNihss !== null && (() => {
+                    const sev = getNihssSeverity(latestNihss)
+                    return (
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">NIHSS</span>
+                        <span className={`text-xs font-bold px-2 py-0.5 rounded-full border ${sev.bg} ${sev.color} ${sev.border}`}>
+                          {latestNihss} — {sev.label}
+                        </span>
+                      </div>
+                    )
+                  })()}
+                  {latestVitals && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">TA</span>
+                      <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${latestVitals.systolic > 185 ? 'bg-red-100 text-red-700' : 'bg-blue-50 text-blue-700'}`}>
+                        {latestVitals.systolic}/{latestVitals.diastolic}
+                      </span>
+                    </div>
+                  )}
+                  {latestGlucose !== null && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">GLC</span>
+                      <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${latestGlucose < 50 ? 'bg-red-100 text-red-700' : latestGlucose > 400 ? 'bg-orange-100 text-orange-700' : 'bg-violet-50 text-violet-700'}`}>
+                        {latestGlucose} mg/dL
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {step > STEP.ALERT && (
@@ -876,7 +927,10 @@ export default function App() {
         )}
 
         {/* Main content */}
-      <div className={`${patient ? 'pl-12 pr-3' : 'px-3'} md:px-0 md:min-w-0 w-full md:max-w-4xl md:mx-auto pt-4 md:pt-0 space-y-3 lg:space-y-3.5`}>
+      <div className="relative px-3 md:px-0 md:min-w-0 w-full md:max-w-4xl md:mx-auto pt-4 md:pt-0 space-y-3 lg:space-y-3.5">
+          {patient && (
+            <div className="pointer-events-none absolute left-[21px] top-4 bottom-0 z-0 w-0.5 bg-brand-500 md:hidden" />
+          )}
           {step >= STEP.PATIENT && (
             <div className={step > STEP.ALERT ? 'md:hidden' : ''}>
               <PatientStep
@@ -1034,6 +1088,7 @@ export default function App() {
                     <SummaryRow label="Glucemia" value={vitals ? `${vitals.glucose} mg/dL` : 'No registrado'} tone="blue" />
                     <SummaryRow label="NIHSS" value={nihss ? `${nihss.nihssScore} puntos${nihss.hasDisablingSymptoms ? ' + deficit discapacitante' : ''}` : 'No registrado'} tone="orange" />
                     <SummaryRow label="Anticoagulacion" value={symptoms?.anticoagulation?.active ? `Si: ${symptoms.anticoagulation.type || 'tipo no registrado'}` : symptoms?.anticoagulation ? 'No' : 'No registrado'} tone={symptoms?.anticoagulation?.active ? 'red' : 'green'} />
+                    <SummaryRow label="mRS previo" value={symptoms?.modifiedRankinScale ? `${symptoms.modifiedRankinScale.score} - ${symptoms.modifiedRankinScale.label}` : 'No registrado'} tone="gray" />
                   </SummarySection>
 
                   <SummarySection title="Imagen y decisiones">
@@ -1086,5 +1141,6 @@ export default function App() {
       </div>
       </div>
     </div>
+    </StepProgressProvider>
   )
 }
