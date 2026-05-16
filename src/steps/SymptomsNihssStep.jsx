@@ -1,14 +1,12 @@
 import { useState, useEffect } from 'react'
 import { ChevronRight, Zap, MessageSquare, Eye, Scale, FileText } from 'lucide-react'
 import StepCard from '../components/StepCard'
-import { PrimaryAction, SelectableButton } from '../components/GuidedControls'
+import { PrimaryAction } from '../components/GuidedControls'
 import { nihssItems, getNihssSeverity } from '../content/nihss'
 
 const NIHSS_BY_ID = Object.fromEntries(nihssItems.map((i) => [i.id, i]))
 const NIHSS_ORDER = nihssItems.map((i) => i.id)
 
-// Symptom → NIHSS subscale mapping
-// defaults: which items get pre-filled (score > 0) when the symptom is first selected
 const SYMPTOMS = [
   {
     id: 'weakness',
@@ -65,7 +63,6 @@ const DISABLING_LIST = [
   'Ataxia severa: imposibilidad de caminar sin asistencia',
 ]
 
-// Flash badge: mounts, waits briefly, fades out
 function FlashBadge({ pts }) {
   const [opacity, setOpacity] = useState(1)
   useEffect(() => {
@@ -76,18 +73,16 @@ function FlashBadge({ pts }) {
   return (
     <span
       style={{ opacity, transition: 'opacity 0.8s ease-out' }}
-      className="ml-2 inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-bold text-emerald-600 ring-1 ring-emerald-300"
+      className="ml-2 inline-flex items-center rounded-lg bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-600"
     >
       +{pts}
     </span>
   )
 }
 
-// Compact subscale item row: short label + score buttons
 function ItemRow({ itemId, score, onChange }) {
   const item = NIHSS_BY_ID[itemId]
   if (!item) return null
-  // Strip numeric prefix and side indicator for display
   const shortLabel = item.label
     .replace(/^\d+[abc]?\.\s*/i, '')
     .replace('NC –', '')
@@ -96,8 +91,8 @@ function ItemRow({ itemId, score, onChange }) {
     .trim()
 
   return (
-    <div className="flex items-center gap-2 py-1 border-b border-gray-100 last:border-0">
-      <span className="text-xs text-gray-600 flex-1 min-w-0 truncate" title={item.label}>
+    <div className="flex items-center gap-2 py-1.5 border-b border-neutral-100 last:border-0">
+      <span className="text-xs text-neutral-600 flex-1 min-w-0 truncate" title={item.label}>
         {shortLabel}
       </span>
       <div className="flex gap-1 shrink-0">
@@ -107,10 +102,10 @@ function ItemRow({ itemId, score, onChange }) {
             type="button"
             title={opt.text}
             onClick={() => onChange(itemId, opt.score)}
-            className={`w-7 h-7 rounded-md text-xs font-bold transition-all active:scale-95 ${
+            className={`w-7 h-7 rounded-lg text-xs font-semibold transition-all active:scale-95 ${
               score === opt.score
-                ? 'bg-brand-600 text-white shadow-sm'
-                : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                ? 'bg-brand-600 text-white'
+                : 'bg-neutral-100 text-neutral-500 hover:bg-neutral-200'
             }`}
           >
             {opt.score}
@@ -125,14 +120,13 @@ export default function SymptomsNihssStep({ onConfirm }) {
   const [selected, setSelected] = useState({})
   const [subscaleScores, setSubscaleScores] = useState({})
   const [otherScore, setOtherScore] = useState('')
-  const [flash, setFlash] = useState(null)   // { pts, key }
+  const [flash, setFlash] = useState(null)
   const [hasDisabling, setHasDisabling] = useState(null)
   const [showDisablingList, setShowDisablingList] = useState(false)
 
   const hasSymptom = Object.values(selected).some(Boolean)
   const activeSymptoms = SYMPTOMS.filter((s) => selected[s.id])
 
-  // Ordered, deduplicated list of active NIHSS item IDs
   const activeIds = [
     ...new Set(
       activeSymptoms.filter((s) => s.id !== 'other').flatMap((s) => s.nihssIds)
@@ -183,10 +177,10 @@ export default function SymptomsNihssStep({ onConfirm }) {
   }, [canContinue, selected, total, hasDisabling, onConfirm])
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       <StepCard step="3" title="Síntomas / NIHSS" accent="orange">
 
-        {/* ── Symptom pill buttons ── */}
+        {/* Symptom pills */}
         <div className="flex flex-wrap gap-2 mb-4">
           {SYMPTOMS.map((sym) => {
             const active = Boolean(selected[sym.id])
@@ -196,36 +190,36 @@ export default function SymptomsNihssStep({ onConfirm }) {
                 type="button"
                 aria-pressed={active}
                 onClick={() => toggleSymptom(sym.id)}
-                className={`flex items-center gap-1.5 rounded-full border-2 px-3 py-1.5 text-xs font-bold transition-all active:scale-95 ${
+                className={`flex items-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-medium transition-all active:scale-[0.98] ${
                   active
-                    ? 'border-orange-500 bg-orange-100 text-orange-800 shadow-sm'
-                    : 'border-gray-200 text-gray-600 hover:border-orange-300 hover:bg-orange-50'
+                    ? 'border-amber-200 bg-amber-50 text-amber-700'
+                    : 'border-neutral-200 text-neutral-600 hover:border-amber-200 hover:bg-amber-50/50'
                 }`}
               >
-                <sym.Icon size={13} />
+                <sym.Icon size={13} strokeWidth={2} />
                 {sym.label}
               </button>
             )
           })}
         </div>
 
-        {/* ── NIHSS total display ── */}
+        {/* NIHSS total */}
         {hasSymptom && severity && (
-          <div className={`flex items-center gap-2 rounded-lg border-2 px-3 py-2 mb-3 ${severity.bg} ${severity.border}`}>
+          <div className={`flex items-center gap-3 rounded-xl border px-4 py-3 mb-4 ${severity.bg} ${severity.border}`}>
             <span className={`text-2xl font-bold tabular-nums ${severity.color}`}>{total}</span>
-            <span className={`font-semibold text-sm ${severity.color}`}>{severity.label}</span>
+            <span className={`font-medium text-sm ${severity.color}`}>{severity.label}</span>
             {flash && <FlashBadge key={flash.key} pts={flash.pts} />}
           </div>
         )}
 
-        {/* ── Subscale items grouped by symptom ── */}
+        {/* Subscale items by symptom */}
         {activeSymptoms.filter((s) => s.id !== 'other' && s.nihssIds.length > 0).map((sym) => (
           <div key={sym.id} className="mb-3">
-            <div className="mb-1 flex items-center gap-1.5">
-              <sym.Icon size={11} className="text-orange-500 shrink-0" />
-              <p className="text-[10px] font-bold uppercase tracking-wider text-orange-600">{sym.label} — {sym.sub}</p>
+            <div className="mb-1.5 flex items-center gap-1.5">
+              <sym.Icon size={11} className="text-amber-500 shrink-0" strokeWidth={2} />
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-600">{sym.label} — {sym.sub}</p>
             </div>
-            <div className="rounded-lg bg-gray-50 border border-gray-100 px-3 py-1">
+            <div className="rounded-xl bg-neutral-50 border border-neutral-100 px-3 py-1">
               {sym.nihssIds.map((id) => (
                 <ItemRow
                   key={id}
@@ -238,10 +232,10 @@ export default function SymptomsNihssStep({ onConfirm }) {
           </div>
         ))}
 
-        {/* ── Other: manual NIHSS input ── */}
+        {/* Other: manual NIHSS */}
         {selected['other'] && (
           <div className="mb-3">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1.5">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-500 mb-2">
               Otro — puntos NIHSS adicionales
             </p>
             <input
@@ -252,23 +246,23 @@ export default function SymptomsNihssStep({ onConfirm }) {
               placeholder="0"
               value={otherScore}
               onChange={(e) => setOtherScore(e.target.value)}
-              className="w-24 rounded-lg border-2 border-gray-200 px-3 py-2 text-lg font-bold text-center focus:outline-none focus:ring-2 focus:ring-orange-300 focus:border-orange-400"
+              className="w-24 rounded-xl border border-neutral-200 bg-neutral-50 px-3 py-2.5 text-lg font-semibold text-center focus:outline-none focus:ring-2 focus:ring-amber-200 focus:border-amber-300 transition-all"
             />
           </div>
         )}
 
-        {/* ── Disabling symptoms (NIHSS < 5) ── */}
+        {/* Disabling symptoms (NIHSS < 5) */}
         {showDisablingBlock && (
-          <div className="border-t border-orange-100 pt-3 mt-1">
-            <p className="text-xs font-bold text-orange-800 mb-2">¿El déficit es discapacitante?</p>
+          <div className="border-t border-amber-100 pt-4 mt-2">
+            <p className="text-xs font-semibold text-amber-700 mb-2">¿El déficit es discapacitante?</p>
             <div className="grid grid-cols-2 gap-2 mb-2">
               <button
                 type="button"
                 onClick={() => setHasDisabling(false)}
-                className={`py-2 rounded-lg border-2 font-bold text-sm transition-all active:scale-95 ${
+                className={`py-2.5 rounded-xl border font-medium text-sm transition-all active:scale-[0.98] ${
                   hasDisabling === false
-                    ? 'border-slate-500 bg-slate-100 text-slate-800'
-                    : 'border-gray-200 text-gray-500 hover:border-slate-400'
+                    ? 'border-neutral-400 bg-neutral-100 text-neutral-800'
+                    : 'border-neutral-200 text-neutral-500 hover:border-neutral-300'
                 }`}
               >
                 NO
@@ -276,10 +270,10 @@ export default function SymptomsNihssStep({ onConfirm }) {
               <button
                 type="button"
                 onClick={() => setHasDisabling(true)}
-                className={`py-2 rounded-lg border-2 font-bold text-sm transition-all active:scale-95 ${
+                className={`py-2.5 rounded-xl border font-medium text-sm transition-all active:scale-[0.98] ${
                   hasDisabling === true
-                    ? 'border-orange-500 bg-orange-100 text-orange-800'
-                    : 'border-gray-200 text-gray-500 hover:border-orange-400'
+                    ? 'border-amber-300 bg-amber-50 text-amber-700'
+                    : 'border-neutral-200 text-neutral-500 hover:border-amber-200'
                 }`}
               >
                 SÍ
@@ -297,8 +291,8 @@ export default function SymptomsNihssStep({ onConfirm }) {
             {showDisablingList && (
               <ul className="mt-2 space-y-1">
                 {DISABLING_LIST.map((s) => (
-                  <li key={s} className="flex items-start gap-1.5 text-xs text-gray-600">
-                    <span className="text-orange-400 shrink-0">—</span>
+                  <li key={s} className="flex items-start gap-1.5 text-xs text-neutral-600">
+                    <span className="text-amber-400 shrink-0">—</span>
                     {s}
                   </li>
                 ))}
@@ -306,8 +300,8 @@ export default function SymptomsNihssStep({ onConfirm }) {
             )}
 
             {hasDisabling === true && (
-              <div className="mt-2 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2">
-                <p className="text-xs font-semibold text-amber-700">
+              <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50/50 px-3 py-2.5">
+                <p className="text-xs font-medium text-amber-700">
                   Déficit discapacitante: valorar trombolisis independientemente del NIHSS.
                 </p>
               </div>
@@ -327,7 +321,7 @@ export default function SymptomsNihssStep({ onConfirm }) {
             : 'Responde si el déficit es discapacitante'
         }
       >
-        Continuar <ChevronRight size={18} />
+        Continuar <ChevronRight size={16} strokeWidth={2} />
       </PrimaryAction>
     </div>
   )

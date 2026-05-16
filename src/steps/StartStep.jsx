@@ -49,19 +49,18 @@ export default function StartStep({ onStart, onResume }) {
   }
 
   return (
-    <div className="min-h-[100dvh] flex flex-col items-center justify-center px-6 bg-gray-50">
+    <div className="min-h-[100dvh] flex flex-col items-center justify-center px-6 bg-neutral-50">
       {/* Logo */}
-      <div className="relative mb-8">
-        <div className="absolute inset-0 rounded-full bg-brand-600 animate-pulse-ring opacity-30 scale-110" />
-        <div className="w-24 h-24 rounded-full bg-brand-600 flex items-center justify-center shadow-lg relative">
-          <Activity size={44} className="text-white" />
+      <div className="relative mb-10">
+        <div className="w-20 h-20 rounded-2xl bg-brand-600 flex items-center justify-center shadow-elevated">
+          <Activity size={36} className="text-white" strokeWidth={2} />
         </div>
       </div>
 
-      <h1 className="font-display text-4xl text-gray-800 text-center leading-tight mb-2">
+      <h1 className="text-3xl font-semibold text-neutral-800 text-center tracking-tight mb-2">
         Código Stroke
       </h1>
-      <p className="text-gray-400 text-center text-sm mb-10 max-w-xs leading-relaxed">
+      <p className="text-neutral-400 text-center text-sm mb-10 max-w-xs leading-relaxed">
         Protocolo de atención para ACV isquémico en fase aguda — AHA/ASA 2026
       </p>
 
@@ -70,33 +69,33 @@ export default function StartStep({ onStart, onResume }) {
         {['Ventana 4.5h', 'NIHSS', 'rtPA / TNK'].map((label) => (
           <span
             key={label}
-            className="text-xs bg-white border border-gray-200 text-gray-500 px-3 py-1.5 rounded-full shadow-sm"
+            className="text-xs bg-white text-neutral-500 px-3 py-1.5 rounded-lg border border-neutral-100"
           >
             {label}
           </span>
         ))}
       </div>
 
-      {/* Quick resume card — active case from localStorage */}
+      {/* Quick resume card */}
       {recentSession && (
         <button
           onClick={handleRecentResume}
-          className="w-full max-w-xs mb-4 rounded-xl border-2 border-amber-300 bg-amber-50 px-4 py-3.5 text-left transition-all hover:bg-amber-100 active:scale-[0.98] shadow-card"
+          className="w-full max-w-xs mb-4 rounded-2xl border border-amber-200 bg-amber-50/50 px-4 py-4 text-left transition-all hover:bg-amber-50 active:scale-[0.98]"
         >
           <div className="flex items-start gap-3">
-            <div className="w-9 h-9 rounded-full bg-amber-200 flex items-center justify-center shrink-0">
-              <Clock size={18} className="text-amber-700" />
+            <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center shrink-0">
+              <Clock size={18} className="text-amber-600" strokeWidth={2} />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-bold text-amber-700 uppercase tracking-wider">Caso activo</p>
-              <p className="text-sm font-semibold text-gray-800 truncate mt-0.5">
+              <p className="text-[11px] font-semibold text-amber-600 uppercase tracking-wider">Caso activo</p>
+              <p className="text-sm font-semibold text-neutral-800 truncate mt-0.5">
                 {recentSession.patientName || 'Paciente'}
               </p>
-              <p className="text-xs text-amber-600 mt-0.5">
+              <p className="text-xs text-amber-500 mt-0.5">
                 {recentSession.id} · hace {formatElapsed(Date.now() - recentSession.updated)}
               </p>
             </div>
-            <ChevronRight size={18} className="text-amber-500 shrink-0 mt-2" />
+            <ChevronRight size={18} className="text-amber-400 shrink-0 mt-2.5" />
           </div>
         </button>
       )}
@@ -104,28 +103,28 @@ export default function StartStep({ onStart, onResume }) {
       {/* CTA */}
       <button
         onClick={onStart}
-        className="w-full max-w-xs flex items-center justify-center gap-3 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-bold text-lg py-5 px-8 rounded-2xl shadow-xl transition-all duration-150"
+        className="w-full max-w-xs flex items-center justify-center gap-3 bg-brand-600 hover:bg-brand-700 active:scale-[0.98] text-white font-semibold text-base py-4 px-8 rounded-2xl shadow-elevated transition-all duration-150"
       >
-        <Zap size={22} />
+        <Zap size={20} strokeWidth={2} />
         Iniciar Código Stroke
       </button>
 
-      {/* Separador */}
-      <div className="flex items-center gap-3 w-full max-w-xs mt-6">
-        <hr className="flex-1 border-gray-200" />
+      {/* Separator */}
+      <div className="flex items-center gap-3 w-full max-w-xs mt-8">
+        <hr className="flex-1 border-neutral-100" />
         <button
           type="button"
           onClick={() => setShowManualResume((v) => !v)}
-          className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
+          className="text-xs text-neutral-400 hover:text-neutral-600 transition-colors"
         >
           {showManualResume ? 'Ocultar' : 'Retomar otro caso'}
         </button>
-        <hr className="flex-1 border-gray-200" />
+        <hr className="flex-1 border-neutral-100" />
       </div>
 
-      {/* Manual resume — accordion */}
+      {/* Manual resume */}
       {showManualResume && (
-        <div className="w-full max-w-xs mt-4 flex flex-col items-center gap-2 animate-fade-in">
+        <div className="w-full max-w-xs mt-4 flex flex-col items-center gap-3 animate-fade-in">
           <div className="flex gap-2 w-full">
             <input
               type="text"
@@ -136,25 +135,25 @@ export default function StartStep({ onStart, onResume }) {
                 setResumeId(e.target.value.toUpperCase())
                 setError(false)
               }}
-              className="flex-1 min-w-0 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 text-base font-mono tracking-widest focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent placeholder-gray-300 uppercase"
+              className="flex-1 min-w-0 bg-white border border-neutral-200 rounded-xl px-4 py-3 text-neutral-800 text-base font-mono tracking-widest focus:ring-2 focus:ring-brand-200 focus:border-brand-300 placeholder-neutral-300 uppercase transition-all"
             />
             <button
               onClick={handleResume}
               disabled={resumeId.length < 3}
-              className="border-2 border-brand-600 text-brand-600 rounded-xl py-3 px-6 font-semibold flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-95"
+              className="border border-brand-600 text-brand-600 rounded-xl py-3 px-5 font-semibold text-sm flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-95 hover:bg-brand-50"
             >
-              <RotateCcw size={16} />
+              <RotateCcw size={14} strokeWidth={2} />
               Reanudar
             </button>
           </div>
-          <p className="text-xs text-gray-400 self-start">Ingresá el ID del caso anterior</p>
+          <p className="text-xs text-neutral-400 self-start">Ingresá el ID del caso anterior</p>
           {error && (
             <p className="text-red-500 text-xs self-start animate-fade-in">Caso no encontrado</p>
           )}
         </div>
       )}
 
-      <p className="mt-8 text-xs text-gray-300 text-center">
+      <p className="mt-10 text-xs text-neutral-300 text-center">
         Cada minuto importa · 1.9M neuronas/min
       </p>
     </div>

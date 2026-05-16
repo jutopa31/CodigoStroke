@@ -12,8 +12,8 @@ const MRS_OPTIONS = [
 
 function VitalAlert({ message }) {
   return (
-    <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2">
-      <AlertTriangle size={13} className="mt-0.5 shrink-0 text-red-500" />
+    <div className="flex items-start gap-2 rounded-xl border border-red-100 bg-red-50/50 px-3 py-2">
+      <AlertTriangle size={12} className="mt-0.5 shrink-0 text-red-500" strokeWidth={2} />
       <p className="text-xs leading-relaxed text-red-600">{message}</p>
     </div>
   )
@@ -57,37 +57,37 @@ export default function VitalsModal({ isOpen, onConfirm }) {
   }
 
   const fieldClass = (critical, filled) =>
-    `h-10 w-24 rounded-lg border-2 bg-slate-50 px-2 text-center text-base font-bold text-slate-900 outline-none transition placeholder:text-slate-300 ${
+    `h-11 w-20 rounded-xl border bg-neutral-50 px-2 text-center text-base font-semibold text-neutral-800 outline-none transition placeholder:text-neutral-300 ${
       critical
-        ? 'border-red-400 bg-red-50/50 focus:border-red-500 focus:ring-2 focus:ring-red-100'
+        ? 'border-red-300 bg-red-50/50 focus:border-red-400 focus:ring-2 focus:ring-red-100'
         : filled
-        ? 'border-blue-400 bg-blue-50/50 focus:border-blue-500 focus:ring-2 focus:ring-blue-100'
-        : 'border-slate-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-100'
+          ? 'border-blue-300 bg-blue-50/30 focus:border-blue-400 focus:ring-2 focus:ring-blue-100'
+          : 'border-neutral-200 focus:border-blue-300 focus:ring-2 focus:ring-blue-100'
     }`
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden animate-slide-down">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-modal overflow-hidden animate-scale-in">
         {/* Header */}
-        <div className="bg-brand-600 px-6 py-4">
+        <div className="bg-brand-600 px-5 py-4">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center shrink-0">
-              <Activity size={18} className="text-white" />
+            <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+              <Activity size={18} className="text-white" strokeWidth={2} />
             </div>
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-widest text-brand-200">Evaluación inicial</p>
-              <h2 className="text-white font-bold text-lg leading-tight">Signos vitales y funcionalidad</h2>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-brand-200">Evaluación inicial</p>
+              <h2 className="text-white font-semibold text-base leading-tight">Signos vitales y funcionalidad</h2>
             </div>
           </div>
         </div>
 
         {/* Body */}
-        <div className="px-6 py-5 space-y-3">
-          <div className="space-y-2">
+        <div className="px-5 py-5 space-y-3">
+          <div className="space-y-2.5">
             {/* TAS */}
             <label className="flex items-center justify-between gap-3">
-              <span className="text-sm font-semibold text-slate-600 flex-1">
-                TA sistólica <span className="text-xs font-normal text-slate-400">mmHg</span>
+              <span className="text-sm font-medium text-neutral-600 flex-1">
+                TA sistólica <span className="text-xs text-neutral-400">mmHg</span>
               </span>
               <input
                 type="text"
@@ -102,8 +102,8 @@ export default function VitalsModal({ isOpen, onConfirm }) {
 
             {/* TAD */}
             <label className="flex items-center justify-between gap-3">
-              <span className="text-sm font-semibold text-slate-600 flex-1">
-                TA diastólica <span className="text-xs font-normal text-slate-400">mmHg</span>
+              <span className="text-sm font-medium text-neutral-600 flex-1">
+                TA diastólica <span className="text-xs text-neutral-400">mmHg</span>
               </span>
               <input
                 type="text"
@@ -118,8 +118,8 @@ export default function VitalsModal({ isOpen, onConfirm }) {
 
             {/* Glucemia */}
             <label className="flex items-center justify-between gap-3">
-              <span className="text-sm font-semibold text-slate-600 flex-1">
-                Glucemia <span className="text-xs font-normal text-slate-400">mg/dL</span>
+              <span className="text-sm font-medium text-neutral-600 flex-1">
+                Glucemia <span className="text-xs text-neutral-400">mg/dL</span>
               </span>
               <input
                 type="text"
@@ -134,15 +134,15 @@ export default function VitalsModal({ isOpen, onConfirm }) {
 
             {/* mRS */}
             <div className="flex items-center justify-between gap-3 relative">
-              <span className="text-sm font-semibold text-slate-600 flex-1 flex items-center gap-1">
+              <span className="text-sm font-medium text-neutral-600 flex-1 flex items-center gap-1.5">
                 mRS previo
                 <button
                   type="button"
                   onMouseEnter={() => setShowMrsHelp(true)}
                   onMouseLeave={() => setShowMrsHelp(false)}
-                  className="text-gray-300 hover:text-gray-500 transition-colors"
+                  className="text-neutral-300 hover:text-neutral-500 transition-colors"
                 >
-                  <HelpCircle size={12} />
+                  <HelpCircle size={12} strokeWidth={2} />
                 </button>
               </span>
               <input
@@ -152,18 +152,18 @@ export default function VitalsModal({ isOpen, onConfirm }) {
                 placeholder="0-5"
                 value={mrs}
                 onChange={(e) => handleMrsChange(e.target.value)}
-                className={`h-10 w-24 rounded-lg border-2 bg-slate-50 px-2 text-center text-base font-bold text-slate-900 outline-none transition placeholder:text-slate-300 ${
+                className={`h-11 w-20 rounded-xl border bg-neutral-50 px-2 text-center text-base font-semibold text-neutral-800 outline-none transition placeholder:text-neutral-300 ${
                   mrsValid
-                    ? 'border-slate-500 bg-slate-50 focus:border-slate-600 focus:ring-2 focus:ring-slate-100'
-                    : 'border-slate-200 focus:border-slate-400 focus:ring-2 focus:ring-slate-100'
+                    ? 'border-neutral-400 bg-neutral-50 focus:border-neutral-500 focus:ring-2 focus:ring-neutral-100'
+                    : 'border-neutral-200 focus:border-neutral-300 focus:ring-2 focus:ring-neutral-100'
                 }`}
               />
               {showMrsHelp && (
-                <div className="absolute right-0 top-[46px] z-30 w-56 rounded-lg border border-slate-200 bg-white p-2.5 text-xs shadow-xl">
+                <div className="absolute right-0 top-[50px] z-30 w-52 rounded-xl border border-neutral-100 bg-white p-3 text-xs shadow-modal">
                   {MRS_OPTIONS.map((o) => (
-                    <div key={o.score} className="grid grid-cols-[18px_1fr] gap-1.5 py-0.5">
-                      <span className="font-bold text-slate-900">{o.score}</span>
-                      <span className="text-slate-600">{o.label}</span>
+                    <div key={o.score} className="grid grid-cols-[18px_1fr] gap-2 py-0.5">
+                      <span className="font-semibold text-neutral-800">{o.score}</span>
+                      <span className="text-neutral-600">{o.label}</span>
                     </div>
                   ))}
                 </div>
@@ -172,7 +172,7 @@ export default function VitalsModal({ isOpen, onConfirm }) {
           </div>
 
           {(taCritical || taDiaCritical || glucLow || glucHigh) && (
-            <div className="space-y-1.5">
+            <div className="space-y-2 pt-1">
               {taCritical && <VitalAlert message="TA sistólica >185 mmHg: ajustar antes de trombolisis." />}
               {!taCritical && taDiaCritical && <VitalAlert message="TA diastólica >110 mmHg: ajustar antes de trombolisis." />}
               {glucLow && <VitalAlert message="Hipoglucemia <50 mg/dL: corregir; puede mimetizar ACV." />}
@@ -182,14 +182,14 @@ export default function VitalsModal({ isOpen, onConfirm }) {
         </div>
 
         {/* Footer */}
-        <div className="px-6 pb-6">
+        <div className="px-5 pb-5">
           <button
             type="button"
             onClick={handleConfirm}
             disabled={!valid}
-            className="w-full flex items-center justify-center gap-2 py-4 rounded-xl font-bold text-base transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed bg-brand-600 hover:bg-brand-700 text-white"
+            className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-semibold text-sm transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed bg-brand-600 hover:bg-brand-700 text-white"
           >
-            Iniciar protocolo <ChevronRight size={18} />
+            Iniciar protocolo <ChevronRight size={16} strokeWidth={2} />
           </button>
         </div>
       </div>

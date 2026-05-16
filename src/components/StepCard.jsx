@@ -11,20 +11,21 @@ export default function StepCard({
   railLabel = null,
 }) {
   const { currentStep, completedSteps, onStepClick, resolveStepValue } = useStepProgress()
-  const accents = {
+  
+  const accentColors = {
     red: 'bg-brand-600',
     blue: 'bg-blue-500',
-    orange: 'bg-orange-500',
-    green: 'bg-green-500',
-    gray: 'bg-gray-400',
+    orange: 'bg-amber-500',
+    green: 'bg-emerald-500',
+    gray: 'bg-neutral-400',
   }
 
-  const dotAccents = {
-    red: 'bg-brand-600 ring-brand-100',
-    blue: 'bg-blue-500 ring-blue-100',
-    orange: 'bg-orange-500 ring-orange-100',
-    green: 'bg-emerald-500 ring-emerald-100',
-    gray: 'bg-gray-500 ring-gray-100',
+  const dotColors = {
+    red: 'bg-brand-600',
+    blue: 'bg-blue-500',
+    orange: 'bg-amber-500',
+    green: 'bg-emerald-500',
+    gray: 'bg-neutral-400',
   }
 
   const hasStepDot = Boolean(step)
@@ -35,22 +36,32 @@ export default function StepCard({
   const isActive = hasRailDot && currentStep === stepValue
 
   const card = (
-    <div className={`relative overflow-hidden bg-white rounded-xl border border-gray-100 p-4 md:p-5 animate-slide-down transition-shadow duration-300 ${
-      isActive ? 'shadow-card-active ring-1 ring-brand-50' : isCompleted ? 'shadow-card' : 'shadow-card'
-    }`}>
-      <span className={`absolute left-0 top-0 bottom-0 w-1.5 ${accents[accent]} rounded-l-xl`} />
-      <div className="relative">
+    <div className={`
+      relative bg-white rounded-2xl border transition-all duration-200
+      ${isActive 
+        ? 'border-brand-200 shadow-elevated' 
+        : isCompleted 
+          ? 'border-emerald-100' 
+          : 'border-neutral-100'
+      }
+    `}>
+      {/* Minimal accent line */}
+      <div className={`absolute left-0 top-4 bottom-4 w-0.5 rounded-full ${accentColors[accent]} opacity-60`} />
+      
+      <div className="p-5 md:p-6">
         {(step || title) && (
-          <div className={`flex items-center gap-2.5 mb-4 ${hasStepDot ? 'pl-6 md:pl-0' : ''}`}>
+          <div className="flex items-center gap-3 mb-4">
             {step && (
-              <span className={`hidden md:flex w-7 h-7 rounded-full text-white text-xs font-bold items-center justify-center shrink-0 shadow-sm ${
-                isCompleted ? 'bg-emerald-500' : 'bg-brand-600'
-              }`}>
-                {isCompleted ? <CheckCircle2 size={15} strokeWidth={2.5} /> : step}
+              <span className={`
+                hidden md:flex w-7 h-7 rounded-full text-white text-xs font-semibold 
+                items-center justify-center shrink-0 transition-colors
+                ${isCompleted ? 'bg-emerald-500' : accentColors[accent]}
+              `}>
+                {isCompleted ? <CheckCircle2 size={14} strokeWidth={2.5} /> : step}
               </span>
             )}
             {title && (
-              <h2 className="font-display text-gray-800 text-lg leading-tight">{title}</h2>
+              <h2 className="text-neutral-800 text-base font-semibold tracking-tight">{title}</h2>
             )}
           </div>
         )}
@@ -67,25 +78,28 @@ export default function StepCard({
         type="button"
         aria-label={`Ir a ${railLabel || title || `paso ${step}`}`}
         onClick={() => onStepClick?.(stepValue)}
-        className={`absolute z-10 flex items-center justify-center rounded-full shadow-sm ring-4 transition-all active:scale-95 md:hidden ${
-          hasStepDot
-            ? `left-[-8px] top-[14px] h-7 w-7 text-xs font-bold ${
+        className={`
+          absolute z-10 flex items-center justify-center rounded-full 
+          transition-all active:scale-95 md:hidden
+          ${hasStepDot
+            ? `left-[-6px] top-[18px] h-6 w-6 text-[10px] font-semibold shadow-minimal ${
                 isCompleted
-                  ? 'bg-emerald-500 text-white ring-emerald-100'
+                  ? 'bg-emerald-500 text-white'
                   : isActive
-                    ? `${dotAccents[accent]} text-white shadow-md`
-                    : 'border-2 border-gray-200 bg-white text-gray-400 ring-white'
+                    ? `${dotColors[accent]} text-white shadow-elevated`
+                    : 'border border-neutral-200 bg-white text-neutral-400'
               }`
-            : `left-[-2px] top-[18px] h-4 w-4 ${
+            : `left-0 top-[20px] h-3 w-3 ${
                 isCompleted
-                  ? 'bg-emerald-500 ring-emerald-100'
+                  ? 'bg-emerald-500'
                   : isActive
-                  ? `${dotAccents[accent]} ring-white`
-                  : 'border-2 border-gray-200 bg-white ring-white'
+                    ? dotColors[accent]
+                    : 'border border-neutral-200 bg-white'
               }`
-        }`}
+          }
+        `}
       >
-        {hasStepDot && (isCompleted ? <CheckCircle2 size={15} strokeWidth={2.5} /> : step)}
+        {hasStepDot && (isCompleted ? <CheckCircle2 size={12} strokeWidth={2.5} /> : step)}
       </button>
       {card}
     </div>

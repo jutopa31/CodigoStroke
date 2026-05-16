@@ -68,25 +68,25 @@ function fmtDateTime(value) {
 
 function SummaryRow({ label, value, tone = 'gray' }) {
   const toneClass = {
-    gray: 'border-gray-200 bg-gray-50 text-gray-800',
-    blue: 'border-blue-200 bg-blue-50 text-blue-800',
-    green: 'border-emerald-200 bg-emerald-50 text-emerald-800',
-    orange: 'border-orange-200 bg-orange-50 text-orange-800',
-    red: 'border-red-200 bg-red-50 text-red-800',
+    gray: 'bg-neutral-50 text-neutral-700',
+    blue: 'bg-blue-50/50 text-blue-700',
+    green: 'bg-emerald-50/50 text-emerald-700',
+    orange: 'bg-amber-50/50 text-amber-700',
+    red: 'bg-red-50/50 text-red-700',
   }[tone]
 
   return (
-    <div className={`rounded-lg border px-3 py-2 ${toneClass}`}>
-      <p className="text-[11px] font-bold uppercase tracking-wider opacity-70">{label}</p>
-      <p className="mt-0.5 text-sm font-semibold leading-snug">{value ?? 'No registrado'}</p>
+    <div className={`rounded-xl px-3 py-2.5 ${toneClass}`}>
+      <p className="text-[10px] font-semibold uppercase tracking-wider opacity-60">{label}</p>
+      <p className="mt-0.5 text-sm font-medium leading-snug">{value ?? 'No registrado'}</p>
     </div>
   )
 }
 
 function SummarySection({ title, children }) {
   return (
-    <div className="rounded-xl border border-gray-100 bg-white px-4 py-4 shadow-sm">
-      <h3 className="text-sm font-bold uppercase tracking-wider text-gray-500 mb-3">{title}</h3>
+    <div className="rounded-2xl bg-white border border-neutral-100 px-4 py-4">
+      <h3 className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400 mb-3">{title}</h3>
       <div className="grid gap-2 md:grid-cols-2">{children}</div>
     </div>
   )
@@ -763,19 +763,19 @@ export default function App() {
 
     return (
       <div ref={doneRef} className="px-4 pb-4 animate-slide-down">
-        <div className={`bg-white rounded-xl border-l-4 ${done.borderColor} shadow-card-active p-6 mb-3`}>
-          <div className={`w-14 h-14 ${done.iconBg} rounded-full flex items-center justify-center mx-auto mb-4`}>
-            {done.icon === 'check' && <svg className="w-7 h-7 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>}
-            {done.icon === 'error' && <svg className="w-7 h-7 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" /></svg>}
-            {done.icon === 'warning' && <svg className="w-7 h-7 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" /></svg>}
-            {done.icon === 'moon' && <svg className="w-7 h-7 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" /></svg>}
+        <div className={`bg-white rounded-2xl border ${done.borderColor} p-6 mb-4`}>
+          <div className={`w-12 h-12 ${done.iconBg} rounded-xl flex items-center justify-center mx-auto mb-4`}>
+            {done.icon === 'check' && <svg className="w-6 h-6 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>}
+            {done.icon === 'error' && <svg className="w-6 h-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>}
+            {done.icon === 'warning' && <svg className="w-6 h-6 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" /></svg>}
+            {done.icon === 'moon' && <svg className="w-6 h-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" /></svg>}
           </div>
-          <h2 className="font-display text-gray-800 text-xl text-center mb-2">{done.title}</h2>
-          <p className="text-sm text-gray-500 text-center leading-relaxed">{done.body}</p>
+          <h2 className="text-neutral-800 text-lg font-semibold text-center mb-2">{done.title}</h2>
+          <p className="text-sm text-neutral-500 text-center leading-relaxed">{done.body}</p>
           {timerStart && (
-            <div className="mt-4 bg-gray-50 rounded-xl px-4 py-3 text-center">
-              <p className="text-xs text-gray-400">Inicio del código</p>
-              <p className="text-sm font-mono font-semibold text-gray-700 mt-0.5">
+            <div className="mt-4 bg-neutral-50 rounded-xl px-4 py-3 text-center">
+              <p className="text-[10px] text-neutral-400 font-medium uppercase tracking-wider">Inicio del código</p>
+              <p className="text-sm font-mono font-semibold text-neutral-700 mt-1">
                 {timerStart.toLocaleTimeString('es-AR')}
               </p>
             </div>
@@ -783,16 +783,16 @@ export default function App() {
         </div>
 
         <div className="space-y-3">
-          <div className="rounded-xl border border-gray-100 bg-white px-4 py-4 shadow-card">
+          <div className="rounded-2xl bg-white border border-neutral-100 px-4 py-4">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <p className="text-xs font-bold uppercase tracking-wider text-gray-400">Resumen del caso</p>
-                <h2 className="mt-1 text-xl font-bold text-gray-900">{patient?.name ?? 'Paciente'}</h2>
-                <p className="text-sm text-gray-500">DNI {patient?.dni ?? '-'} · Caso {patientId || '-'}</p>
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Resumen del caso</p>
+                <h2 className="mt-1 text-lg font-semibold text-neutral-800">{patient?.name ?? 'Paciente'}</h2>
+                <p className="text-sm text-neutral-500">DNI {patient?.dni ?? '-'} · Caso {patientId || '-'}</p>
               </div>
-              <div className="rounded-lg border border-brand-100 bg-brand-50 px-3 py-2 text-right">
-                <p className="text-[11px] font-bold uppercase tracking-wider text-brand-600">Estado final</p>
-                <p className="text-sm font-semibold text-brand-700">{done.title}</p>
+              <div className="rounded-xl bg-brand-50 px-3 py-2 text-right">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-brand-600">Estado final</p>
+                <p className="text-sm font-medium text-brand-700">{done.title}</p>
               </div>
             </div>
           </div>
@@ -837,10 +837,10 @@ export default function App() {
             <button
               type="button"
               onClick={onCopy}
-              className={`flex items-center justify-center gap-2 py-4 rounded-xl font-semibold text-sm transition-all active:scale-95 border-2 ${
+              className={`flex items-center justify-center gap-2 py-3.5 rounded-xl font-medium text-sm transition-all active:scale-[0.98] border ${
                 copied
-                  ? 'border-emerald-400 bg-emerald-50 text-emerald-700'
-                  : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'
+                  ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                  : 'border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50'
               }`}
             >
               {copied
@@ -851,20 +851,20 @@ export default function App() {
             <button
               type="button"
               onClick={handleShareWhatsApp}
-              className="flex items-center justify-center gap-2 py-4 rounded-xl font-semibold text-sm transition-all active:scale-95 border-2 border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+              className="flex items-center justify-center gap-2 py-3.5 rounded-xl font-medium text-sm transition-all active:scale-[0.98] border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
             >
               <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
               WhatsApp
             </button>
           </div>
 
-          <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-4 text-center">
-            <p className="text-sm font-semibold text-emerald-800">Caso guardado</p>
+          <div className="rounded-2xl bg-emerald-50 border border-emerald-100 px-4 py-4 text-center">
+            <p className="text-sm font-medium text-emerald-700">Caso guardado</p>
             <p className="text-xs text-emerald-600 mt-1">ID: {patientId || eventId.slice(0, 8).toUpperCase()}</p>
             <button
               type="button"
               onClick={onReset}
-              className="mt-3 w-full rounded-xl border border-emerald-300 bg-white px-4 py-3 text-sm font-semibold text-emerald-700 transition-all hover:bg-emerald-100 active:scale-95"
+              className="mt-3 w-full rounded-xl border border-emerald-200 bg-white px-4 py-3 text-sm font-medium text-emerald-700 transition-all hover:bg-emerald-100 active:scale-[0.98]"
             >
               Nuevo protocolo
             </button>
@@ -897,52 +897,52 @@ export default function App() {
       onStepClick={handleSidebarStepClick}
     >
     <div
-      className="min-h-[100dvh] bg-slate-50 flex flex-col"
+      className="min-h-[100dvh] bg-neutral-50 flex flex-col"
       style={{ paddingBottom: 'calc(9.5rem + env(safe-area-inset-bottom, 0px))' }}
     >
       <GlobalTimer startTime={timerStart} timestamps={{ ctRequest: ctRequestTime?.toISOString(), thrombolyticStart: thrombolyticStartTime?.toISOString() }} />
 
-      {/* Sticky header — below GlobalTimer when active */}
-      <div className={`bg-brand-600 sticky ${timerStart ? 'top-[44px]' : 'top-0'} z-40 transition-all`}>
-        {/* Mobile header row — patient name + reset */}
+      {/* Sticky header */}
+      <div className={`bg-brand-600 sticky ${timerStart ? 'top-[52px]' : 'top-0'} z-40 transition-all`}>
+        {/* Mobile header */}
         {patient ? (
           <div className="px-4 py-3 flex items-center justify-between gap-3 md:hidden">
             <div className="min-w-0 flex-1">
-              <p className="text-brand-300 text-xs uppercase tracking-wider leading-none mb-0.5">Código Stroke</p>
-              <p className="text-white font-semibold text-sm truncate leading-tight">{patient.name}</p>
+              <p className="text-brand-300 text-[10px] uppercase tracking-wider leading-none mb-0.5 font-medium">Código Stroke</p>
+              <p className="text-white font-medium text-sm truncate leading-tight">{patient.name}</p>
             </div>
             <p className="text-brand-300 text-xs leading-tight flex-shrink-0">DNI {patient.dni}</p>
             <button
               type="button"
               onClick={handleReset}
-              className="shrink-0 rounded-full border border-white/20 bg-white/10 p-2 text-white transition-colors hover:bg-white/20"
+              className="shrink-0 rounded-xl border border-white/20 bg-white/10 p-2 text-white transition-colors hover:bg-white/20"
               title="Reiniciar protocolo"
               aria-label="Reiniciar protocolo"
             >
-              <RotateCcw size={16} />
+              <RotateCcw size={14} strokeWidth={2} />
             </button>
           </div>
         ) : (
           <div className="px-4 py-3 flex items-center md:hidden">
-            <p className="text-white font-bold text-sm tracking-wide">Código Stroke</p>
+            <p className="text-white font-medium text-sm tracking-wide">Código Stroke</p>
           </div>
         )}
 
-        {/* Desktop header row — thin brand bar only */}
+        {/* Desktop header */}
         <div className="hidden md:flex px-5 py-2.5 items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-white/60 flex-shrink-0" />
-            <span className="text-white font-bold text-sm tracking-wide">Código Stroke</span>
+            <span className="text-white font-medium text-sm tracking-wide">Código Stroke</span>
           </div>
           {patient && (
             <button
               type="button"
               onClick={handleReset}
-              className="shrink-0 rounded-full border border-white/20 bg-white/10 p-1.5 text-white transition-colors hover:bg-white/20"
+              className="shrink-0 rounded-xl border border-white/20 bg-white/10 p-1.5 text-white transition-colors hover:bg-white/20"
               title="Reiniciar protocolo"
               aria-label="Reiniciar protocolo"
             >
-              <RotateCcw size={14} />
+              <RotateCcw size={14} strokeWidth={2} />
             </button>
           )}
         </div>
@@ -951,11 +951,11 @@ export default function App() {
         {patient && step > STEP.ALERT && step < STEP.DONE && (
           <div className="md:hidden">
             <div className="px-4 py-1.5 flex items-center justify-between">
-              <span className="text-[10px] font-semibold text-brand-300 uppercase tracking-wider">
+              <span className="text-[10px] font-medium text-brand-300 uppercase tracking-wider">
                 Paso {Math.min(step, STEP.THROMBECTOMY)} de {STEP.THROMBECTOMY}
               </span>
             </div>
-            <div className="h-[3px] bg-brand-700">
+            <div className="h-0.5 bg-brand-700">
               <div
                 className="h-full bg-white/80 rounded-r-full transition-all duration-500"
                 style={{ width: `${(Math.min(step, STEP.THROMBECTOMY) / STEP.THROMBECTOMY) * 100}%` }}
@@ -978,10 +978,10 @@ export default function App() {
         )}
       </div>
 
-      {/* Botones de registros rápidos — fijos en el costado derecho */}
+      {/* Quick actions - bottom toolbar */}
       {patient && step > STEP.ALERT && (
         <div
-          className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 px-3 pb-3 pt-2 shadow-[0_-6px_18px_rgba(15,23,42,0.08)] backdrop-blur md:hidden"
+          className="fixed inset-x-0 bottom-0 z-40 border-t border-neutral-200 bg-white/95 px-3 pb-3 pt-2 shadow-elevated backdrop-blur-md md:hidden"
           style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}
         >
           <QuickAddFAB
@@ -996,15 +996,15 @@ export default function App() {
         </div>
       )}
 
-      {/* Botón flotante — ACV fuera de ventana */}
+      {/* Out of window button */}
       {step > STEP.ALERT && (
         <button
           type="button"
           onClick={() => setShowOutOfWindow(true)}
           style={{ bottom: 'calc(4.75rem + env(safe-area-inset-bottom, 0px))' }}
-          className="fixed left-3 z-40 flex items-center gap-2 bg-slate-800 hover:bg-slate-900 active:scale-95 text-white text-xs font-semibold px-4 py-3 min-h-[44px] rounded-full shadow-lg transition-all md:hidden"
+          className="fixed left-3 z-40 flex items-center gap-2 bg-neutral-800 hover:bg-neutral-900 active:scale-[0.98] text-white text-xs font-medium px-4 py-3 min-h-[44px] rounded-xl shadow-elevated transition-all md:hidden"
         >
-          <Clock size={14} />
+          <Clock size={14} strokeWidth={2} />
           Fuera de ventana
         </button>
       )}
@@ -1025,24 +1025,24 @@ export default function App() {
         {patient && (
           <div className="hidden md:flex md:flex-col md:sticky md:top-[96px] md:self-start md:max-h-[calc(100vh-104px)] md:overflow-y-auto md:pr-1">
             {/* Patient card */}
-            <div className="rounded-lg bg-white border border-slate-200/80 p-3.5 mb-3 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
-              <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 mb-1.5">Paciente</p>
-              <p className="font-semibold text-gray-800 text-sm leading-snug">{patient.name}</p>
-              <p className="text-xs text-gray-500 mt-0.5">DNI {patient.dni}</p>
+            <div className="rounded-2xl bg-white border border-neutral-100 p-4 mb-3">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400 mb-2">Paciente</p>
+              <p className="font-semibold text-neutral-800 text-sm leading-snug">{patient.name}</p>
+              <p className="text-xs text-neutral-500 mt-0.5">DNI {patient.dni}</p>
               {patientId && (
-                <div className="mt-2.5 pt-2.5 border-t border-gray-100">
-                  <p className="text-[10px] text-gray-400 uppercase tracking-wider">ID del caso</p>
-                  <p className="text-xs font-mono font-bold text-brand-600 tracking-widest mt-0.5">{patientId}</p>
+                <div className="mt-3 pt-3 border-t border-neutral-100">
+                  <p className="text-[10px] text-neutral-400 uppercase tracking-wider font-medium">ID del caso</p>
+                  <p className="text-xs font-mono font-semibold text-brand-600 tracking-wider mt-0.5">{patientId}</p>
                 </div>
               )}
               {(latestNihss !== null || latestVitals || latestGlucose !== null) && (
-                <div className="mt-2.5 pt-2.5 border-t border-gray-100 space-y-1.5">
+                <div className="mt-3 pt-3 border-t border-neutral-100 space-y-2">
                   {latestNihss !== null && (() => {
                     const sev = getNihssSeverity(latestNihss)
                     return (
                       <div className="flex items-center justify-between">
-                        <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">NIHSS</span>
-                        <span className={`text-xs font-bold px-2 py-0.5 rounded-full border ${sev.bg} ${sev.color} ${sev.border}`}>
+                        <span className="text-[10px] text-neutral-400 font-semibold uppercase tracking-wider">NIHSS</span>
+                        <span className={`text-xs font-medium px-2 py-0.5 rounded-lg ${sev.bg} ${sev.color}`}>
                           {latestNihss} — {sev.label}
                         </span>
                       </div>
@@ -1050,16 +1050,16 @@ export default function App() {
                   })()}
                   {latestVitals && (
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">TA</span>
-                      <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${latestVitals.systolic > 185 ? 'bg-red-100 text-red-700' : 'bg-blue-50 text-blue-700'}`}>
+                      <span className="text-[10px] text-neutral-400 font-semibold uppercase tracking-wider">TA</span>
+                      <span className={`text-xs font-medium px-2 py-0.5 rounded-lg ${latestVitals.systolic > 185 ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600'}`}>
                         {latestVitals.systolic}/{latestVitals.diastolic}
                       </span>
                     </div>
                   )}
                   {latestGlucose !== null && (
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">GLC</span>
-                      <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${latestGlucose < 50 ? 'bg-red-100 text-red-700' : latestGlucose > 400 ? 'bg-orange-100 text-orange-700' : 'bg-violet-50 text-violet-700'}`}>
+                      <span className="text-[10px] text-neutral-400 font-semibold uppercase tracking-wider">GLC</span>
+                      <span className={`text-xs font-medium px-2 py-0.5 rounded-lg ${latestGlucose < 50 ? 'bg-red-50 text-red-600' : latestGlucose > 400 ? 'bg-orange-50 text-orange-600' : 'bg-violet-50 text-violet-600'}`}>
                         {latestGlucose} mg/dL
                       </span>
                     </div>
@@ -1071,7 +1071,7 @@ export default function App() {
             {step > STEP.ALERT && (
               <>
                 <div className="mb-3">
-                  <p className="mb-1.5 text-[10px] font-bold uppercase tracking-widest text-slate-500">Registros rapidos</p>
+                  <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-neutral-500">Registros rápidos</p>
                   <QuickAddFAB
                     variant="sidebar"
                     onAddNihss={handleAddNihss}
@@ -1086,9 +1086,9 @@ export default function App() {
                 <button
                   type="button"
                   onClick={() => setShowOutOfWindow(true)}
-                  className="mb-3 flex w-full items-center justify-center gap-2 rounded-lg border border-slate-700 bg-slate-800 px-3 py-2.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-slate-900 active:scale-[0.99]"
+                  className="mb-3 flex w-full items-center justify-center gap-2 rounded-xl border border-neutral-700 bg-neutral-800 px-3 py-2.5 text-xs font-medium text-white transition-colors hover:bg-neutral-900 active:scale-[0.99]"
                 >
-                  <Clock size={14} />
+                  <Clock size={14} strokeWidth={2} />
                   Fuera de ventana
                 </button>
               </>
@@ -1111,9 +1111,9 @@ export default function App() {
         )}
 
         {/* Main content */}
-      <div className="relative w-full space-y-3 px-4 pt-4 md:mx-auto md:min-w-0 md:max-w-4xl md:px-0 md:pt-0 lg:space-y-3.5">
+      <div className="relative w-full space-y-3 px-4 pt-4 md:mx-auto md:min-w-0 md:max-w-4xl md:px-0 md:pt-0 lg:space-y-4">
           {patient && (
-            <div className="pointer-events-none absolute bottom-0 left-[22px] top-4 z-0 w-px bg-slate-200 md:hidden" />
+            <div className="pointer-events-none absolute bottom-0 left-[22px] top-4 z-0 w-px bg-neutral-200 md:hidden" />
           )}
           {step >= STEP.PATIENT && (
             <div>

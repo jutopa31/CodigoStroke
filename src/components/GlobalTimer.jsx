@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Clock, Target, Zap, Scissors } from 'lucide-react'
+import { Clock, Target, Zap, Scissors, ChevronDown, ChevronUp } from 'lucide-react'
 
 const MILESTONES = [
   { minutes: 25, label: 'TC', icon: Target },
@@ -20,9 +20,27 @@ function formatElapsed(seconds) {
 }
 
 function getPhase(minutes) {
-  if (minutes >= 60) return { bg: 'bg-red-50 border-red-200', text: 'text-red-700', badge: 'bg-red-600', label: 'Ventana vencida' }
-  if (minutes >= 30) return { bg: 'bg-amber-50 border-amber-200', text: 'text-amber-700', badge: 'bg-amber-500', label: `${Math.ceil(60 - minutes)} min restantes` }
-  return { bg: 'bg-emerald-50 border-emerald-200', text: 'text-emerald-700', badge: 'bg-emerald-600', label: 'Ventana abierta' }
+  if (minutes >= 60) return { 
+    bg: 'bg-red-50/80', 
+    border: 'border-red-100',
+    text: 'text-red-600', 
+    badge: 'bg-red-500', 
+    label: 'Ventana vencida' 
+  }
+  if (minutes >= 30) return { 
+    bg: 'bg-amber-50/80', 
+    border: 'border-amber-100',
+    text: 'text-amber-600', 
+    badge: 'bg-amber-500', 
+    label: `${Math.ceil(60 - minutes)} min` 
+  }
+  return { 
+    bg: 'bg-emerald-50/80', 
+    border: 'border-emerald-100',
+    text: 'text-emerald-600', 
+    badge: 'bg-emerald-500', 
+    label: 'Activa' 
+  }
 }
 
 export default function GlobalTimer({ startTime, timestamps = {} }) {
@@ -55,72 +73,75 @@ export default function GlobalTimer({ startTime, timestamps = {} }) {
 
   return (
     <div
-      className={`fixed top-0 left-0 right-0 z-50 border-b transition-colors duration-500 ${phase.bg} animate-fade-in`}
+      className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-md border-b transition-all duration-300 ${phase.bg} ${phase.border}`}
       style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
     >
       <div
-        className="flex items-center justify-between px-3 py-2 cursor-pointer md:px-6"
+        className="flex items-center justify-between px-4 py-2.5 cursor-pointer md:px-6"
         onClick={() => setExpanded((v) => !v)}
       >
-        <div className="flex items-center gap-2.5">
-          <div className={`w-8 h-8 rounded-full flex items-center justify-center ${phase.badge} text-white shadow-timer`}>
-            <Clock size={16} />
+        {/* Timer */}
+        <div className="flex items-center gap-3">
+          <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${phase.badge} text-white shadow-timer`}>
+            <Clock size={18} strokeWidth={2} />
           </div>
-          <div>
-            <span className={`font-mono font-bold text-lg tracking-wide ${phase.text}`}>
+          <div className="flex items-baseline gap-2">
+            <span className={`font-mono font-bold text-xl tracking-tight ${phase.text}`}>
               {formatElapsed(elapsed)}
             </span>
-            <span className={`ml-2 text-xs font-medium ${phase.text} opacity-75 hidden sm:inline`}>
+            <span className={`text-xs font-medium ${phase.text} opacity-70`}>
               {phase.label}
             </span>
           </div>
         </div>
 
+        {/* Milestone pills */}
         <div className="flex items-center gap-1.5">
           {milestoneStatus.map((m) => (
             <span
               key={m.label}
-              className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+              className={`text-[10px] font-medium px-2 py-1 rounded-md transition-colors ${
                 m.done
                   ? 'bg-emerald-100 text-emerald-700'
                   : minutes >= m.minutes
                     ? 'bg-red-100 text-red-600'
-                    : 'bg-white/60 text-gray-500'
+                    : 'bg-white/70 text-neutral-500 border border-neutral-100'
               }`}
             >
               {m.label}
-              {m.done ? ` ${m.elapsedMin}′` : ''}
+              {m.done && <span className="ml-0.5 opacity-75">{m.elapsedMin}&apos;</span>}
             </span>
           ))}
-          <span className={`text-xs ${phase.text} opacity-50 ml-1 md:hidden`}>
-            {expanded ? '▲' : '▼'}
-          </span>
+          <button className={`ml-1 p-1 rounded-md ${phase.text} opacity-50 hover:opacity-100 transition-opacity`}>
+            {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+          </button>
         </div>
       </div>
 
+      {/* Expanded details */}
       {expanded && (
-        <div className="px-3 pb-2.5 md:px-6 animate-slide-down">
-          <div className="flex gap-3 overflow-x-auto pb-1">
+        <div className="px-4 pb-3 md:px-6 animate-slide-down">
+          <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
             {milestoneStatus.map((m) => {
               const Icon = m.icon
               return (
                 <div
                   key={m.label}
-                  className={`flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium whitespace-nowrap ${
+                  className={`flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-medium whitespace-nowrap transition-colors ${
                     m.done
                       ? 'bg-emerald-100 text-emerald-700'
                       : minutes >= m.minutes
                         ? 'bg-red-100 text-red-600'
-                        : 'bg-white/80 text-gray-500 border border-gray-200'
+                        : 'bg-white text-neutral-500 border border-neutral-100'
                   }`}
                 >
-                  <Icon size={14} />
+                  <Icon size={14} strokeWidth={2} />
                   <span>{m.label}</span>
                   {m.done ? (
-                    <span className="font-mono">{m.elapsedMin}′</span>
+                    <span className="font-mono">{m.elapsedMin}&apos;</span>
                   ) : (
                     <span className="font-mono opacity-60">
-                      {minutes < m.minutes ? `−${Math.ceil(m.minutes - minutes)}′` : 'vencido'}
+                      {minutes < m.minutes ? `−${Math.ceil(m.minutes - minutes)}'` : 'vencido'}
                     </span>
                   )}
                 </div>

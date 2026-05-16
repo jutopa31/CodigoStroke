@@ -25,11 +25,11 @@ export default function TimestampPanel({ arrival, ct, thrombolytic, angio, varia
           return (
             <div
               key={key}
-              className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 border border-white/20 whitespace-nowrap flex-shrink-0"
+              className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white/15 border border-white/20 whitespace-nowrap flex-shrink-0"
             >
-              <Icon size={10} className="text-brand-200" />
+              <Icon size={10} className="text-brand-200" strokeWidth={2} />
               <span className="text-[10px] font-medium text-brand-100">{label}</span>
-              <span className="text-[10px] font-mono font-bold text-white">{fmt(time)}</span>
+              <span className="text-[10px] font-mono font-semibold text-white">{fmt(time)}</span>
             </div>
           )
         })}
@@ -38,9 +38,9 @@ export default function TimestampPanel({ arrival, ct, thrombolytic, angio, varia
   }
 
   return (
-    <div className="mt-3 rounded-xl border border-gray-100 bg-white shadow-sm overflow-hidden">
-      <div className="px-3 py-2 bg-gray-50 border-b border-gray-100">
-        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Tiempos clave</p>
+    <div className="mt-3 rounded-2xl border border-neutral-100 bg-white overflow-hidden">
+      <div className="px-3 py-2.5 bg-neutral-50 border-b border-neutral-100">
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Tiempos clave</p>
       </div>
       <div className="p-2 space-y-1">
         {ITEMS.map(({ key, label, Icon }) => {
@@ -48,14 +48,14 @@ export default function TimestampPanel({ arrival, ct, thrombolytic, angio, varia
           return (
             <div
               key={key}
-              className={`flex items-center gap-2.5 rounded-lg px-2.5 py-2 transition-colors ${time ? 'bg-brand-50' : ''}`}
+              className={`flex items-center gap-2.5 rounded-xl px-3 py-2 transition-colors ${time ? 'bg-brand-50/50' : ''}`}
             >
-              <Icon size={13} className={`flex-shrink-0 ${time ? 'text-brand-500' : 'text-gray-200'}`} />
+              <Icon size={13} className={`flex-shrink-0 ${time ? 'text-brand-500' : 'text-neutral-200'}`} strokeWidth={2} />
               <div className="flex-1 min-w-0">
-                <p className={`text-[10px] font-medium leading-none mb-0.5 ${time ? 'text-brand-500' : 'text-gray-300'}`}>
+                <p className={`text-[10px] font-medium leading-none mb-0.5 ${time ? 'text-brand-500' : 'text-neutral-300'}`}>
                   {label}
                 </p>
-                <p className={`text-xs font-mono font-bold leading-none ${time ? 'text-brand-800' : 'text-gray-300'}`}>
+                <p className={`text-xs font-mono font-semibold leading-none ${time ? 'text-brand-700' : 'text-neutral-300'}`}>
                   {time ? fmt(time) : '—'}
                 </p>
               </div>
