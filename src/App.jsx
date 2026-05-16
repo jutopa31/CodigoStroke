@@ -573,7 +573,7 @@ export default function App() {
       `Trombolisis:       ${getDoseSummary()}`,
       `Peso:              ${dosage?.weight ? `${dosage.weight} kg` : 'No registrado'}`,
       `AngioTAC:          ${thrombectomy?.angioRequested === true ? 'Solicitada' : thrombectomy?.angioRequested === false ? 'No solicitada' : 'No registrado'}`,
-      `ASPECTS:           ${thrombectomy?.aspectScore ?? 'No registrado'}`,
+      `ASPECTS:           ${ctResult?.aspectScore ?? thrombectomy?.aspectScore ?? 'No registrado'}`,
     ]
     if (nihssReadings.length > 0)
       lines.push(`\nNIHSS adicionales: ${nihssReadings.map((r) => `${r.score} (${fmtTime(r.timestamp)})`).join(', ')}`)
@@ -1190,6 +1190,7 @@ export default function App() {
                 onAngioRequest={handleAngioRequest}
                 thrombectomyActivationTime={thrombectomyActivationTime}
                 onThrombectomyActivation={handleThrombectomyActivation}
+                initialAspectScore={ctResult?.aspectScore ?? null}
               />
             </div>
           )}

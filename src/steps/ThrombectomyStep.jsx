@@ -24,12 +24,16 @@ export default function ThrombectomyStep({
   onAngioRequest,
   thrombectomyActivationTime = null,
   onThrombectomyActivation,
+  initialAspectScore = null,
 }) {
   const [angioRequested, setAngioRequested] = useState(null)
   const [ogvFound, setOgvFound] = useState(null)
   const [notified, setNotified] = useState(false)
-  const [aspectScore, setAspectScore] = useState('')
+  const [aspectScore, setAspectScore] = useState(
+    initialAspectScore !== null && initialAspectScore !== undefined ? String(initialAspectScore) : ''
+  )
   const [showAspectModal, setShowAspectModal] = useState(false)
+  const aspectFromCT = initialAspectScore !== null && initialAspectScore !== undefined
 
   const highNihss = nihssScore >= 6
   const aspectNum = aspectScore !== '' ? parseInt(aspectScore, 10) : null
@@ -67,32 +71,42 @@ export default function ThrombectomyStep({
           <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">
             ASPECTS — Puntaje de TC precoz
           </p>
-          <div className="flex items-center gap-3">
-            <input
-              type="number"
-              inputMode="numeric"
-              placeholder="0–10"
-              min={0}
-              max={10}
-              value={aspectScore}
-              onChange={(e) => setAspectScore(e.target.value)}
-              className="flex-1 border border-gray-200 rounded-xl px-4 py-3.5 text-gray-800 text-base focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent placeholder-gray-300"
-            />
-            <button
-              onClick={() => setShowAspectModal(true)}
-              className="flex items-center gap-2 px-4 py-3.5 border border-indigo-300 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-xl font-medium text-sm transition-colors whitespace-nowrap"
-            >
-              <Calculator size={16} /> Calcular
-            </button>
-          </div>
-          {aspectValid && (
-            <div className={`mt-2 flex items-center gap-2 border rounded-xl px-3 py-2.5 animate-fade-in ${getAspectColor(aspectNum)}`}>
+          {aspectFromCT ? (
+            <div className={`flex items-center gap-2 border rounded-xl px-3 py-2.5 ${getAspectColor(aspectNum)}`}>
               <span className="text-xl font-bold font-mono">{aspectNum}</span>
               <span className="text-xs font-semibold">{getAspectLabel(aspectNum)}</span>
-              {aspectNum <= 5 && (
-                <span className="ml-auto text-xs font-semibold text-red-600">Cambios extensos</span>
-              )}
+              <span className="ml-auto text-[11px] text-gray-400 font-medium">Evaluado en TAC</span>
             </div>
+          ) : (
+            <>
+              <div className="flex items-center gap-3">
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  placeholder="0–10"
+                  min={0}
+                  max={10}
+                  value={aspectScore}
+                  onChange={(e) => setAspectScore(e.target.value)}
+                  className="flex-1 border border-gray-200 rounded-xl px-4 py-3.5 text-gray-800 text-base focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent placeholder-gray-300"
+                />
+                <button
+                  onClick={() => setShowAspectModal(true)}
+                  className="flex items-center gap-2 px-4 py-3.5 border border-indigo-300 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-xl font-medium text-sm transition-colors whitespace-nowrap"
+                >
+                  <Calculator size={16} /> Calcular
+                </button>
+              </div>
+              {aspectValid && (
+                <div className={`mt-2 flex items-center gap-2 border rounded-xl px-3 py-2.5 animate-fade-in ${getAspectColor(aspectNum)}`}>
+                  <span className="text-xl font-bold font-mono">{aspectNum}</span>
+                  <span className="text-xs font-semibold">{getAspectLabel(aspectNum)}</span>
+                  {aspectNum <= 5 && (
+                    <span className="ml-auto text-xs font-semibold text-red-600">Cambios extensos</span>
+                  )}
+                </div>
+              )}
+            </>
           )}
         </div>
 
