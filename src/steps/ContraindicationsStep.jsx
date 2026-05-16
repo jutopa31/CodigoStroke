@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { ChevronRight, Info } from 'lucide-react'
+import { ChevronRight, ChevronDown, Info, ShieldCheck } from 'lucide-react'
 import StepCard from '../components/StepCard'
 import { SectionPrompt, SelectableButton } from '../components/GuidedControls'
 
@@ -99,7 +99,7 @@ const ORANGE_CONTRAS = [
   },
 ]
 
-function ContraRow({ item, value, onChange, color }) {
+function ContraRow({ item, value, onChange, color, expanded, onToggleExpand }) {
   const isYes = value === true
   const isNo = value === false
   const tone = color === 'red' ? 'red' : 'orange'
@@ -112,52 +112,59 @@ function ContraRow({ item, value, onChange, color }) {
     : 'border-gray-100'
 
   return (
-    <div className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border-2 transition-all ${rowBg}`}>
-      {/* Título compacto + tooltip hover */}
-      <div className="group relative flex-1 min-w-0">
-        <div className="flex items-center gap-1.5">
+    <div className={`rounded-xl border-2 transition-all ${rowBg}`}>
+      <div className="flex items-center gap-2 px-3 py-2.5">
+        <div className="flex-1 min-w-0 flex items-center gap-1.5">
           <p className={`text-sm font-semibold leading-snug truncate ${
             isYes ? (color === 'red' ? 'text-red-800' : 'text-amber-800') : 'text-gray-700'
           }`}>
             {item.short}
           </p>
-          <Info
-            size={13}
-            className={`shrink-0 transition-colors ${
-              isYes ? (color === 'red' ? 'text-red-400' : 'text-amber-400') : 'text-gray-300 group-hover:text-gray-500'
+          <button
+            type="button"
+            onClick={onToggleExpand}
+            className={`shrink-0 p-0.5 rounded-full transition-colors ${
+              expanded
+                ? (color === 'red' ? 'bg-red-100 text-red-500' : 'bg-amber-100 text-amber-500')
+                : 'text-gray-300 hover:text-gray-500 active:bg-gray-100'
             }`}
-          />
+          >
+            {expanded ? <ChevronDown size={13} /> : <Info size={13} />}
+          </button>
         </div>
 
-        {/* Tooltip en hover */}
-        <div className="hidden group-hover:block absolute bottom-full left-0 mb-2 z-20 w-64 max-w-[90vw]">
-          <div className="bg-gray-900 text-white rounded-lg px-3 py-2 shadow-xl text-xs leading-snug">
-            <p className="font-semibold mb-0.5">{item.label}</p>
-            {item.sub && <p className="text-gray-300">{item.sub}</p>}
-            {/* Flecha */}
-            <div className="absolute top-full left-4 border-4 border-transparent border-t-gray-900" />
+        <div className="flex gap-1.5 shrink-0">
+          <SelectableButton
+            onClick={() => onChange(false)}
+            active={isNo}
+            tone="gray"
+            className="flex items-center justify-center gap-1 px-2.5 py-1.5 text-xs font-bold"
+          >
+            NO
+          </SelectableButton>
+          <SelectableButton
+            onClick={() => onChange(true)}
+            active={isYes}
+            tone={tone}
+            className="flex items-center justify-center gap-1 px-2.5 py-1.5 text-xs font-bold"
+          >
+            SI
+          </SelectableButton>
+        </div>
+      </div>
+
+      {expanded && (
+        <div className={`px-3 pb-2.5 animate-fade-in ${
+          color === 'red' ? 'border-t border-red-100' : 'border-t border-amber-100'
+        }`}>
+          <div className={`rounded-lg px-3 py-2 mt-1 text-xs leading-snug ${
+            color === 'red' ? 'bg-red-50 text-red-700' : 'bg-amber-50 text-amber-700'
+          }`}>
+            <p className="font-semibold">{item.label}</p>
+            {item.sub && <p className="opacity-75 mt-0.5">{item.sub}</p>}
           </div>
         </div>
-      </div>
-
-      <div className="flex gap-1.5 shrink-0">
-        <SelectableButton
-          onClick={() => onChange(false)}
-          active={isNo}
-          tone="gray"
-          className="flex items-center justify-center gap-1 px-2.5 py-1.5 text-xs font-bold"
-        >
-          NO
-        </SelectableButton>
-        <SelectableButton
-          onClick={() => onChange(true)}
-          active={isYes}
-          tone={tone}
-          className="flex items-center justify-center gap-1 px-2.5 py-1.5 text-xs font-bold"
-        >
-          SI
-        </SelectableButton>
-      </div>
+      )}
     </div>
   )
 }
@@ -165,6 +172,7 @@ function ContraRow({ item, value, onChange, color }) {
 export default function ContraindicationsStep({ onConfirm }) {
   const [redAnswers, setRedAnswers] = useState({})
   const [orangeAnswers, setOrangeAnswers] = useState({})
+  const [expandedRow, setExpandedRow] = useState(null)
   const confirmRef = useRef(null)
 
   const hasRed = Object.values(redAnswers).some(Boolean)
@@ -186,6 +194,13 @@ export default function ContraindicationsStep({ onConfirm }) {
     if (val) scrollToConfirm()
   }
 
+  function markAllNo(contras, setter) {
+    const allNo = {}
+    contras.forEach((c) => { allNo[c.id] = false })
+    setter(allNo)
+    scrollToConfirm()
+  }
+
   function confirm(decidedNotToThrombolyze) {
     onConfirm({
       red: redAnswers,
@@ -196,16 +211,31 @@ export default function ContraindicationsStep({ onConfirm }) {
     })
   }
 
+  const allRedAnswered = RED_CONTRAS.every((c) => redAnswers[c.id] !== undefined)
+  const allOrangeAnswered = ORANGE_CONTRAS.every((c) => orangeAnswers[c.id] !== undefined)
+
   return (
     <div className="px-4 pb-4 space-y-3">
       <StepCard step="6" title="Contraindicaciones absolutas" accent="red">
         <SectionPrompt
           tone="red"
           title="Descarta contraindicaciones absolutas"
-          helper="Mantene el mouse sobre cada item para ver detalle. Cualquier SI bloquea trombolisis."
+          helper="Tocá ⓘ para ver detalle. Cualquier SI bloquea trombolisis."
           complete
           status={hasRed ? 'Alerta' : 'Revisar'}
         />
+
+        {!allRedAnswered && (
+          <button
+            type="button"
+            onClick={() => markAllNo(RED_CONTRAS, setRedAnswers)}
+            className="w-full flex items-center justify-center gap-2 mb-2 py-2.5 rounded-xl border-2 border-dashed border-gray-200 text-gray-500 text-xs font-semibold hover:border-emerald-300 hover:text-emerald-600 hover:bg-emerald-50/40 active:scale-[0.98] transition-all"
+          >
+            <ShieldCheck size={14} />
+            Ninguna presente — marcar todas NO
+          </button>
+        )}
+
         <div className="space-y-1.5">
           {RED_CONTRAS.map((item) => (
             <ContraRow
@@ -214,6 +244,8 @@ export default function ContraindicationsStep({ onConfirm }) {
               value={redAnswers[item.id] ?? null}
               onChange={(val) => setRed(item.id, val)}
               color="red"
+              expanded={expandedRow === item.id}
+              onToggleExpand={() => setExpandedRow(expandedRow === item.id ? null : item.id)}
             />
           ))}
         </div>
@@ -229,10 +261,22 @@ export default function ContraindicationsStep({ onConfirm }) {
         <SectionPrompt
           tone="orange"
           title="Revisa contraindicaciones relativas"
-          helper="Mantene el mouse sobre cada item para ver detalle. Si hay alguna, individualizar riesgo/beneficio."
+          helper="Tocá ⓘ para ver detalle. Si hay alguna, individualizar riesgo/beneficio."
           complete
           status={hasOrange ? 'Alerta' : 'Revisar'}
         />
+
+        {!allOrangeAnswered && (
+          <button
+            type="button"
+            onClick={() => markAllNo(ORANGE_CONTRAS, setOrangeAnswers)}
+            className="w-full flex items-center justify-center gap-2 mb-2 py-2.5 rounded-xl border-2 border-dashed border-gray-200 text-gray-500 text-xs font-semibold hover:border-emerald-300 hover:text-emerald-600 hover:bg-emerald-50/40 active:scale-[0.98] transition-all"
+          >
+            <ShieldCheck size={14} />
+            Ninguna presente — marcar todas NO
+          </button>
+        )}
+
         <div className="space-y-1.5">
           {ORANGE_CONTRAS.map((item) => (
             <ContraRow
@@ -241,6 +285,8 @@ export default function ContraindicationsStep({ onConfirm }) {
               value={orangeAnswers[item.id] ?? null}
               onChange={(val) => setOrange(item.id, val)}
               color="orange"
+              expanded={expandedRow === item.id}
+              onToggleExpand={() => setExpandedRow(expandedRow === item.id ? null : item.id)}
             />
           ))}
         </div>

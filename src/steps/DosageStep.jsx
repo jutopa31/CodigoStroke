@@ -207,49 +207,62 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
           ))}
         </div>
 
-        {/* Dose result */}
-        {validWeight && dose && (
-          <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-4 animate-fade-in space-y-3">
-            <p className="text-xs font-semibold text-green-700 uppercase tracking-wider">
-              {drug === 'tnk' ? 'Tenecteplase (TNK)' : 'Alteplase (rtPA)'} — {weight} kg
-            </p>
+        {/* Dose result — always visible, updates in real time */}
+        <div className={`rounded-xl px-4 py-4 space-y-3 transition-all duration-300 ${
+          validWeight && dose
+            ? 'bg-green-50 border-2 border-green-300 shadow-card-active animate-fade-in'
+            : 'bg-gray-50 border-2 border-dashed border-gray-200'
+        }`}>
+          <p className="text-xs font-semibold uppercase tracking-wider ${validWeight ? 'text-green-700' : 'text-gray-400'}">
+            {validWeight
+              ? `${drug === 'tnk' ? 'Tenecteplase (TNK)' : 'Alteplase (rtPA)'} — ${weight} kg`
+              : 'Ingresá el peso para calcular la dosis'
+            }
+          </p>
 
-            {drug === 'tnk' && tnk && (
-              <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-bold text-green-800">{tnk.total} mg</span>
-                <span className="text-sm text-green-600">bolo único IV</span>
-              </div>
-            )}
-
-            {drug === 'rtpa' && rtpa && (
-              <div className="space-y-2">
+          {validWeight && dose ? (
+            <>
+              {drug === 'tnk' && tnk && (
                 <div className="flex items-baseline gap-2">
-                  <span className="text-2xl font-bold text-green-800">{rtpa.total} mg</span>
-                  <span className="text-sm text-green-600">dosis total</span>
+                  <span className="text-3xl font-mono font-bold text-green-800">{tnk.total} mg</span>
+                  <span className="text-sm text-green-600">bolo único IV</span>
                 </div>
-                <div className="grid grid-cols-2 gap-2 pt-1">
-                  <div className="bg-white rounded-lg px-3 py-2 border border-green-200">
-                    <p className="text-xs text-gray-500 mb-0.5">Bolo IV (10%)</p>
-                    <p className="text-lg font-bold text-green-800">{rtpa.bolo} mg</p>
-                    <p className="text-xs text-gray-400">en 1 min</p>
-                  </div>
-                  <div className="bg-white rounded-lg px-3 py-2 border border-green-200">
-                    <p className="text-xs text-gray-500 mb-0.5">Infusión (90%)</p>
-                    <p className="text-lg font-bold text-green-800">{rtpa.infusion} mg</p>
-                    <p className="text-xs text-gray-400">en 60 min</p>
-                  </div>
-                </div>
-              </div>
-            )}
+              )}
 
-            {drug === 'tnk' && weight * 0.25 >= 25 && (
-              <p className="text-xs text-green-600">⚠ Dosis máxima aplicada (25 mg)</p>
-            )}
-            {drug === 'rtpa' && weight * 0.9 >= 90 && (
-              <p className="text-xs text-green-600">⚠ Dosis máxima aplicada (90 mg)</p>
-            )}
-          </div>
-        )}
+              {drug === 'rtpa' && rtpa && (
+                <div className="space-y-2">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-2xl font-mono font-bold text-green-800">{rtpa.total} mg</span>
+                    <span className="text-sm text-green-600">dosis total</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 pt-1">
+                    <div className="bg-white rounded-lg px-3 py-2 border border-green-200">
+                      <p className="text-xs text-gray-500 mb-0.5">Bolo IV (10%)</p>
+                      <p className="text-lg font-mono font-bold text-green-800">{rtpa.bolo} mg</p>
+                      <p className="text-xs text-gray-400">en 1 min</p>
+                    </div>
+                    <div className="bg-white rounded-lg px-3 py-2 border border-green-200">
+                      <p className="text-xs text-gray-500 mb-0.5">Infusión (90%)</p>
+                      <p className="text-lg font-mono font-bold text-green-800">{rtpa.infusion} mg</p>
+                      <p className="text-xs text-gray-400">en 60 min</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {drug === 'tnk' && weight * 0.25 >= 25 && (
+                <p className="text-xs text-green-600">⚠ Dosis máxima aplicada (25 mg)</p>
+              )}
+              {drug === 'rtpa' && weight * 0.9 >= 90 && (
+                <p className="text-xs text-green-600">⚠ Dosis máxima aplicada (90 mg)</p>
+              )}
+            </>
+          ) : (
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-mono font-bold text-gray-300">— mg</span>
+            </div>
+          )}
+        </div>
 
         {validWeight && dose && (
           <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3">
