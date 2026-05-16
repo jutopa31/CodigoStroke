@@ -92,6 +92,7 @@ export default function TimeStep({ onConfirm }) {
   const [offsetMinutes, setOffsetMinutes] = useState(0)
   const [showWakeUpModal, setShowWakeUpModal] = useState(false)
   const [confirmed, setConfirmed] = useState(false)
+  const [isIncierto, setIsIncierto] = useState(false)
 
   useInterval(1000)
 
@@ -109,7 +110,6 @@ export default function TimeStep({ onConfirm }) {
     setOffsetMinutes(rounded)
     setLastSeenDate(toLocalDateInput(date))
     setLastSeenTime(toLocalTimeInput(date))
-    setLastSeenTimeText(toLocalTimeInput(date))
     setConfirmed(false)
   }
 
@@ -120,7 +120,9 @@ export default function TimeStep({ onConfirm }) {
 
   function handleSubmit() {
     if (!lastSeen) return
-    if (shouldEvaluateOgv) {
+    if (isIncierto) {
+      handleConfirm(shouldEvaluateOgv)
+    } else if (shouldEvaluateOgv) {
       setShowWakeUpModal(true)
     } else {
       handleConfirm(false)
@@ -157,13 +159,16 @@ export default function TimeStep({ onConfirm }) {
     },
   }[timeTone]
 
+  const stepTitle = isIncierto ? 'Última vez asintomático' : 'Inicio de síntomas'
+  const sliderLabel = isIncierto ? 'Última vez visto asintomático' : 'Inicio de síntomas'
+
   return (
-    <StepCard step="1" title="Última vez asintomático" accent={timeTone}>
+    <StepCard step="2" title={stepTitle} accent={timeTone}>
       <div className={`rounded-lg border px-3 pt-2.5 pb-3 ${toneColors.border}`}>
         {/* Header: label + elapsed + status */}
         <div className="flex items-center justify-between gap-2 mb-2">
           <label htmlFor="last-seen-slider" className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 ${toneColors.label}`}>
-            <Clock size={12} /> Ultima vez visto
+            <Clock size={12} /> {sliderLabel}
           </label>
           <div className="flex items-center gap-2">
             {lastSeen && (
@@ -202,22 +207,38 @@ export default function TimeStep({ onConfirm }) {
           </button>
         </div>
 
-        {/* Footer: register button + clock */}
+        {/* Footer: register button + incierto + clock */}
         <div className="flex items-center justify-between gap-2">
-          <button
-            type="button"
-            onClick={handleSubmit}
-            disabled={!lastSeen}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-semibold text-xs transition-all active:scale-95 ${
-              confirmed
-                ? 'bg-emerald-50 border-2 border-emerald-400 text-emerald-700'
-                : lastSeen
-                ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-            }`}
-          >
-            {confirmed ? <><CheckCircle2 size={12} /> Registrado</> : 'Registrar horario'}
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={!lastSeen}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-semibold text-xs transition-all active:scale-95 ${
+                confirmed
+                  ? 'bg-emerald-50 border-2 border-emerald-400 text-emerald-700'
+                  : lastSeen
+                  ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                  : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+              }`}
+            >
+              {confirmed ? <><CheckCircle2 size={12} /> Registrado</> : 'Registrar horario'}
+            </button>
+            <button
+              type="button"
+              aria-pressed={isIncierto}
+              onClick={() => { setIsIncierto((v) => !v); setConfirmed(false) }}
+              title="Inicio incierto / Wake-Up Stroke"
+              className={`flex h-7 items-center gap-1 rounded-full border px-2 text-[11px] font-semibold transition-all active:scale-95 ${
+                isIncierto
+                  ? 'border-indigo-300 bg-indigo-100 text-indigo-700'
+                  : 'border-slate-200 bg-white text-slate-400 hover:bg-slate-50'
+              }`}
+            >
+              <Clock size={11} />
+              Incierto
+            </button>
+          </div>
           {lastSeen && (
             <span className="text-xs font-semibold text-slate-400 tabular-nums">
               {formatClock(lastSeen)}
