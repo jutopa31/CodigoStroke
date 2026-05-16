@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Brain, Heart, Droplets, X, RotateCcw } from 'lucide-react'
 import NihssModal from './NihssModal'
 
@@ -329,26 +330,29 @@ export default function QuickAddFAB({
         )}
       </div>
 
-      {/* Modales */}
-      {openModal === 'nihss' && (
+      {/* Modales — renderizados via portal para evitar stacking context del toolbar fijo */}
+      {openModal === 'nihss' && createPortal(
         <NihssQuickModal
           onClose={() => setOpenModal(null)}
           onConfirm={(score) => onAddNihss?.(score)}
-        />
+        />,
+        document.body
       )}
 
-      {openModal === 'vitals' && (
+      {openModal === 'vitals' && createPortal(
         <VitalsQuickModal
           onClose={() => setOpenModal(null)}
           onConfirm={(reading) => onAddVitals?.(reading)}
-        />
+        />,
+        document.body
       )}
 
-      {openModal === 'glucose' && (
+      {openModal === 'glucose' && createPortal(
         <GlucoseQuickModal
           onClose={() => setOpenModal(null)}
           onConfirm={(val) => onAddGlucose?.(val)}
-        />
+        />,
+        document.body
       )}
     </>
   )

@@ -1,7 +1,20 @@
 import { useState, useEffect } from 'react'
-import { ChevronRight, Clock, Scan, CheckCircle2, Droplets } from 'lucide-react'
+import { ChevronRight, Clock, Scan, CheckCircle2, Droplets, Calculator } from 'lucide-react'
 import StepCard from '../components/StepCard'
 import { PrimaryAction } from '../components/GuidedControls'
+import AspectModal from '../components/AspectModal'
+
+function getAspectColor(score) {
+  if (score >= 8) return 'text-emerald-600 bg-emerald-50 border-emerald-200'
+  if (score >= 6) return 'text-amber-600 bg-amber-50 border-amber-200'
+  return 'text-red-600 bg-red-50 border-red-200'
+}
+
+function getAspectLabel(score) {
+  if (score >= 8) return 'Cambios leves'
+  if (score >= 6) return 'Cambios moderados'
+  return 'Cambios extensos'
+}
 
 function useInterval(ms) {
   const [, setTick] = useState(0)
@@ -23,11 +36,16 @@ function timeSince(date) {
 export default function CTResultStep({ onConfirm, initialCtRequestTime = null, onCtRequest }) {
   const [ctRequestTime, setCtRequestTime] = useState(initialCtRequestTime)
   const [bleeding, setBleeding] = useState(null)
+  const [aspectScore, setAspectScore] = useState('')
+  const [showAspectModal, setShowAspectModal] = useState(false)
 
   useInterval(1000)
 
   const elapsed = timeSince(ctRequestTime)
   const tacConfirmed = Boolean(ctRequestTime)
+  const aspectNum = aspectScore !== '' ? parseInt(aspectScore, 10) : null
+  const aspectValid = aspectNum !== null && !isNaN(aspectNum) && aspectNum >= 0 && aspectNum <= 10
+  const canContinue = bleeding !== null && (bleeding === true || aspectValid)
 
   function handleCtRequest() {
     const now = new Date()
@@ -130,11 +148,45 @@ export default function CTResultStep({ onConfirm, initialCtRequestTime = null, o
           </div>
         )}
         {bleeding === false && (
-          <div className="mt-3 bg-emerald-50 border-2 border-emerald-300 rounded-xl px-4 py-3 animate-fade-in">
-            <p className="text-xs font-semibold text-emerald-700">
-              TAC sin hemorragia: continuar evaluacion para trombolisis.
-            </p>
-          </div>
+          <>
+            <div className="mt-3 bg-emerald-50 border-2 border-emerald-300 rounded-xl px-4 py-3 animate-fade-in">
+              <p className="text-xs font-semibold text-emerald-700">
+                TAC sin hemorragia: continuar evaluacion para trombolisis.
+              </p>
+            </div>
+
+            {/* ASPECTS */}
+            <div className="mt-4 border-t border-gray-100 pt-4">
+              <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">
+                ASPECTS — Puntaje de TC precoz
+              </p>
+              <div className="flex items-center gap-3">
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  placeholder="0–10"
+                  min={0}
+                  max={10}
+                  value={aspectScore}
+                  onChange={(e) => setAspectScore(e.target.value)}
+                  className="flex-1 border border-gray-200 rounded-xl px-4 py-3.5 text-gray-800 text-base focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent placeholder-gray-300"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowAspectModal(true)}
+                  className="flex items-center gap-2 px-4 py-3.5 border border-indigo-300 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-xl font-medium text-sm transition-colors whitespace-nowrap"
+                >
+                  <Calculator size={16} /> Calcular
+                </button>
+              </div>
+              {aspectValid && (
+                <div className={`mt-2 flex items-center gap-2 border rounded-xl px-3 py-2.5 animate-fade-in ${getAspectColor(aspectNum)}`}>
+                  <span className="text-xl font-bold font-mono">{aspectNum}</span>
+                  <span className="text-xs font-semibold">{getAspectLabel(aspectNum)}</span>
+                </div>
+              )}
+            </div>
+          </>
         )}
       </StepCard>
 
@@ -144,12 +196,20 @@ export default function CTResultStep({ onConfirm, initialCtRequestTime = null, o
             bleeding,
             ctRequestTime: ctRequestTime.toISOString(),
             ctElapsedSeconds: Math.floor((Date.now() - ctRequestTime.getTime()) / 1000),
+            aspectScore: bleeding === false ? aspectNum : null,
           })}
-          valid={bleeding !== null}
-          disabledLabel="Registra resultado de TAC para continuar"
+          valid={canContinue}
+          disabledLabel={bleeding === null ? "Registra resultado de TAC para continuar" : "Registra el puntaje ASPECTS para continuar"}
         >
           Continuar <ChevronRight size={18} />
         </PrimaryAction>
+      )}
+
+      {showAspectModal && (
+        <AspectModal
+          onLoad={(score) => { setAspectScore(String(score)); setShowAspectModal(false) }}
+          onClose={() => setShowAspectModal(false)}
+        />
       )}
     </div>
   )

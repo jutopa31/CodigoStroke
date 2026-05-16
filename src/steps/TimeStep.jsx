@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { CheckCircle2, Clock } from 'lucide-react'
 import StepCard from '../components/StepCard'
-import WakeUpStrokeModal from '../components/WakeUpStrokeModal'
 import { StatusPill } from '../components/GuidedControls'
 
 const IV_WINDOW_MINUTES = 270
@@ -91,7 +90,6 @@ export default function TimeStep({ onConfirm }) {
   const [lastSeenDate, setLastSeenDate] = useState(() => toLocalDateInput(new Date()))
   const [lastSeenTime, setLastSeenTime] = useState(() => toLocalTimeInput(new Date()))
   const [offsetMinutes, setOffsetMinutes] = useState(0)
-  const [showWakeUpModal, setShowWakeUpModal] = useState(false)
   const [confirmed, setConfirmed] = useState(false)
   const [isIncierto, setIsIncierto] = useState(false)
 
@@ -123,8 +121,6 @@ export default function TimeStep({ onConfirm }) {
     if (!lastSeen) return
     if (isIncierto) {
       handleConfirm(shouldEvaluateOgv)
-    } else if (shouldEvaluateOgv) {
-      setShowWakeUpModal(true)
     } else {
       handleConfirm(false)
     }
@@ -259,13 +255,6 @@ export default function TimeStep({ onConfirm }) {
         </div>
       </div>
 
-      {showWakeUpModal && (
-        <WakeUpStrokeModal
-          elapsedHours={getElapsedHours(lastSeen)}
-          onActivate={() => { setShowWakeUpModal(false); handleConfirm(true) }}
-          onDismiss={() => { setShowWakeUpModal(false); handleConfirm(false) }}
-        />
-      )}
     </StepCard>
   )
 }
