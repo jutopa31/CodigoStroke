@@ -159,77 +159,71 @@ export default function TimeStep({ onConfirm }) {
 
   return (
     <StepCard step="1" title="Última vez asintomático" accent={timeTone}>
-      <div className={`mb-4 rounded-lg border px-3 py-3 ${toneColors.border}`}>
-        <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+      <div className={`rounded-lg border px-3 pt-2.5 pb-3 ${toneColors.border}`}>
+        {/* Header: label + elapsed + status */}
+        <div className="flex items-center justify-between gap-2 mb-2">
           <label htmlFor="last-seen-slider" className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 ${toneColors.label}`}>
-            <Clock size={13} /> Ultima vez visto asintomatico
+            <Clock size={12} /> Ultima vez visto
           </label>
-          <StatusPill complete={confirmed}>
-            {confirmed ? 'Registrado' : 'Pendiente'}
-          </StatusPill>
+          <div className="flex items-center gap-2">
+            {lastSeen && (
+              <span className={`text-sm font-bold tabular-nums ${toneColors.elapsedText}`}>
+                {formatElapsed(elapsedMinutes)}
+              </span>
+            )}
+            <StatusPill complete={confirmed}>
+              {confirmed ? timeStatusLabel : 'Pendiente'}
+            </StatusPill>
+          </div>
         </div>
 
-        {/* Slider + display card */}
-        <div className="grid gap-3 md:grid-cols-[1fr_132px] md:items-center">
-          <div className="relative pb-7">
-            <input
-              id="last-seen-slider"
-              type="range"
-              min="0"
-              max={MAX_SLIDER_MINUTES}
-              step="5"
-              value={offsetMinutes ?? Math.round(Math.min(elapsedMinutes, MAX_SLIDER_MINUTES))}
-              onChange={(e) => applyOffset(e.target.value)}
-              className="h-2 w-full cursor-pointer accent-brand-600"
-              aria-label="Minutos desde ultima vez asintomatico"
-            />
-            <button
-              type="button"
-              onClick={() => applyOffset(IV_WINDOW_MINUTES)}
-              className="absolute top-5 flex -translate-x-1/2 flex-col items-center gap-1 text-[11px] font-bold text-orange-700 transition hover:text-orange-800 focus:outline-none"
-              style={{ left: IV_WINDOW_PERCENT }}
-              aria-label="Marcar 4.5 horas"
-              title="Marcar 4.5 horas"
-            >
-              <span className="h-3 w-0.5 rounded-full bg-orange-500" />
-              <span className="rounded-full border border-orange-200 bg-white px-2 py-0.5 shadow-sm">4.5 h</span>
-            </button>
-          </div>
+        {/* Slider */}
+        <div className="relative pb-6">
+          <input
+            id="last-seen-slider"
+            type="range"
+            min="0"
+            max={MAX_SLIDER_MINUTES}
+            step="5"
+            value={offsetMinutes ?? Math.round(Math.min(elapsedMinutes, MAX_SLIDER_MINUTES))}
+            onChange={(e) => applyOffset(e.target.value)}
+            className="h-2 w-full cursor-pointer accent-brand-600"
+            aria-label="Minutos desde ultima vez asintomatico"
+          />
+          <button
+            type="button"
+            onClick={() => applyOffset(IV_WINDOW_MINUTES)}
+            className="absolute top-5 flex -translate-x-1/2 flex-col items-center gap-0.5 text-[11px] font-bold text-orange-700 transition hover:text-orange-800 focus:outline-none"
+            style={{ left: IV_WINDOW_PERCENT }}
+            aria-label="Marcar 4.5 horas"
+          >
+            <span className="h-2.5 w-0.5 rounded-full bg-orange-400" />
+            <span className="rounded-full border border-orange-200 bg-white px-1.5 py-px shadow-sm text-[10px]">4.5 h</span>
+          </button>
+        </div>
 
-          <div className="rounded-lg border border-white/70 bg-white px-3 py-2 text-right shadow-sm">
-            <p className={`text-lg font-bold leading-tight ${toneColors.elapsedText}`}>
-              {lastSeen ? formatElapsed(elapsedMinutes) : '--'}
-            </p>
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+        {/* Footer: register button + clock */}
+        <div className="flex items-center justify-between gap-2">
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={!lastSeen}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-semibold text-xs transition-all active:scale-95 ${
+              confirmed
+                ? 'bg-emerald-50 border-2 border-emerald-400 text-emerald-700'
+                : lastSeen
+                ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+            }`}
+          >
+            {confirmed ? <><CheckCircle2 size={12} /> Registrado</> : 'Registrar horario'}
+          </button>
+          {lastSeen && (
+            <span className="text-xs font-semibold text-slate-400 tabular-nums">
               {formatClock(lastSeen)}
-            </p>
-            <p className={`text-[10px] font-bold uppercase tracking-wider mt-0.5 ${toneColors.elapsedStatus}`}>
-              {timeStatusLabel}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Compact register button — bottom-left */}
-      <div className="mt-2 flex items-center justify-start">
-        <button
-          type="button"
-          onClick={handleSubmit}
-          disabled={!lastSeen}
-          className={`flex items-center gap-1.5 px-4 py-2 rounded-lg font-semibold text-sm transition-all active:scale-95 ${
-            confirmed
-              ? 'bg-emerald-50 border-2 border-emerald-400 text-emerald-700'
-              : lastSeen
-              ? 'bg-blue-600 hover:bg-blue-700 text-white'
-              : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-          }`}
-        >
-          {confirmed ? (
-            <><CheckCircle2 size={14} /> Registrado</>
-          ) : (
-            'Registrar horario'
+            </span>
           )}
-        </button>
+        </div>
       </div>
 
       {showWakeUpModal && (
