@@ -171,32 +171,34 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
           <div className="border-t border-gray-100 pt-3">
             <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Signos vitales y funcionalidad previa</p>
 
-            <div className="grid grid-cols-4 gap-2">
+            <div className="space-y-2">
               {/* TAS */}
-              <label className="block">
-                <span className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-slate-500">TAS</span>
-                <div className="relative">
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    maxLength={3}
-                    placeholder="185"
-                    value={sys}
-                    onChange={(e) => setSys(e.target.value.replace(/\D/g, '').slice(0, 3))}
-                    className={`h-12 w-full rounded-lg border-2 bg-slate-50 px-2 text-center text-lg font-bold text-slate-900 outline-none transition placeholder:text-slate-300 ${
-                      taCritical
-                        ? 'border-red-400 bg-red-50/50 focus:border-red-500 focus:ring-2 focus:ring-red-100'
-                        : sys
-                        ? 'border-blue-400 bg-blue-50/50 focus:border-blue-500 focus:ring-2 focus:ring-blue-100'
-                        : 'border-slate-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-100'
-                    }`}
-                  />
-                </div>
+              <label className="flex items-center justify-between gap-3">
+                <span className="text-sm font-semibold text-slate-600 w-36 shrink-0">
+                  TA sistólica <span className="text-xs font-normal text-slate-400">mmHg</span>
+                </span>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={3}
+                  placeholder="185"
+                  value={sys}
+                  onChange={(e) => setSys(e.target.value.replace(/\D/g, '').slice(0, 3))}
+                  className={`h-10 w-24 rounded-lg border-2 bg-slate-50 px-2 text-center text-base font-bold text-slate-900 outline-none transition placeholder:text-slate-300 ${
+                    taCritical
+                      ? 'border-red-400 bg-red-50/50 focus:border-red-500 focus:ring-2 focus:ring-red-100'
+                      : sys
+                      ? 'border-blue-400 bg-blue-50/50 focus:border-blue-500 focus:ring-2 focus:ring-blue-100'
+                      : 'border-slate-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-100'
+                  }`}
+                />
               </label>
 
               {/* TAD */}
-              <label className="block">
-                <span className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-slate-500">TAD</span>
+              <label className="flex items-center justify-between gap-3">
+                <span className="text-sm font-semibold text-slate-600 w-36 shrink-0">
+                  TA diastólica <span className="text-xs font-normal text-slate-400">mmHg</span>
+                </span>
                 <input
                   type="text"
                   inputMode="numeric"
@@ -204,7 +206,7 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
                   placeholder="110"
                   value={dia}
                   onChange={(e) => setDia(e.target.value.replace(/\D/g, '').slice(0, 3))}
-                  className={`h-12 w-full rounded-lg border-2 bg-slate-50 px-2 text-center text-lg font-bold text-slate-900 outline-none transition placeholder:text-slate-300 ${
+                  className={`h-10 w-24 rounded-lg border-2 bg-slate-50 px-2 text-center text-base font-bold text-slate-900 outline-none transition placeholder:text-slate-300 ${
                     taDiaCritical
                       ? 'border-red-400 bg-red-50/50 focus:border-red-500 focus:ring-2 focus:ring-red-100'
                       : dia
@@ -215,39 +217,38 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
               </label>
 
               {/* Glucemia */}
-              <label className="block">
-                <span className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-slate-500">GLC</span>
-                <div className="relative">
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    maxLength={3}
-                    placeholder="120"
-                    value={glucose}
-                    onChange={(e) => setGlucose(e.target.value.replace(/\D/g, '').slice(0, 3))}
-                    className={`h-12 w-full rounded-lg border-2 bg-slate-50 px-2 text-center text-lg font-bold text-slate-900 outline-none transition placeholder:text-slate-300 ${
-                      glucLow || glucHigh
-                        ? 'border-red-400 bg-red-50/50 focus:border-red-500 focus:ring-2 focus:ring-red-100'
-                        : glucose
-                        ? 'border-blue-400 bg-blue-50/50 focus:border-blue-500 focus:ring-2 focus:ring-blue-100'
-                        : 'border-slate-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-100'
-                    }`}
-                  />
-                  <span className="pointer-events-none absolute right-1.5 top-1/2 -translate-y-1/2 text-[9px] font-bold text-slate-400">mg</span>
-                </div>
+              <label className="flex items-center justify-between gap-3">
+                <span className="text-sm font-semibold text-slate-600 w-36 shrink-0">
+                  Glucemia <span className="text-xs font-normal text-slate-400">mg/dL</span>
+                </span>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={3}
+                  placeholder="120"
+                  value={glucose}
+                  onChange={(e) => setGlucose(e.target.value.replace(/\D/g, '').slice(0, 3))}
+                  className={`h-10 w-24 rounded-lg border-2 bg-slate-50 px-2 text-center text-base font-bold text-slate-900 outline-none transition placeholder:text-slate-300 ${
+                    glucLow || glucHigh
+                      ? 'border-red-400 bg-red-50/50 focus:border-red-500 focus:ring-2 focus:ring-red-100'
+                      : glucose
+                      ? 'border-blue-400 bg-blue-50/50 focus:border-blue-500 focus:ring-2 focus:ring-blue-100'
+                      : 'border-slate-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-100'
+                  }`}
+                />
               </label>
 
               {/* mRS */}
-              <label className="block relative">
-                <span className="mb-1 flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                  mRS
+              <div className="flex items-center justify-between gap-3 relative">
+                <span className="text-sm font-semibold text-slate-600 w-36 shrink-0 flex items-center gap-1">
+                  mRS previo
                   <button
                     type="button"
                     onMouseEnter={() => setShowMrsHelp(true)}
                     onMouseLeave={() => setShowMrsHelp(false)}
                     className="text-gray-300 hover:text-gray-500 transition-colors"
                   >
-                    <HelpCircle size={11} />
+                    <HelpCircle size={12} />
                   </button>
                 </span>
                 <input
@@ -257,14 +258,14 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
                   placeholder="0-5"
                   value={mrs}
                   onChange={(e) => handleMrsChange(e.target.value)}
-                  className={`h-12 w-full rounded-lg border-2 bg-slate-50 px-2 text-center text-lg font-bold text-slate-900 outline-none transition placeholder:text-slate-300 ${
+                  className={`h-10 w-24 rounded-lg border-2 bg-slate-50 px-2 text-center text-base font-bold text-slate-900 outline-none transition placeholder:text-slate-300 ${
                     mrsValid
                       ? 'border-slate-500 bg-slate-50 focus:border-slate-600 focus:ring-2 focus:ring-slate-100'
                       : 'border-slate-200 focus:border-slate-400 focus:ring-2 focus:ring-slate-100'
                   }`}
                 />
                 {showMrsHelp && (
-                  <div className="absolute right-0 top-[56px] z-30 w-56 rounded-lg border border-slate-200 bg-white p-2.5 text-xs shadow-xl">
+                  <div className="absolute right-0 top-[46px] z-30 w-56 rounded-lg border border-slate-200 bg-white p-2.5 text-xs shadow-xl">
                     {MRS_OPTIONS.map((o) => (
                       <div key={o.score} className="grid grid-cols-[18px_1fr] gap-1.5 py-0.5">
                         <span className="font-bold text-slate-900">{o.score}</span>
@@ -273,7 +274,7 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
                     ))}
                   </div>
                 )}
-              </label>
+              </div>
             </div>
 
             {(taCritical || taDiaCritical || glucLow || glucHigh) && (
