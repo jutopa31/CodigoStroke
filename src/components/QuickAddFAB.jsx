@@ -243,7 +243,16 @@ function GlucoseQuickModal({ onClose, onConfirm }) {
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
-export default function QuickAddFAB({ onAddNihss, onAddVitals, onAddGlucose, onReset, latestNihss = null, latestVitals = null, latestGlucose = null }) {
+export default function QuickAddFAB({
+  onAddNihss,
+  onAddVitals,
+  onAddGlucose,
+  onReset,
+  latestNihss = null,
+  latestVitals = null,
+  latestGlucose = null,
+  variant = 'floating',
+}) {
   const [openModal, setOpenModal] = useState(null) // null | 'nihss' | 'vitals' | 'glucose'
 
   const buttons = [
@@ -273,19 +282,34 @@ export default function QuickAddFAB({ onAddNihss, onAddVitals, onAddGlucose, onR
     },
   ]
 
+  const isSidebar = variant === 'sidebar'
+  const isMobileToolbar = variant === 'mobile-toolbar'
+  const containerClass = isMobileToolbar
+    ? 'grid w-full grid-cols-4 gap-2'
+    : isSidebar
+      ? 'grid grid-cols-4 gap-2'
+      : 'flex flex-col gap-2'
+  const buttonClass = isMobileToolbar || isSidebar
+    ? 'relative flex min-h-[44px] min-w-0 flex-col items-center justify-center gap-0.5 rounded-lg border text-[10px] font-bold active:scale-95 transition-transform'
+    : 'relative w-11 h-11 rounded-full border-2 flex flex-col items-center justify-center gap-0.5 active:scale-90 transition-transform'
+  const resetClass = isMobileToolbar || isSidebar
+    ? 'relative flex min-h-[44px] min-w-0 flex-col items-center justify-center gap-0.5 rounded-lg border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 shadow-sm text-[10px] font-bold active:scale-95 transition-transform'
+    : 'w-11 h-11 rounded-full border-2 border-slate-300 bg-white text-slate-500 hover:bg-slate-50 shadow-md flex flex-col items-center justify-center gap-0.5 active:scale-90 transition-transform'
+  const iconSize = isMobileToolbar || isSidebar ? 14 : 15
+  const labelClass = isMobileToolbar || isSidebar ? 'text-[10px] font-bold leading-none' : 'text-[9px] font-bold leading-none'
+
   return (
     <>
-      {/* Botones circulares verticales fijos en el costado */}
-      <div className="flex flex-col gap-2">
+      <div className={containerClass}>
         {buttons.map(({ id, label, Icon, colorClass, badge, badgeClass }) => (
           <button
             key={id}
             onClick={() => setOpenModal(id)}
             title={`Agregar ${label}`}
-            className={`relative w-11 h-11 rounded-full border-2 flex flex-col items-center justify-center gap-0.5 active:scale-90 transition-transform ${colorClass}`}
+            className={`${buttonClass} ${colorClass}`}
           >
-            <Icon size={15} />
-            <span className="text-[9px] font-bold leading-none">{label}</span>
+            <Icon size={iconSize} />
+            <span className={labelClass}>{label}</span>
             {badge !== null && (
               <span className={`absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-0.5 rounded-full text-[8px] font-bold flex items-center justify-center leading-none ${badgeClass}`}>
                 {badge}
@@ -297,10 +321,10 @@ export default function QuickAddFAB({ onAddNihss, onAddVitals, onAddGlucose, onR
           <button
             onClick={onReset}
             title="Reiniciar protocolo"
-            className="w-11 h-11 rounded-full border-2 border-slate-300 bg-white text-slate-500 hover:bg-slate-50 shadow-md flex flex-col items-center justify-center gap-0.5 active:scale-90 transition-transform"
+            className={resetClass}
           >
             <RotateCcw size={14} />
-            <span className="text-[9px] font-bold leading-none">Reset</span>
+            <span className={labelClass}>Reset</span>
           </button>
         )}
       </div>

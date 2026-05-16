@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { AlertTriangle, ChevronRight, HelpCircle } from 'lucide-react'
 import StepCard from '../components/StepCard'
-import { PrimaryAction, StatusPill } from '../components/GuidedControls'
+import { PrimaryAction, SectionPrompt } from '../components/GuidedControls'
 
 const MRS_OPTIONS = [
   { score: 0, label: 'Sin sintomas' },
@@ -21,7 +21,7 @@ function VitalAlert({ message }) {
   )
 }
 
-function CompactInput({ label, value, onChange, placeholder, danger = false, maxLength, suffix }) {
+function CompactInput({ label, value, onChange, placeholder, danger = false, maxLength, suffix, hint }) {
   return (
     <label className="block min-w-0">
       <span className="mb-1 block truncate text-[11px] font-bold uppercase tracking-wider text-slate-500">{label}</span>
@@ -47,6 +47,7 @@ function CompactInput({ label, value, onChange, placeholder, danger = false, max
           </span>
         )}
       </div>
+      {hint && <span className="mt-0.5 block text-[10px] text-slate-400">{hint}</span>}
     </label>
   )
 }
@@ -99,57 +100,75 @@ export default function VitalsStep({ onConfirm }) {
 
   return (
     <div className="px-4 pb-4 space-y-3">
-      <StepCard step="3" title="mRS + signos vitales" accent="blue">
-        <div className="mb-3 flex items-center justify-between gap-2 rounded-lg border border-blue-100 bg-blue-50/60 px-3 py-2">
-          <p className="text-sm font-bold text-blue-900">Carga compacta inicial</p>
-          <StatusPill complete={Boolean(valid)}>{valid ? 'Completo' : 'Pendiente'}</StatusPill>
+      <StepCard step="2" title="SV y Status previo" accent="blue">
+        <SectionPrompt
+          tone="blue"
+          title="Completa tension arterial y glucemia"
+          helper="Los campos completos quedan marcados; los valores criticos se destacan en rojo."
+          complete={Boolean(valid)}
+        />
+
+        {/* TA — unified CompactInput */}
+        <div className="mb-4">
+          <label className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2 block">
+            Tensión arterial (mmHg)
+          </label>
+          <div className="grid grid-cols-2 gap-3">
+            <CompactInput label="Sistólica" value={sys} onChange={setSys} placeholder="185" danger={Boolean(taCritical)} maxLength={3} suffix="mmHg" hint="Normal: <140" />
+            <CompactInput label="Diastólica" value={dia} onChange={setDia} placeholder="110" danger={Boolean(taDia)} maxLength={3} suffix="mmHg" hint="Normal: <90" />
+          </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
-          <div className="relative">
-            <div className="mb-1 flex items-center justify-between gap-1">
-              <span className="block truncate text-[11px] font-bold uppercase tracking-wider text-slate-500">mRS previo</span>
-              <button
-                type="button"
-                onMouseEnter={() => setShowMrsHelp(true)}
-                onMouseLeave={() => setShowMrsHelp(false)}
-                onFocus={() => setShowMrsHelp(true)}
-                onBlur={() => setShowMrsHelp(false)}
-                onClick={() => setShowMrsHelp((current) => !current)}
-                className="flex h-5 w-5 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-600"
-                aria-label="Ver valores de mRS"
-              >
-                <HelpCircle size={13} />
-              </button>
-            </div>
-            <input
-              type="text"
-              inputMode="numeric"
-              maxLength={1}
-              placeholder="0-5"
-              value={mrs}
-              onChange={(event) => handleMrsChange(event.target.value)}
-              className={`h-12 w-full rounded-lg border-2 bg-slate-50 px-3 text-center text-lg font-bold text-slate-900 outline-none transition placeholder:text-slate-300 ${
-                mrsValid
-                  ? 'border-slate-500 bg-slate-50 focus:border-slate-600 focus:ring-2 focus:ring-slate-100'
-                  : 'border-slate-200 focus:border-slate-400 focus:ring-2 focus:ring-slate-100'
-              }`}
-            />
-            {showMrsHelp && (
-              <div className="absolute left-0 top-[76px] z-30 w-64 rounded-lg border border-slate-200 bg-white p-3 text-xs shadow-xl">
-                {MRS_OPTIONS.map((option) => (
-                  <div key={option.score} className="grid grid-cols-[22px_1fr] gap-2 py-0.5">
-                    <span className="font-bold text-slate-900">{option.score}</span>
-                    <span className="text-slate-600">{option.label}</span>
-                  </div>
-                ))}
-              </div>
-            )}
+        {/* Glucemia */}
+        <div className="mb-4">
+          <CompactInput label="Glucemia" value={glucose} onChange={setGlucose} placeholder="120" danger={Boolean(glucLow || glucHigh)} maxLength={3} suffix="mg/dL" hint="Normal: 70–140" />
+        </div>
+
+        {/* mRS — propia fila */}
+        <div className="mb-4 pt-3 border-t border-gray-100">
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Rankin previo (mRS)
+            </label>
+            <button
+              type="button"
+              onClick={() => setShowMrsHelp((v) => !v)}
+              className="text-gray-400 hover:text-gray-600 transition-colors p-0.5"
+            >
+              <HelpCircle size={14} />
+            </button>
           </div>
 
-          <CompactInput label="TA sist." value={sys} onChange={setSys} placeholder="185" danger={Boolean(taCritical)} maxLength={3} />
-          <CompactInput label="TA diast." value={dia} onChange={setDia} placeholder="110" danger={Boolean(taDia)} maxLength={3} />
-          <CompactInput label="Glucemia" value={glucose} onChange={setGlucose} placeholder="120" danger={Boolean(glucLow || glucHigh)} maxLength={3} suffix="mg" />
+          {showMrsHelp && (
+            <div className="mb-2 rounded-lg border border-slate-200 bg-white p-3 text-xs shadow-sm animate-fade-in">
+              {MRS_OPTIONS.map((option) => (
+                <div key={option.score} className="grid grid-cols-[22px_1fr] gap-2 py-0.5">
+                  <span className="font-bold text-slate-900">{option.score}</span>
+                  <span className="text-slate-600">{option.label}</span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="grid grid-cols-6 gap-1.5">
+            {MRS_OPTIONS.map((option) => (
+              <button
+                key={option.score}
+                type="button"
+                onClick={() => setMrs(String(option.score))}
+                className={`py-2.5 rounded-lg border-2 text-sm font-bold transition-all active:scale-95 ${
+                  mrsNum === option.score
+                    ? 'border-blue-500 bg-blue-50 text-blue-700 ring-2 ring-blue-100'
+                    : 'border-slate-200 text-slate-500 hover:border-blue-300 hover:bg-blue-50/40'
+                }`}
+              >
+                {option.score}
+              </button>
+            ))}
+          </div>
+          {mrsValid && (
+            <p className="mt-1.5 text-xs text-blue-600 animate-fade-in">{mrsLabel}</p>
+          )}
         </div>
 
         {(taCritical || taDia || glucLow || glucHigh) && (
