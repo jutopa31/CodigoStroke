@@ -313,8 +313,6 @@ export default function App() {
     setStep(STEP.PATIENT)
   }
 
-    setShowVitalsModal(true)
-  }
 
   async function handleVitalsModalConfirm(vitalsData) {
     const now = new Date()
@@ -1137,15 +1135,6 @@ export default function App() {
               onClose={handleAlertClose}
             />
           )}
-
-          {protocolUnlocked && (
-            <div ref={timeRef}>
-              <TimeStep onConfirm={handleTimeConfirm} />
-            </div>
-          )}
-
-          {protocolUnlocked && (
-          {/* AlertModal eliminado — la activación se integra en PatientStep */}
 
           {protocolUnlocked && (
             <div ref={timeRef}>
