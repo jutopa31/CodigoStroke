@@ -9,9 +9,6 @@ const OGV_WINDOW_MINUTES = 1440
 const MAX_SLIDER_MINUTES = 1440
 const IV_WINDOW_PERCENT = `${(IV_WINDOW_MINUTES / MAX_SLIDER_MINUTES) * 100}%`
 const OGV_WINDOW_PERCENT = `${(OGV_WINDOW_MINUTES / MAX_SLIDER_MINUTES) * 100}%`
-const OGV_WINDOW_MINUTES = 540
-const MAX_SLIDER_MINUTES = 720
-const IV_WINDOW_PERCENT = `${(IV_WINDOW_MINUTES / MAX_SLIDER_MINUTES) * 100}%`
 
 function toLocalDateInput(date) {
   const pad = (n) => String(n).padStart(2, '0')
@@ -106,7 +103,6 @@ export default function TimeStep({ onConfirm }) {
   const isOutOfWindow = elapsedMinutes > OGV_WINDOW_MINUTES
   const timeTone = isOutOfWindow ? 'red' : shouldEvaluateOgv ? 'orange' : 'blue'
   const timeStatusLabel = isOutOfWindow ? 'Fuera de ventana' : shouldEvaluateOgv ? 'Fuera ventana IV - Evaluar OGV' : 'Ventana IV activa'
-  const timeStatusLabel = isOutOfWindow ? 'Fuera de ventana' : shouldEvaluateOgv ? 'Evaluar OGV' : 'Ventana activa'
 
   function applyOffset(mins) {
     const rounded = Number(mins)
