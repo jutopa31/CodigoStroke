@@ -4,20 +4,10 @@ import StepCard from '../components/StepCard'
 import WakeUpStrokeModal from '../components/WakeUpStrokeModal'
 import { StatusPill } from '../components/GuidedControls'
 
-const TIME_PRESETS = [
-  { label: 'Ahora', mins: 0 },
-  { label: '15 min', mins: 15 },
-  { label: '30 min', mins: 30 },
-  { label: '1 hora', mins: 60 },
-  { label: '2 horas', mins: 120 },
-  { label: '3 horas', mins: 180 },
-  { label: '6 horas', mins: 360 },
-  { label: '12 horas', mins: 720 },
-  { label: '+24 horas', mins: 1500 },
-]
-
 const IV_WINDOW_MINUTES = 270
-const OGV_WINDOW_MINUTES = 1440
+const OGV_WINDOW_MINUTES = 540
+const MAX_SLIDER_MINUTES = 720
+const IV_WINDOW_PERCENT = `${(IV_WINDOW_MINUTES / MAX_SLIDER_MINUTES) * 100}%`
 
 function toLocalDateInput(date) {
   const pad = (n) => String(n).padStart(2, '0')
@@ -73,59 +63,59 @@ function useInterval(ms) {
   }, [ms])
 }
 
-function timeSince(dateStr) {
-  if (!dateStr) return null
-  const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000)
-  if (diff < 0) return 'Tiempo invalido'
-  const h = Math.floor(diff / 3600)
-  const m = Math.floor((diff % 3600) / 60)
-  if (h > 0) return `Hace ${h}h ${m}min`
-  return `Hace ${m} minutos`
-}
-
 function getElapsedMinutes(dateStr) {
   if (!dateStr) return 0
-  return (Date.now() - new Date(dateStr).getTime()) / (1000 * 60)
+  return Math.max(0, (Date.now() - new Date(dateStr).getTime()) / (1000 * 60))
 }
 
 function getElapsedHours(dateStr) {
   return Math.round((getElapsedMinutes(dateStr) / 60) * 10) / 10
 }
 
+function formatElapsed(minutes) {
+  const rounded = Math.max(0, Math.round(minutes))
+  const h = Math.floor(rounded / 60)
+  const m = rounded % 60
+  if (h > 0 && m > 0) return `Hace ${h}h ${m}min`
+  if (h > 0) return `Hace ${h}h`
+  return `Hace ${m} min`
+}
+
+function formatClock(dateStr) {
+  if (!dateStr) return '--:--'
+  return new Date(dateStr).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
+}
+
 export default function TimeStep({ onConfirm }) {
   const [lastSeenDate, setLastSeenDate] = useState(() => toLocalDateInput(new Date()))
   const [lastSeenTime, setLastSeenTime] = useState(() => toLocalTimeInput(new Date()))
   const [lastSeenTimeText, setLastSeenTimeText] = useState(() => toLocalTimeInput(new Date()))
-  const [selectedPreset, setSelectedPreset] = useState(0)
+  const [offsetMinutes, setOffsetMinutes] = useState(0)
   const [showWakeUpModal, setShowWakeUpModal] = useState(false)
   const [confirmed, setConfirmed] = useState(false)
 
   useInterval(1000)
 
   const lastSeen = combineDateTime(lastSeenDate, lastSeenTime)
-  const elapsed = timeSince(lastSeen)
   const elapsedMinutes = getElapsedMinutes(lastSeen)
   const shouldEvaluateOgv = elapsedMinutes > IV_WINDOW_MINUTES && elapsedMinutes <= OGV_WINDOW_MINUTES
   const isOutOfWindow = elapsedMinutes > OGV_WINDOW_MINUTES
-  const timeAccent = isOutOfWindow ? 'red' : shouldEvaluateOgv ? 'orange' : 'blue'
-  const timeStatusLabel = isOutOfWindow
-    ? 'Fuera de ventana'
-    : shouldEvaluateOgv
-    ? 'Evaluar OGV'
-    : 'Ventana activa'
+  const timeTone = isOutOfWindow ? 'red' : shouldEvaluateOgv ? 'orange' : 'blue'
+  const timeStatusLabel = isOutOfWindow ? 'Fuera de ventana' : shouldEvaluateOgv ? 'Evaluar OGV' : 'Ventana activa'
 
-  function applyPreset(mins) {
-    const d = new Date()
-    d.setMinutes(d.getMinutes() - mins)
-    setSelectedPreset(mins)
-    setLastSeenDate(toLocalDateInput(d))
-    setLastSeenTime(toLocalTimeInput(d))
-    setLastSeenTimeText(toLocalTimeInput(d))
+  function applyOffset(mins) {
+    const rounded = Number(mins)
+    const date = new Date()
+    date.setMinutes(date.getMinutes() - rounded)
+    setOffsetMinutes(rounded)
+    setLastSeenDate(toLocalDateInput(date))
+    setLastSeenTime(toLocalTimeInput(date))
+    setLastSeenTimeText(toLocalTimeInput(date))
     setConfirmed(false)
   }
 
   function handleDateChange(value) {
-    setSelectedPreset(null)
+    setOffsetMinutes(null)
     setLastSeenDate(value)
     setConfirmed(false)
   }
@@ -136,12 +126,13 @@ export default function TimeStep({ onConfirm }) {
       setLastSeenTimeText(lastSeenTime)
       return
     }
+    setOffsetMinutes(null)
     setLastSeenTime(parsed)
     setLastSeenTimeText(parsed)
   }
 
   function handleTimeTextChange(value) {
-    setSelectedPreset(null)
+    setOffsetMinutes(null)
     setLastSeenTimeText(value)
     const parsed = parseClockEntry(value)
     if (parsed) setLastSeenTime(parsed)
@@ -149,7 +140,7 @@ export default function TimeStep({ onConfirm }) {
   }
 
   function handleClockPickerChange(value) {
-    setSelectedPreset(null)
+    setOffsetMinutes(null)
     setLastSeenTime(value)
     setLastSeenTimeText(value)
     setConfirmed(false)
@@ -169,61 +160,90 @@ export default function TimeStep({ onConfirm }) {
     }
   }
 
+  const toneColors = {
+    red: {
+      border: 'border-red-200 bg-red-50/70',
+      label: 'text-red-800',
+      input: 'border-red-300 bg-red-50/40 focus:ring-red-400',
+      elapsed: 'bg-red-50 border-red-300',
+      elapsedText: 'text-red-700',
+      elapsedStatus: 'text-red-600',
+      icon: 'text-red-500',
+    },
+    orange: {
+      border: 'border-orange-200 bg-orange-50/70',
+      label: 'text-orange-800',
+      input: 'border-orange-300 bg-orange-50/40 focus:ring-orange-400',
+      elapsed: 'bg-orange-50 border-orange-300',
+      elapsedText: 'text-orange-700',
+      elapsedStatus: 'text-orange-600',
+      icon: 'text-orange-500',
+    },
+    blue: {
+      border: 'border-blue-100 bg-blue-50/60',
+      label: 'text-blue-800',
+      input: 'border-blue-300 bg-blue-50/40 focus:ring-blue-400',
+      elapsed: 'bg-blue-50 border-blue-300',
+      elapsedText: 'text-blue-700',
+      elapsedStatus: 'text-blue-500',
+      icon: 'text-blue-500',
+    },
+  }[timeTone]
+
   return (
-    <StepCard step="1" title="Última vez asintomático" accent={timeAccent}>
-      <div className={`mb-3 rounded-lg border px-3 py-2 ${
-        isOutOfWindow
-          ? 'border-red-200 bg-red-50/70'
-          : shouldEvaluateOgv
-          ? 'border-orange-200 bg-orange-50/70'
-          : 'border-blue-100 bg-blue-50/60'
-      }`}>
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <label className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 ${
-            isOutOfWindow ? 'text-red-800' : shouldEvaluateOgv ? 'text-orange-800' : 'text-blue-800'
-          }`}>
+    <StepCard step="1" title="Última vez asintomático" accent={timeTone}>
+      <div className={`mb-4 rounded-lg border px-3 py-3 ${toneColors.border}`}>
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+          <label htmlFor="last-seen-slider" className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 ${toneColors.label}`}>
             <Clock size={13} /> Ultima vez visto asintomatico
           </label>
           <StatusPill complete={confirmed}>
             {confirmed ? 'Registrado' : 'Pendiente'}
           </StatusPill>
         </div>
-        <p className={`mt-1 text-xs ${
-          isOutOfWindow ? 'text-red-700' : shouldEvaluateOgv ? 'text-orange-700' : 'text-blue-700'
-        }`}>
-          Elegi un atajo o ajusta fecha y hora manualmente.
-        </p>
-      </div>
 
-      <div className="grid grid-cols-3 gap-2 mb-2.5 sm:grid-cols-9">
-        {TIME_PRESETS.map(({ label, mins }) => {
-          const active = selectedPreset === mins
-          const latePreset = mins >= 360
-          return (
+        {/* Slider + display card */}
+        <div className="grid gap-3 md:grid-cols-[1fr_132px] md:items-center">
+          <div className="relative pb-7">
+            <input
+              id="last-seen-slider"
+              type="range"
+              min="0"
+              max={MAX_SLIDER_MINUTES}
+              step="5"
+              value={offsetMinutes ?? Math.round(Math.min(elapsedMinutes, MAX_SLIDER_MINUTES))}
+              onChange={(e) => applyOffset(e.target.value)}
+              className="h-2 w-full cursor-pointer accent-brand-600"
+              aria-label="Minutos desde ultima vez asintomatico"
+            />
             <button
-              key={label}
               type="button"
-              aria-pressed={active}
-              onClick={() => applyPreset(mins)}
-              className={`min-h-[38px] rounded-lg border-2 px-2 py-1 text-xs font-bold active:scale-95 transition-all ${
-                active
-                  ? latePreset
-                    ? 'border-orange-500 bg-orange-500 text-white shadow-sm ring-2 ring-orange-100'
-                    : 'border-blue-600 bg-blue-600 text-white shadow-sm ring-2 ring-blue-100'
-                  : latePreset
-                    ? 'border-orange-200 bg-white text-orange-600 hover:border-orange-400 hover:bg-orange-50'
-                    : 'border-blue-200 bg-white text-blue-600 hover:border-blue-400 hover:bg-blue-50'
-              }`}
+              onClick={() => applyOffset(IV_WINDOW_MINUTES)}
+              className="absolute top-5 flex -translate-x-1/2 flex-col items-center gap-1 text-[11px] font-bold text-orange-700 transition hover:text-orange-800 focus:outline-none"
+              style={{ left: IV_WINDOW_PERCENT }}
+              aria-label="Marcar 4.5 horas"
+              title="Marcar 4.5 horas"
             >
-              <span className="inline-flex items-center justify-center gap-1">
-                {active && <CheckCircle2 size={12} />}
-                {label}
-              </span>
+              <span className="h-3 w-0.5 rounded-full bg-orange-500" />
+              <span className="rounded-full border border-orange-200 bg-white px-2 py-0.5 shadow-sm">4.5 h</span>
             </button>
-          )
-        })}
+          </div>
+
+          <div className="rounded-lg border border-white/70 bg-white px-3 py-2 text-right shadow-sm">
+            <p className={`text-lg font-bold leading-tight ${toneColors.elapsedText}`}>
+              {lastSeen ? formatElapsed(elapsedMinutes) : '--'}
+            </p>
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+              {formatClock(lastSeen)}
+            </p>
+            <p className={`text-[10px] font-bold uppercase tracking-wider mt-0.5 ${toneColors.elapsedStatus}`}>
+              {timeStatusLabel}
+            </p>
+          </div>
+        </div>
       </div>
 
+      {/* Manual date/time inputs */}
       <div className="grid gap-2 md:grid-cols-[1fr_1fr_150px]">
         <label className="block">
           <span className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-gray-500">Dia</span>
@@ -232,13 +252,7 @@ export default function TimeStep({ onConfirm }) {
             value={lastSeenDate}
             max={toLocalDateInput(new Date())}
             onChange={(e) => handleDateChange(e.target.value)}
-            className={`w-full rounded-lg border-2 px-3 py-2.5 text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:border-transparent ${
-              isOutOfWindow
-                ? 'border-red-300 bg-red-50/40 focus:ring-red-400'
-                : shouldEvaluateOgv
-                ? 'border-orange-300 bg-orange-50/40 focus:ring-orange-400'
-                : 'border-blue-300 bg-blue-50/40 focus:ring-blue-400'
-            }`}
+            className={`w-full rounded-lg border-2 px-3 py-2.5 text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:border-transparent ${toneColors.input}`}
           />
         </label>
 
@@ -251,13 +265,7 @@ export default function TimeStep({ onConfirm }) {
             value={lastSeenTimeText}
             onChange={(e) => handleTimeTextChange(e.target.value)}
             onBlur={(e) => commitTimeText(e.target.value)}
-            className={`w-full rounded-lg border-2 px-3 py-2.5 text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:border-transparent ${
-              isOutOfWindow
-                ? 'border-red-300 bg-red-50/40 focus:ring-red-400'
-                : shouldEvaluateOgv
-                ? 'border-orange-300 bg-orange-50/40 focus:ring-orange-400'
-                : 'border-blue-300 bg-blue-50/40 focus:ring-blue-400'
-            }`}
+            className={`w-full rounded-lg border-2 px-3 py-2.5 text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:border-transparent ${toneColors.input}`}
           />
         </label>
 
@@ -267,13 +275,7 @@ export default function TimeStep({ onConfirm }) {
             type="time"
             value={lastSeenTime}
             onChange={(e) => handleClockPickerChange(e.target.value)}
-            className={`w-full rounded-lg border-2 px-3 py-2.5 text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:border-transparent ${
-              isOutOfWindow
-                ? 'border-red-300 bg-red-50/40 focus:ring-red-400'
-                : shouldEvaluateOgv
-                ? 'border-orange-300 bg-orange-50/40 focus:ring-orange-400'
-                : 'border-blue-300 bg-blue-50/40 focus:ring-blue-400'
-            }`}
+            className={`w-full rounded-lg border-2 px-3 py-2.5 text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:border-transparent ${toneColors.input}`}
           />
         </label>
       </div>
@@ -281,30 +283,6 @@ export default function TimeStep({ onConfirm }) {
       <p className="mt-1.5 text-xs text-gray-400">
         Atajos de hora: 930 = 09:30, 1530 = 15:30, 15 = 15:00.
       </p>
-
-      {elapsed && (
-        <div className={`mt-2 flex items-center gap-2 rounded-lg px-3 py-2.5 border-2 ${
-          isOutOfWindow
-            ? 'bg-red-50 border-red-300'
-            : shouldEvaluateOgv
-            ? 'bg-orange-50 border-orange-300'
-            : 'bg-blue-50 border-blue-300'
-        }`}>
-          <Clock size={14} className={
-            isOutOfWindow ? 'text-red-500 shrink-0' : shouldEvaluateOgv ? 'text-orange-500 shrink-0' : 'text-blue-500 shrink-0'
-          } />
-          <span className={`text-sm font-semibold ${
-            isOutOfWindow ? 'text-red-700' : shouldEvaluateOgv ? 'text-orange-700' : 'text-blue-700'
-          }`}>
-            {elapsed}
-          </span>
-          <span className={`text-xs font-semibold ml-auto ${
-            isOutOfWindow ? 'text-red-600' : shouldEvaluateOgv ? 'text-orange-600' : 'text-blue-500'
-          }`}>
-            {timeStatusLabel}
-          </span>
-        </div>
-      )}
 
       <button
         type="button"
