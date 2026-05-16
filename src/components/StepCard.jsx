@@ -1,6 +1,22 @@
 import { CheckCircle2 } from 'lucide-react'
 import useStepProgress from './useStepProgress'
 
+export function CollapsedStep({ title, children }) {
+  return (
+    <div className="relative bg-white rounded-xl border border-neutral-100 px-4 py-3 flex items-center gap-3 animate-fade-in">
+      <span className="w-6 h-6 rounded-lg bg-emerald-500 flex items-center justify-center shrink-0">
+        <CheckCircle2 size={12} className="text-white" strokeWidth={2.5} />
+      </span>
+      <div className="flex-1 min-w-0 flex items-baseline flex-wrap gap-x-1.5">
+        {title && <span className="text-xs font-semibold text-neutral-500">{title}</span>}
+        {children && (
+          <span className="text-xs text-neutral-400 truncate">{children}</span>
+        )}
+      </div>
+    </div>
+  )
+}
+
 export default function StepCard({
   step,
   title,

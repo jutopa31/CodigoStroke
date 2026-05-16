@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react'
 import { v4 as uuidv4 } from 'uuid'
-import { RotateCcw, Clock, Copy, Check } from 'lucide-react'
+import { Clock, Copy, Check } from 'lucide-react'
 import GlobalTimer from './components/GlobalTimer'
 import AlertModal from './components/AlertModal'
 import StepTimeline from './components/StepTimeline'
@@ -894,86 +894,19 @@ export default function App() {
       onStepClick={handleSidebarStepClick}
     >
     <div
-      className="min-h-[100dvh] bg-neutral-50 flex flex-col"
-      style={{ paddingBottom: 'calc(9.5rem + env(safe-area-inset-bottom, 0px))' }}
+      className="min-h-[100dvh] bg-neutral-50 flex flex-col pt-14"
+      style={{ paddingBottom: 'calc(5.5rem + env(safe-area-inset-bottom, 0px))' }}
     >
-      <GlobalTimer startTime={timerStart} timestamps={{ ctRequest: ctRequestTime?.toISOString(), thrombolyticStart: thrombolyticStartTime?.toISOString() }} />
-
-      {/* Sticky header */}
-      <div className={`bg-brand-600 sticky ${timerStart ? 'top-[52px]' : 'top-0'} z-40 transition-all`}>
-        {/* Mobile header */}
-        {patient ? (
-          <div className="px-4 py-3 flex items-center justify-between gap-3 md:hidden">
-            <div className="min-w-0 flex-1">
-              <p className="text-brand-300 text-[10px] uppercase tracking-wider leading-none mb-0.5 font-medium">Código Stroke</p>
-              <p className="text-white font-medium text-sm truncate leading-tight">{patient.name}</p>
-            </div>
-            <p className="text-brand-300 text-xs leading-tight flex-shrink-0">DNI {patient.dni}</p>
-            <button
-              type="button"
-              onClick={handleReset}
-              className="shrink-0 rounded-xl border border-white/20 bg-white/10 p-2 text-white transition-colors hover:bg-white/20"
-              title="Reiniciar protocolo"
-              aria-label="Reiniciar protocolo"
-            >
-              <RotateCcw size={14} strokeWidth={2} />
-            </button>
-          </div>
-        ) : (
-          <div className="px-4 py-3 flex items-center md:hidden">
-            <p className="text-white font-medium text-sm tracking-wide">Código Stroke</p>
-          </div>
-        )}
-
-        {/* Desktop header */}
-        <div className="hidden md:flex px-5 py-2.5 items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-white/60 flex-shrink-0" />
-            <span className="text-white font-medium text-sm tracking-wide">Código Stroke</span>
-          </div>
-          {patient && (
-            <button
-              type="button"
-              onClick={handleReset}
-              className="shrink-0 rounded-xl border border-white/20 bg-white/10 p-1.5 text-white transition-colors hover:bg-white/20"
-              title="Reiniciar protocolo"
-              aria-label="Reiniciar protocolo"
-            >
-              <RotateCcw size={14} strokeWidth={2} />
-            </button>
-          )}
-        </div>
-
-        {/* Mobile progress bar */}
-        {patient && step > STEP.ALERT && step < STEP.DONE && (
-          <div className="md:hidden">
-            <div className="px-4 py-1.5 flex items-center justify-between">
-              <span className="text-[10px] font-medium text-brand-300 uppercase tracking-wider">
-                Paso {Math.min(step, STEP.THROMBECTOMY)} de {STEP.THROMBECTOMY}
-              </span>
-            </div>
-            <div className="h-0.5 bg-brand-700">
-              <div
-                className="h-full bg-white/80 rounded-r-full transition-all duration-500"
-                style={{ width: `${(Math.min(step, STEP.THROMBECTOMY) / STEP.THROMBECTOMY) * 100}%` }}
-              />
-            </div>
-          </div>
-        )}
-
-        {/* Mobile timestamp strip */}
-        {patient && step > STEP.ALERT && (
-          <div className="md:hidden">
-            <TimestampPanel
-              variant="mobile"
-              arrival={patientArrivalTime}
-              ct={ctRequestTime}
-              thrombolytic={thrombolyticStartTime}
-              angio={angioRequestTime}
-            />
-          </div>
-        )}
-      </div>
+      <GlobalTimer
+        startTime={timerStart}
+        timestamps={{ ctRequest: ctRequestTime?.toISOString(), thrombolyticStart: thrombolyticStartTime?.toISOString() }}
+        patient={patient}
+        onReset={patient ? handleReset : undefined}
+        progressPct={patient && step > STEP.ALERT && step < STEP.DONE
+          ? (Math.min(step, STEP.THROMBECTOMY) / STEP.THROMBECTOMY) * 100
+          : 0
+        }
+      />
 
       {/* Quick actions - bottom toolbar */}
       {patient && step > STEP.ALERT && (
@@ -986,24 +919,12 @@ export default function App() {
             onAddNihss={handleAddNihss}
             onAddVitals={handleAddVitals}
             onAddGlucose={handleAddGlucose}
+            onOutOfWindow={() => setShowOutOfWindow(true)}
             latestNihss={latestNihss}
             latestVitals={latestVitals}
             latestGlucose={latestGlucose}
           />
         </div>
-      )}
-
-      {/* Out of window button */}
-      {step > STEP.ALERT && (
-        <button
-          type="button"
-          onClick={() => setShowOutOfWindow(true)}
-          style={{ bottom: 'calc(4.75rem + env(safe-area-inset-bottom, 0px))' }}
-          className="fixed left-3 z-40 flex items-center gap-2 bg-neutral-800 hover:bg-neutral-900 active:scale-[0.98] text-white text-xs font-medium px-4 py-3 min-h-[44px] rounded-xl shadow-elevated transition-all md:hidden"
-        >
-          <Clock size={14} strokeWidth={2} />
-          Fuera de ventana
-        </button>
       )}
 
       {/* Modal ACV fuera de ventana */}
@@ -1016,49 +937,46 @@ export default function App() {
       )}
 
       {/* Body — two-column on desktop */}
-      <div className={`flex-1 flex flex-col ${step === STEP.PATIENT ? 'justify-center' : ''} md:grid md:items-start ${patient ? 'md:grid-cols-[260px_minmax(0,1fr)]' : 'md:grid-cols-1'} w-full md:gap-8 md:px-6 lg:px-9 md:pt-5`}>
+      <div className={`flex-1 flex flex-col ${step === STEP.PATIENT ? 'justify-center' : ''} md:grid md:items-start ${patient ? 'md:grid-cols-[260px_minmax(0,1fr)]' : 'md:grid-cols-1'} w-full md:gap-8 md:px-6 lg:px-9 md:pt-6`}>
 
         {/* Desktop sidebar */}
         {patient && (
-          <div className="hidden md:flex md:flex-col md:sticky md:top-[96px] md:self-start md:max-h-[calc(100vh-104px)] md:overflow-y-auto md:pr-1">
+          <div className="hidden md:flex md:flex-col md:sticky md:top-[72px] md:self-start md:max-h-[calc(100vh-80px)] md:overflow-y-auto md:pr-1 gap-3">
             {/* Patient card */}
-            <div className="rounded-2xl bg-white border border-neutral-100 p-4 mb-3">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400 mb-2">Paciente</p>
-              <p className="font-semibold text-neutral-800 text-sm leading-snug">{patient.name}</p>
-              <p className="text-xs text-neutral-500 mt-0.5">DNI {patient.dni}</p>
-              {patientId && (
-                <div className="mt-3 pt-3 border-t border-neutral-100">
-                  <p className="text-[10px] text-neutral-400 uppercase tracking-wider font-medium">ID del caso</p>
-                  <p className="text-xs font-mono font-semibold text-brand-600 tracking-wider mt-0.5">{patientId}</p>
-                </div>
-              )}
+            <div className="rounded-2xl bg-white border border-neutral-100 p-4">
+              <div className="flex items-start justify-between gap-2 mb-1">
+                <p className="font-semibold text-neutral-800 text-sm leading-snug">{patient.name}</p>
+                {patientId && (
+                  <p className="text-[10px] font-mono font-semibold text-brand-600 tracking-wider shrink-0">{patientId}</p>
+                )}
+              </div>
+              <p className="text-xs text-neutral-400">DNI {patient.dni}</p>
+
               {(latestNihss !== null || latestVitals || latestGlucose !== null) && (
-                <div className="mt-3 pt-3 border-t border-neutral-100 space-y-2">
+                <div className="mt-3 pt-3 border-t border-neutral-100 grid grid-cols-3 gap-2">
                   {latestNihss !== null && (() => {
                     const sev = getNihssSeverity(latestNihss)
                     return (
-                      <div className="flex items-center justify-between">
-                        <span className="text-[10px] text-neutral-400 font-semibold uppercase tracking-wider">NIHSS</span>
-                        <span className={`text-xs font-medium px-2 py-0.5 rounded-lg ${sev.bg} ${sev.color}`}>
-                          {latestNihss} — {sev.label}
-                        </span>
+                      <div className={`rounded-lg px-2 py-1.5 text-center ${sev.bg}`}>
+                        <p className="text-[9px] text-neutral-400 uppercase tracking-wider font-semibold mb-0.5">NIHSS</p>
+                        <p className={`text-sm font-bold tabular-nums ${sev.color}`}>{latestNihss}</p>
                       </div>
                     )
                   })()}
                   {latestVitals && (
-                    <div className="flex items-center justify-between">
-                      <span className="text-[10px] text-neutral-400 font-semibold uppercase tracking-wider">TA</span>
-                      <span className={`text-xs font-medium px-2 py-0.5 rounded-lg ${latestVitals.systolic > 185 ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600'}`}>
+                    <div className={`rounded-lg px-2 py-1.5 text-center ${latestVitals.systolic > 185 ? 'bg-red-50' : 'bg-blue-50/60'}`}>
+                      <p className="text-[9px] text-neutral-400 uppercase tracking-wider font-semibold mb-0.5">TA</p>
+                      <p className={`text-xs font-bold tabular-nums ${latestVitals.systolic > 185 ? 'text-red-600' : 'text-blue-700'}`}>
                         {latestVitals.systolic}/{latestVitals.diastolic}
-                      </span>
+                      </p>
                     </div>
                   )}
                   {latestGlucose !== null && (
-                    <div className="flex items-center justify-between">
-                      <span className="text-[10px] text-neutral-400 font-semibold uppercase tracking-wider">GLC</span>
-                      <span className={`text-xs font-medium px-2 py-0.5 rounded-lg ${latestGlucose < 50 ? 'bg-red-50 text-red-600' : latestGlucose > 400 ? 'bg-orange-50 text-orange-600' : 'bg-violet-50 text-violet-600'}`}>
-                        {latestGlucose} mg/dL
-                      </span>
+                    <div className={`rounded-lg px-2 py-1.5 text-center ${latestGlucose < 50 ? 'bg-red-50' : latestGlucose > 400 ? 'bg-orange-50' : 'bg-violet-50/60'}`}>
+                      <p className="text-[9px] text-neutral-400 uppercase tracking-wider font-semibold mb-0.5">GLC</p>
+                      <p className={`text-xs font-bold tabular-nums ${latestGlucose < 50 ? 'text-red-600' : latestGlucose > 400 ? 'text-orange-600' : 'text-violet-700'}`}>
+                        {latestGlucose}
+                      </p>
                     </div>
                   )}
                 </div>
@@ -1066,37 +984,31 @@ export default function App() {
             </div>
 
             {step > STEP.ALERT && (
-              <>
-                <div className="mb-3">
-                  <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-neutral-500">Registros rápidos</p>
-                  <QuickAddFAB
-                    variant="sidebar"
-                    onAddNihss={handleAddNihss}
-                    onAddVitals={handleAddVitals}
-                    onAddGlucose={handleAddGlucose}
-                    onReset={handleReset}
-                    latestNihss={latestNihss}
-                    latestVitals={latestVitals}
-                    latestGlucose={latestGlucose}
-                  />
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setShowOutOfWindow(true)}
-                  className="mb-3 flex w-full items-center justify-center gap-2 rounded-xl border border-neutral-700 bg-neutral-800 px-3 py-2.5 text-xs font-medium text-white transition-colors hover:bg-neutral-900 active:scale-[0.99]"
-                >
-                  <Clock size={14} strokeWidth={2} />
-                  Fuera de ventana
-                </button>
-              </>
+              <div>
+                <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Registros rápidos</p>
+                <QuickAddFAB
+                  variant="sidebar"
+                  onAddNihss={handleAddNihss}
+                  onAddVitals={handleAddVitals}
+                  onAddGlucose={handleAddGlucose}
+                  onOutOfWindow={() => setShowOutOfWindow(true)}
+                  latestNihss={latestNihss}
+                  latestVitals={latestVitals}
+                  latestGlucose={latestGlucose}
+                />
+              </div>
             )}
 
-            <StepTimeline
-              variant="desktop"
-              currentStep={step}
-              completedSteps={sidebarCompletedSteps}
-              onStepClick={handleSidebarStepClick}
-            />
+            <div>
+              <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Protocolo</p>
+              <StepTimeline
+                variant="desktop"
+                currentStep={step}
+                completedSteps={sidebarCompletedSteps}
+                onStepClick={handleSidebarStepClick}
+              />
+            </div>
+
             <TimestampPanel
               variant="desktop"
               arrival={patientArrivalTime}
@@ -1117,6 +1029,7 @@ export default function App() {
               <PatientStep
                 onConfirm={handlePatientConfirm}
                 confirmed={step > STEP.ALERT}
+                isCollapsed={step >= STEP.CT_RESULT}
                 patient={patient}
                 patientId={patientId}
                 arrivalTime={patientArrivalTime}
@@ -1135,13 +1048,19 @@ export default function App() {
 
           {protocolUnlocked && (
             <div ref={timeRef}>
-              <TimeStep onConfirm={handleTimeConfirm} />
+              <TimeStep
+                onConfirm={handleTimeConfirm}
+                isCollapsed={step >= STEP.CT_RESULT}
+              />
             </div>
           )}
 
           {protocolUnlocked && (
             <div ref={nihssRef}>
-              <SymptomsNihssStep onConfirm={handleSymptomsNihssConfirm} />
+              <SymptomsNihssStep
+                onConfirm={handleSymptomsNihssConfirm}
+                isCollapsed={step >= STEP.CONTRAINDICATIONS}
+              />
             </div>
           )}
 
@@ -1154,6 +1073,7 @@ export default function App() {
                     onConfirm={handleCtResultConfirm}
                     initialCtRequestTime={ctRequestTime}
                     onCtRequest={handleCtRequest}
+                    isCollapsed={step >= STEP.DOSAGE}
                   />
                 )
               }
@@ -1162,7 +1082,10 @@ export default function App() {
 
           {step >= STEP.CONTRAINDICATIONS && thrombolysisPathActive && (
             <div ref={contraindicationsRef}>
-              <ContraindicationsStep onConfirm={handleContraindicationsConfirm} />
+              <ContraindicationsStep
+                onConfirm={handleContraindicationsConfirm}
+                isCollapsed={step >= STEP.THROMBECTOMY}
+              />
             </div>
           )}
 
@@ -1187,7 +1110,7 @@ export default function App() {
                 onAngioRequest={handleAngioRequest}
                 thrombectomyActivationTime={thrombectomyActivationTime}
                 onThrombectomyActivation={handleThrombectomyActivation}
-                initialAspectScore={ctResult?.aspectScore ?? null}
+                initialAspectScore={null}
               />
             </div>
           )}

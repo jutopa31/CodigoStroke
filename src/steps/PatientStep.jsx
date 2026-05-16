@@ -1,8 +1,12 @@
 import { useState } from 'react'
 import { User, CreditCard, Lock, ChevronRight, CheckCircle2 } from 'lucide-react'
-import StepCard from '../components/StepCard'
+import StepCard, { CollapsedStep } from '../components/StepCard'
 
-export default function PatientStep({ onConfirm, confirmed = false, patient = null, patientId = null, arrivalTime = null, vitals = null }) {
+function fmtTime(date) {
+  return date.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
+}
+
+export default function PatientStep({ onConfirm, confirmed = false, patient = null, patientId = null, arrivalTime = null, vitals = null, isCollapsed = false }) {
   const [dni, setDni] = useState('')
   const [name, setName] = useState('')
   const [passphrase, setPassphrase] = useState('')
@@ -20,60 +24,67 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
     })
   }
 
+  // Collapsed one-liner
+  if (isCollapsed && confirmed && patient) {
+    return (
+      <CollapsedStep title="Datos del paciente">
+        {patient.name} · DNI {patient.dni}
+        {arrivalTime ? ` · ${fmtTime(arrivalTime)}` : ''}
+      </CollapsedStep>
+    )
+  }
+
   // Confirmed / locked state
   if (confirmed && patient) {
     const v = vitals
     return (
       <div className="pb-2">
         <StepCard step="1" title="Datos del paciente" accent="green">
-          <div className="flex items-start gap-4">
-            {/* Left: patient info */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-start justify-between gap-2">
-                <div>
-                  <p className="font-semibold text-neutral-800 leading-snug">{patient.name}</p>
-                  <p className="text-sm text-neutral-400 mt-0.5">DNI {patient.dni}</p>
-                </div>
-                <CheckCircle2 size={18} className="text-emerald-500 shrink-0" />
+          {/* Top row: name + meta badges + checkmark */}
+          <div className="flex items-start justify-between gap-3 mb-3">
+            <div className="min-w-0">
+              <p className="font-semibold text-neutral-800 leading-snug">{patient.name}</p>
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-1">
+                <span className="text-xs text-neutral-400">DNI {patient.dni}</span>
+                {patientId && (
+                  <span className="text-xs font-mono font-bold text-brand-600 tracking-wider">{patientId}</span>
+                )}
+                {arrivalTime && (
+                  <span className="text-xs text-neutral-400 tabular-nums">
+                    Llegada {arrivalTime.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}
+                  </span>
+                )}
               </div>
-              {patientId && (
-                <div className="mt-3">
-                  <p className="text-[10px] text-neutral-400 uppercase tracking-wider font-medium">ID del caso</p>
-                  <p className="text-sm font-mono font-bold text-brand-600 tracking-wider mt-0.5">{patientId}</p>
-                </div>
-              )}
-              {arrivalTime && (
-                <div className="mt-2">
-                  <p className="text-[10px] text-neutral-400 uppercase tracking-wider font-medium">Llegada</p>
-                  <p className="text-sm font-mono font-semibold text-neutral-700 mt-0.5">
-                    {arrivalTime.toLocaleTimeString('es-AR')}
-                  </p>
-                </div>
-              )}
             </div>
-
-            {/* Right: vitals */}
-            {v && (
-              <div className="flex flex-col gap-2 shrink-0 text-right">
-                <div className="bg-neutral-50 rounded-lg px-3 py-1.5">
-                  <p className="text-[9px] text-neutral-400 uppercase tracking-wider font-medium">TA</p>
-                  <p className={`text-sm font-bold tabular-nums ${v.systolic > 185 || v.diastolic > 110 ? 'text-red-600' : 'text-neutral-800'}`}>
-                    {v.systolic}/{v.diastolic}
-                  </p>
-                </div>
-                <div className="bg-neutral-50 rounded-lg px-3 py-1.5">
-                  <p className="text-[9px] text-neutral-400 uppercase tracking-wider font-medium">GLC</p>
-                  <p className={`text-sm font-bold tabular-nums ${v.glucose < 50 || v.glucose > 400 ? 'text-red-600' : 'text-neutral-800'}`}>
-                    {v.glucose}
-                  </p>
-                </div>
-                <div className="bg-neutral-50 rounded-lg px-3 py-1.5">
-                  <p className="text-[9px] text-neutral-400 uppercase tracking-wider font-medium">mRS</p>
-                  <p className="text-sm font-bold text-neutral-800 tabular-nums">{v.modifiedRankinScale?.score ?? '—'}</p>
-                </div>
-              </div>
-            )}
+            <CheckCircle2 size={18} className="text-emerald-500 shrink-0 mt-0.5" />
           </div>
+
+          {/* Vitals row — horizontal pills */}
+          {v && (
+            <div className="grid grid-cols-3 gap-2">
+              <div className={`rounded-xl px-3 py-2.5 ${v.systolic > 185 || v.diastolic > 110 ? 'bg-red-50' : 'bg-neutral-50'}`}>
+                <p className="text-[9px] text-neutral-400 uppercase tracking-wider font-semibold mb-1">TA</p>
+                <p className={`text-base font-bold tabular-nums leading-none ${v.systolic > 185 || v.diastolic > 110 ? 'text-red-600' : 'text-neutral-800'}`}>
+                  {v.systolic}/{v.diastolic}
+                </p>
+                <p className="text-[9px] text-neutral-400 mt-0.5">mmHg</p>
+              </div>
+              <div className={`rounded-xl px-3 py-2.5 ${v.glucose < 50 || v.glucose > 400 ? 'bg-red-50' : 'bg-neutral-50'}`}>
+                <p className="text-[9px] text-neutral-400 uppercase tracking-wider font-semibold mb-1">Glucemia</p>
+                <p className={`text-base font-bold tabular-nums leading-none ${v.glucose < 50 || v.glucose > 400 ? 'text-red-600' : 'text-neutral-800'}`}>
+                  {v.glucose}
+                </p>
+                <p className="text-[9px] text-neutral-400 mt-0.5">mg/dL</p>
+              </div>
+              <div className="bg-neutral-50 rounded-xl px-3 py-2.5">
+                <p className="text-[9px] text-neutral-400 uppercase tracking-wider font-semibold mb-1">mRS basal</p>
+                <p className="text-base font-bold text-neutral-800 tabular-nums leading-none">
+                  {v.modifiedRankinScale?.score ?? '—'}
+                </p>
+                <p className="text-[9px] text-neutral-400 mt-0.5">pts</p>
+              </div>
+            </div>
+          )}
         </StepCard>
       </div>
     )

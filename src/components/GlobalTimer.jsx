@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
-import { Clock, Target, Zap, Scissors, ChevronDown, ChevronUp } from 'lucide-react'
+import { Clock, Target, Zap, Scissors, Activity, RotateCcw } from 'lucide-react'
 
 const MILESTONES = [
-  { minutes: 25, label: 'TC', icon: Target },
-  { minutes: 45, label: 'NIHSS', icon: Zap },
-  { minutes: 60, label: 'Aguja', icon: Scissors },
+  { minutes: 25, label: 'TC', tsKey: 'ctRequest' },
+  { minutes: 45, label: 'NIHSS', tsKey: null },
+  { minutes: 60, label: 'Aguja', tsKey: 'thrombolyticStart' },
 ]
 
 function pad(n) {
@@ -20,134 +20,131 @@ function formatElapsed(seconds) {
 }
 
 function getPhase(minutes) {
-  if (minutes >= 60) return { 
-    bg: 'bg-red-50/80', 
-    border: 'border-red-100',
-    text: 'text-red-600', 
-    badge: 'bg-red-500', 
-    label: 'Ventana vencida' 
+  if (minutes >= 60) return {
+    bg: 'bg-red-600',
+    muted: 'text-red-200',
+    done: 'bg-white/25 text-white',
+    over: 'bg-white/35 text-white',
+    pending: 'bg-white/10 text-white/50',
   }
-  if (minutes >= 30) return { 
-    bg: 'bg-amber-50/80', 
-    border: 'border-amber-100',
-    text: 'text-amber-600', 
-    badge: 'bg-amber-500', 
-    label: `${Math.ceil(60 - minutes)} min` 
+  if (minutes >= 30) return {
+    bg: 'bg-amber-500',
+    muted: 'text-amber-200',
+    done: 'bg-white/25 text-white',
+    over: 'bg-white/35 text-white',
+    pending: 'bg-white/10 text-white/50',
   }
-  return { 
-    bg: 'bg-emerald-50/80', 
-    border: 'border-emerald-100',
-    text: 'text-emerald-600', 
-    badge: 'bg-emerald-500', 
-    label: 'Activa' 
+  return {
+    bg: 'bg-brand-600',
+    muted: 'text-brand-300',
+    done: 'bg-white/25 text-white',
+    over: 'bg-white/30 text-white',
+    pending: 'bg-white/10 text-white/50',
   }
 }
 
-export default function GlobalTimer({ startTime, timestamps = {} }) {
+export default function GlobalTimer({ startTime, timestamps = {}, patient, onReset, progressPct }) {
   const [elapsed, setElapsed] = useState(0)
-  const [expanded, setExpanded] = useState(false)
 
   useEffect(() => {
     if (!startTime) return
-    const tick = () => {
-      setElapsed(Math.floor((Date.now() - startTime.getTime()) / 1000))
-    }
+    const tick = () => setElapsed(Math.floor((Date.now() - startTime.getTime()) / 1000))
     tick()
     const id = setInterval(tick, 1000)
     return () => clearInterval(id)
   }, [startTime])
 
-  if (!startTime) return null
-
   const minutes = elapsed / 60
-  const phase = getPhase(minutes)
+  const phase = startTime ? getPhase(minutes) : null
+  const bg = phase ? phase.bg : 'bg-brand-600'
 
-  const milestoneStatus = MILESTONES.map((m) => {
-    const tsKey = m.label === 'TC' ? 'ctRequest' : m.label === 'Aguja' ? 'thrombolyticStart' : null
-    const done = tsKey && timestamps[tsKey]
-    const elapsedMin = done
-      ? Math.floor((new Date(timestamps[tsKey]).getTime() - startTime.getTime()) / 60000)
-      : null
-    return { ...m, done, elapsedMin }
-  })
+  const milestoneStatus = startTime
+    ? MILESTONES.map((m) => {
+        const done = m.tsKey && timestamps[m.tsKey]
+        const elapsedMin = done
+          ? Math.floor((new Date(timestamps[m.tsKey]).getTime() - startTime.getTime()) / 60000)
+          : null
+        return { ...m, done, elapsedMin }
+      })
+    : []
 
   return (
     <div
-      className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-md border-b transition-all duration-300 ${phase.bg} ${phase.border}`}
+      className={`fixed top-0 left-0 right-0 z-50 ${bg} transition-colors duration-500`}
       style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
     >
-      <div
-        className="flex items-center justify-between px-4 py-2.5 cursor-pointer md:px-6"
-        onClick={() => setExpanded((v) => !v)}
-      >
-        {/* Timer */}
-        <div className="flex items-center gap-3">
-          <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${phase.badge} text-white shadow-timer`}>
-            <Clock size={18} strokeWidth={2} />
+      <div className="flex items-center justify-between px-4 py-3 md:px-6">
+        {/* Left: brand icon + timer or app name */}
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center shrink-0">
+            {startTime
+              ? <Clock size={16} className="text-white" strokeWidth={2} />
+              : <Activity size={16} className="text-white" strokeWidth={2} />
+            }
           </div>
-          <div className="flex items-baseline gap-2">
-            <span className={`font-mono font-bold text-xl tracking-tight ${phase.text}`}>
+          {startTime ? (
+            <span className="font-mono font-bold text-xl text-white tracking-tight tabular-nums">
               {formatElapsed(elapsed)}
             </span>
-            <span className={`text-xs font-medium ${phase.text} opacity-70`}>
-              {phase.label}
-            </span>
-          </div>
+          ) : (
+            <span className="text-white font-semibold text-sm tracking-wide">Código Stroke</span>
+          )}
         </div>
 
-        {/* Milestone pills */}
-        <div className="flex items-center gap-1.5">
-          {milestoneStatus.map((m) => (
-            <span
-              key={m.label}
-              className={`text-[10px] font-medium px-2 py-1 rounded-md transition-colors ${
-                m.done
-                  ? 'bg-emerald-100 text-emerald-700'
-                  : minutes >= m.minutes
-                    ? 'bg-red-100 text-red-600'
-                    : 'bg-white/70 text-neutral-500 border border-neutral-100'
-              }`}
-            >
-              {m.label}
-              {m.done && <span className="ml-0.5 opacity-75">{m.elapsedMin}&apos;</span>}
+        {/* Center: milestone badges when timer is running */}
+        {startTime && (
+          <div className="flex items-center gap-1 mx-2 shrink-0">
+            {milestoneStatus.map((m) => (
+              <span
+                key={m.label}
+                className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-md transition-colors ${
+                  m.done
+                    ? phase.done
+                    : minutes >= m.minutes
+                      ? phase.over
+                      : phase.pending
+                }`}
+              >
+                {m.label}
+                {m.done && <span className="ml-0.5 opacity-75">{m.elapsedMin}&apos;</span>}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* Right: patient name (desktop) + reset */}
+        <div className="flex items-center gap-2 shrink-0">
+          {startTime && patient && (
+            <span className={`text-xs font-medium ${phase.muted} truncate max-w-[140px] hidden md:block`}>
+              {patient.name}
             </span>
-          ))}
-          <button className={`ml-1 p-1 rounded-md ${phase.text} opacity-50 hover:opacity-100 transition-opacity`}>
-            {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-          </button>
+          )}
+          {patient && (
+            <span className={`text-xs font-medium ${phase ? phase.muted : 'text-brand-300'} truncate max-w-[90px] md:hidden`}>
+              {patient.name.split(' ')[0]}
+            </span>
+          )}
+          {onReset && (
+            <button
+              type="button"
+              onClick={onReset}
+              className="w-8 h-8 rounded-lg border border-white/20 bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
+              title="Reiniciar protocolo"
+              aria-label="Reiniciar protocolo"
+            >
+              <RotateCcw size={14} strokeWidth={2} />
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Expanded details */}
-      {expanded && (
-        <div className="px-4 pb-3 md:px-6 animate-slide-down">
-          <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
-            {milestoneStatus.map((m) => {
-              const Icon = m.icon
-              return (
-                <div
-                  key={m.label}
-                  className={`flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-medium whitespace-nowrap transition-colors ${
-                    m.done
-                      ? 'bg-emerald-100 text-emerald-700'
-                      : minutes >= m.minutes
-                        ? 'bg-red-100 text-red-600'
-                        : 'bg-white text-neutral-500 border border-neutral-100'
-                  }`}
-                >
-                  <Icon size={14} strokeWidth={2} />
-                  <span>{m.label}</span>
-                  {m.done ? (
-                    <span className="font-mono">{m.elapsedMin}&apos;</span>
-                  ) : (
-                    <span className="font-mono opacity-60">
-                      {minutes < m.minutes ? `−${Math.ceil(m.minutes - minutes)}'` : 'vencido'}
-                    </span>
-                  )}
-                </div>
-              )
-            })}
-          </div>
+      {/* Progress bar */}
+      {progressPct > 0 && (
+        <div className="h-0.5 bg-white/20">
+          <div
+            className="h-full bg-white/60 rounded-r-full transition-all duration-500"
+            style={{ width: `${progressPct}%` }}
+          />
         </div>
       )}
     </div>
