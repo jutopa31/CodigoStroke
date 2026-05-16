@@ -22,6 +22,7 @@ export default function StepTimeline({ currentStep, completedSteps = [], onStepC
             {STEPS.map((step, index) => {
               const isCompleted = completedSteps.includes(step.value)
               const isActive = currentStep === step.value
+              const isPending = !isCompleted && !isActive
               return (
                 <button
                   key={step.value}
@@ -29,7 +30,9 @@ export default function StepTimeline({ currentStep, completedSteps = [], onStepC
                   aria-label={step.long}
                   onClick={() => onStepClick?.(step.value)}
                   className={`relative flex items-center gap-2.5 w-full text-left rounded-lg py-1.5 pr-2 transition-all group focus:outline-none ${
-                    isActive ? 'bg-white shadow-sm ring-1 ring-gray-100' : 'hover:bg-white/70'
+                    isActive
+                      ? 'bg-brand-50 border-l-2 border-brand-600 ml-[-1px]'
+                      : 'hover:bg-white/70'
                   }`}
                 >
                   <span
@@ -37,8 +40,8 @@ export default function StepTimeline({ currentStep, completedSteps = [], onStepC
                       isCompleted
                         ? 'bg-emerald-500 text-white'
                         : isActive
-                        ? 'bg-brand-600 text-white ring-2 ring-brand-100'
-                        : 'bg-gray-100 text-gray-400 group-hover:bg-gray-200'
+                        ? 'bg-brand-600 text-white ring-2 ring-brand-100 shadow-md'
+                        : 'bg-gray-100 text-gray-300 group-hover:bg-gray-200 group-hover:text-gray-400'
                     }`}
                   >
                     {isCompleted ? <CheckCircle2 size={16} strokeWidth={2.5} /> : index + 1}
@@ -49,6 +52,8 @@ export default function StepTimeline({ currentStep, completedSteps = [], onStepC
                         ? 'text-emerald-700 font-medium'
                         : isActive
                         ? 'text-brand-700 font-semibold'
+                        : isPending
+                        ? 'text-gray-300 italic'
                         : 'text-gray-400 group-hover:text-gray-600'
                     }`}
                   >
@@ -111,7 +116,7 @@ export default function StepTimeline({ currentStep, completedSteps = [], onStepC
                     </span>
                   ) : (
                     <span className="w-8 h-8 rounded-full border-2 border-gray-200 bg-white flex items-center justify-center">
-                      <span className="text-gray-400 text-xs font-semibold leading-none">{index + 1}</span>
+                      <span className="text-gray-300 text-xs font-semibold leading-none">{index + 1}</span>
                     </span>
                   )}
                 </button>

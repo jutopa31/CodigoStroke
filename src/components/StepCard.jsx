@@ -35,14 +35,18 @@ export default function StepCard({
   const isActive = hasRailDot && currentStep === stepValue
 
   const card = (
-    <div className="relative overflow-hidden bg-white rounded-xl shadow-sm border border-gray-100 p-4 md:p-5 animate-slide-down">
+    <div className={`relative overflow-hidden bg-white rounded-xl border border-gray-100 p-4 md:p-5 animate-slide-down transition-shadow duration-300 ${
+      isActive ? 'shadow-card-active ring-1 ring-brand-50' : isCompleted ? 'shadow-card' : 'shadow-card'
+    }`}>
       <span className={`absolute left-0 top-0 bottom-0 w-1.5 ${accents[accent]} rounded-l-xl`} />
       <div className="relative">
         {(step || title) && (
           <div className={`flex items-center gap-2.5 mb-4 ${hasStepDot ? 'pl-6 md:pl-0' : ''}`}>
             {step && (
-              <span className="hidden md:flex w-7 h-7 rounded-full bg-brand-600 text-white text-xs font-bold items-center justify-center shrink-0 shadow-sm">
-                {step}
+              <span className={`hidden md:flex w-7 h-7 rounded-full text-white text-xs font-bold items-center justify-center shrink-0 shadow-sm ${
+                isCompleted ? 'bg-emerald-500' : 'bg-brand-600'
+              }`}>
+                {isCompleted ? <CheckCircle2 size={15} strokeWidth={2.5} /> : step}
               </span>
             )}
             {title && (
