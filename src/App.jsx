@@ -20,6 +20,7 @@ import ThrombectomyStep from './steps/ThrombectomyStep'
 import TimestampPanel from './components/TimestampPanel'
 import AnticoagModal from './components/AnticoagModal'
 import AvisoModal from './components/AvisoModal'
+import VitalsModal from './components/VitalsModal'
 import { saveStrokeEvent, generatePatientId, saveSession } from './lib/storage'
 import { getNihssSeverity } from './content/nihss'
 import { sendStrokeAlert } from './lib/emailService'
@@ -116,6 +117,7 @@ export default function App() {
   const [showOutOfWindow, setShowOutOfWindow] = useState(false)
   const [showAnticoagModal, setShowAnticoagModal] = useState(false)
   const [showAvisoModal, setShowAvisoModal] = useState(false)
+  const [showVitalsModal, setShowVitalsModal] = useState(false)
   const [caseSaved, setCaseSaved] = useState(false)
 
   const timeRef = useRef(null)
@@ -293,16 +295,20 @@ export default function App() {
 
   function handlePatientConfirm(data) {
     const now = new Date()
-    const { systolic, diastolic, glucose, modifiedRankinScale, ...patientData } = data
-    setPatient(patientData)
-    setVitals({ systolic, diastolic, glucose, modifiedRankinScale })
+    setPatient(data)
     setPatientArrivalTime(now)
-    setPatientId(generatePatientId(patientData.name, patientData.dni))
+    setPatientId(generatePatientId(data.name, data.dni))
     setStep(STEP.ALERT)
   }
 
-  async function handleAlertConfirm() {
+  function handleAlertConfirm() {
+    setShowVitalsModal(true)
+  }
+
+  async function handleVitalsModalConfirm(vitalsData) {
     const now = new Date()
+    setVitals(vitalsData)
+    setShowVitalsModal(false)
     setTimerStart(now)
     setStep(STEP.TIME)
     scrollTo(timeRef)
@@ -934,7 +940,7 @@ export default function App() {
             <div className="pointer-events-none absolute left-[21px] top-4 bottom-0 z-0 w-0.5 bg-brand-500 md:hidden" />
           )}
           {step >= STEP.PATIENT && (
-            <div className={step > STEP.ALERT ? 'md:hidden' : ''}>
+            <div>
               <PatientStep
                 onConfirm={handlePatientConfirm}
                 confirmed={step > STEP.ALERT}
@@ -946,7 +952,7 @@ export default function App() {
             </div>
           )}
 
-          {step === STEP.ALERT && patient && (
+          {step === STEP.ALERT && patient && !showVitalsModal && (
             <AlertModal
               patient={patient}
               onConfirm={handleAlertConfirm}
@@ -1012,6 +1018,7 @@ export default function App() {
             </div>
           )}
 
+          <VitalsModal isOpen={showVitalsModal} onConfirm={handleVitalsModalConfirm} />
           <AnticoagModal isOpen={showAnticoagModal} onConfirm={handleAnticoagConfirm} />
           <AvisoModal isOpen={showAvisoModal} onClose={handleAvisoClose} />
 
