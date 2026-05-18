@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { ChevronRight, Calculator, ChevronDown, ChevronUp } from 'lucide-react'
 import StepCard from '../components/StepCard'
 import NihssModal from '../components/NihssModal'
@@ -19,6 +19,8 @@ export default function NihssStep({ onConfirm }) {
   const [showModal, setShowModal] = useState(false)
   const [hasDisabling, setHasDisabling] = useState(null)
   const [showList, setShowList] = useState(false)
+  const noDisablingRef = useRef(null)
+  const continueRef = useRef(null)
 
   const num = parseInt(score, 10)
   const valid = score !== '' && num >= 0 && num <= 42
@@ -28,6 +30,8 @@ export default function NihssStep({ onConfirm }) {
 
   useEffect(() => {
     function onKey(e) {
+      const tag = e.target?.tagName?.toLowerCase()
+      if (tag === 'input' || tag === 'button' || tag === 'select' || tag === 'textarea') return
       if (e.key === 'Enter' && canContinue && !showModal) {
         onConfirm({ nihssScore: num, hasDisablingSymptoms: hasDisabling })
       }
@@ -39,6 +43,16 @@ export default function NihssStep({ onConfirm }) {
   function handleLoad(result) {
     setScore(String(result))
     setShowModal(false)
+  }
+
+  function handleScoreKeyDown(event) {
+    if (event.key !== 'Enter') return
+    event.preventDefault()
+    if (showDisablingBlock) {
+      noDisablingRef.current?.focus()
+      return
+    }
+    if (canContinue && !showModal) onConfirm({ nihssScore: num, hasDisablingSymptoms: hasDisabling })
   }
 
   return (
@@ -60,6 +74,8 @@ export default function NihssStep({ onConfirm }) {
             max={42}
             value={score}
             onChange={(e) => setScore(e.target.value)}
+            onKeyDown={handleScoreKeyDown}
+            autoFocus
             className={`flex-1 rounded-xl border-2 px-4 py-3.5 text-gray-800 text-base font-semibold focus:outline-none focus:ring-2 placeholder-gray-300 ${
               valid
                 ? 'border-orange-500 bg-orange-50/40 ring-2 ring-orange-100 focus:ring-orange-400'
@@ -96,7 +112,11 @@ export default function NihssStep({ onConfirm }) {
 
           <div className="grid grid-cols-2 gap-3 mb-3">
             <SelectableButton
-              onClick={() => setHasDisabling(false)}
+              buttonRef={noDisablingRef}
+              onClick={() => {
+                setHasDisabling(false)
+                requestAnimationFrame(() => continueRef.current?.focus())
+              }}
               active={hasDisabling === false}
               tone="gray"
               className="flex items-center justify-center gap-2 py-3.5 font-bold text-base"
@@ -104,7 +124,10 @@ export default function NihssStep({ onConfirm }) {
               NO
             </SelectableButton>
             <SelectableButton
-              onClick={() => setHasDisabling(true)}
+              onClick={() => {
+                setHasDisabling(true)
+                requestAnimationFrame(() => continueRef.current?.focus())
+              }}
               active={hasDisabling === true}
               tone="orange"
               className="flex items-center justify-center gap-2 py-3.5 font-bold text-base"
@@ -144,6 +167,7 @@ export default function NihssStep({ onConfirm }) {
       )}
 
       <PrimaryAction
+        buttonRef={continueRef}
         onClick={() => onConfirm({ nihssScore: num, hasDisablingSymptoms: hasDisabling })}
         valid={canContinue}
         disabledLabel={valid ? 'Responde sintomas discapacitantes para continuar' : 'Ingresa NIHSS para continuar'}

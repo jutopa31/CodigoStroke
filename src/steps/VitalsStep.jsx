@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { AlertTriangle, ChevronRight, HelpCircle } from 'lucide-react'
 import StepCard from '../components/StepCard'
 import { PrimaryAction, SectionPrompt } from '../components/GuidedControls'
@@ -21,18 +21,21 @@ function VitalAlert({ message }) {
   )
 }
 
-function CompactInput({ label, value, onChange, placeholder, danger = false, maxLength, suffix, hint }) {
+function CompactInput({ label, value, onChange, placeholder, danger = false, maxLength, suffix, hint, inputRef, onKeyDown, autoFocus = false }) {
   return (
     <label className="block min-w-0">
       <span className="mb-1 block truncate text-[11px] font-bold uppercase tracking-wider text-slate-500">{label}</span>
       <div className="relative">
         <input
+          ref={inputRef}
           type="text"
           inputMode="numeric"
           maxLength={maxLength}
           placeholder={placeholder}
           value={value}
           onChange={(event) => onChange(event.target.value.replace(/\D/g, '').slice(0, maxLength))}
+          onKeyDown={onKeyDown}
+          autoFocus={autoFocus}
           className={`h-12 w-full rounded-lg border-2 bg-slate-50 px-3 text-center text-lg font-bold text-slate-900 outline-none transition placeholder:text-slate-300 ${
             danger
               ? 'border-red-400 bg-red-50/50 focus:border-red-500 focus:ring-2 focus:ring-red-100'
@@ -58,6 +61,11 @@ export default function VitalsStep({ onConfirm }) {
   const [dia, setDia] = useState('')
   const [glucose, setGlucose] = useState('')
   const [showMrsHelp, setShowMrsHelp] = useState(false)
+  const sysRef = useRef(null)
+  const diaRef = useRef(null)
+  const glucoseRef = useRef(null)
+  const mrsButtonRefs = useRef([])
+  const continueRef = useRef(null)
 
   const mrsNum = parseInt(mrs, 10)
   const sysNum = parseFloat(sys)
@@ -74,7 +82,10 @@ export default function VitalsStep({ onConfirm }) {
 
   function handleMrsChange(value) {
     const digit = value.replace(/\D/g, '').slice(0, 1)
-    if (digit === '' || Number(digit) <= 5) setMrs(digit)
+    if (digit === '' || Number(digit) <= 5) {
+      setMrs(digit)
+      requestAnimationFrame(() => continueRef.current?.focus())
+    }
   }
 
   function handleSubmit() {
@@ -90,8 +101,27 @@ export default function VitalsStep({ onConfirm }) {
     })
   }
 
+  function focusRef(ref) {
+    requestAnimationFrame(() => ref.current?.focus())
+  }
+
+  function focusMrs() {
+    requestAnimationFrame(() => {
+      const index = mrsValid ? mrsNum : 0
+      mrsButtonRefs.current[index]?.focus()
+    })
+  }
+
+  function handleFieldEnter(event, next) {
+    if (event.key !== 'Enter') return
+    event.preventDefault()
+    next()
+  }
+
   useEffect(() => {
     function onKey(e) {
+      const tag = e.target?.tagName?.toLowerCase()
+      if (tag === 'input' || tag === 'button' || tag === 'select' || tag === 'textarea') return
       if (e.key === 'Enter' && valid) handleSubmit()
     }
     window.addEventListener('keydown', onKey)
@@ -114,14 +144,48 @@ export default function VitalsStep({ onConfirm }) {
             Tensión arterial (mmHg)
           </label>
           <div className="grid grid-cols-2 gap-3">
-            <CompactInput label="Sistólica" value={sys} onChange={setSys} placeholder="185" danger={Boolean(taCritical)} maxLength={3} suffix="mmHg" hint="Normal: <140" />
-            <CompactInput label="Diastólica" value={dia} onChange={setDia} placeholder="110" danger={Boolean(taDia)} maxLength={3} suffix="mmHg" hint="Normal: <90" />
+            <CompactInput
+              label="Sistólica"
+              value={sys}
+              onChange={setSys}
+              placeholder="185"
+              danger={Boolean(taCritical)}
+              maxLength={3}
+              suffix="mmHg"
+              hint="Normal: <140"
+              inputRef={sysRef}
+              autoFocus
+              onKeyDown={(event) => handleFieldEnter(event, () => focusRef(diaRef))}
+            />
+            <CompactInput
+              label="Diastólica"
+              value={dia}
+              onChange={setDia}
+              placeholder="110"
+              danger={Boolean(taDia)}
+              maxLength={3}
+              suffix="mmHg"
+              hint="Normal: <90"
+              inputRef={diaRef}
+              onKeyDown={(event) => handleFieldEnter(event, () => focusRef(glucoseRef))}
+            />
           </div>
         </div>
 
         {/* Glucemia */}
         <div className="mb-4">
-          <CompactInput label="Glucemia" value={glucose} onChange={setGlucose} placeholder="120" danger={Boolean(glucLow || glucHigh)} maxLength={3} suffix="mg/dL" hint="Normal: 70–140" />
+          <CompactInput
+            label="Glucemia"
+            value={glucose}
+            onChange={setGlucose}
+            placeholder="120"
+            danger={Boolean(glucLow || glucHigh)}
+            maxLength={3}
+            suffix="mg/dL"
+            hint="Normal: 70–140"
+            inputRef={glucoseRef}
+            onKeyDown={(event) => handleFieldEnter(event, focusMrs)}
+          />
         </div>
 
         {/* mRS — propia fila */}
@@ -154,8 +218,15 @@ export default function VitalsStep({ onConfirm }) {
             {MRS_OPTIONS.map((option) => (
               <button
                 key={option.score}
+                ref={(element) => { mrsButtonRefs.current[option.score] = element }}
                 type="button"
                 onClick={() => handleMrsChange(String(option.score))}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' && valid) {
+                    event.preventDefault()
+                    handleSubmit()
+                  }
+                }}
                 className={`py-2.5 rounded-lg border-2 text-sm font-bold transition-all active:scale-95 ${
                   mrsNum === option.score
                     ? 'border-blue-500 bg-blue-50 text-blue-700 ring-2 ring-blue-100'
@@ -182,6 +253,7 @@ export default function VitalsStep({ onConfirm }) {
       </StepCard>
 
       <PrimaryAction
+        buttonRef={continueRef}
         onClick={handleSubmit}
         valid={Boolean(valid)}
         disabledLabel="Completa mRS, TA y glucemia"

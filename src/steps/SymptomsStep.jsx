@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
   AlertCircle,
   Calculator,
@@ -223,8 +223,9 @@ function AnticoagulationModal({ onClose, onConfirm }) {
   )
 }
 
-function NihssCompactPanel({ score, onScoreChange, hasDisabling, onDisablingChange }) {
+function NihssCompactPanel({ score, onScoreChange, hasDisabling, onDisablingChange, inputRef, onReadyEnter }) {
   const [showModal, setShowModal] = useState(false)
+  const disablingNoRef = useRef(null)
   const num = parseInt(score, 10)
   const valid = score !== '' && Number.isInteger(num) && num >= 0 && num <= 42
   const severity = valid ? getNihssSeverity(num) : null
@@ -242,6 +243,16 @@ function NihssCompactPanel({ score, onScoreChange, hasDisabling, onDisablingChan
       onScoreChange(String(next))
       if (next >= 5) onDisablingChange(null)
     }
+  }
+
+  function handleScoreKeyDown(event) {
+    if (event.key !== 'Enter') return
+    event.preventDefault()
+    if (needsDisabling) {
+      disablingNoRef.current?.focus()
+      return
+    }
+    if (valid) onReadyEnter?.()
   }
 
   return (
@@ -263,6 +274,7 @@ function NihssCompactPanel({ score, onScoreChange, hasDisabling, onDisablingChan
 
       <div className="flex items-center gap-2">
         <input
+          ref={inputRef}
           id="nihss-score"
           type="text"
           inputMode="numeric"
@@ -270,6 +282,7 @@ function NihssCompactPanel({ score, onScoreChange, hasDisabling, onDisablingChan
           placeholder="0-42"
           value={score}
           onChange={(event) => handleScoreChange(event.target.value)}
+          onKeyDown={handleScoreKeyDown}
           className={`h-12 w-24 rounded-lg border-2 bg-slate-50 text-center text-xl font-bold outline-none transition ${
             valid
               ? 'border-orange-400 text-orange-900 ring-2 ring-orange-100 focus:border-orange-500'
@@ -293,6 +306,7 @@ function NihssCompactPanel({ score, onScoreChange, hasDisabling, onDisablingChan
             return (
               <button
                 key={option.label}
+                ref={option.value === false ? disablingNoRef : undefined}
                 type="button"
                 aria-pressed={active}
                 onClick={() => onDisablingChange(option.value)}
@@ -335,6 +349,8 @@ export default function SymptomsStep({ onConfirm }) {
   const [showAnticoagulationModal, setShowAnticoagulationModal] = useState(false)
   const [nihssScore, setNihssScore] = useState('')
   const [hasDisablingSymptoms, setHasDisablingSymptoms] = useState(null)
+  const nihssInputRef = useRef(null)
+  const continueButtonRef = useRef(null)
 
   useInterval(1000)
 
@@ -359,6 +375,7 @@ export default function SymptomsStep({ onConfirm }) {
 
   function toggle(id) {
     setSelected((s) => ({ ...s, [id]: !s[id] }))
+    requestAnimationFrame(() => nihssInputRef.current?.focus())
   }
 
   function applyOffset(mins) {
@@ -382,6 +399,8 @@ export default function SymptomsStep({ onConfirm }) {
 
   useEffect(() => {
     function onKey(e) {
+      const tag = e.target?.tagName?.toLowerCase()
+      if (tag === 'input' || tag === 'button' || tag === 'select' || tag === 'textarea') return
       if (e.key === 'Enter' && valid && !showWakeUpModal && !showAnticoagulationModal) handleSubmit()
     }
     window.addEventListener('keydown', onKey)
@@ -465,7 +484,12 @@ export default function SymptomsStep({ onConfirm }) {
             score={nihssScore}
             onScoreChange={setNihssScore}
             hasDisabling={hasDisablingSymptoms}
-            onDisablingChange={setHasDisablingSymptoms}
+            onDisablingChange={(value) => {
+              setHasDisablingSymptoms(value)
+              requestAnimationFrame(() => continueButtonRef.current?.focus())
+            }}
+            inputRef={nihssInputRef}
+            onReadyEnter={handleSubmit}
           />
         </div>
       </StepCard>
@@ -551,6 +575,7 @@ export default function SymptomsStep({ onConfirm }) {
       </StepCard>
 
       <button
+        ref={continueButtonRef}
         onClick={handleSubmit}
         disabled={!valid}
         className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-semibold py-3.5 rounded-lg transition-all disabled:bg-gray-200 disabled:text-gray-500 disabled:opacity-100 disabled:cursor-not-allowed"

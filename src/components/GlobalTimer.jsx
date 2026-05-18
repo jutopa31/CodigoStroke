@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Clock, Target, Zap, Scissors, Activity, RotateCcw } from 'lucide-react'
+import { Clock, Activity, RotateCcw } from 'lucide-react'
 
 const MILESTONES = [
   { minutes: 25, label: 'TC', tsKey: 'ctRequest' },

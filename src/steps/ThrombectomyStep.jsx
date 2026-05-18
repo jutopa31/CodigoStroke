@@ -1,13 +1,13 @@
 import { useState } from 'react'
-import { ChevronRight, Bell, Calculator, Clock } from 'lucide-react'
+import { ChevronRight, Bell, Calculator, Clock, Radio, Target, Brain } from 'lucide-react'
 import StepCard from '../components/StepCard'
 import AspectModal from '../components/AspectModal'
 import { SelectionCheck } from '../components/GuidedControls'
 
 function getAspectColor(score) {
-  if (score >= 8) return 'text-emerald-600 bg-emerald-50 border-emerald-200'
-  if (score >= 6) return 'text-amber-600 bg-amber-50 border-amber-200'
-  return 'text-red-600 bg-red-50 border-red-200'
+  if (score >= 8) return 'text-emerald-700 bg-emerald-50 border-emerald-200'
+  if (score >= 6) return 'text-amber-700 bg-amber-50 border-amber-200'
+  return 'text-red-700 bg-red-50 border-red-200'
 }
 
 function getAspectLabel(score) {
@@ -33,9 +33,9 @@ export default function ThrombectomyStep({
     initialAspectScore !== null && initialAspectScore !== undefined ? String(initialAspectScore) : ''
   )
   const [showAspectModal, setShowAspectModal] = useState(false)
-  const aspectFromCT = initialAspectScore !== null && initialAspectScore !== undefined
 
   const highNihss = nihssScore >= 6
+  const aspectFromCT = initialAspectScore !== null && initialAspectScore !== undefined
   const aspectNum = aspectScore !== '' ? parseInt(aspectScore, 10) : null
   const aspectValid = aspectNum !== null && aspectNum >= 0 && aspectNum <= 10
   const needsOGVAnswer = angioRequested === true
@@ -44,10 +44,21 @@ export default function ThrombectomyStep({
     (!needsOGVAnswer || ogvFound !== null) &&
     (!needsThrombectomyTime || thrombectomyActivationTime)
 
+  const angioLabel = isWakeUpStroke ? 'AngioRMN/TOF' : 'AngioTAC'
+  const aspectScores = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+
   function handleAngioRequest() {
     const now = new Date()
     setAngioRequested(true)
+    setOgvFound(null)
+    setNotified(false)
     onAngioRequest?.(now)
+  }
+
+  function handleNoAngio() {
+    setAngioRequested(false)
+    setOgvFound(null)
+    setNotified(false)
   }
 
   function handleThrombectomyActivation() {
@@ -56,238 +67,274 @@ export default function ThrombectomyStep({
 
   return (
     <div className="px-4 pb-4 space-y-3">
-      <StepCard step="8" title="Trombectomía mecánica — Evaluación" accent="blue">
-
+      <StepCard step="8" title="Trombectomía mecánica" accent="blue">
         {highNihss && (
-          <div className="mb-4 bg-blue-50 border border-blue-200 rounded-xl px-4 py-3">
+          <div className="mb-4 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">
             <p className="text-xs font-semibold text-blue-700">
               NIHSS {nihssScore} — considerar oclusión de gran vaso (OGV)
             </p>
           </div>
         )}
 
-        {/* ASPECTS */}
-        <div className="mb-5">
-          <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">
-            ASPECTS — Puntaje de TC precoz
-          </p>
-          {aspectFromCT ? (
-            <div className={`flex items-center gap-2 border rounded-xl px-3 py-2.5 ${getAspectColor(aspectNum)}`}>
-              <span className="text-xl font-bold font-mono">{aspectNum}</span>
-              <span className="text-xs font-semibold">{getAspectLabel(aspectNum)}</span>
-              <span className="ml-auto text-[11px] text-gray-400 font-medium">Evaluado en TAC</span>
-            </div>
-          ) : (
-            <>
-              <div className="flex items-center gap-3">
-                <input
-                  type="number"
-                  inputMode="numeric"
-                  placeholder="0–10"
-                  min={0}
-                  max={10}
-                  value={aspectScore}
-                  onChange={(e) => setAspectScore(e.target.value)}
-                  className="flex-1 border border-gray-200 rounded-xl px-4 py-3.5 text-gray-800 text-base focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent placeholder-gray-300"
-                />
-                <button
-                  onClick={() => setShowAspectModal(true)}
-                  className="flex items-center gap-2 px-4 py-3.5 border border-indigo-300 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-xl font-medium text-sm transition-colors whitespace-nowrap"
-                >
-                  <Calculator size={16} /> Calcular
-                </button>
+        <div className={`overflow-hidden rounded-2xl border transition-all duration-200 ${
+          ogvFound === true
+            ? 'border-blue-200 bg-blue-50/70 shadow-card'
+            : ogvFound === false || angioRequested === false
+              ? 'border-emerald-200 bg-emerald-50/70 shadow-card'
+              : 'border-blue-100 bg-white shadow-card'
+        }`}>
+          <div className="flex items-start gap-3 px-4 py-4 sm:px-5">
+            <span className={`mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-white transition-colors ${
+              angioRequested === null ? 'bg-blue-600' : angioRequested ? 'bg-blue-600' : 'bg-slate-500'
+            }`}>
+              <Radio size={21} strokeWidth={2.4} />
+            </span>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                <p className="text-sm font-bold leading-tight text-blue-900">
+                  ¿Se solicitó {angioLabel}?
+                </p>
+                {angioRequested === true && angioRequestTime && (
+                  <span className="inline-flex items-center gap-1 rounded-md bg-white/75 px-2 py-1 text-[11px] font-semibold text-blue-700 ring-1 ring-blue-100">
+                    <Clock size={11} />
+                    {angioRequestTime.toLocaleTimeString('es-AR')}
+                  </span>
+                )}
               </div>
-              {aspectValid && (
-                <div className={`mt-2 flex items-center gap-2 border rounded-xl px-3 py-2.5 animate-fade-in ${getAspectColor(aspectNum)}`}>
-                  <span className="text-xl font-bold font-mono">{aspectNum}</span>
-                  <span className="text-xs font-semibold">{getAspectLabel(aspectNum)}</span>
-                  {aspectNum <= 5 && (
-                    <span className="ml-auto text-xs font-semibold text-red-600">Cambios extensos</span>
-                  )}
-                </div>
-              )}
-            </>
-          )}
-        </div>
+              <p className="mt-1 text-xs leading-relaxed text-blue-700">
+                Tocá una opción y el resultado de OGV aparece en este mismo campo.
+              </p>
+            </div>
+          </div>
 
-        <div className="border-t border-gray-100 pt-4">
-          <p className="text-sm font-medium text-gray-700 mb-4">
-            {isWakeUpStroke
-              ? '¿Se solicitó AngioRMN / TOF-MRA de encéfalo y cuello para descartar OGV?'
-              : '¿Se solicitó AngioTAC de encéfalo y cuello para descartar OGV?'}
-          </p>
-
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-2 border-t border-blue-100 bg-white/70 p-3">
             <button
-              onClick={() => { setAngioRequested(false); setOgvFound(null); setNotified(false) }}
-              className={`py-5 rounded-xl border-2 font-bold text-xl transition-all active:scale-95 ${
+              type="button"
+              onClick={handleNoAngio}
+              className={`flex min-h-[58px] items-center justify-center gap-2 rounded-xl border px-3 py-3 text-sm font-bold transition-all active:scale-[0.98] ${
                 angioRequested === false
-                  ? 'bg-slate-100 border-slate-500 text-slate-800 shadow-sm ring-2 ring-slate-100'
-                  : 'border-gray-200 text-gray-500 hover:bg-gray-50'
+                  ? 'border-slate-500 bg-slate-700 text-white shadow-elevated'
+                  : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50'
               }`}
             >
-              <span className="inline-flex items-center justify-center gap-2">
-                <SelectionCheck active={angioRequested === false} tone="gray" />
-                NO
-              </span>
+              <SelectionCheck active={angioRequested === false} tone="gray" />
+              No
             </button>
             <button
+              type="button"
               onClick={handleAngioRequest}
-              className={`py-5 rounded-xl border-2 font-bold text-xl transition-all active:scale-95 ${
+              className={`flex min-h-[58px] items-center justify-center gap-2 rounded-xl border px-3 py-3 text-sm font-bold transition-all active:scale-[0.98] ${
                 angioRequested === true
-                  ? 'bg-blue-50 border-blue-600 text-blue-900 shadow-sm ring-2 ring-blue-100'
-                  : 'border-gray-200 text-gray-500 hover:border-blue-300 hover:bg-blue-50'
+                  ? 'border-blue-600 bg-blue-600 text-white shadow-elevated'
+                  : 'border-blue-200 bg-white text-blue-700 hover:border-blue-300 hover:bg-blue-50'
               }`}
             >
-              SÍ
+              <SelectionCheck active={angioRequested === true} tone="blue" />
+              Sí, {angioLabel}
             </button>
           </div>
-          {angioRequested === true && angioRequestTime && (
-            <div className="mt-2 flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2 animate-fade-in">
-              <Clock size={13} className="text-blue-500 shrink-0" />
-              <span className="text-xs text-blue-700 font-medium">
-                {isWakeUpStroke ? 'AngioRMN/TOF' : 'AngioTAC'} solicitada a las {angioRequestTime.toLocaleTimeString('es-AR')}
-              </span>
-            </div>
-          )}
 
           {angioRequested === false && (
-            <div className="mt-4 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 animate-fade-in">
-              <p className="text-xs font-semibold text-amber-700 mb-1">
+            <div className="border-t border-amber-100 bg-amber-50 px-4 py-3 animate-fade-in">
+              <p className="text-xs font-semibold text-amber-800">
                 {highNihss
-                  ? `⚠ NIHSS ≥ 6 — considerar solicitar ${isWakeUpStroke ? 'AngioRMN/TOF-MRA' : 'AngioTAC'}`
-                  : `⚠ Considerar ${isWakeUpStroke ? 'AngioRMN/TOF-MRA' : 'AngioTAC'} si hay sospecha clínica de OGV`}
+                  ? `NIHSS ≥ 6 — considerar solicitar ${angioLabel}`
+                  : `Considerar ${angioLabel} si hay sospecha clínica de OGV`}
               </p>
-              <p className="text-xs text-amber-600 leading-relaxed">
-                Ventana para trombectomía: hasta 6h (estándar) · hasta 24h con perfusión favorable (DAWN/DEFUSE-3).
+              <p className="mt-1 text-xs leading-relaxed text-amber-700">
+                Ventana para trombectomía: hasta 6h estándar, hasta 24h con perfusión favorable.
               </p>
             </div>
           )}
 
           {angioRequested === true && (
-            <div className="mt-4 space-y-3 animate-fade-in">
-              <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3">
-                <p className="text-xs font-semibold text-blue-700 mb-1">
-                  {isWakeUpStroke ? 'AngioRMN/TOF-MRA solicitada — pendiente resultado' : 'AngioTAC solicitada — pendiente resultado'}
-                </p>
-                <p className="text-xs text-blue-600 leading-relaxed">
-                  Si confirma oclusión de ICA, M1 o M2 → notificar a hemodinamia.
-                </p>
-              </div>
-
-              {/* OGV result question */}
-              <div className="border-t border-gray-100 pt-4">
-                <p className="text-sm font-medium text-gray-700 mb-3">
-                  {isWakeUpStroke ? '¿AngioRMN/TOF positivo para OGV (oclusión de gran vaso)?' : '¿AngioTAC positivo para OGV (oclusión de gran vaso)?'}
-                </p>
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    onClick={() => { setOgvFound(false); setNotified(false) }}
-                    className={`py-4 rounded-xl border-2 font-bold text-lg transition-all active:scale-95 ${
-                      ogvFound === false
-                        ? 'bg-slate-100 border-slate-500 text-slate-800 shadow-sm'
-                        : 'border-gray-200 text-gray-500 hover:bg-gray-50'
-                    }`}
-                  >
-                    NO
-                  </button>
-                  <button
-                    onClick={() => setOgvFound(true)}
-                    className={`py-4 rounded-xl border-2 font-bold text-lg transition-all active:scale-95 ${
-                      ogvFound === true
-                        ? 'bg-blue-50 border-blue-600 text-blue-900 shadow-sm'
-                        : 'border-gray-200 text-gray-500 hover:border-blue-300 hover:bg-blue-50'
-                    }`}
-                  >
-                    SÍ
-                  </button>
-                </div>
-              </div>
-
-              {ogvFound === false && (
-                <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 animate-fade-in">
-                  <p className="text-xs font-semibold text-emerald-700">
-                    ✓ Sin OGV — no requiere trombectomía mecánica
+            <div className="border-t border-blue-100 bg-white/80 p-3 animate-scale-in">
+              <div className="mb-3 flex items-start gap-2 rounded-xl border border-blue-100 bg-blue-50 px-3 py-2.5">
+                <Target size={16} className="mt-0.5 shrink-0 text-blue-600" />
+                <div>
+                  <p className="text-xs font-bold text-blue-800">¿Tiene OGV?</p>
+                  <p className="text-xs leading-relaxed text-blue-700">
+                    ICA, M1 o M2 positiva → activar circuito de trombectomía.
                   </p>
                 </div>
-              )}
+              </div>
 
-              {ogvFound === true && (
-                <div className="space-y-3 animate-fade-in">
-                  <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3">
-                    <p className="text-xs font-semibold text-blue-700 mb-1">
-                      OGV confirmado — notificar a hemodinamia
-                    </p>
-                    <p className="text-xs text-blue-600 leading-relaxed">
-                      Oclusión de ICA, M1 o M2 → activar circuito de trombectomía mecánica.
-                    </p>
-                  </div>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => { setOgvFound(false); setNotified(false) }}
+                  className={`flex min-h-[58px] items-center justify-center gap-2 rounded-xl border px-3 py-3 text-sm font-bold transition-all active:scale-[0.98] ${
+                    ogvFound === false
+                      ? 'border-emerald-500 bg-emerald-600 text-white shadow-elevated'
+                      : 'border-emerald-200 bg-white text-emerald-700 hover:border-emerald-300 hover:bg-emerald-50'
+                  }`}
+                >
+                  <SelectionCheck active={ogvFound === false} tone="green" />
+                  No OGV
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setOgvFound(true)}
+                  className={`flex min-h-[58px] items-center justify-center gap-2 rounded-xl border px-3 py-3 text-sm font-bold transition-all active:scale-[0.98] ${
+                    ogvFound === true
+                      ? 'border-blue-600 bg-blue-600 text-white shadow-elevated'
+                      : 'border-blue-200 bg-white text-blue-700 hover:border-blue-300 hover:bg-blue-50'
+                  }`}
+                >
+                  <SelectionCheck active={ogvFound === true} tone="blue" />
+                  Sí OGV
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
 
+        <div className="mt-3 overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-card">
+          <div className="flex items-start gap-3 px-4 py-4 sm:px-5">
+            <span className={`mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-white ${
+              aspectValid ? 'bg-emerald-500' : 'bg-blue-600'
+            }`}>
+              <Brain size={21} strokeWidth={2.4} />
+            </span>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <p className="text-sm font-bold leading-tight text-neutral-900">Puntaje ASPECTS</p>
+                  <p className="mt-1 text-xs leading-relaxed text-neutral-500">
+                    Elegí 0-10 sin abrir el teclado, o calculalo por regiones.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowAspectModal(true)}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-bold text-blue-700 transition-colors hover:bg-blue-100"
+                >
+                  <Calculator size={14} />
+                  Calcular
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {aspectFromCT ? (
+            <div className={`mx-3 mb-3 flex items-center gap-2 rounded-xl border px-3 py-3 ${getAspectColor(aspectNum)}`}>
+              <span className="font-mono text-xl font-bold">{aspectNum}</span>
+              <span className="text-xs font-semibold">{getAspectLabel(aspectNum)}</span>
+              <span className="ml-auto text-[11px] font-medium opacity-70">Evaluado en TAC</span>
+            </div>
+          ) : (
+            <div className="border-t border-neutral-100 bg-neutral-50/60 p-3">
+              <div className="grid grid-cols-6 gap-2 sm:grid-cols-11">
+                {aspectScores.map((score) => (
                   <button
-                    onClick={() => setNotified(true)}
-                    className={`w-full flex items-center justify-center gap-2 py-4 rounded-xl font-semibold text-sm transition-all active:scale-95 ${
-                      notified
-                        ? 'bg-emerald-600 border-2 border-emerald-600 text-white'
-                        : 'bg-brand-600 hover:bg-brand-700 text-white'
+                    key={score}
+                    type="button"
+                    onClick={() => setAspectScore(String(score))}
+                    className={`flex h-11 items-center justify-center rounded-xl border text-sm font-bold transition-all active:scale-[0.96] ${
+                      aspectNum === score
+                        ? `${getAspectColor(score)} shadow-card`
+                        : 'border-neutral-200 bg-white text-neutral-600 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700'
                     }`}
                   >
-                    <Bell size={17} />
-                    {notified ? '✓ Hemodinamia notificada' : 'Notificar al servicio de Hemodinamia'}
+                    {score}
                   </button>
+                ))}
+              </div>
 
-                  <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">
-                    <div className="flex items-start gap-3">
-                      <Clock size={18} className="text-blue-600 shrink-0 mt-0.5" />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-blue-800">Activación de trombectomía mecánica</p>
-                        <p className="text-xs text-blue-700 mt-0.5">
-                          Registrar cuando se activa/inicia el circuito de trombectomía.
-                        </p>
-                        {thrombectomyActivationTime && (
-                          <p className="text-sm font-mono font-semibold text-blue-900 mt-2">
-                            {thrombectomyActivationTime.toLocaleTimeString('es-AR')}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={handleThrombectomyActivation}
-                      className="mt-3 w-full rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition-all hover:bg-blue-700 active:scale-95"
-                    >
-                      {thrombectomyActivationTime ? 'Actualizar activación' : 'Registrar activación'}
-                    </button>
-                  </div>
+              {aspectValid && (
+                <div className={`mt-3 flex items-center gap-2 rounded-xl border px-3 py-3 animate-fade-in ${getAspectColor(aspectNum)}`}>
+                  <span className="font-mono text-xl font-bold">{aspectNum}</span>
+                  <span className="text-xs font-semibold">{getAspectLabel(aspectNum)}</span>
+                  {aspectNum <= 5 && (
+                    <span className="ml-auto text-xs font-semibold">Cambios extensos</span>
+                  )}
                 </div>
               )}
             </div>
           )}
         </div>
+
+        {ogvFound === false && (
+          <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 animate-fade-in">
+            <p className="text-xs font-semibold text-emerald-700">
+              Sin OGV — no requiere trombectomía mecánica.
+            </p>
+          </div>
+        )}
+
+        {ogvFound === true && (
+          <div className="mt-3 space-y-3 animate-fade-in">
+            <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">
+              <p className="text-xs font-semibold text-blue-700">OGV confirmado — notificar a hemodinamia</p>
+              <p className="mt-1 text-xs leading-relaxed text-blue-600">
+                Oclusión de ICA, M1 o M2 → activar circuito de trombectomía mecánica.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setNotified(true)}
+              className={`flex w-full items-center justify-center gap-2 rounded-xl py-4 text-sm font-semibold transition-all active:scale-[0.98] ${
+                notified
+                  ? 'border-2 border-emerald-600 bg-emerald-600 text-white'
+                  : 'bg-brand-600 text-white hover:bg-brand-700'
+              }`}
+            >
+              <Bell size={17} />
+              {notified ? 'Hemodinamia notificada' : 'Notificar al servicio de Hemodinamia'}
+            </button>
+
+            <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">
+              <div className="flex items-start gap-3">
+                <Clock size={18} className="mt-0.5 shrink-0 text-blue-600" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-blue-800">Activación de trombectomía mecánica</p>
+                  <p className="mt-0.5 text-xs text-blue-700">
+                    Registrar cuando se activa o inicia el circuito.
+                  </p>
+                  {thrombectomyActivationTime && (
+                    <p className="mt-2 font-mono text-sm font-semibold text-blue-900">
+                      {thrombectomyActivationTime.toLocaleTimeString('es-AR')}
+                    </p>
+                  )}
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={handleThrombectomyActivation}
+                className="mt-3 w-full rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition-all hover:bg-blue-700 active:scale-[0.98]"
+              >
+                {thrombectomyActivationTime ? 'Actualizar activación' : 'Registrar activación'}
+              </button>
+            </div>
+          </div>
+        )}
       </StepCard>
 
       {!canContinue && (
-        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 space-y-1">
+        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
           <p className="font-semibold text-amber-900">Para finalizar el protocolo falta:</p>
-          <ul className="list-disc list-inside space-y-0.5 text-amber-800">
-            {angioRequested === null && <li>Indicar si se solicitó AngioTAC</li>}
-            {!aspectValid && <li>Registrar el puntaje ASPECTS (0–10)</li>}
-            {needsOGVAnswer && ogvFound === null && <li>Indicar si el AngioTAC fue positivo para OGV</li>}
+          <ul className="mt-1 list-inside list-disc space-y-0.5">
+            {angioRequested === null && <li>Indicar si se solicitó {angioLabel}</li>}
+            {needsOGVAnswer && ogvFound === null && <li>Indicar si tiene OGV</li>}
+            {!aspectValid && <li>Registrar el puntaje ASPECTS (0-10)</li>}
             {needsThrombectomyTime && !thrombectomyActivationTime && <li>Registrar la activación de trombectomía</li>}
           </ul>
         </div>
       )}
 
       <button
+        type="button"
         onClick={() => onConfirm({
           angioRequested,
-          angioRequestTime: angioRequestTime?.toISOString(),
+          angioRequestTime: angioRequested ? angioRequestTime?.toISOString() : null,
           ogvFound,
           hemodinamisNotified: notified,
           aspectScore: aspectNum,
           thrombectomyActivationTime: thrombectomyActivationTime?.toISOString(),
         })}
         disabled={!canContinue}
-        className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-semibold py-4 rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+        className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-600 py-4 font-semibold text-white transition-all hover:bg-brand-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-neutral-100 disabled:text-neutral-400"
       >
         Finalizar protocolo <ChevronRight size={18} />
       </button>

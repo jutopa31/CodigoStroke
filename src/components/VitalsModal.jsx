@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Activity, HelpCircle, ChevronRight, AlertTriangle } from 'lucide-react'
 
 const MRS_OPTIONS = [
@@ -25,6 +25,9 @@ export default function VitalsModal({ isOpen, onConfirm }) {
   const [glucose, setGlucose] = useState('')
   const [mrs, setMrs] = useState('')
   const [showMrsHelp, setShowMrsHelp] = useState(false)
+  const diaRef = useRef(null)
+  const glucoseRef = useRef(null)
+  const mrsRef = useRef(null)
 
   if (!isOpen) return null
 
@@ -54,6 +57,12 @@ export default function VitalsModal({ isOpen, onConfirm }) {
       glucose: glucNum,
       modifiedRankinScale: { score: mrsNum, label: MRS_OPTIONS.find((o) => o.score === mrsNum)?.label ?? '' },
     })
+  }
+
+  function focusOnEnter(event, ref) {
+    if (event.key !== 'Enter') return
+    event.preventDefault()
+    ref.current?.focus()
   }
 
   const fieldClass = (critical, filled) =>
@@ -96,6 +105,8 @@ export default function VitalsModal({ isOpen, onConfirm }) {
                 placeholder="185"
                 value={sys}
                 onChange={(e) => setSys(e.target.value.replace(/\D/g, '').slice(0, 3))}
+                onKeyDown={(event) => focusOnEnter(event, diaRef)}
+                autoFocus
                 className={fieldClass(taCritical, !!sys)}
               />
             </label>
@@ -106,12 +117,14 @@ export default function VitalsModal({ isOpen, onConfirm }) {
                 TA diastólica <span className="text-xs text-neutral-400">mmHg</span>
               </span>
               <input
+                ref={diaRef}
                 type="text"
                 inputMode="numeric"
                 maxLength={3}
                 placeholder="110"
                 value={dia}
                 onChange={(e) => setDia(e.target.value.replace(/\D/g, '').slice(0, 3))}
+                onKeyDown={(event) => focusOnEnter(event, glucoseRef)}
                 className={fieldClass(taDiaCritical, !!dia)}
               />
             </label>
@@ -122,12 +135,14 @@ export default function VitalsModal({ isOpen, onConfirm }) {
                 Glucemia <span className="text-xs text-neutral-400">mg/dL</span>
               </span>
               <input
+                ref={glucoseRef}
                 type="text"
                 inputMode="numeric"
                 maxLength={3}
                 placeholder="120"
                 value={glucose}
                 onChange={(e) => setGlucose(e.target.value.replace(/\D/g, '').slice(0, 3))}
+                onKeyDown={(event) => focusOnEnter(event, mrsRef)}
                 className={fieldClass(glucLow || glucHigh, !!glucose)}
               />
             </label>
@@ -146,12 +161,19 @@ export default function VitalsModal({ isOpen, onConfirm }) {
                 </button>
               </span>
               <input
+                ref={mrsRef}
                 type="text"
                 inputMode="numeric"
                 maxLength={1}
                 placeholder="0-5"
                 value={mrs}
                 onChange={(e) => handleMrsChange(e.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' && valid) {
+                    event.preventDefault()
+                    handleConfirm()
+                  }
+                }}
                 className={`h-11 w-20 rounded-xl border bg-neutral-50 px-2 text-center text-base font-semibold text-neutral-800 outline-none transition placeholder:text-neutral-300 ${
                   mrsValid
                     ? 'border-neutral-400 bg-neutral-50 focus:border-neutral-500 focus:ring-2 focus:ring-neutral-100'

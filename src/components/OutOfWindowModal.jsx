@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { X, Clock, Pill, AlertTriangle } from 'lucide-react'
 
 const ANTECEDENTES = [
@@ -47,6 +47,7 @@ export default function OutOfWindowModal({ patient, onClose, onSave }) {
   const [medOtro, setMedOtro] = useState('')
   const [nihss, setNihss] = useState('')
   const [decision, setDecision] = useState(null)
+  const sintomasRef = useRef(null)
 
   const isAcod = ACOD.includes(anticoagulante)
 
@@ -68,6 +69,12 @@ export default function OutOfWindowModal({ patient, onClose, onSave }) {
       registeredAt: new Date().toISOString(),
     })
     onClose()
+  }
+
+  function focusOnEnter(event, ref) {
+    if (event.key !== 'Enter') return
+    event.preventDefault()
+    ref.current?.focus()
   }
 
   return (
@@ -133,6 +140,8 @@ export default function OutOfWindowModal({ patient, onClose, onSave }) {
                 placeholder="Otro antecedente..."
                 value={antecOtro}
                 onChange={(e) => setAntecOtro(e.target.value)}
+                onKeyDown={(event) => focusOnEnter(event, sintomasRef)}
+                autoFocus
                 className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-slate-400 placeholder-gray-300"
               />
             </div>
@@ -152,6 +161,7 @@ export default function OutOfWindowModal({ patient, onClose, onSave }) {
                     {label}{optional && <span className="text-gray-400 ml-1">(si se conoce)</span>}
                   </label>
                   <input
+                    ref={label.startsWith('Inicio') ? sintomasRef : undefined}
                     type="datetime-local"
                     value={value}
                     max={toLocalInput(new Date())}

@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react'
 import { v4 as uuidv4 } from 'uuid'
-import { Clock, Copy, Check } from 'lucide-react'
+import { Copy, Check } from 'lucide-react'
 import GlobalTimer from './components/GlobalTimer'
 import AlertModal from './components/AlertModal'
 import StepTimeline from './components/StepTimeline'

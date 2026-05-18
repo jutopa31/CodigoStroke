@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { User, CreditCard, Lock, ChevronRight, CheckCircle2 } from 'lucide-react'
 import StepCard, { CollapsedStep } from '../components/StepCard'
 
@@ -10,6 +10,8 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
   const [dni, setDni] = useState('')
   const [name, setName] = useState('')
   const [passphrase, setPassphrase] = useState('')
+  const nameRef = useRef(null)
+  const passphraseRef = useRef(null)
 
   const valid = dni.trim().length >= 7 && name.trim().length >= 2
   const showHint = !valid && (dni.length > 0 || name.length > 0)
@@ -22,6 +24,12 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
       name: name.trim(),
       passphrase: passphrase.trim(),
     })
+  }
+
+  function focusNext(event, ref) {
+    if (event.key !== 'Enter') return
+    event.preventDefault()
+    ref.current?.focus()
   }
 
   // Collapsed one-liner
@@ -108,6 +116,8 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
                 placeholder="Número de documento"
                 value={dni}
                 onChange={(e) => setDni(e.target.value)}
+                onKeyDown={(event) => focusNext(event, nameRef)}
+                autoFocus
                 className="w-full bg-neutral-50 border border-neutral-200 rounded-xl px-4 py-3 text-neutral-800 text-base focus:bg-white focus:ring-2 focus:ring-brand-100 focus:border-brand-300 placeholder-neutral-300 transition-all"
                 required
               />
@@ -117,10 +127,12 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
                 <User size={12} strokeWidth={2} /> Nombre
               </label>
               <input
+                ref={nameRef}
                 type="text"
                 placeholder="Nombre y apellido"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                onKeyDown={(event) => focusNext(event, passphraseRef)}
                 className="w-full bg-neutral-50 border border-neutral-200 rounded-xl px-4 py-3 text-neutral-800 text-base focus:bg-white focus:ring-2 focus:ring-brand-100 focus:border-brand-300 placeholder-neutral-300 transition-all"
                 required
               />
@@ -132,6 +144,7 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
               <Lock size={12} strokeWidth={2} /> Contraseña de turno
             </label>
             <input
+              ref={passphraseRef}
               type="password"
               placeholder="Frase de acceso (opcional)"
               value={passphrase}
