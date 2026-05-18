@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react'
 import { v4 as uuidv4 } from 'uuid'
-import { Copy, Check } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Copy, Check } from 'lucide-react'
 import GlobalTimer from './components/GlobalTimer'
 import AlertModal from './components/AlertModal'
 import StepTimeline from './components/StepTimeline'
@@ -87,6 +87,41 @@ function SummarySection({ title, children }) {
     <div className="rounded-2xl bg-white border border-neutral-100 px-4 py-4">
       <h3 className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400 mb-3">{title}</h3>
       <div className="grid gap-2 md:grid-cols-2">{children}</div>
+    </div>
+  )
+}
+
+function FloatingProtocolNav({
+  onBack,
+  onForward,
+  canGoBack,
+  canGoForward,
+  forwardLabel,
+}) {
+  return (
+    <div className="fixed bottom-[calc(6.25rem+env(safe-area-inset-bottom,0px))] right-3 z-50 flex items-center gap-2 rounded-2xl border border-neutral-200 bg-white/95 p-2 shadow-elevated backdrop-blur-md md:bottom-6 md:right-6">
+      <button
+        type="button"
+        onClick={onBack}
+        disabled={!canGoBack}
+        title="Volver al paso anterior"
+        aria-label="Volver al paso anterior"
+        className="flex h-11 min-w-11 items-center justify-center gap-1.5 rounded-xl border border-neutral-200 bg-white px-3 text-sm font-semibold text-neutral-700 transition-all hover:bg-neutral-50 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
+      >
+        <ChevronLeft size={18} strokeWidth={2.4} />
+        <span className="hidden sm:inline">Atras</span>
+      </button>
+      <button
+        type="button"
+        onClick={onForward}
+        disabled={!canGoForward}
+        title={forwardLabel}
+        aria-label={forwardLabel}
+        className="flex h-11 min-w-11 items-center justify-center gap-1.5 rounded-xl bg-brand-600 px-3 text-sm font-semibold text-white transition-all hover:bg-brand-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-neutral-100 disabled:text-neutral-400"
+      >
+        <span className="hidden sm:inline">Adelante</span>
+        <ChevronRight size={18} strokeWidth={2.4} />
+      </button>
     </div>
   )
 }
@@ -400,6 +435,8 @@ export default function App() {
 
   function handleTimeConfirm(data) {
     setSymptoms((prev) => ({ ...prev, ...data }))
+    advanceTo(STEP.NIHSS_SYMPTOMS)
+    scrollTo(nihssRef)
   }
 
   function handleSymptomsNihssConfirm(data) {
@@ -604,6 +641,107 @@ export default function App() {
       ? ctResult?.mismatch === true
       : (nihss?.nihssScore >= 5 || nihss?.hasDisablingSymptoms === true)
   ) && !symptoms?.anticoagulation?.active
+
+  function getProtocolPath() {
+    const path = [
+      { step: STEP.PATIENT, target: 'top', label: 'Datos del paciente' },
+      { step: STEP.TIME, target: 'time', label: 'Tiempo de sintomas' },
+      { step: STEP.NIHSS_SYMPTOMS, target: 'nihss', label: 'Sintomas / NIHSS' },
+      { step: STEP.CT_RESULT, target: 'ctResult', label: symptoms?.isWakeUpStroke ? 'RMN de encefalo' : 'TAC de encefalo' },
+    ]
+
+    if (thrombolysisPathActive) {
+      path.push({ step: STEP.CONTRAINDICATIONS, target: 'contraindications', label: 'Contraindicaciones' })
+
+      if (!contraindications?.hasAbsolute && !contraindications?.decidedNotToThrombolyze) {
+        path.push({ step: STEP.DOSAGE, target: 'dosage', label: 'Dosis trombolitico' })
+      }
+    }
+
+    path.push({ step: STEP.THROMBECTOMY, target: 'thrombectomy', label: 'Trombectomia' })
+    path.push({ step: STEP.DONE, target: 'done', label: 'Resumen final' })
+    return path
+  }
+
+  function getNextMissingTarget() {
+    if (!symptoms?.lastSeenNormal) {
+      return { step: STEP.TIME, target: 'time', label: 'Completar tiempo de sintomas' }
+    }
+    if (!nihss) {
+      return { step: STEP.NIHSS_SYMPTOMS, target: 'nihss', label: 'Completar sintomas / NIHSS' }
+    }
+    if (!symptoms?.anticoagulation) {
+      return { step: STEP.NIHSS_SYMPTOMS, target: 'nihss', label: 'Completar anticoagulacion' }
+    }
+    if (!ctResult) {
+      return { step: STEP.CT_RESULT, target: 'ctResult', label: symptoms?.isWakeUpStroke ? 'Completar RMN' : 'Completar TAC' }
+    }
+    if (thrombolysisPathActive && !contraindications) {
+      return { step: STEP.CONTRAINDICATIONS, target: 'contraindications', label: 'Completar contraindicaciones' }
+    }
+    if (
+      thrombolysisPathActive &&
+      !contraindications?.hasAbsolute &&
+      !contraindications?.decidedNotToThrombolyze &&
+      !dosage
+    ) {
+      return { step: STEP.DOSAGE, target: 'dosage', label: 'Completar dosis trombolitico' }
+    }
+    if (!ctResult?.bleeding && !thrombectomy) {
+      return { step: STEP.THROMBECTOMY, target: 'thrombectomy', label: 'Completar trombectomia' }
+    }
+    return null
+  }
+
+  function goToProtocolTarget(target) {
+    if (!target) return
+    if (target.step > step) {
+      setStep(target.step)
+    }
+
+    const refMap = {
+      time: timeRef,
+      nihss: nihssRef,
+      ctResult: ctResultRef,
+      contraindications: contraindicationsRef,
+      dosage: dosageRef,
+      thrombectomy: thrombectomyRef,
+      done: doneRef,
+    }
+    const ref = refMap[target.target]
+
+    if (ref) {
+      scrollTo(ref)
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }
+
+  function handleProtocolBack() {
+    const path = getProtocolPath()
+    const currentIndex = path.findIndex((item) => item.step === step)
+    const fallbackIndex = path.reduce((last, item, index) => (item.step < step ? index : last), 0)
+    const targetIndex = Math.max(0, (currentIndex >= 0 ? currentIndex : fallbackIndex) - 1)
+    const target = path[targetIndex]
+
+    if (showAlertModal) setShowAlertModal(false)
+    if (showVitalsModal) setShowVitalsModal(false)
+    if (showAnticoagModal) setShowAnticoagModal(false)
+    if (showAvisoModal) setShowAvisoModal(false)
+
+    setStep(target.step)
+    goToProtocolTarget(target)
+  }
+
+  function handleProtocolForward() {
+    goToProtocolTarget(getNextMissingTarget())
+  }
+
+  const nextMissingTarget = getNextMissingTarget()
+  const canUseProtocolNav = patient && step > STEP.ALERT
+  const protocolPath = getProtocolPath()
+  const currentProtocolIndex = protocolPath.findIndex((item) => item.step === step)
+  const canGoBack = canUseProtocolNav && (currentProtocolIndex > 0 || step > STEP.PATIENT)
 
   const RED_CONTRA_LABELS = {
     prior_ich:         'Hemorragia intracraneal previa o actual',
@@ -925,6 +1063,16 @@ export default function App() {
             latestGlucose={latestGlucose}
           />
         </div>
+      )}
+
+      {canUseProtocolNav && (
+        <FloatingProtocolNav
+          onBack={handleProtocolBack}
+          onForward={handleProtocolForward}
+          canGoBack={canGoBack}
+          canGoForward={Boolean(nextMissingTarget)}
+          forwardLabel={nextMissingTarget?.label ?? 'Protocolo completo'}
+        />
       )}
 
       {/* Modal ACV fuera de ventana */}
