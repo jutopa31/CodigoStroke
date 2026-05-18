@@ -86,11 +86,6 @@ export default function CTResultStep({ onConfirm, initialCtRequestTime = null, o
                   </span>
                 )}
               </div>
-              <p className={`mt-1 text-xs leading-relaxed ${tacConfirmed ? 'text-emerald-700' : 'text-blue-700'}`}>
-                {tacConfirmed
-                  ? 'Registrar sangre ahora, sin mover el foco de este campo.'
-                  : 'Registrar la solicitud y dejar listo el resultado de sangre en el mismo lugar.'}
-              </p>
             </div>
           </div>
 
