@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { ChevronRight, CheckCircle2, Circle, Hospital, Ban, Pill, BarChart2, Brain, Microscope, Heart, Clock, Plus } from 'lucide-react'
 import StepCard from '../components/StepCard'
 import NihssModal from '../components/NihssModal'
@@ -76,6 +76,8 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
   const [showNihssInput, setShowNihssInput] = useState(false)
   const [showNihssCalc, setShowNihssCalc] = useState(false)
   const [nihssEntrySource, setNihssEntrySource] = useState('manual')
+  const startButtonRef = useRef(null)
+  const checklistRefs = useRef([])
 
   const weight = parseFloat(weightStr)
   const validWeight = !isNaN(weight) && weight > 0 && weight <= 250
@@ -99,6 +101,7 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
 
   function handleThrombolyticStart() {
     onThrombolyticStart?.(new Date())
+    requestAnimationFrame(() => checklistRefs.current[0]?.focus())
   }
 
   const nihssNum = parseInt(nihssEntry, 10)
@@ -184,6 +187,13 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
             placeholder="kg"
             value={weightStr}
             onChange={(e) => setWeightStr(e.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter' && validWeight) {
+                event.preventDefault()
+                startButtonRef.current?.focus()
+              }
+            }}
+            autoFocus
             className="flex-1 border border-gray-200 rounded-xl px-3 py-3 text-gray-800 text-xl font-bold text-center focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent placeholder-gray-300"
           />
           <button onClick={() => adjust(+1)}  className="px-3 py-3 rounded-xl border border-gray-200 text-gray-600 font-semibold text-sm hover:bg-gray-50 active:scale-95 transition-all">+1</button>
@@ -282,6 +292,7 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
             </div>
             <button
               type="button"
+              ref={startButtonRef}
               onClick={handleThrombolyticStart}
               className="mt-3 w-full rounded-xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white transition-all hover:bg-emerald-700 active:scale-95"
             >
@@ -391,12 +402,18 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
           Confirmá cada medida antes de continuar.
         </p>
         <div className="space-y-2">
-          {POST_CHECKLIST.map((item) => {
+          {POST_CHECKLIST.map((item, index) => {
             const done = !!checked[item.id]
             return (
               <button
                 key={item.id}
+                ref={(element) => { checklistRefs.current[index] = element }}
                 onClick={() => toggleCheck(item.id)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    requestAnimationFrame(() => checklistRefs.current[index + 1]?.focus())
+                  }
+                }}
                 className={`w-full flex items-start gap-3 px-4 py-3.5 rounded-xl border-2 text-left transition-all ${
                   done ? 'bg-green-50 border-green-500 text-green-900 shadow-sm ring-2 ring-green-100' : 'border-gray-200 hover:border-green-300 hover:bg-green-50/40'
                 }`}
