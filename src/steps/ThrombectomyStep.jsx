@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ChevronRight, Bell, Calculator, Clock, Radio, Target, Brain } from 'lucide-react'
+import { ChevronRight, ChevronDown, ChevronUp, Bell, Calculator, Clock, Radio, Target, Brain } from 'lucide-react'
 import StepCard from '../components/StepCard'
 import AspectModal from '../components/AspectModal'
 import { SelectionCheck } from '../components/GuidedControls'
@@ -30,7 +30,7 @@ export default function ThrombectomyStep({
   const [ogvFound, setOgvFound] = useState(null)
   const [notified, setNotified] = useState(false)
   const [aspectScore, setAspectScore] = useState(
-    initialAspectScore !== null && initialAspectScore !== undefined ? String(initialAspectScore) : ''
+    initialAspectScore !== null && initialAspectScore !== undefined ? String(initialAspectScore) : '10'
   )
   const [showAspectModal, setShowAspectModal] = useState(false)
 
@@ -63,6 +63,12 @@ export default function ThrombectomyStep({
 
   function handleThrombectomyActivation() {
     onThrombectomyActivation?.(new Date())
+  }
+
+  function adjustAspect(delta) {
+    const current = aspectValid ? aspectNum : 10
+    const next = Math.min(10, Math.max(0, current + delta))
+    setAspectScore(String(next))
   }
 
   return (
@@ -101,9 +107,6 @@ export default function ThrombectomyStep({
                   </span>
                 )}
               </div>
-              <p className="mt-1 text-xs leading-relaxed text-blue-700">
-                Tocá una opción y el resultado de OGV aparece en este mismo campo.
-              </p>
             </div>
           </div>
 
@@ -200,9 +203,6 @@ export default function ThrombectomyStep({
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
                   <p className="text-sm font-bold leading-tight text-neutral-900">Puntaje ASPECTS</p>
-                  <p className="mt-1 text-xs leading-relaxed text-neutral-500">
-                    Elegí 0-10 sin abrir el teclado, o calculalo por regiones.
-                  </p>
                 </div>
                 <button
                   type="button"
@@ -224,6 +224,31 @@ export default function ThrombectomyStep({
             </div>
           ) : (
             <div className="border-t border-neutral-100 bg-neutral-50/60 p-3">
+              <div className="mb-3 grid grid-cols-[56px_1fr_56px] items-stretch gap-2">
+                <button
+                  type="button"
+                  onClick={() => adjustAspect(-1)}
+                  disabled={aspectNum <= 0}
+                  aria-label="Bajar ASPECTS"
+                  className="flex min-h-[54px] items-center justify-center rounded-xl border border-neutral-200 bg-white text-neutral-700 transition-all hover:border-red-200 hover:bg-red-50 hover:text-red-700 active:scale-[0.96] disabled:cursor-not-allowed disabled:opacity-35"
+                >
+                  <ChevronDown size={24} strokeWidth={2.5} />
+                </button>
+                <div className={`flex min-h-[54px] items-center justify-center gap-2 rounded-xl border px-3 ${getAspectColor(aspectNum)}`}>
+                  <span className="font-mono text-2xl font-bold">{aspectNum}</span>
+                  <span className="text-xs font-semibold">{getAspectLabel(aspectNum)}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => adjustAspect(1)}
+                  disabled={aspectNum >= 10}
+                  aria-label="Subir ASPECTS"
+                  className="flex min-h-[54px] items-center justify-center rounded-xl border border-neutral-200 bg-white text-neutral-700 transition-all hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700 active:scale-[0.96] disabled:cursor-not-allowed disabled:opacity-35"
+                >
+                  <ChevronUp size={24} strokeWidth={2.5} />
+                </button>
+              </div>
+
               <div className="grid grid-cols-6 gap-2 sm:grid-cols-11">
                 {aspectScores.map((score) => (
                   <button
@@ -241,13 +266,9 @@ export default function ThrombectomyStep({
                 ))}
               </div>
 
-              {aspectValid && (
-                <div className={`mt-3 flex items-center gap-2 rounded-xl border px-3 py-3 animate-fade-in ${getAspectColor(aspectNum)}`}>
-                  <span className="font-mono text-xl font-bold">{aspectNum}</span>
-                  <span className="text-xs font-semibold">{getAspectLabel(aspectNum)}</span>
-                  {aspectNum <= 5 && (
-                    <span className="ml-auto text-xs font-semibold">Cambios extensos</span>
-                  )}
+              {aspectNum <= 5 && (
+                <div className="mt-3 rounded-xl border border-red-200 bg-red-50 px-3 py-3 text-xs font-semibold text-red-700 animate-fade-in">
+                  Cambios extensos
                 </div>
               )}
             </div>
