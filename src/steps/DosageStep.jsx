@@ -178,13 +178,13 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
           Peso del paciente (kg)
         </label>
 
-        <div className="flex items-center gap-2 mb-3">
-          <button onClick={() => adjust(-5)}  className="px-3 py-3 rounded-xl border border-gray-200 text-gray-600 font-semibold text-sm hover:bg-gray-50 active:scale-95 transition-all">−5</button>
-          <button onClick={() => adjust(-1)}  className="px-3 py-3 rounded-xl border border-gray-200 text-gray-600 font-semibold text-sm hover:bg-gray-50 active:scale-95 transition-all">−1</button>
+        <div className="mb-3 grid grid-cols-[2.35rem_2.35rem_minmax(0,1fr)_2.35rem_2.35rem] items-center gap-1.5 sm:grid-cols-[auto_auto_minmax(0,1fr)_auto_auto] sm:gap-2">
+          <button onClick={() => adjust(-5)}  className="h-11 rounded-xl border border-gray-200 text-gray-600 font-semibold text-sm hover:bg-gray-50 active:scale-95 transition-all sm:px-3">−5</button>
+          <button onClick={() => adjust(-1)}  className="h-11 rounded-xl border border-gray-200 text-gray-600 font-semibold text-sm hover:bg-gray-50 active:scale-95 transition-all sm:px-3">−1</button>
           <input
             type="number"
             inputMode="decimal"
-            placeholder="kg"
+            placeholder="70"
             value={weightStr}
             onChange={(e) => setWeightStr(e.target.value)}
             onKeyDown={(event) => {
@@ -194,10 +194,10 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
               }
             }}
             autoFocus
-            className="flex-1 border border-gray-200 rounded-xl px-3 py-3 text-gray-800 text-xl font-bold text-center focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent placeholder-gray-300"
+            className="w-full min-w-0 border border-gray-200 rounded-xl px-3 py-3 text-gray-800 text-xl font-bold text-center focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent placeholder-gray-300"
           />
-          <button onClick={() => adjust(+1)}  className="px-3 py-3 rounded-xl border border-gray-200 text-gray-600 font-semibold text-sm hover:bg-gray-50 active:scale-95 transition-all">+1</button>
-          <button onClick={() => adjust(+5)}  className="px-3 py-3 rounded-xl border border-gray-200 text-gray-600 font-semibold text-sm hover:bg-gray-50 active:scale-95 transition-all">+5</button>
+          <button onClick={() => adjust(+1)}  className="h-11 rounded-xl border border-gray-200 text-gray-600 font-semibold text-sm hover:bg-gray-50 active:scale-95 transition-all sm:px-3">+1</button>
+          <button onClick={() => adjust(+5)}  className="h-11 rounded-xl border border-gray-200 text-gray-600 font-semibold text-sm hover:bg-gray-50 active:scale-95 transition-all sm:px-3">+5</button>
         </div>
 
         {/* Weight presets */}
