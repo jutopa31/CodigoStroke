@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Activity, HelpCircle, ChevronRight, AlertTriangle } from 'lucide-react'
 
 const MRS_OPTIONS = [
@@ -19,6 +19,27 @@ function VitalAlert({ message }) {
   )
 }
 
+function useVisualViewportHeight() {
+  const [height, setHeight] = useState(null)
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined
+    const viewport = window.visualViewport
+    const updateHeight = () => setHeight(Math.round(viewport?.height ?? window.innerHeight))
+
+    updateHeight()
+    viewport?.addEventListener('resize', updateHeight)
+    window.addEventListener('resize', updateHeight)
+
+    return () => {
+      viewport?.removeEventListener('resize', updateHeight)
+      window.removeEventListener('resize', updateHeight)
+    }
+  }, [])
+
+  return height
+}
+
 export default function VitalsModal({ isOpen, onConfirm }) {
   const [sys, setSys] = useState('')
   const [dia, setDia] = useState('')
@@ -28,6 +49,7 @@ export default function VitalsModal({ isOpen, onConfirm }) {
   const diaRef = useRef(null)
   const glucoseRef = useRef(null)
   const mrsRef = useRef(null)
+  const visualViewportHeight = useVisualViewportHeight()
 
   if (!isOpen) return null
 
@@ -75,8 +97,11 @@ export default function VitalsModal({ isOpen, onConfirm }) {
     }`
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-modal overflow-hidden animate-scale-in">
+    <div
+      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/40 px-4 pb-4 pt-[max(3.75rem,env(safe-area-inset-top,0px))] backdrop-blur-sm sm:items-center sm:py-4"
+      style={visualViewportHeight ? { '--visual-viewport-height': `${visualViewportHeight}px` } : undefined}
+    >
+      <div className="w-full max-w-md max-h-[calc(var(--visual-viewport-height,100svh)-4.5rem)] overflow-y-auto bg-white rounded-2xl shadow-modal animate-scale-in sm:max-h-[calc(100svh-2rem)]">
         {/* Header */}
         <div className="bg-brand-600 px-5 py-4">
           <div className="flex items-center gap-3">

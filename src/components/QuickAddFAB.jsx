@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Brain, Heart, Droplets, X, RotateCcw, Clock } from 'lucide-react'
 import NihssModal from './NihssModal'
@@ -11,14 +11,38 @@ function getNihssSeverity(score) {
   return                   { label: 'Severo',          color: 'text-red-600',     bg: 'bg-red-50',     border: 'border-red-100' }
 }
 
+function useVisualViewportHeight() {
+  const [height, setHeight] = useState(null)
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined
+    const viewport = window.visualViewport
+    const updateHeight = () => setHeight(Math.round(viewport?.height ?? window.innerHeight))
+
+    updateHeight()
+    viewport?.addEventListener('resize', updateHeight)
+    window.addEventListener('resize', updateHeight)
+
+    return () => {
+      viewport?.removeEventListener('resize', updateHeight)
+      window.removeEventListener('resize', updateHeight)
+    }
+  }, [])
+
+  return height
+}
+
 function ModalShell({ title, onClose, onConfirm, confirmLabel = 'Registrar', confirmDisabled = false, children }) {
+  const visualViewportHeight = useVisualViewportHeight()
+
   return (
     <div
-      className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-start justify-center overflow-y-auto px-4 pb-4 pt-[max(3.5rem,env(safe-area-inset-top,0px))] sm:items-center sm:p-4"
+      style={visualViewportHeight ? { '--visual-viewport-height': `${visualViewportHeight}px` } : undefined}
       onClick={onClose}
     >
       <div
-        className="bg-white w-full max-w-xs rounded-2xl shadow-modal animate-scale-in"
+        className="bg-white w-full max-w-xs max-h-[calc(var(--visual-viewport-height,100svh)-4rem)] overflow-y-auto rounded-2xl shadow-modal animate-scale-in sm:max-h-[calc(100svh-2rem)]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -209,18 +233,23 @@ function GlucoseQuickModal({ onClose, onConfirm }) {
       onConfirm={handleConfirm}
       confirmDisabled={!isValid}
     >
-      <div className="flex items-baseline gap-2">
-        <input
-          type="number"
-          inputMode="numeric"
-          min={0}
-          placeholder="mg/dL"
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          autoFocus
-          className="flex-1 border border-neutral-200 rounded-xl px-4 py-3 text-2xl font-semibold text-center text-neutral-800 focus:outline-none focus:ring-2 focus:ring-violet-200 focus:border-violet-300 transition"
-        />
-        <span className="text-sm text-neutral-400 font-medium">mg/dL</span>
+      <div>
+        <label className="mb-1.5 block text-xs font-medium text-neutral-500">Glucemia</label>
+        <div className="relative">
+          <input
+            type="number"
+            inputMode="numeric"
+            min={0}
+            placeholder="120"
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            autoFocus
+            className="w-full border border-neutral-200 rounded-xl py-3 pl-4 pr-16 text-2xl font-semibold text-center text-neutral-800 focus:outline-none focus:ring-2 focus:ring-violet-200 focus:border-violet-300 transition placeholder:text-neutral-300"
+          />
+          <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-sm font-semibold text-neutral-400">
+            mg/dL
+          </span>
+        </div>
       </div>
 
       {isHypo && (
