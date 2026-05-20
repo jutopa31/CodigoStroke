@@ -339,7 +339,7 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
             )
           })}
 
-          {/* Todas realizadas — full width, dark blue, advances */}
+          {/* Todas realizadas — dark blue, same size as other cells */}
           <button
             type="button"
             onClick={() => {
@@ -347,11 +347,14 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
               setChecked(allDone)
               onConfirm({ drug, weight, dose, checklist: allDone, thrombolyticStartTime: thrombolyticStartTime?.toISOString() })
             }}
-            className="col-span-2 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border-2 border-blue-900 bg-blue-900 text-white text-xs font-semibold transition-all active:scale-[0.97] hover:bg-blue-800"
+            className="flex flex-col items-start gap-1.5 px-3 py-2.5 rounded-xl border-2 border-blue-900 bg-blue-900 text-left transition-all active:scale-[0.97] hover:bg-blue-800"
           >
-            <CheckCircle2 size={14} className="text-blue-200" />
-            Todas realizadas — finalizar protocolo
-            <ChevronRight size={14} className="text-blue-300" />
+            <div className="flex items-center justify-between w-full">
+              <CheckCircle2 size={14} className="text-blue-200" />
+              <ChevronRight size={14} className="text-blue-300" />
+            </div>
+            <p className="text-xs font-semibold leading-snug text-white">Todas realizadas</p>
+            <p className="text-[9px] text-blue-300 leading-snug">Finalizar protocolo</p>
           </button>
         </div>
 
