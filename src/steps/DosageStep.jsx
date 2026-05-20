@@ -2,122 +2,74 @@ import { useRef, useState } from 'react'
 import { ChevronRight, CheckCircle2, Circle, Hospital, Ban, Pill, BarChart2, Brain, Microscope, Heart, Clock, Plus } from 'lucide-react'
 import StepCard from '../components/StepCard'
 import NihssModal from '../components/NihssModal'
-import { SelectionCheck } from '../components/GuidedControls'
 
 const WEIGHT_PRESETS = [50, 60, 70, 80, 90, 100]
 
 const POST_CHECKLIST = [
-  {
-    id: 'bp_control',
-    label: 'Control de TA estricto post-trombolisis',
-    sub: 'c/15 min × 2h → c/30 min × 6h → c/1h × 16h  ·  Meta: < 180/105 mmHg',
-    Icon: BarChart2,
-  },
-  {
-    id: 'serial_nihss',
-    label: 'NIHSS seriado',
-    sub: 'Al inicio · 30 min · 1h · 2h · 6h · 24h',
-    Icon: Brain,
-  },
-  {
-    id: 'icu',
-    label: 'Monitoreo continuo en UTI / Shockroom',
-    sub: 'ECG, SatO₂, PANI cada 15 min las primeras 2h',
-    Icon: Hospital,
-  },
-  {
-    id: 'no_invasive',
-    label: 'Evitar procedimientos invasivos 24h',
-    sub: 'NO sonda vesical, SNG ni vía arterial',
-    Icon: Ban,
-  },
-  {
-    id: 'no_antithrombotic',
-    label: 'NO heparina ni antiagregantes 24h',
-    sub: 'Iniciar antitrombóticos solo después de TC de control',
-    Icon: Pill,
-  },
-  {
-    id: 'ct_control',
-    label: 'TC de control a las 24h',
-    sub: 'Antes de iniciar anticoagulación o antiagregantes',
-    Icon: Microscope,
-  },
-  {
-    id: 'cardiology',
-    label: 'Solicitar ecocardiograma y Holter',
-    sub: 'Estudio de fuente embólica cardíaca',
-    Icon: Heart,
-  },
+  { id: 'bp_control',       label: 'Control TA',         sub: '< 180/105 · c/15 min × 2h',           Icon: BarChart2 },
+  { id: 'serial_nihss',     label: 'NIHSS seriado',      sub: '30 min · 1h · 2h · 6h · 24h',         Icon: Brain },
+  { id: 'icu',              label: 'UCI / Shockroom',    sub: 'ECG + SatO₂ + PANI c/15 min',          Icon: Hospital },
+  { id: 'no_invasive',      label: 'Sin procedimientos', sub: 'NO sonda, SNG ni vía arterial 24h',    Icon: Ban },
+  { id: 'no_antithrombotic',label: 'Sin antitrombóticos',sub: 'Solo post TC control a las 24h',       Icon: Pill },
+  { id: 'ct_control',       label: 'TC a las 24h',       sub: 'Antes de anticoag/antiagregantes',      Icon: Microscope },
+  { id: 'cardiology',       label: 'Eco + Holter',       sub: 'Estudio de fuente embólica',            Icon: Heart },
 ]
 
-function round1(n) {
-  return Math.round(n * 10) / 10
-}
+function round1(n) { return Math.round(n * 10) / 10 }
 
 function calcRtPA(kg) {
-  const total = Math.min(round1(kg * 0.9), 90)
-  const bolo = round1(total * 0.1)
+  const total    = Math.min(round1(kg * 0.9), 90)
+  const bolo     = round1(total * 0.1)
   const infusion = round1(total * 0.9)
   return { total, bolo, infusion }
 }
 
 function calcTNK(kg) {
-  const total = Math.min(round1(kg * 0.25), 25)
-  return { total }
+  return { total: Math.min(round1(kg * 0.25), 25) }
+}
+
+function fmtTime(date) {
+  return date?.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' }) ?? null
 }
 
 export default function DosageStep({ onConfirm, thrombolyticStartTime = null, onThrombolyticStart, onAddNihss }) {
-  const [drug, setDrug] = useState('tnk')
+  const [view, setView]           = useState('dose')   // 'dose' | 'post'
+  const [drug, setDrug]           = useState('tnk')
   const [weightStr, setWeightStr] = useState('')
-  const [checked, setChecked] = useState({})
-  const [nihssEntry, setNihssEntry] = useState('')
+  const [checked, setChecked]     = useState({})
+  const [nihssEntry, setNihssEntry]   = useState('')
   const [nihssRecords, setNihssRecords] = useState([])
   const [showNihssInput, setShowNihssInput] = useState(false)
-  const [showNihssCalc, setShowNihssCalc] = useState(false)
+  const [showNihssCalc, setShowNihssCalc]   = useState(false)
   const [nihssEntrySource, setNihssEntrySource] = useState('manual')
   const startButtonRef = useRef(null)
-  const checklistRefs = useRef([])
 
-  const weight = parseFloat(weightStr)
+  const weight      = parseFloat(weightStr)
   const validWeight = !isNaN(weight) && weight > 0 && weight <= 250
-
   const rtpa = validWeight ? calcRtPA(weight) : null
-  const tnk = validWeight ? calcTNK(weight) : null
+  const tnk  = validWeight ? calcTNK(weight)  : null
   const dose = drug === 'tnk' ? tnk : rtpa
 
-  const allChecked = POST_CHECKLIST.every((item) => checked[item.id])
-  const canContinue = validWeight && allChecked && thrombolyticStartTime
+  const checkedCount = Object.values(checked).filter(Boolean).length
+  const allChecked   = checkedCount === POST_CHECKLIST.length
+  const canContinue  = validWeight && allChecked && thrombolyticStartTime
 
   function adjust(delta) {
     const current = parseFloat(weightStr) || 0
-    const next = Math.max(1, Math.min(250, current + delta))
-    setWeightStr(String(next))
-  }
-
-  function toggleCheck(id) {
-    setChecked((c) => ({ ...c, [id]: !c[id] }))
+    setWeightStr(String(Math.max(1, Math.min(250, current + delta))))
   }
 
   function handleThrombolyticStart() {
     onThrombolyticStart?.(new Date())
-    requestAnimationFrame(() => checklistRefs.current[0]?.focus())
+    setTimeout(() => setView('post'), 300)
   }
 
-  const nihssNum = parseInt(nihssEntry, 10)
+  const nihssNum   = parseInt(nihssEntry, 10)
   const nihssValid = nihssEntry !== '' && !isNaN(nihssNum) && nihssNum >= 0 && nihssNum <= 42
 
   function handleSaveNihss(source = nihssEntrySource) {
     if (!nihssValid) return
-    setNihssRecords((records) => [
-      ...records,
-      {
-        id: `${Date.now()}-${nihssNum}`,
-        score: nihssNum,
-        timestamp: new Date(),
-        source,
-      },
-    ])
+    setNihssRecords((r) => [...r, { id: `${Date.now()}`, score: nihssNum, timestamp: new Date(), source }])
     onAddNihss?.(nihssNum)
     setNihssEntry('')
     setNihssEntrySource('manual')
@@ -131,357 +83,295 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
     setNihssEntrySource('calculadora')
   }
 
-  return (
-    <div className="px-4 pb-4 space-y-3">
+  // ── VIEW 1: Dosis ──────────────────────────────────────────────────────────
+  if (view === 'dose') {
+    return (
+      <div className="px-4 pb-4">
+        <StepCard step="7" title="Trombolítico — dosis" accent="green">
 
-      {/* Drug selector */}
-      <StepCard step="7" title="Cálculo de dosis" accent="green">
-        <p className="text-xs text-gray-400 mb-4">Seleccioná el trombolítico a utilizar.</p>
+          {/* Progress dots */}
+          <div className="flex items-center gap-2 mb-3">
+            <div className="flex gap-1.5">
+              <div className="h-1.5 w-8 rounded-full bg-emerald-500" />
+              <div className="h-1.5 w-8 rounded-full bg-neutral-200" />
+            </div>
+            <span className="text-[10px] text-neutral-400 font-medium">1 de 2</span>
+          </div>
 
-        <div className="grid grid-cols-2 gap-2 mb-5">
-          <button
-            onClick={() => setDrug('tnk')}
-            className={`py-3 rounded-xl border-2 text-sm font-semibold transition-all ${
-              drug === 'tnk'
-                ? 'bg-green-50 border-green-600 text-green-900 shadow-sm ring-2 ring-green-100'
-                : 'border-gray-200 text-gray-600 hover:border-green-300 hover:bg-green-50'
-            }`}
-          >
-            <span className="inline-flex items-center justify-center gap-2">
-              <SelectionCheck active={drug === 'tnk'} tone="green" />
-              TNK
-            </span>
-            <span className={`block text-xs font-normal mt-0.5 ${drug === 'tnk' ? 'text-green-100' : 'text-gray-400'}`}>
-              Tenecteplase
-            </span>
-          </button>
-          <button
-            onClick={() => setDrug('rtpa')}
-            className={`py-3 rounded-xl border-2 text-sm font-semibold transition-all ${
-              drug === 'rtpa'
-                ? 'bg-green-50 border-green-600 text-green-900 shadow-sm ring-2 ring-green-100'
-                : 'border-gray-200 text-gray-600 hover:border-green-300 hover:bg-green-50'
-            }`}
-          >
-            <span className="inline-flex items-center justify-center gap-2">
-              <SelectionCheck active={drug === 'rtpa'} tone="green" />
-              rtPA
-            </span>
-            <span className={`block text-xs font-normal mt-0.5 ${drug === 'rtpa' ? 'text-green-100' : 'text-gray-400'}`}>
-              Alteplase
-            </span>
-          </button>
-        </div>
+          {/* Drug: compact segmented toggle */}
+          <div className="flex rounded-xl overflow-hidden border border-neutral-200 mb-4 text-sm font-semibold">
+            {[
+              { id: 'tnk',  label: 'TNK',  sub: 'Tenecteplase' },
+              { id: 'rtpa', label: 'rtPA', sub: 'Alteplase' },
+            ].map(({ id, label, sub }) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setDrug(id)}
+                className={`flex-1 py-2.5 transition-all ${
+                  drug === id
+                    ? 'bg-emerald-600 text-white'
+                    : 'bg-white text-neutral-500 hover:bg-emerald-50'
+                }`}
+              >
+                {label}
+                <span className={`block text-[10px] font-normal ${drug === id ? 'text-emerald-100' : 'text-neutral-400'}`}>
+                  {sub}
+                </span>
+              </button>
+            ))}
+          </div>
 
-        {/* Weight input */}
-        <label className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2 block">
-          Peso del paciente (kg)
-        </label>
+          {/* Weight stepper */}
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-500 mb-2">Peso (kg)</p>
+          <div className="grid grid-cols-[2.2rem_2.2rem_minmax(0,1fr)_2.2rem_2.2rem] items-center gap-1.5 mb-3">
+            {[-5, -1].map((d) => (
+              <button key={d} type="button" onClick={() => adjust(d)}
+                className="h-10 rounded-xl border border-neutral-200 text-neutral-600 font-semibold text-xs hover:bg-neutral-50 active:scale-95 transition-all">
+                {d}
+              </button>
+            ))}
+            <input
+              type="number" inputMode="decimal" placeholder="70"
+              value={weightStr} onChange={(e) => setWeightStr(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter' && validWeight) startButtonRef.current?.focus() }}
+              autoFocus
+              className="w-full min-w-0 border border-neutral-200 rounded-xl px-2 py-2.5 text-neutral-800 text-xl font-bold text-center focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent placeholder-neutral-300"
+            />
+            {[1, 5].map((d) => (
+              <button key={d} type="button" onClick={() => adjust(d)}
+                className="h-10 rounded-xl border border-neutral-200 text-neutral-600 font-semibold text-xs hover:bg-neutral-50 active:scale-95 transition-all">
+                +{d}
+              </button>
+            ))}
+          </div>
 
-        <div className="mb-3 grid grid-cols-[2.35rem_2.35rem_minmax(0,1fr)_2.35rem_2.35rem] items-center gap-1.5 sm:grid-cols-[auto_auto_minmax(0,1fr)_auto_auto] sm:gap-2">
-          <button onClick={() => adjust(-5)}  className="h-11 rounded-xl border border-gray-200 text-gray-600 font-semibold text-sm hover:bg-gray-50 active:scale-95 transition-all sm:px-3">−5</button>
-          <button onClick={() => adjust(-1)}  className="h-11 rounded-xl border border-gray-200 text-gray-600 font-semibold text-sm hover:bg-gray-50 active:scale-95 transition-all sm:px-3">−1</button>
-          <input
-            type="number"
-            inputMode="decimal"
-            placeholder="70"
-            value={weightStr}
-            onChange={(e) => setWeightStr(e.target.value)}
-            onKeyDown={(event) => {
-              if (event.key === 'Enter' && validWeight) {
-                event.preventDefault()
-                startButtonRef.current?.focus()
-              }
-            }}
-            autoFocus
-            className="w-full min-w-0 border border-gray-200 rounded-xl px-3 py-3 text-gray-800 text-xl font-bold text-center focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent placeholder-gray-300"
-          />
-          <button onClick={() => adjust(+1)}  className="h-11 rounded-xl border border-gray-200 text-gray-600 font-semibold text-sm hover:bg-gray-50 active:scale-95 transition-all sm:px-3">+1</button>
-          <button onClick={() => adjust(+5)}  className="h-11 rounded-xl border border-gray-200 text-gray-600 font-semibold text-sm hover:bg-gray-50 active:scale-95 transition-all sm:px-3">+5</button>
-        </div>
+          {/* Preset chips */}
+          <div className="flex gap-1.5 flex-wrap mb-4">
+            {WEIGHT_PRESETS.map((w) => (
+              <button key={w} type="button" onClick={() => setWeightStr(String(w))}
+                className={`px-2.5 py-1 rounded-full text-xs font-bold border-2 transition-all ${
+                  weightStr === String(w)
+                    ? 'bg-emerald-600 border-emerald-600 text-white'
+                    : 'border-neutral-200 text-neutral-500 hover:border-emerald-300 hover:bg-emerald-50'
+                }`}>
+                {w} kg
+              </button>
+            ))}
+          </div>
 
-        {/* Weight presets */}
-        <div className="flex gap-2 flex-wrap mb-4">
-          {WEIGHT_PRESETS.map((w) => (
-            <button
-              key={w}
-              onClick={() => setWeightStr(String(w))}
-              className={`px-3 py-1.5 rounded-full text-xs font-bold border-2 transition-all ${
-                weightStr === String(w)
-                  ? 'bg-green-600 border-green-600 text-white shadow-sm ring-2 ring-green-100'
-                  : 'border-gray-200 text-gray-500 hover:border-green-300 hover:bg-green-50'
-              }`}
-            >
-              {w} kg
-            </button>
-          ))}
-        </div>
-
-        {/* Dose result — always visible, updates in real time */}
-        <div className={`rounded-xl px-4 py-4 space-y-3 transition-all duration-300 ${
-          validWeight && dose
-            ? 'bg-green-50 border-2 border-green-300 shadow-card-active animate-fade-in'
-            : 'bg-gray-50 border-2 border-dashed border-gray-200'
-        }`}>
-          <p className="text-xs font-semibold uppercase tracking-wider ${validWeight ? 'text-green-700' : 'text-gray-400'}">
-            {validWeight
-              ? `${drug === 'tnk' ? 'Tenecteplase (TNK)' : 'Alteplase (rtPA)'} — ${weight} kg`
-              : 'Ingresá el peso para calcular la dosis'
-            }
-          </p>
-
-          {validWeight && dose ? (
-            <>
-              {drug === 'tnk' && tnk && (
-                <div className="flex items-baseline gap-2">
-                  <span className="text-3xl font-mono font-bold text-green-800">{tnk.total} mg</span>
-                  <span className="text-sm text-green-600">bolo único IV</span>
-                </div>
-              )}
-
-              {drug === 'rtpa' && rtpa && (
-                <div className="space-y-2">
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-2xl font-mono font-bold text-green-800">{rtpa.total} mg</span>
-                    <span className="text-sm text-green-600">dosis total</span>
+          {/* Dose result */}
+          <div className={`rounded-xl px-4 py-3 transition-all duration-200 ${
+            validWeight && dose
+              ? 'bg-emerald-50 border-2 border-emerald-300'
+              : 'bg-neutral-50 border-2 border-dashed border-neutral-200'
+          }`}>
+            {validWeight && dose ? (
+              drug === 'tnk' ? (
+                <div className="flex items-center gap-3">
+                  <span className="text-3xl font-mono font-bold text-emerald-800">{tnk.total} mg</span>
+                  <div>
+                    <p className="text-xs font-semibold text-emerald-700">Tenecteplase</p>
+                    <p className="text-xs text-emerald-600">bolo único IV</p>
+                    {weight * 0.25 >= 25 && <p className="text-[10px] text-emerald-500 mt-0.5">⚠ Dosis máxima</p>}
                   </div>
-                  <div className="grid grid-cols-2 gap-2 pt-1">
-                    <div className="bg-white rounded-lg px-3 py-2 border border-green-200">
-                      <p className="text-xs text-gray-500 mb-0.5">Bolo IV (10%)</p>
-                      <p className="text-lg font-mono font-bold text-green-800">{rtpa.bolo} mg</p>
-                      <p className="text-xs text-gray-400">en 1 min</p>
+                </div>
+              ) : (
+                <div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="text-2xl font-mono font-bold text-emerald-800">{rtpa.total} mg</span>
+                    <p className="text-xs text-emerald-600">Alteplase — dosis total</p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="bg-white rounded-lg px-3 py-2 border border-emerald-200">
+                      <p className="text-[10px] text-neutral-500">Bolo IV (10%)</p>
+                      <p className="text-base font-mono font-bold text-emerald-800">{rtpa.bolo} mg</p>
+                      <p className="text-[10px] text-neutral-400">en 1 min</p>
                     </div>
-                    <div className="bg-white rounded-lg px-3 py-2 border border-green-200">
-                      <p className="text-xs text-gray-500 mb-0.5">Infusión (90%)</p>
-                      <p className="text-lg font-mono font-bold text-green-800">{rtpa.infusion} mg</p>
-                      <p className="text-xs text-gray-400">en 60 min</p>
+                    <div className="bg-white rounded-lg px-3 py-2 border border-emerald-200">
+                      <p className="text-[10px] text-neutral-500">Infusión (90%)</p>
+                      <p className="text-base font-mono font-bold text-emerald-800">{rtpa.infusion} mg</p>
+                      <p className="text-[10px] text-neutral-400">en 60 min</p>
                     </div>
                   </div>
                 </div>
-              )}
-
-              {drug === 'tnk' && weight * 0.25 >= 25 && (
-                <p className="text-xs text-green-600">⚠ Dosis máxima aplicada (25 mg)</p>
-              )}
-              {drug === 'rtpa' && weight * 0.9 >= 90 && (
-                <p className="text-xs text-green-600">⚠ Dosis máxima aplicada (90 mg)</p>
-              )}
-            </>
-          ) : (
-            <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-mono font-bold text-gray-300">— mg</span>
-            </div>
-          )}
-        </div>
-
-        {validWeight && dose && (
-          <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3">
-            <div className="flex items-start gap-3">
-              <Clock size={18} className="text-emerald-600 shrink-0 mt-0.5" />
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-emerald-800">Inicio de trombolítico</p>
-                <p className="text-xs text-emerald-700 mt-0.5">
-                  Registrar cuando inicia la administración IV de {drug === 'tnk' ? 'TNK' : 'rtPA'}.
-                </p>
-                {thrombolyticStartTime && (
-                  <p className="text-sm font-mono font-semibold text-emerald-900 mt-2">
-                    {thrombolyticStartTime.toLocaleTimeString('es-AR')}
-                  </p>
-                )}
-              </div>
-            </div>
-            <button
-              type="button"
-              ref={startButtonRef}
-              onClick={handleThrombolyticStart}
-              className="mt-3 w-full rounded-xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white transition-all hover:bg-emerald-700 active:scale-95"
-            >
-              {thrombolyticStartTime ? 'Actualizar inicio' : 'Registrar inicio'}
-            </button>
-
-            {thrombolyticStartTime && (
-              <div className="mt-3 border-t border-emerald-200 pt-3">
-                {nihssRecords.length > 0 && (
-                  <div className="mb-3 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <p className="text-xs font-bold uppercase tracking-wider text-emerald-700">
-                        NIHSS intra-infusion registrados
-                      </p>
-                      <span className="rounded-full border border-emerald-200 bg-white px-2 py-1 text-[11px] font-bold text-emerald-700">
-                        {nihssRecords.length}
-                      </span>
-                    </div>
-                    <div className="space-y-1.5">
-                      {nihssRecords.map((record) => (
-                        <div
-                          key={record.id}
-                          className="flex items-center gap-3 rounded-lg border-2 border-emerald-200 bg-white px-3 py-2"
-                        >
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-600 text-sm font-black text-white">
-                            {record.score}
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <p className="text-sm font-semibold text-emerald-900">NIHSS {record.score}</p>
-                            <p className="text-xs text-emerald-700">
-                              {record.timestamp.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-                              {' · '}
-                              {record.source === 'calculadora' ? 'calculadora guiada' : 'manual'}
-                            </p>
-                          </div>
-                          <CheckCircle2 size={18} className="shrink-0 text-emerald-600" />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                {showNihssInput ? (
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <p className="text-xs font-medium text-emerald-700">NIHSS intra-infusión (0–42)</p>
-                      <button
-                        type="button"
-                        onClick={() => setShowNihssCalc(true)}
-                        className="text-xs text-brand-600 hover:text-brand-800 underline font-medium transition-colors"
-                      >
-                        Calcular con guía
-                      </button>
-                    </div>
-                    <div className="flex gap-2">
-                      <input
-                        type="number"
-                        inputMode="numeric"
-                        min={0}
-                        max={42}
-                        placeholder="0–42"
-                        value={nihssEntry}
-                        onChange={(e) => {
-                          setNihssEntry(e.target.value)
-                          setNihssEntrySource('manual')
-                        }}
-                        onKeyDown={(e) => { if (e.key === 'Enter' && nihssValid) handleSaveNihss() }}
-                        autoFocus
-                        className="flex-1 border border-emerald-300 rounded-xl px-3 py-2.5 text-gray-800 text-base font-bold text-center focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent"
-                      />
-                      <button
-                        type="button"
-                        onClick={handleSaveNihss}
-                        disabled={!nihssValid}
-                        className="px-4 py-2.5 bg-emerald-600 text-white rounded-xl font-bold text-sm disabled:opacity-40 active:scale-95 transition-all"
-                      >
-                        ✓
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => { setShowNihssInput(false); setNihssEntry('') }}
-                        className="px-3 py-2.5 border border-gray-200 rounded-xl text-gray-500 text-sm active:scale-95 transition-all"
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => setShowNihssInput(true)}
-                    className="w-full flex items-center justify-center gap-2 py-2.5 border border-emerald-300 text-emerald-700 bg-emerald-50/60 hover:bg-emerald-100 rounded-xl font-medium text-sm transition-colors active:scale-95"
-                  >
-                    <Plus size={14} />
-                    <Brain size={14} />
-                    Nuevo NIHSS intra-infusión
-                  </button>
-                )}
-              </div>
+              )
+            ) : (
+              <span className="text-2xl font-mono font-bold text-neutral-300">— mg</span>
             )}
           </div>
-        )}
-      </StepCard>
 
-      {/* Post-thrombolysis checklist */}
-      <StepCard step="" title="Indicaciones post-trombolisis" accent="green" rail railStep="7">
-        <p className="text-xs text-gray-400 mb-3 leading-relaxed">
-          Confirmá cada medida antes de continuar.
-        </p>
-        <div className="space-y-2">
-          {POST_CHECKLIST.map((item, index) => {
+          {/* Start time button */}
+          {validWeight && dose && (
+            <div className="mt-3 flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3">
+              <Clock size={16} className="text-emerald-600 shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold text-emerald-800">Inicio del trombolítico</p>
+                {thrombolyticStartTime && (
+                  <p className="text-sm font-mono font-bold text-emerald-900">{fmtTime(thrombolyticStartTime)}</p>
+                )}
+              </div>
+              <button
+                type="button" ref={startButtonRef} onClick={handleThrombolyticStart}
+                className={`shrink-0 px-3 py-2 rounded-xl text-xs font-bold transition-all active:scale-95 ${
+                  thrombolyticStartTime
+                    ? 'border border-emerald-300 bg-white text-emerald-700 hover:bg-emerald-100'
+                    : 'bg-emerald-600 text-white hover:bg-emerald-700'
+                }`}
+              >
+                {thrombolyticStartTime ? 'Actualizar' : 'Registrar inicio'}
+              </button>
+            </div>
+          )}
+        </StepCard>
+
+        <div className="mt-3">
+          <button
+            type="button" onClick={() => setView('post')}
+            disabled={!validWeight || !thrombolyticStartTime}
+            className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-semibold text-sm transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed bg-brand-600 hover:bg-brand-700 text-white"
+          >
+            Continuar — post-trombolisis <ChevronRight size={16} />
+          </button>
+          {!thrombolyticStartTime && validWeight && (
+            <p className="text-center text-[11px] text-neutral-400 mt-2">Registrá el inicio del trombolítico para continuar</p>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  // ── VIEW 2: Post-trombolisis ───────────────────────────────────────────────
+  return (
+    <div className="px-4 pb-4">
+      <StepCard step="" title="Indicaciones post-trombolisis" accent="green">
+
+        {/* Progress + back */}
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <div className="flex gap-1.5">
+              <div className="h-1.5 w-8 rounded-full bg-neutral-200" />
+              <div className="h-1.5 w-8 rounded-full bg-emerald-500" />
+            </div>
+            <span className="text-[10px] text-neutral-400 font-medium">2 de 2</span>
+          </div>
+          <button type="button" onClick={() => setView('dose')}
+            className="text-[10px] text-brand-500 font-semibold hover:underline">
+            ← Dosis
+          </button>
+        </div>
+
+        {/* Dose summary chip */}
+        <div className="flex items-center gap-2 mb-3 px-3 py-2 rounded-xl bg-emerald-50 border border-emerald-200">
+          <CheckCircle2 size={13} className="text-emerald-500 shrink-0" />
+          <p className="text-xs font-semibold text-emerald-800">
+            {drug === 'tnk' ? `TNK ${tnk?.total ?? '—'} mg` : `rtPA ${rtpa?.total ?? '—'} mg`}
+            {thrombolyticStartTime ? ` · ${fmtTime(thrombolyticStartTime)}` : ''}
+          </p>
+        </div>
+
+        {/* Compact 2-col checklist grid */}
+        <div className="grid grid-cols-2 gap-1.5 mb-3">
+          {POST_CHECKLIST.map((item) => {
             const done = !!checked[item.id]
             return (
               <button
                 key={item.id}
-                ref={(element) => { checklistRefs.current[index] = element }}
-                onClick={() => toggleCheck(item.id)}
-                onKeyDown={(event) => {
-                  if (event.key === 'Enter' || event.key === ' ') {
-                    requestAnimationFrame(() => checklistRefs.current[index + 1]?.focus())
-                  }
-                }}
-                className={`w-full flex items-start gap-3 px-4 py-3.5 rounded-xl border-2 text-left transition-all ${
-                  done ? 'bg-green-50 border-green-500 text-green-900 shadow-sm ring-2 ring-green-100' : 'border-gray-200 hover:border-green-300 hover:bg-green-50/40'
+                type="button"
+                onClick={() => setChecked((c) => ({ ...c, [item.id]: !c[item.id] }))}
+                className={`flex flex-col items-start gap-1.5 px-3 py-2.5 rounded-xl border-2 text-left transition-all active:scale-[0.97] ${
+                  done
+                    ? 'bg-emerald-50 border-emerald-400 text-emerald-900'
+                    : 'border-neutral-200 hover:border-emerald-200 hover:bg-emerald-50/40'
                 }`}
               >
-                <item.Icon size={18} className={`shrink-0 mt-0.5 ${done ? 'text-green-600' : 'text-gray-400'}`} />
-                <div className="flex-1 min-w-0">
-                  <p className={`font-medium text-sm ${done ? 'text-green-800 line-through decoration-green-400' : 'text-gray-700'}`}>
-                    {item.label}
-                  </p>
-                  <p className="text-xs text-gray-400 mt-0.5 leading-relaxed">{item.sub}</p>
-                </div>
-                <div className="shrink-0 mt-0.5">
+                <div className="flex items-center justify-between w-full">
+                  <item.Icon size={14} className={done ? 'text-emerald-600' : 'text-neutral-400'} />
                   {done
-                    ? <CheckCircle2 size={20} className="text-green-500" />
-                    : <Circle size={20} className="text-gray-300" />
+                    ? <CheckCircle2 size={14} className="text-emerald-500" />
+                    : <Circle size={14} className="text-neutral-200" />
                   }
                 </div>
+                <p className={`text-xs font-semibold leading-snug ${done ? 'text-emerald-800' : 'text-neutral-700'}`}>
+                  {item.label}
+                </p>
+                <p className="text-[9px] text-neutral-400 leading-snug">{item.sub}</p>
               </button>
             )
           })}
         </div>
 
-        <div className="mt-3 bg-white rounded-xl border border-gray-100 px-4 py-3">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs text-gray-400 uppercase tracking-wider">Progreso</span>
-            <span className="text-xs font-semibold text-gray-600">
-              {Object.values(checked).filter(Boolean).length}/{POST_CHECKLIST.length}
-            </span>
-          </div>
-          <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+        {/* Progress bar */}
+        <div className="flex items-center gap-2 mb-3">
+          <div className="flex-1 h-1.5 bg-neutral-100 rounded-full overflow-hidden">
             <div
-              className="h-2 bg-green-500 rounded-full transition-all duration-300"
-              style={{ width: `${(Object.values(checked).filter(Boolean).length / POST_CHECKLIST.length) * 100}%` }}
+              className="h-1.5 bg-emerald-500 rounded-full transition-all duration-300"
+              style={{ width: `${(checkedCount / POST_CHECKLIST.length) * 100}%` }}
             />
           </div>
+          <span className="text-[10px] font-semibold text-neutral-500 shrink-0">{checkedCount}/{POST_CHECKLIST.length}</span>
         </div>
+
+        {/* NIHSS intra-infusion — compact collapsible */}
+        {thrombolyticStartTime && (
+          <div className="border-t border-neutral-100 pt-3">
+            {nihssRecords.length > 0 && (
+              <div className="mb-2 flex flex-wrap gap-1.5">
+                {nihssRecords.map((r) => (
+                  <span key={r.id} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-800">
+                    <Brain size={10} />
+                    {r.score} · {r.timestamp.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}
+                  </span>
+                ))}
+              </div>
+            )}
+            {showNihssInput ? (
+              <div className="flex gap-2">
+                <input
+                  type="number" inputMode="numeric" min={0} max={42} placeholder="0–42"
+                  value={nihssEntry}
+                  onChange={(e) => { setNihssEntry(e.target.value); setNihssEntrySource('manual') }}
+                  onKeyDown={(e) => { if (e.key === 'Enter' && nihssValid) handleSaveNihss() }}
+                  autoFocus
+                  className="flex-1 border border-emerald-300 rounded-xl px-3 py-2 text-neutral-800 text-base font-bold text-center focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                />
+                <button type="button" onClick={() => setShowNihssCalc(true)}
+                  className="px-3 py-2 border border-neutral-200 rounded-xl text-xs text-brand-600 font-medium">
+                  Guía
+                </button>
+                <button type="button" onClick={() => handleSaveNihss()} disabled={!nihssValid}
+                  className="px-3 py-2 bg-emerald-600 text-white rounded-xl font-bold text-sm disabled:opacity-40">
+                  ✓
+                </button>
+                <button type="button" onClick={() => { setShowNihssInput(false); setNihssEntry('') }}
+                  className="px-3 py-2 border border-neutral-200 rounded-xl text-neutral-500 text-sm">
+                  ✕
+                </button>
+              </div>
+            ) : (
+              <button type="button" onClick={() => setShowNihssInput(true)}
+                className="flex items-center gap-2 text-xs text-emerald-600 font-semibold hover:underline">
+                <Plus size={12} /><Brain size={12} />
+                NIHSS intra-infusión
+              </button>
+            )}
+          </div>
+        )}
       </StepCard>
 
-      {!canContinue && (
-        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 space-y-1">
-          <p className="font-semibold text-amber-900">Para finalizar el protocolo falta:</p>
-          <ul className="list-disc list-inside space-y-0.5 text-amber-800">
-            {!validWeight && <li>Ingresar el peso del paciente</li>}
-            {!thrombolyticStartTime && <li>Registrar el inicio del trombolítico</li>}
-            {!allChecked && <li>Completar todas las indicaciones post-trombolisis</li>}
-          </ul>
-        </div>
-      )}
-
-      <button
-        onClick={() => onConfirm({
-          drug,
-          weight,
-          dose,
-          checklist: checked,
-          thrombolyticStartTime: thrombolyticStartTime.toISOString(),
-        })}
-        disabled={!canContinue}
-        className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-semibold py-4 rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-      >
-        Finalizar protocolo <ChevronRight size={18} />
-      </button>
+      <div className="mt-3">
+        <button
+          type="button"
+          onClick={() => onConfirm({ drug, weight, dose, checklist: checked, thrombolyticStartTime: thrombolyticStartTime?.toISOString() })}
+          disabled={!canContinue}
+          className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-semibold py-4 rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          Finalizar protocolo <ChevronRight size={18} />
+        </button>
+      </div>
 
       {showNihssCalc && (
-        <NihssModal
-          onLoad={handleNihssCalcResult}
-          onClose={() => setShowNihssCalc(false)}
-        />
+        <NihssModal onLoad={handleNihssCalcResult} onClose={() => setShowNihssCalc(false)} />
       )}
     </div>
   )
