@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { ChevronRight, Zap, MessageSquare, Eye, Scale, FileText } from 'lucide-react'
+import { ChevronRight, ChevronDown, Zap, MessageSquare, Eye, Scale, FileText } from 'lucide-react'
 import StepCard, { CollapsedStep } from '../components/StepCard'
 import { PrimaryAction } from '../components/GuidedControls'
 import { nihssItems, getNihssSeverity } from '../content/nihss'
@@ -123,6 +123,7 @@ export default function SymptomsNihssStep({ onConfirm, isCollapsed = false }) {
   const [flash, setFlash] = useState(null)
   const [hasDisabling, setHasDisabling] = useState(null)
   const [showDisablingList, setShowDisablingList] = useState(false)
+  const [showSubscales, setShowSubscales] = useState(false)
   const flashKeyRef = useRef(0)
 
   const hasSymptom = Object.values(selected).some(Boolean)
@@ -214,18 +215,30 @@ export default function SymptomsNihssStep({ onConfirm, isCollapsed = false }) {
           })}
         </div>
 
-        {/* NIHSS total */}
+        {/* NIHSS total + subscale toggle */}
         {hasSymptom && severity && (
-          <div className={`flex items-center gap-3 rounded-xl border px-4 py-3 mb-4 ${severity.bg} ${severity.border}`}>
+          <div className={`flex items-center gap-3 rounded-xl border px-4 py-3 mb-3 ${severity.bg} ${severity.border}`}>
             <span className={`text-2xl font-bold tabular-nums ${severity.color}`}>{total}</span>
-            <span className={`font-medium text-sm ${severity.color}`}>{severity.label}</span>
+            <span className={`font-medium text-sm flex-1 ${severity.color}`}>{severity.label}</span>
             {flash && <FlashBadge key={flash.key} pts={flash.pts} />}
+            {activeIds.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setShowSubscales((v) => !v)}
+                className={`flex items-center gap-1 text-[10px] font-semibold rounded-lg px-2 py-1 transition-all ${
+                  showSubscales ? 'bg-white/70 text-neutral-600' : 'bg-white/50 text-neutral-500 hover:bg-white/70'
+                }`}
+              >
+                <ChevronDown size={11} className={showSubscales ? 'rotate-180 transition-transform' : 'transition-transform'} />
+                {showSubscales ? 'Ocultar' : 'Ajustar ítems'}
+              </button>
+            )}
           </div>
         )}
 
-        {/* Subscale items by symptom */}
-        {activeSymptoms.filter((s) => s.id !== 'other' && s.nihssIds.length > 0).map((sym) => (
-          <div key={sym.id} className="mb-3">
+        {/* Subscale items — collapsed by default */}
+        {showSubscales && activeSymptoms.filter((s) => s.id !== 'other' && s.nihssIds.length > 0).map((sym) => (
+          <div key={sym.id} className="mb-3 animate-fade-in">
             <div className="mb-1.5 flex items-center gap-1.5">
               <sym.Icon size={11} className="text-amber-500 shrink-0" strokeWidth={2} />
               <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-600">{sym.label} — {sym.sub}</p>

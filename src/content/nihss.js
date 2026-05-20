@@ -153,5 +153,5 @@ export function getNihssSeverity(score) {
   if (score <= 4) return { label: 'Leve', color: 'text-blue-700', bg: 'bg-blue-50', border: 'border-blue-400' }
   if (score <= 15) return { label: 'Moderado', color: 'text-yellow-700', bg: 'bg-yellow-50', border: 'border-yellow-400' }
   if (score <= 20) return { label: 'Moderado-severo', color: 'text-orange-700', bg: 'bg-orange-50', border: 'border-orange-400' }
-  return { label: 'Severo', color: 'text-red-700', bg: 'bg-red-50', border: 'border-red-500' }
+  return { label: 'Severo', color: 'text-blue-900', bg: 'bg-blue-100', border: 'border-blue-300' }
 }

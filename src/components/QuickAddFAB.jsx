@@ -8,7 +8,7 @@ function getNihssSeverity(score) {
   if (score <= 4)   return { label: 'Leve',            color: 'text-lime-600',    bg: 'bg-lime-50',    border: 'border-lime-100' }
   if (score <= 15)  return { label: 'Moderado',        color: 'text-amber-600',   bg: 'bg-amber-50',   border: 'border-amber-100' }
   if (score <= 20)  return { label: 'Moderado-severo', color: 'text-orange-600',  bg: 'bg-orange-50',  border: 'border-orange-100' }
-  return                   { label: 'Severo',          color: 'text-red-600',     bg: 'bg-red-50',     border: 'border-red-100' }
+  return                   { label: 'Severo',          color: 'text-blue-900',    bg: 'bg-blue-100',   border: 'border-blue-200' }
 }
 
 function useVisualViewportHeight() {
@@ -133,7 +133,7 @@ function NihssQuickModal({ onClose, onConfirm }) {
       )}
 
       {value !== '' && !isValid && (
-        <p className="mt-2 text-xs text-red-500 text-center">Ingresá un valor entre 0 y 42</p>
+        <p className="mt-2 text-xs text-blue-800 text-center">Ingresá un valor entre 0 y 42</p>
       )}
 
       <button
@@ -204,7 +204,7 @@ function VitalsQuickModal({ onClose, onConfirm }) {
       </div>
 
       {highAlert && (
-        <p className="mt-3 text-xs text-red-600 font-medium text-center animate-fade-in">
+        <p className="mt-3 text-xs text-blue-900 font-medium text-center animate-fade-in">
           TA sistólica &gt; 185 mmHg — considerar manejo antes de trombolisis
         </p>
       )}
@@ -253,7 +253,7 @@ function GlucoseQuickModal({ onClose, onConfirm }) {
       </div>
 
       {isHypo && (
-        <p className="mt-3 text-xs text-red-600 font-medium text-center animate-fade-in">
+        <p className="mt-3 text-xs text-blue-900 font-medium text-center animate-fade-in">
           Hipoglucemia — descartar como causa del cuadro
         </p>
       )}
@@ -295,7 +295,7 @@ export default function QuickAddFAB({
       Icon: Heart,
       colorClass: 'bg-white text-blue-600 border-blue-200 hover:bg-blue-50',
       badge: latestVitals ? String(latestVitals.systolic) : null,
-      badgeClass: latestVitals && latestVitals.systolic > 185 ? 'bg-red-500 text-white' : 'bg-blue-500 text-white',
+      badgeClass: latestVitals && latestVitals.systolic > 185 ? 'bg-blue-900 text-white' : 'bg-blue-500 text-white',
     },
     {
       id: 'glucose',
@@ -303,7 +303,7 @@ export default function QuickAddFAB({
       Icon: Droplets,
       colorClass: 'bg-white text-violet-600 border-violet-200 hover:bg-violet-50',
       badge: latestGlucose !== null ? String(latestGlucose) : null,
-      badgeClass: latestGlucose < 50 ? 'bg-red-500 text-white' : latestGlucose > 400 ? 'bg-orange-500 text-white' : 'bg-violet-500 text-white',
+      badgeClass: latestGlucose < 50 ? 'bg-blue-900 text-white' : latestGlucose > 400 ? 'bg-orange-500 text-white' : 'bg-violet-500 text-white',
     },
   ]
 

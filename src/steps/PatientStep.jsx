@@ -70,16 +70,16 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
           {/* Vitals row — horizontal pills */}
           {v && (
             <div className="grid grid-cols-3 gap-2">
-              <div className={`rounded-xl px-3 py-2.5 ${v.systolic > 185 || v.diastolic > 110 ? 'bg-red-50' : 'bg-neutral-50'}`}>
+              <div className={`rounded-xl px-3 py-2.5 ${v.systolic > 185 || v.diastolic > 110 ? 'bg-blue-900/10' : 'bg-neutral-50'}`}>
                 <p className="text-[9px] text-neutral-400 uppercase tracking-wider font-semibold mb-1">TA</p>
-                <p className={`text-base font-bold tabular-nums leading-none ${v.systolic > 185 || v.diastolic > 110 ? 'text-red-600' : 'text-neutral-800'}`}>
+                <p className={`text-base font-bold tabular-nums leading-none ${v.systolic > 185 || v.diastolic > 110 ? 'text-blue-900' : 'text-neutral-800'}`}>
                   {v.systolic}/{v.diastolic}
                 </p>
                 <p className="text-[9px] text-neutral-400 mt-0.5">mmHg</p>
               </div>
-              <div className={`rounded-xl px-3 py-2.5 ${v.glucose < 50 || v.glucose > 400 ? 'bg-red-50' : 'bg-neutral-50'}`}>
+              <div className={`rounded-xl px-3 py-2.5 ${v.glucose < 50 || v.glucose > 400 ? 'bg-blue-900/10' : 'bg-neutral-50'}`}>
                 <p className="text-[9px] text-neutral-400 uppercase tracking-wider font-semibold mb-1">Glucemia</p>
-                <p className={`text-base font-bold tabular-nums leading-none ${v.glucose < 50 || v.glucose > 400 ? 'text-red-600' : 'text-neutral-800'}`}>
+                <p className={`text-base font-bold tabular-nums leading-none ${v.glucose < 50 || v.glucose > 400 ? 'text-blue-900' : 'text-neutral-800'}`}>
                   {v.glucose}
                 </p>
                 <p className="text-[9px] text-neutral-400 mt-0.5">mg/dL</p>

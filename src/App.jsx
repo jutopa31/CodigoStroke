@@ -1,12 +1,13 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
-import { ChevronLeft, ChevronRight, Copy, Check } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Copy, Check, Lock } from 'lucide-react'
 import GlobalTimer from './components/GlobalTimer'
 import AlertModal from './components/AlertModal'
 import StepTimeline from './components/StepTimeline'
 import StepProgressProvider from './components/StepProgressProvider'
 import QuickAddFAB from './components/QuickAddFAB'
 import OutOfWindowModal from './components/OutOfWindowModal'
+import EducationalOverlay from './components/EducationalOverlay'
 import StartStep from './steps/StartStep'
 import PatientStep from './steps/PatientStep'
 import TimeStep from './steps/TimeStep'
@@ -71,7 +72,7 @@ function SummaryRow({ label, value, tone = 'gray' }) {
     blue: 'bg-blue-50/50 text-blue-700',
     green: 'bg-emerald-50/50 text-emerald-700',
     orange: 'bg-amber-50/50 text-amber-700',
-    red: 'bg-red-50/50 text-red-700',
+    red: 'bg-blue-900/10 text-blue-900',
   }[tone]
 
   return (
@@ -126,8 +127,21 @@ function FloatingProtocolNav({
   )
 }
 
+function LockedTabView() {
+  return (
+    <div className="flex flex-col items-center justify-center min-h-[200px] text-center gap-3 py-12">
+      <div className="w-12 h-12 rounded-2xl bg-neutral-100 flex items-center justify-center">
+        <Lock size={20} className="text-neutral-300" />
+      </div>
+      <p className="text-sm font-medium text-neutral-400">Completá los pasos anteriores para acceder</p>
+    </div>
+  )
+}
+
 export default function App() {
   const [step, setStep] = useState(STEP.START)
+  const [activeTab, setActiveTab] = useState(STEP.PATIENT)
+  const [showEducationalOverlay, setShowEducationalOverlay] = useState(false)
   const [timerStart, setTimerStart] = useState(null)
   const [patientArrivalTime, setPatientArrivalTime] = useState(null)
   const [ctRequestTime, setCtRequestTime] = useState(null)
@@ -155,36 +169,13 @@ export default function App() {
   const [showVitalsModal, setShowVitalsModal] = useState(false)
   const [caseSaved, setCaseSaved] = useState(false)
 
-  const timeRef = useRef(null)
-  const vitalsRef = useRef(null)
-  const nihssRef = useRef(null)
-  const ctResultRef = useRef(null)
-  const contraindicationsRef = useRef(null)
-  const dosageRef = useRef(null)
-  const thrombectomyRef = useRef(null)
-  const doneRef = useRef(null)
-
-  function scrollTo(ref) {
-    setTimeout(() => {
-      const el = ref.current
-      if (!el) return
-      const rect = el.getBoundingClientRect()
-      const headerOffset = 80
-      // Skip scroll if element is already fully visible — prevents unwanted upward
-      // scrolling on desktop when a collapsing step makes the next step appear in viewport
-      if (rect.top >= headerOffset && rect.bottom <= window.innerHeight) return
-      const targetY = window.scrollY + rect.top - headerOffset
-      window.scrollTo({ top: Math.max(0, targetY), behavior: 'smooth' })
-    }, 80)
-  }
-
   function advanceTo(nextStep) {
     setStep((currentStep) => Math.max(currentStep, nextStep))
   }
 
   function handleStart() {
     setStep(STEP.PATIENT)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    setActiveTab(STEP.PATIENT)
   }
 
   useEffect(() => {
@@ -302,10 +293,7 @@ export default function App() {
       setThrombectomy(thrombectomyData)
       setCaseSaved(false)
       setStep(STEP.DONE)
-
-      setTimeout(() => {
-        doneRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-      }, 80)
+      setActiveTab(STEP.DONE)
     }
 
     const params = new URLSearchParams(window.location.search)
@@ -334,6 +322,7 @@ export default function App() {
     if (session.thrombolyticStartTime) setThrombolyticStartTime(new Date(session.thrombolyticStartTime))
     if (session.thrombectomyActivationTime) setThrombectomyActivationTime(new Date(session.thrombectomyActivationTime))
     setStep(STEP.TIME)
+    setActiveTab(STEP.TIME)
   }
 
   function handlePatientConfirm(data) {
@@ -362,7 +351,7 @@ export default function App() {
     setShowVitalsModal(false)
     setTimerStart(now)
     setStep(STEP.TIME)
-    scrollTo(timeRef)
+    setActiveTab(STEP.TIME)
 
     saveSession(patientId, {
       patientName: patient.name,
@@ -444,7 +433,7 @@ export default function App() {
   function handleTimeConfirm(data) {
     setSymptoms((prev) => ({ ...prev, ...data }))
     advanceTo(STEP.NIHSS_SYMPTOMS)
-    scrollTo(nihssRef)
+    setActiveTab(STEP.NIHSS_SYMPTOMS)
   }
 
   function handleSymptomsNihssConfirm(data) {
@@ -464,14 +453,14 @@ export default function App() {
       setShowAvisoModal(true)
     } else {
       advanceTo(STEP.CT_RESULT)
-      scrollTo(ctResultRef)
+      setActiveTab(STEP.CT_RESULT)
     }
   }
 
   function handleAvisoClose() {
     setShowAvisoModal(false)
     advanceTo(STEP.CT_RESULT)
-    scrollTo(ctResultRef)
+    setActiveTab(STEP.CT_RESULT)
   }
 
   function handleCtResultConfirm(data) {
@@ -479,15 +468,15 @@ export default function App() {
     setCtRequestTime(new Date(data.ctRequestTime))
     if (data.bleeding) {
       setStep(STEP.DONE)
-      scrollTo(doneRef)
+      setActiveTab(STEP.DONE)
     } else {
       const indicated = (nihss?.nihssScore ?? 0) >= 5 || nihss?.hasDisablingSymptoms === true
       if (indicated) {
         advanceTo(STEP.CONTRAINDICATIONS)
-        scrollTo(contraindicationsRef)
+        setActiveTab(STEP.CONTRAINDICATIONS)
       } else {
         advanceTo(STEP.THROMBECTOMY)
-        scrollTo(thrombectomyRef)
+        setActiveTab(STEP.THROMBECTOMY)
       }
     }
   }
@@ -496,10 +485,10 @@ export default function App() {
     setCtResult(data)
     if (data.mismatch && !symptoms?.anticoagulation?.active) {
       advanceTo(STEP.CONTRAINDICATIONS)
-      scrollTo(contraindicationsRef)
+      setActiveTab(STEP.CONTRAINDICATIONS)
     } else {
       advanceTo(STEP.THROMBECTOMY)
-      scrollTo(thrombectomyRef)
+      setActiveTab(STEP.THROMBECTOMY)
     }
   }
 
@@ -507,10 +496,10 @@ export default function App() {
     setContraindications(data)
     if (data.hasAbsolute || data.decidedNotToThrombolyze) {
       advanceTo(STEP.THROMBECTOMY)
-      scrollTo(thrombectomyRef)
+      setActiveTab(STEP.THROMBECTOMY)
     } else {
       advanceTo(STEP.DOSAGE)
-      scrollTo(dosageRef)
+      setActiveTab(STEP.DOSAGE)
     }
   }
 
@@ -518,7 +507,7 @@ export default function App() {
     setDosage(data)
     setThrombolyticStartTime(new Date(data.thrombolyticStartTime))
     advanceTo(STEP.THROMBECTOMY)
-    scrollTo(thrombectomyRef)
+    setActiveTab(STEP.THROMBECTOMY)
   }
 
   function handleThrombectomyConfirm(data) {
@@ -527,7 +516,7 @@ export default function App() {
       setThrombectomyActivationTime(new Date(data.thrombectomyActivationTime))
     }
     setStep(STEP.DONE)
-    scrollTo(doneRef)
+    setActiveTab(STEP.DONE)
   }
 
   function handleAddNihss(score) {
@@ -543,18 +532,7 @@ export default function App() {
   }
 
   function handleSidebarStepClick(stepValue) {
-    const refMap = {
-      3: timeRef,
-      4: vitalsRef,
-      5: nihssRef,
-      6: ctResultRef,
-      7: contraindicationsRef,
-      8: dosageRef,
-      9: thrombectomyRef,
-    }
-    const ref = refMap[stepValue]
-    if (ref) scrollTo(ref)
-    else window.scrollTo({ top: 0, behavior: 'smooth' })
+    setActiveTab(stepValue)
   }
 
   function handleSaveCase() {
@@ -658,15 +636,18 @@ export default function App() {
       { step: STEP.CT_RESULT, target: 'ctResult', label: symptoms?.isWakeUpStroke ? 'RMN de encefalo' : 'TAC de encefalo' },
     ]
 
-    if (thrombolysisPathActive) {
-      path.push({ step: STEP.CONTRAINDICATIONS, target: 'contraindications', label: 'Contraindicaciones' })
+    if (!ctResult?.bleeding) {
+      if (thrombolysisPathActive) {
+        path.push({ step: STEP.CONTRAINDICATIONS, target: 'contraindications', label: 'Contraindicaciones' })
 
-      if (!contraindications?.hasAbsolute && !contraindications?.decidedNotToThrombolyze) {
-        path.push({ step: STEP.DOSAGE, target: 'dosage', label: 'Dosis trombolitico' })
+        if (!contraindications?.hasAbsolute && !contraindications?.decidedNotToThrombolyze) {
+          path.push({ step: STEP.DOSAGE, target: 'dosage', label: 'Dosis trombolitico' })
+        }
       }
+
+      path.push({ step: STEP.THROMBECTOMY, target: 'thrombectomy', label: 'Trombectomia' })
     }
 
-    path.push({ step: STEP.THROMBECTOMY, target: 'thrombectomy', label: 'Trombectomia' })
     path.push({ step: STEP.DONE, target: 'done', label: 'Resumen final' })
     return path
   }
@@ -704,32 +685,16 @@ export default function App() {
   function goToProtocolTarget(target) {
     if (!target) return
     if (target.step > step) {
-      setStep(target.step)
+      advanceTo(target.step)
     }
-
-    const refMap = {
-      time: timeRef,
-      nihss: nihssRef,
-      ctResult: ctResultRef,
-      contraindications: contraindicationsRef,
-      dosage: dosageRef,
-      thrombectomy: thrombectomyRef,
-      done: doneRef,
-    }
-    const ref = refMap[target.target]
-
-    if (ref) {
-      scrollTo(ref)
-    } else {
-      window.scrollTo({ top: 0, behavior: 'smooth' })
-    }
+    setActiveTab(target.step)
   }
 
   function handleProtocolBack() {
     const path = getProtocolPath()
-    const currentIndex = path.findIndex((item) => item.step === step)
-    const fallbackIndex = path.reduce((last, item, index) => (item.step < step ? index : last), 0)
-    const targetIndex = Math.max(0, (currentIndex >= 0 ? currentIndex : fallbackIndex) - 1)
+    const currentTabIndex = path.findIndex((item) => item.step === activeTab)
+    const fallbackIndex = path.reduce((last, item, index) => (item.step <= step ? index : last), 0)
+    const targetIndex = Math.max(0, (currentTabIndex >= 0 ? currentTabIndex : fallbackIndex) - 1)
     const target = path[targetIndex]
 
     if (showAlertModal) setShowAlertModal(false)
@@ -737,8 +702,7 @@ export default function App() {
     if (showAnticoagModal) setShowAnticoagModal(false)
     if (showAvisoModal) setShowAvisoModal(false)
 
-    setStep(target.step)
-    goToProtocolTarget(target)
+    setActiveTab(target.step)
   }
 
   function handleProtocolForward() {
@@ -748,8 +712,8 @@ export default function App() {
   const nextMissingTarget = getNextMissingTarget()
   const canUseProtocolNav = patient && step > STEP.ALERT
   const protocolPath = getProtocolPath()
-  const currentProtocolIndex = protocolPath.findIndex((item) => item.step === step)
-  const canGoBack = canUseProtocolNav && (currentProtocolIndex > 0 || step > STEP.PATIENT)
+  const currentTabProtocolIndex = protocolPath.findIndex((item) => item.step === activeTab)
+  const canGoBack = canUseProtocolNav && currentTabProtocolIndex > 0
 
   const RED_CONTRA_LABELS = {
     prior_ich:         'Hemorragia intracraneal previa o actual',
@@ -765,8 +729,8 @@ export default function App() {
     if (ctResult?.bleeding) {
       return {
         icon: 'error',
-        iconBg: 'bg-red-100',
-        borderColor: 'border-red-400',
+        iconBg: 'bg-blue-100',
+        borderColor: 'border-blue-800',
         title: 'Hemorragia intracraneal',
         body: 'La TC evidencia hemorragia. Trombolisis contraindicada. Derivar a Neurocirugía.',
       }
@@ -783,8 +747,8 @@ export default function App() {
     if (symptoms?.anticoagulation?.active && !dosage) {
       return {
         icon: 'warning',
-        iconBg: 'bg-red-100',
-        borderColor: 'border-red-400',
+        iconBg: 'bg-amber-100',
+        borderColor: 'border-amber-400',
         title: 'Anticoagulacion activa',
         body: `Trombolisis IV contraindicada o condicionada por anticoagulacion (${symptoms.anticoagulation.type || 'tipo no registrado'}). Evaluar OGV/trombectomia y verificar ultima dosis, droga y laboratorio.`,
       }
@@ -797,8 +761,8 @@ export default function App() {
       const motivo = activeNames.length ? activeNames.join('; ') : 'Contraindicación absoluta'
       return {
         icon: 'error',
-        iconBg: 'bg-red-100',
-        borderColor: 'border-red-400',
+        iconBg: 'bg-blue-100',
+        borderColor: 'border-blue-800',
         title: 'Contraindicación absoluta — trombolisis NO indicada',
         body: `Motivo: ${motivo}. Continuar manejo de soporte y evaluar trombectomía mecánica.`,
       }
@@ -902,7 +866,7 @@ export default function App() {
         <div className={`bg-white rounded-2xl border ${done.borderColor} p-6 mb-4`}>
           <div className={`w-12 h-12 ${done.iconBg} rounded-xl flex items-center justify-center mx-auto mb-4`}>
             {done.icon === 'check' && <svg className="w-6 h-6 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>}
-            {done.icon === 'error' && <svg className="w-6 h-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>}
+            {done.icon === 'error' && <svg className="w-6 h-6 text-blue-900" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>}
             {done.icon === 'warning' && <svg className="w-6 h-6 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" /></svg>}
             {done.icon === 'moon' && <svg className="w-6 h-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" /></svg>}
           </div>
@@ -1033,285 +997,279 @@ export default function App() {
     ? glucoseReadings[glucoseReadings.length - 1].value
     : vitals?.glucose ?? null
 
+  function renderActiveTab() {
+    switch (activeTab) {
+      case STEP.PATIENT:
+        return (
+          <PatientStep
+            onConfirm={handlePatientConfirm}
+            confirmed={step > STEP.ALERT}
+            isCollapsed={false}
+            patient={patient}
+            patientId={patientId}
+            arrivalTime={patientArrivalTime}
+            vitals={vitals}
+          />
+        )
+      case STEP.TIME:
+        if (step < STEP.TIME) return <LockedTabView />
+        return <TimeStep onConfirm={handleTimeConfirm} isCollapsed={false} />
+      case STEP.NIHSS_SYMPTOMS:
+        if (step < STEP.NIHSS_SYMPTOMS) return <LockedTabView />
+        return <SymptomsNihssStep onConfirm={handleSymptomsNihssConfirm} isCollapsed={false} />
+      case STEP.CT_RESULT:
+        if (step < STEP.CT_RESULT) return <LockedTabView />
+        return symptoms?.isWakeUpStroke
+          ? <MRIResultStep onConfirm={handleMRIResultConfirm} />
+          : (
+            <CTResultStep
+              onConfirm={handleCtResultConfirm}
+              initialCtRequestTime={ctRequestTime}
+              onCtRequest={handleCtRequest}
+              isCollapsed={false}
+            />
+          )
+      case STEP.CONTRAINDICATIONS:
+        if (step < STEP.CONTRAINDICATIONS || !thrombolysisPathActive) return <LockedTabView />
+        return <ContraindicationsStep onConfirm={handleContraindicationsConfirm} isCollapsed={false} />
+      case STEP.DOSAGE:
+        if (step < STEP.DOSAGE || !thrombolysisPathActive || contraindications?.hasAbsolute || contraindications?.decidedNotToThrombolyze) return <LockedTabView />
+        return (
+          <DosageStep
+            onConfirm={handleDosageConfirm}
+            thrombolyticStartTime={thrombolyticStartTime}
+            onThrombolyticStart={handleThrombolyticStart}
+            onAddNihss={handleAddNihss}
+          />
+        )
+      case STEP.THROMBECTOMY:
+        if (step < STEP.THROMBECTOMY) return <LockedTabView />
+        return (
+          <ThrombectomyStep
+            nihssScore={nihss?.nihssScore ?? 0}
+            isWakeUpStroke={symptoms?.isWakeUpStroke ?? false}
+            onConfirm={handleThrombectomyConfirm}
+            angioRequestTime={angioRequestTime}
+            onAngioRequest={handleAngioRequest}
+            thrombectomyActivationTime={thrombectomyActivationTime}
+            onThrombectomyActivation={handleThrombectomyActivation}
+            initialAspectScore={null}
+          />
+        )
+      case STEP.DONE:
+        if (step !== STEP.DONE || !done) return <LockedTabView />
+        return renderDoneScreen({
+          done,
+          patient,
+          patientId,
+          eventId,
+          timerStart,
+          patientArrivalTime,
+          ctRequestTime,
+          thrombolyticStartTime,
+          angioRequestTime,
+          thrombectomyActivationTime,
+          symptoms,
+          vitals,
+          nihss,
+          ctResult,
+          contraindications,
+          dosage,
+          thrombectomy,
+          nihssReadings,
+          vitalsReadings,
+          glucoseReadings,
+          onCopy: handleCopy,
+          copied,
+          onReset: handleReset,
+          summaryText: buildSummaryText(),
+          getSelectedSymptomsSummary,
+          getContraSummary,
+          getDoseSummary,
+          getImagingSummary,
+        })
+      default:
+        return null
+    }
+  }
+
   return (
     <StepProgressProvider
       currentStep={step}
       completedSteps={sidebarCompletedSteps}
       onStepClick={handleSidebarStepClick}
     >
-    <div
-      className="min-h-[100dvh] bg-neutral-50 flex flex-col pt-14"
-      style={{ paddingBottom: 'calc(5.5rem + env(safe-area-inset-bottom, 0px))' }}
-    >
-      <GlobalTimer
-        startTime={timerStart}
-        timestamps={{ ctRequest: ctRequestTime?.toISOString(), thrombolyticStart: thrombolyticStartTime?.toISOString() }}
-        patient={patient}
-        onReset={patient ? handleReset : undefined}
-        progressPct={patient && step > STEP.ALERT && step < STEP.DONE
-          ? (Math.min(step, STEP.THROMBECTOMY) / STEP.THROMBECTOMY) * 100
-          : 0
-        }
-      />
+      {/* Fixed full-height shell — no page scroll */}
+      <div className="h-dvh flex flex-col overflow-hidden bg-neutral-50">
 
-      {/* Quick actions - bottom toolbar */}
-      {patient && step > STEP.ALERT && (
-        <div
-          className="fixed inset-x-0 bottom-0 z-40 border-t border-neutral-200 bg-white/95 px-3 pb-3 pt-2 shadow-elevated backdrop-blur-md md:hidden"
-          style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}
-        >
-          <QuickAddFAB
-            variant="mobile-toolbar"
-            onAddNihss={handleAddNihss}
-            onAddVitals={handleAddVitals}
-            onAddGlucose={handleAddGlucose}
-            onOutOfWindow={() => setShowOutOfWindow(true)}
-            latestNihss={latestNihss}
-            latestVitals={latestVitals}
-            latestGlucose={latestGlucose}
-          />
-        </div>
-      )}
-
-      {canUseProtocolNav && (
-        <FloatingProtocolNav
-          onBack={handleProtocolBack}
-          onForward={handleProtocolForward}
-          canGoBack={canGoBack}
-          canGoForward={Boolean(nextMissingTarget)}
-          forwardLabel={nextMissingTarget?.label ?? 'Protocolo completo'}
-        />
-      )}
-
-      {/* Modal ACV fuera de ventana */}
-      {showOutOfWindow && (
-        <OutOfWindowModal
+        <GlobalTimer
+          startTime={timerStart}
+          timestamps={{ ctRequest: ctRequestTime?.toISOString(), thrombolyticStart: thrombolyticStartTime?.toISOString() }}
           patient={patient}
-          onClose={() => setShowOutOfWindow(false)}
-          onSave={(data) => console.info('OutOfWindow:', data)}
+          onReset={patient ? handleReset : undefined}
+          onEducationalOpen={() => setShowEducationalOverlay(true)}
+          progressPct={patient && step > STEP.ALERT && step < STEP.DONE
+            ? (Math.min(step, STEP.THROMBECTOMY) / STEP.THROMBECTOMY) * 100
+            : 0
+          }
         />
-      )}
 
-      {/* Body — two-column on desktop */}
-      <div className={`flex-1 flex flex-col ${step === STEP.PATIENT ? 'justify-center' : ''} md:grid md:items-start ${patient ? 'md:grid-cols-[260px_minmax(0,1fr)]' : 'md:grid-cols-1'} w-full md:gap-8 md:px-6 lg:px-9 md:pt-6`}>
+        {/* Body area below fixed header */}
+        <div className="flex-1 flex overflow-hidden pt-14">
 
-        {/* Desktop sidebar */}
-        {patient && (
-          <div className="hidden md:flex md:flex-col md:sticky md:top-[72px] md:self-start md:max-h-[calc(100vh-80px)] md:overflow-y-auto md:pr-1 gap-3">
-            {/* Patient card */}
-            <div className="rounded-2xl bg-white border border-neutral-100 p-4">
-              <div className="flex items-start justify-between gap-2 mb-1">
-                <p className="font-semibold text-neutral-800 text-sm leading-snug">{patient.name}</p>
-                {patientId && (
-                  <p className="text-[10px] font-mono font-semibold text-brand-600 tracking-wider shrink-0">{patientId}</p>
-                )}
-              </div>
-              <p className="text-xs text-neutral-400">DNI {patient.dni}</p>
-
-              {(latestNihss !== null || latestVitals || latestGlucose !== null) && (
-                <div className="mt-3 pt-3 border-t border-neutral-100 grid grid-cols-3 gap-2">
-                  {latestNihss !== null && (() => {
-                    const sev = getNihssSeverity(latestNihss)
-                    return (
-                      <div className={`rounded-lg px-2 py-1.5 text-center ${sev.bg}`}>
-                        <p className="text-[9px] text-neutral-400 uppercase tracking-wider font-semibold mb-0.5">NIHSS</p>
-                        <p className={`text-sm font-bold tabular-nums ${sev.color}`}>{latestNihss}</p>
-                      </div>
-                    )
-                  })()}
-                  {latestVitals && (
-                    <div className={`rounded-lg px-2 py-1.5 text-center ${latestVitals.systolic > 185 ? 'bg-red-50' : 'bg-blue-50/60'}`}>
-                      <p className="text-[9px] text-neutral-400 uppercase tracking-wider font-semibold mb-0.5">TA</p>
-                      <p className={`text-xs font-bold tabular-nums ${latestVitals.systolic > 185 ? 'text-red-600' : 'text-blue-700'}`}>
-                        {latestVitals.systolic}/{latestVitals.diastolic}
-                      </p>
-                    </div>
-                  )}
-                  {latestGlucose !== null && (
-                    <div className={`rounded-lg px-2 py-1.5 text-center ${latestGlucose < 50 ? 'bg-red-50' : latestGlucose > 400 ? 'bg-orange-50' : 'bg-violet-50/60'}`}>
-                      <p className="text-[9px] text-neutral-400 uppercase tracking-wider font-semibold mb-0.5">GLC</p>
-                      <p className={`text-xs font-bold tabular-nums ${latestGlucose < 50 ? 'text-red-600' : latestGlucose > 400 ? 'text-orange-600' : 'text-violet-700'}`}>
-                        {latestGlucose}
-                      </p>
-                    </div>
+          {/* Desktop sidebar */}
+          {patient && (
+            <aside className="hidden md:flex md:flex-col w-[260px] shrink-0 border-r border-neutral-100 bg-white overflow-y-auto">
+              {/* Patient card */}
+              <div className="p-4 border-b border-neutral-100">
+                <div className="flex items-start justify-between gap-2 mb-1">
+                  <p className="font-semibold text-neutral-800 text-sm leading-snug">{patient.name}</p>
+                  {patientId && (
+                    <p className="text-[10px] font-mono font-semibold text-brand-600 tracking-wider shrink-0">{patientId}</p>
                   )}
                 </div>
-              )}
-            </div>
+                <p className="text-xs text-neutral-400">DNI {patient.dni}</p>
 
-            {step > STEP.ALERT && (
-              <div>
-                <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Registros rápidos</p>
-                <QuickAddFAB
-                  variant="sidebar"
-                  onAddNihss={handleAddNihss}
-                  onAddVitals={handleAddVitals}
-                  onAddGlucose={handleAddGlucose}
-                  onOutOfWindow={() => setShowOutOfWindow(true)}
-                  latestNihss={latestNihss}
-                  latestVitals={latestVitals}
-                  latestGlucose={latestGlucose}
+                {(latestNihss !== null || latestVitals || latestGlucose !== null) && (
+                  <div className="mt-3 pt-3 border-t border-neutral-100 grid grid-cols-3 gap-2">
+                    {latestNihss !== null && (() => {
+                      const sev = getNihssSeverity(latestNihss)
+                      return (
+                        <div className={`rounded-lg px-2 py-1.5 text-center ${sev.bg}`}>
+                          <p className="text-[9px] text-neutral-400 uppercase tracking-wider font-semibold mb-0.5">NIHSS</p>
+                          <p className={`text-sm font-bold tabular-nums ${sev.color}`}>{latestNihss}</p>
+                        </div>
+                      )
+                    })()}
+                    {latestVitals && (
+                      <div className={`rounded-lg px-2 py-1.5 text-center ${latestVitals.systolic > 185 ? 'bg-blue-900/10' : 'bg-blue-50/60'}`}>
+                        <p className="text-[9px] text-neutral-400 uppercase tracking-wider font-semibold mb-0.5">TA</p>
+                        <p className={`text-xs font-bold tabular-nums ${latestVitals.systolic > 185 ? 'text-blue-900' : 'text-blue-700'}`}>
+                          {latestVitals.systolic}/{latestVitals.diastolic}
+                        </p>
+                      </div>
+                    )}
+                    {latestGlucose !== null && (
+                      <div className={`rounded-lg px-2 py-1.5 text-center ${latestGlucose < 50 ? 'bg-blue-900/10' : latestGlucose > 400 ? 'bg-orange-50' : 'bg-violet-50/60'}`}>
+                        <p className="text-[9px] text-neutral-400 uppercase tracking-wider font-semibold mb-0.5">GLC</p>
+                        <p className={`text-xs font-bold tabular-nums ${latestGlucose < 50 ? 'text-blue-900' : latestGlucose > 400 ? 'text-orange-600' : 'text-violet-700'}`}>
+                          {latestGlucose}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Quick-add FAB */}
+              {step > STEP.ALERT && (
+                <div className="px-3 py-3 border-b border-neutral-100">
+                  <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Registros rápidos</p>
+                  <QuickAddFAB
+                    variant="sidebar"
+                    onAddNihss={handleAddNihss}
+                    onAddVitals={handleAddVitals}
+                    onAddGlucose={handleAddGlucose}
+                    onOutOfWindow={() => setShowOutOfWindow(true)}
+                    latestNihss={latestNihss}
+                    latestVitals={latestVitals}
+                    latestGlucose={latestGlucose}
+                  />
+                </div>
+              )}
+
+              {/* Step tab navigator */}
+              <div className="flex-1 overflow-y-auto px-2 py-3">
+                <p className="mb-1.5 px-1 text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Protocolo</p>
+                <StepTimeline
+                  variant="desktop"
+                  currentStep={step}
+                  activeTab={activeTab}
+                  completedSteps={sidebarCompletedSteps}
+                  onStepClick={handleSidebarStepClick}
                 />
               </div>
-            )}
 
-            <div>
-              <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Protocolo</p>
-              <StepTimeline
-                variant="desktop"
-                currentStep={step}
-                completedSteps={sidebarCompletedSteps}
-                onStepClick={handleSidebarStepClick}
-              />
+              {/* Timestamps */}
+              <div className="border-t border-neutral-100">
+                <TimestampPanel
+                  variant="desktop"
+                  arrival={patientArrivalTime}
+                  ct={ctRequestTime}
+                  thrombolytic={thrombolyticStartTime}
+                  angio={angioRequestTime}
+                />
+              </div>
+            </aside>
+          )}
+
+          {/* Main scrollable content panel */}
+          <main className="flex-1 min-w-0 overflow-y-auto">
+            <div
+              className="max-w-2xl mx-auto px-4 py-4"
+              style={{ paddingBottom: 'calc(5rem + env(safe-area-inset-bottom, 0px))' }}
+            >
+              {renderActiveTab()}
             </div>
+          </main>
+        </div>
 
-            <TimestampPanel
-              variant="desktop"
-              arrival={patientArrivalTime}
-              ct={ctRequestTime}
-              thrombolytic={thrombolyticStartTime}
-              angio={angioRequestTime}
+        {/* Mobile bottom toolbar */}
+        {patient && step > STEP.ALERT && (
+          <div
+            className="fixed inset-x-0 bottom-0 z-40 border-t border-neutral-200 bg-white/95 px-3 pb-3 pt-2 shadow-elevated backdrop-blur-md md:hidden"
+            style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}
+          >
+            <QuickAddFAB
+              variant="mobile-toolbar"
+              onAddNihss={handleAddNihss}
+              onAddVitals={handleAddVitals}
+              onAddGlucose={handleAddGlucose}
+              onOutOfWindow={() => setShowOutOfWindow(true)}
+              latestNihss={latestNihss}
+              latestVitals={latestVitals}
+              latestGlucose={latestGlucose}
             />
           </div>
         )}
 
-        {/* Main content */}
-      <div className="relative w-full space-y-3 px-4 pt-4 md:mx-auto md:min-w-0 md:max-w-4xl md:px-0 md:pt-0 lg:space-y-4">
-          {patient && (
-            <div className="pointer-events-none absolute bottom-0 left-[22px] top-4 z-0 w-px bg-neutral-200 md:hidden" />
-          )}
-          {step >= STEP.PATIENT && (
-            <div>
-              <PatientStep
-                onConfirm={handlePatientConfirm}
-                confirmed={step > STEP.ALERT}
-                isCollapsed={step >= STEP.CT_RESULT}
-                patient={patient}
-                patientId={patientId}
-                arrivalTime={patientArrivalTime}
-                vitals={vitals}
-              />
-            </div>
-          )}
+        {/* Floating protocol navigation */}
+        {canUseProtocolNav && (
+          <FloatingProtocolNav
+            onBack={handleProtocolBack}
+            onForward={handleProtocolForward}
+            canGoBack={canGoBack}
+            canGoForward={Boolean(nextMissingTarget)}
+            forwardLabel={nextMissingTarget?.label ?? 'Protocolo completo'}
+          />
+        )}
 
-          {showAlertModal && patient && (
-            <AlertModal
-              patient={patient}
-              onConfirm={handleAlertConfirm}
-              onClose={handleAlertClose}
-            />
-          )}
+        {/* Modals */}
+        <VitalsModal isOpen={showVitalsModal} onConfirm={handleVitalsModalConfirm} />
+        <AnticoagModal isOpen={showAnticoagModal} onConfirm={handleAnticoagConfirm} />
+        <AvisoModal isOpen={showAvisoModal} onClose={handleAvisoClose} />
 
-          {protocolUnlocked && (
-            <div ref={timeRef}>
-              <TimeStep
-                onConfirm={handleTimeConfirm}
-                isCollapsed={step >= STEP.CT_RESULT}
-              />
-            </div>
-          )}
+        {showAlertModal && patient && (
+          <AlertModal
+            patient={patient}
+            onConfirm={handleAlertConfirm}
+            onClose={handleAlertClose}
+          />
+        )}
 
-          {protocolUnlocked && (
-            <div ref={nihssRef}>
-              <SymptomsNihssStep
-                onConfirm={handleSymptomsNihssConfirm}
-                isCollapsed={step >= STEP.CONTRAINDICATIONS}
-              />
-            </div>
-          )}
+        {showOutOfWindow && (
+          <OutOfWindowModal
+            patient={patient}
+            onClose={() => setShowOutOfWindow(false)}
+            onSave={(data) => console.info('OutOfWindow:', data)}
+          />
+        )}
 
-          {step >= STEP.CT_RESULT && (
-            <div ref={ctResultRef}>
-              {symptoms?.isWakeUpStroke
-                ? <MRIResultStep onConfirm={handleMRIResultConfirm} />
-                : (
-                  <CTResultStep
-                    onConfirm={handleCtResultConfirm}
-                    initialCtRequestTime={ctRequestTime}
-                    onCtRequest={handleCtRequest}
-                    isCollapsed={step >= STEP.DOSAGE}
-                  />
-                )
-              }
-            </div>
-          )}
-
-          {step >= STEP.CONTRAINDICATIONS && thrombolysisPathActive && (
-            <div ref={contraindicationsRef}>
-              <ContraindicationsStep
-                onConfirm={handleContraindicationsConfirm}
-                isCollapsed={step >= STEP.THROMBECTOMY}
-              />
-            </div>
-          )}
-
-          {step >= STEP.DOSAGE && thrombolysisPathActive && !contraindications?.hasAbsolute && !contraindications?.decidedNotToThrombolyze && (
-            <div ref={dosageRef}>
-              <DosageStep
-                onConfirm={handleDosageConfirm}
-                thrombolyticStartTime={thrombolyticStartTime}
-                onThrombolyticStart={handleThrombolyticStart}
-                onAddNihss={handleAddNihss}
-              />
-            </div>
-          )}
-
-          {step >= STEP.THROMBECTOMY && (
-            <div ref={thrombectomyRef}>
-              <ThrombectomyStep
-                nihssScore={nihss?.nihssScore ?? 0}
-                isWakeUpStroke={symptoms?.isWakeUpStroke ?? false}
-                onConfirm={handleThrombectomyConfirm}
-                angioRequestTime={angioRequestTime}
-                onAngioRequest={handleAngioRequest}
-                thrombectomyActivationTime={thrombectomyActivationTime}
-                onThrombectomyActivation={handleThrombectomyActivation}
-                initialAspectScore={null}
-              />
-            </div>
-          )}
-
-          <VitalsModal isOpen={showVitalsModal} onConfirm={handleVitalsModalConfirm} />
-          <AnticoagModal isOpen={showAnticoagModal} onConfirm={handleAnticoagConfirm} />
-          <AvisoModal isOpen={showAvisoModal} onClose={handleAvisoClose} />
-
-          {step === STEP.DONE && done && (
-            <div ref={doneRef}>
-              {renderDoneScreen({
-              done,
-              patient,
-              patientId,
-              eventId,
-              timerStart,
-              patientArrivalTime,
-              ctRequestTime,
-              thrombolyticStartTime,
-              angioRequestTime,
-              thrombectomyActivationTime,
-              symptoms,
-              vitals,
-              nihss,
-              ctResult,
-              contraindications,
-              dosage,
-              thrombectomy,
-              nihssReadings,
-              vitalsReadings,
-              glucoseReadings,
-              onCopy: handleCopy,
-              copied,
-              onReset: handleReset,
-              summaryText: buildSummaryText(),
-              getSelectedSymptomsSummary,
-              getContraSummary,
-              getDoseSummary,
-              getImagingSummary,
-              })}
-            </div>
-          )}
+        {/* Educational overlay */}
+        {showEducationalOverlay && (
+          <EducationalOverlay onClose={() => setShowEducationalOverlay(false)} />
+        )}
       </div>
-      </div>
-    </div>
     </StepProgressProvider>
   )
 }
