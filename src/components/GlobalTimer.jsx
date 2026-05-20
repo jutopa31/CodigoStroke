@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Clock, Activity, RotateCcw } from 'lucide-react'
+import { Clock, Activity, RotateCcw, BookOpen } from 'lucide-react'
 
 const MILESTONES = [
   { minutes: 25, label: 'TC', tsKey: 'ctRequest' },
@@ -21,8 +21,8 @@ function formatElapsed(seconds) {
 
 function getPhase(minutes) {
   if (minutes >= 60) return {
-    bg: 'bg-red-600',
-    muted: 'text-red-200',
+    bg: 'bg-blue-900',
+    muted: 'text-blue-200',
     done: 'bg-white/25 text-white',
     over: 'bg-white/35 text-white',
     pending: 'bg-white/10 text-white/50',
@@ -43,7 +43,7 @@ function getPhase(minutes) {
   }
 }
 
-export default function GlobalTimer({ startTime, timestamps = {}, patient, onReset, progressPct }) {
+export default function GlobalTimer({ startTime, timestamps = {}, patient, onReset, progressPct, onEducationalOpen }) {
   const [elapsed, setElapsed] = useState(0)
 
   useEffect(() => {
@@ -123,6 +123,17 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
             <span className={`text-xs font-medium ${phase ? phase.muted : 'text-brand-300'} truncate max-w-[90px] md:hidden`}>
               {patient.name.split(' ')[0]}
             </span>
+          )}
+          {onEducationalOpen && (
+            <button
+              type="button"
+              onClick={onEducationalOpen}
+              className="w-8 h-8 rounded-lg border border-white/20 bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
+              title="Referencia educativa del protocolo"
+              aria-label="Abrir referencia educativa"
+            >
+              <BookOpen size={14} strokeWidth={2} />
+            </button>
           )}
           {onReset && (
             <button

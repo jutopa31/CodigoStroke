@@ -17,18 +17,18 @@
   --color-text-secondary: #6B6B6B;
   --color-text-muted: #A0A0A0;
   
-  /* Brand - Deep medical red, refined */
-  --color-brand: #B91C1C;
-  --color-brand-muted: #FEF2F2;
-  --color-brand-subtle: #FECACA;
-  
+  /* Brand - Deep medical blue */
+  --color-brand: #1D4ED8;
+  --color-brand-muted: #EFF6FF;
+  --color-brand-subtle: #BFDBFE;
+
   /* Status colors - Subtle, professional */
   --color-success: #059669;
   --color-success-muted: #ECFDF5;
   --color-warning: #D97706;
   --color-warning-muted: #FFFBEB;
-  --color-danger: #DC2626;
-  --color-danger-muted: #FEF2F2;
+  --color-danger: #1E3A8A;
+  --color-danger-muted: #EFF6FF;
   --color-info: #2563EB;
   --color-info-muted: #EFF6FF;
 }
@@ -38,9 +38,9 @@
 }
 
 html {
-  scroll-behavior: smooth;
-  overflow-x: hidden;
+  overflow: hidden;
   max-width: 100vw;
+  height: 100dvh;
   background-color: var(--color-background);
 }
 
@@ -50,17 +50,20 @@ body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
+  overflow: hidden;
   max-width: 100vw;
+  height: 100dvh;
   color: var(--color-text-primary);
   font-feature-settings: 'cv11' 1, 'ss01' 1;
   letter-spacing: -0.011em;
 }
 
 #root {
-  min-height: 100svh;
-  overflow-x: hidden;
+  height: 100dvh;
+  overflow: hidden;
   width: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Ultra-minimal scrollbar */

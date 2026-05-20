@@ -93,10 +93,10 @@ export default function TimeStep({ onConfirm, isCollapsed = false }) {
 
   const toneStyles = {
     red: {
-      container: 'bg-red-50/50 border-red-100',
-      label: 'text-red-700',
-      elapsed: 'text-red-600',
-      slider: 'accent-red-500',
+      container: 'bg-blue-900/8 border-blue-200',
+      label: 'text-blue-900',
+      elapsed: 'text-blue-900',
+      slider: 'accent-blue-900',
     },
     orange: {
       container: 'bg-amber-50/50 border-amber-100',
@@ -173,8 +173,8 @@ export default function TimeStep({ onConfirm, isCollapsed = false }) {
             className="absolute top-6 flex -translate-x-full flex-col items-end gap-1 transition hover:opacity-80 focus:outline-none"
             style={{ left: OGV_WINDOW_PERCENT }}
           >
-            <span className="h-2 w-0.5 rounded-full bg-red-400" />
-            <span className="text-[10px] font-semibold text-red-600 bg-white px-1.5 py-0.5 rounded-md border border-red-200">24h</span>
+            <span className="h-2 w-0.5 rounded-full bg-blue-700" />
+            <span className="text-[10px] font-semibold text-blue-800 bg-white px-1.5 py-0.5 rounded-md border border-blue-200">24h</span>
           </button>
         </div>
 

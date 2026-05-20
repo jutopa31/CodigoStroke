@@ -105,7 +105,7 @@ function ContraRow({ item, value, onChange, color, expanded, onToggleExpand }) {
   const tone = color === 'red' ? 'red' : 'orange'
   const rowBg = isYes
     ? color === 'red'
-      ? 'bg-red-50 border-red-300'
+      ? 'bg-blue-900/10 border-blue-800/40'
       : 'bg-amber-50 border-amber-300'
     : isNo
     ? 'bg-slate-50 border-slate-200'
@@ -116,7 +116,7 @@ function ContraRow({ item, value, onChange, color, expanded, onToggleExpand }) {
       <div className="flex items-center gap-2 px-3 py-2.5">
         <div className="flex-1 min-w-0 flex items-center gap-1.5">
           <p className={`text-sm font-semibold leading-snug truncate ${
-            isYes ? (color === 'red' ? 'text-red-800' : 'text-amber-800') : 'text-gray-700'
+            isYes ? (color === 'red' ? 'text-blue-900' : 'text-amber-800') : 'text-gray-700'
           }`}>
             {item.short}
           </p>
@@ -125,7 +125,7 @@ function ContraRow({ item, value, onChange, color, expanded, onToggleExpand }) {
             onClick={onToggleExpand}
             className={`shrink-0 p-0.5 rounded-full transition-colors ${
               expanded
-                ? (color === 'red' ? 'bg-red-100 text-red-500' : 'bg-amber-100 text-amber-500')
+                ? (color === 'red' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-500')
                 : 'text-gray-300 hover:text-gray-500 active:bg-gray-100'
             }`}
           >
@@ -155,10 +155,10 @@ function ContraRow({ item, value, onChange, color, expanded, onToggleExpand }) {
 
       {expanded && (
         <div className={`px-3 pb-2.5 animate-fade-in ${
-          color === 'red' ? 'border-t border-red-100' : 'border-t border-amber-100'
+          color === 'red' ? 'border-t border-blue-100' : 'border-t border-amber-100'
         }`}>
           <div className={`rounded-lg px-3 py-2 mt-1 text-xs leading-snug ${
-            color === 'red' ? 'bg-red-50 text-red-700' : 'bg-amber-50 text-amber-700'
+            color === 'red' ? 'bg-blue-50 text-blue-900' : 'bg-amber-50 text-amber-700'
           }`}>
             <p className="font-semibold">{item.label}</p>
             {item.sub && <p className="opacity-75 mt-0.5">{item.sub}</p>}
@@ -226,7 +226,7 @@ export default function ContraindicationsStep({ onConfirm, isCollapsed = false }
 
   return (
     <div className="px-4 pb-4 space-y-3">
-      <StepCard step="6" title="Contraindicaciones absolutas" accent="red">
+      <StepCard step="6" title="Contraindicaciones absolutas" accent="blue">
         <SectionPrompt
           tone="red"
           title="Descarta contraindicaciones absolutas"
@@ -260,9 +260,9 @@ export default function ContraindicationsStep({ onConfirm, isCollapsed = false }
           ))}
         </div>
         {hasRed && (
-          <div className="mt-3 bg-red-50 border-2 border-red-300 rounded-xl px-4 py-3 animate-fade-in">
-            <p className="text-sm font-bold text-red-700">Contraindicacion absoluta presente</p>
-            <p className="text-xs text-red-600 mt-1 leading-relaxed">No indicar trombolisis IV con rtPA ni TNK.</p>
+          <div className="mt-3 bg-blue-900/10 border-2 border-blue-800/50 rounded-xl px-4 py-3 animate-fade-in">
+            <p className="text-sm font-bold text-blue-900">Contraindicacion absoluta presente</p>
+            <p className="text-xs text-blue-800 mt-1 leading-relaxed">No indicar trombolisis IV con rtPA ni TNK.</p>
           </div>
         )}
       </StepCard>

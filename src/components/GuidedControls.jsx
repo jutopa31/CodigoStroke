@@ -17,9 +17,9 @@ const toneStyles = {
     check: 'bg-amber-500',
   },
   red: {
-    active: 'border-red-200 bg-red-50/70 text-red-800',
-    idle: 'border-neutral-200 bg-white text-neutral-700 hover:border-red-200 hover:bg-red-50/30',
-    check: 'bg-red-500',
+    active: 'border-blue-900/30 bg-blue-900/10 text-blue-900',
+    idle: 'border-neutral-200 bg-white text-neutral-700 hover:border-blue-900/20 hover:bg-blue-900/5',
+    check: 'bg-blue-900',
   },
   gray: {
     active: 'border-neutral-300 bg-neutral-100 text-neutral-800',
@@ -87,7 +87,7 @@ export function SectionPrompt({ tone = 'blue', title, helper, complete, status }
     blue: 'bg-blue-50/50 border-blue-100 text-blue-700',
     green: 'bg-emerald-50/50 border-emerald-100 text-emerald-700',
     orange: 'bg-amber-50/50 border-amber-100 text-amber-700',
-    red: 'bg-red-50/50 border-red-100 text-red-700',
+    red: 'bg-blue-900/8 border-blue-900/20 text-blue-900',
   }
 
   return (

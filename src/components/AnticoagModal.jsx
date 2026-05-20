@@ -31,13 +31,13 @@ export default function AnticoagModal({ isOpen, onConfirm }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-modal overflow-hidden animate-scale-in">
         {/* Header */}
-        <div className="bg-red-600 px-5 py-4">
+        <div className="bg-brand-600 px-5 py-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
               <ShieldAlert size={18} className="text-white" strokeWidth={2} />
             </div>
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-red-200">Evaluación</p>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-brand-200">Evaluación</p>
               <h2 className="text-white font-semibold text-base leading-tight">Anticoagulación</h2>
             </div>
           </div>
@@ -64,12 +64,12 @@ export default function AnticoagModal({ isOpen, onConfirm }) {
                   className={`flex items-center justify-center gap-2 rounded-xl border px-4 py-3.5 text-sm font-semibold transition-all active:scale-[0.98] ${
                     isActive
                       ? option.value
-                        ? 'border-red-200 bg-red-50 text-red-700'
+                        ? 'border-blue-200 bg-blue-50 text-blue-800'
                         : 'border-emerald-200 bg-emerald-50 text-emerald-700'
                       : 'border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50'
                   }`}
                 >
-                  <SelectionCheck active={isActive} tone={option.value ? 'red' : 'green'} />
+                  <SelectionCheck active={isActive} tone={option.value ? 'blue' : 'green'} />
                   {option.label}
                 </button>
               )
@@ -90,11 +90,11 @@ export default function AnticoagModal({ isOpen, onConfirm }) {
                       onClick={() => setType(id)}
                       className={`flex items-center justify-center gap-1.5 rounded-xl border py-2.5 text-xs font-medium transition-all active:scale-[0.98] ${
                         isActive
-                          ? 'border-red-200 bg-red-50 text-red-700'
-                          : 'border-neutral-200 bg-white text-neutral-600 hover:border-red-200 hover:bg-red-50/30'
+                          ? 'border-blue-200 bg-blue-50 text-blue-800'
+                          : 'border-neutral-200 bg-white text-neutral-600 hover:border-blue-200 hover:bg-blue-50/30'
                       }`}
                     >
-                      <SelectionCheck active={isActive} tone="red" />
+                      <SelectionCheck active={isActive} tone="blue" />
                       {label}
                     </button>
                   )
@@ -102,10 +102,10 @@ export default function AnticoagModal({ isOpen, onConfirm }) {
               </div>
 
               {type && (
-                <div className="rounded-xl border border-red-200 bg-red-50/50 px-4 py-3">
+                <div className="rounded-xl border border-blue-200 bg-blue-50/50 px-4 py-3">
                   <div className="flex items-start gap-2">
-                    <ShieldAlert size={14} className="shrink-0 mt-0.5 text-red-500" strokeWidth={2} />
-                    <p className="text-xs text-red-600 leading-snug">
+                    <ShieldAlert size={14} className="shrink-0 mt-0.5 text-blue-700" strokeWidth={2} />
+                    <p className="text-xs text-blue-800 leading-snug">
                       Anticoagulación activa: contraindicación relativa para trombolisis. Esperar laboratorio según droga.
                     </p>
                   </div>
