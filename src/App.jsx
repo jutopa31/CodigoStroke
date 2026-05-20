@@ -166,7 +166,15 @@ export default function App() {
 
   function scrollTo(ref) {
     setTimeout(() => {
-      ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      const el = ref.current
+      if (!el) return
+      const rect = el.getBoundingClientRect()
+      const headerOffset = 80
+      // Skip scroll if element is already fully visible — prevents unwanted upward
+      // scrolling on desktop when a collapsing step makes the next step appear in viewport
+      if (rect.top >= headerOffset && rect.bottom <= window.innerHeight) return
+      const targetY = window.scrollY + rect.top - headerOffset
+      window.scrollTo({ top: Math.max(0, targetY), behavior: 'smooth' })
     }, 80)
   }
 
