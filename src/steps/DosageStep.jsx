@@ -35,7 +35,9 @@ function fmtTime(date) {
 export default function DosageStep({ onConfirm, thrombolyticStartTime = null, onThrombolyticStart, onAddNihss }) {
   const [view, setView]           = useState('dose')   // 'dose' | 'post'
   const [drug, setDrug]           = useState('tnk')
+  const [drugLocked, setDrugLocked]     = useState(false)
   const [weightStr, setWeightStr] = useState('')
+  const [weightLocked, setWeightLocked] = useState(false)
   const [checked, setChecked]     = useState({})
   const [nihssEntry, setNihssEntry]   = useState('')
   const [nihssRecords, setNihssRecords] = useState([])
@@ -98,67 +100,104 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
             <span className="text-[10px] text-neutral-400 font-medium">1 de 2</span>
           </div>
 
-          {/* Drug: compact segmented toggle */}
-          <div className="flex rounded-xl overflow-hidden border border-neutral-200 mb-4 text-sm font-semibold">
-            {[
-              { id: 'tnk',  label: 'TNK',  sub: 'Tenecteplase' },
-              { id: 'rtpa', label: 'rtPA', sub: 'Alteplase' },
-            ].map(({ id, label, sub }) => (
-              <button
-                key={id}
-                type="button"
-                onClick={() => setDrug(id)}
-                className={`flex-1 py-2.5 transition-all ${
-                  drug === id
-                    ? 'bg-emerald-600 text-white'
-                    : 'bg-white text-neutral-500 hover:bg-emerald-50'
-                }`}
-              >
-                {label}
-                <span className={`block text-[10px] font-normal ${drug === id ? 'text-emerald-100' : 'text-neutral-400'}`}>
-                  {sub}
+          {/* Drug: toggle o fila colapsada */}
+          {drugLocked ? (
+            <div className="flex items-center justify-between py-2 border-b border-neutral-100 mb-3">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
+                <span className="text-sm font-semibold text-neutral-800">
+                  {drug === 'tnk' ? 'TNK · Tenecteplase' : 'rtPA · Alteplase'}
                 </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setDrugLocked(false)}
+                className="text-[10px] text-brand-500 font-semibold hover:underline ml-2 shrink-0"
+              >
+                editar
               </button>
-            ))}
-          </div>
+            </div>
+          ) : (
+            <div className="flex rounded-xl overflow-hidden border border-neutral-200 mb-4 text-sm font-semibold">
+              {[
+                { id: 'tnk',  label: 'TNK',  sub: 'Tenecteplase' },
+                { id: 'rtpa', label: 'rtPA', sub: 'Alteplase' },
+              ].map(({ id, label, sub }) => (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => { setDrug(id); setDrugLocked(true) }}
+                  className={`flex-1 py-2.5 transition-all ${
+                    drug === id
+                      ? 'bg-emerald-600 text-white'
+                      : 'bg-white text-neutral-500 hover:bg-emerald-50'
+                  }`}
+                >
+                  {label}
+                  <span className={`block text-[10px] font-normal ${drug === id ? 'text-emerald-100' : 'text-neutral-400'}`}>
+                    {sub}
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
 
-          {/* Weight stepper */}
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-500 mb-2">Peso (kg)</p>
-          <div className="grid grid-cols-[2.2rem_2.2rem_minmax(0,1fr)_2.2rem_2.2rem] items-center gap-1.5 mb-3">
-            {[-5, -1].map((d) => (
-              <button key={d} type="button" onClick={() => adjust(d)}
-                className="h-10 rounded-xl border border-neutral-200 text-neutral-600 font-semibold text-xs hover:bg-neutral-50 active:scale-95 transition-all">
-                {d}
+          {/* Weight: stepper+chips o fila colapsada */}
+          {weightLocked ? (
+            <div className="flex items-center justify-between py-2 border-b border-neutral-100 mb-3">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
+                <span className="text-sm font-semibold text-neutral-800">{weight} kg</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setWeightLocked(false)}
+                className="text-[10px] text-brand-500 font-semibold hover:underline ml-2 shrink-0"
+              >
+                editar
               </button>
-            ))}
-            <input
-              type="number" inputMode="decimal" placeholder="70"
-              value={weightStr} onChange={(e) => setWeightStr(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter' && validWeight) startButtonRef.current?.focus() }}
-              autoFocus
-              className="w-full min-w-0 border border-neutral-200 rounded-xl px-2 py-2.5 text-neutral-800 text-xl font-bold text-center focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent placeholder-neutral-300"
-            />
-            {[1, 5].map((d) => (
-              <button key={d} type="button" onClick={() => adjust(d)}
-                className="h-10 rounded-xl border border-neutral-200 text-neutral-600 font-semibold text-xs hover:bg-neutral-50 active:scale-95 transition-all">
-                +{d}
-              </button>
-            ))}
-          </div>
+            </div>
+          ) : (
+            <>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-500 mb-2">Peso (kg)</p>
+              <div className="grid grid-cols-[2.2rem_2.2rem_minmax(0,1fr)_2.2rem_2.2rem] items-center gap-1.5 mb-3">
+                {[-5, -1].map((d) => (
+                  <button key={d} type="button" onClick={() => adjust(d)}
+                    className="h-10 rounded-xl border border-neutral-200 text-neutral-600 font-semibold text-xs hover:bg-neutral-50 active:scale-95 transition-all">
+                    {d}
+                  </button>
+                ))}
+                <input
+                  type="number" inputMode="decimal" placeholder="70"
+                  value={weightStr} onChange={(e) => setWeightStr(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter' && validWeight) setWeightLocked(true) }}
+                  autoFocus
+                  className="w-full min-w-0 border border-neutral-200 rounded-xl px-2 py-2.5 text-neutral-800 text-xl font-bold text-center focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent placeholder-neutral-300"
+                />
+                {[1, 5].map((d) => (
+                  <button key={d} type="button" onClick={() => adjust(d)}
+                    className="h-10 rounded-xl border border-neutral-200 text-neutral-600 font-semibold text-xs hover:bg-neutral-50 active:scale-95 transition-all">
+                    +{d}
+                  </button>
+                ))}
+              </div>
 
-          {/* Preset chips */}
-          <div className="flex gap-1.5 flex-wrap mb-4">
-            {WEIGHT_PRESETS.map((w) => (
-              <button key={w} type="button" onClick={() => setWeightStr(String(w))}
-                className={`px-2.5 py-1 rounded-full text-xs font-bold border-2 transition-all ${
-                  weightStr === String(w)
-                    ? 'bg-emerald-600 border-emerald-600 text-white'
-                    : 'border-neutral-200 text-neutral-500 hover:border-emerald-300 hover:bg-emerald-50'
-                }`}>
-                {w} kg
-              </button>
-            ))}
-          </div>
+              {/* Preset chips */}
+              <div className="flex gap-1.5 flex-wrap mb-4">
+                {WEIGHT_PRESETS.map((w) => (
+                  <button key={w} type="button"
+                    onClick={() => { setWeightStr(String(w)); setWeightLocked(true) }}
+                    className={`px-2.5 py-1 rounded-full text-xs font-bold border-2 transition-all ${
+                      weightStr === String(w)
+                        ? 'bg-emerald-600 border-emerald-600 text-white'
+                        : 'border-neutral-200 text-neutral-500 hover:border-emerald-300 hover:bg-emerald-50'
+                    }`}>
+                    {w} kg
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
 
           {/* Dose result */}
           <div className={`rounded-xl px-4 py-3 transition-all duration-200 ${
@@ -299,6 +338,21 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
               </button>
             )
           })}
+
+          {/* Todas realizadas — full width, dark blue, advances */}
+          <button
+            type="button"
+            onClick={() => {
+              const allDone = Object.fromEntries(POST_CHECKLIST.map((i) => [i.id, true]))
+              setChecked(allDone)
+              onConfirm({ drug, weight, dose, checklist: allDone, thrombolyticStartTime: thrombolyticStartTime?.toISOString() })
+            }}
+            className="col-span-2 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border-2 border-blue-900 bg-blue-900 text-white text-xs font-semibold transition-all active:scale-[0.97] hover:bg-blue-800"
+          >
+            <CheckCircle2 size={14} className="text-blue-200" />
+            Todas realizadas — finalizar protocolo
+            <ChevronRight size={14} className="text-blue-300" />
+          </button>
         </div>
 
         {/* Progress bar */}

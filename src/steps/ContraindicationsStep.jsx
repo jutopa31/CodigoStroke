@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ChevronRight, ChevronDown, Info, ShieldCheck, AlertTriangle } from 'lucide-react'
 import StepCard, { CollapsedStep } from '../components/StepCard'
 
@@ -107,6 +107,22 @@ export default function ContraindicationsStep({ onConfirm, isCollapsed = false }
   const allOrangeAnswered = ORANGE_CONTRAS.every((c) => orangeAnswers[c.id] !== undefined)
   const allAnswered       = allRedAnswered && allOrangeAnswered
 
+  // Auto-advance red→orange when all answered with NO
+  useEffect(() => {
+    if (view === 'red' && allRedAnswered && !hasRed) {
+      const t = setTimeout(() => setView('orange'), 350)
+      return () => clearTimeout(t)
+    }
+  }, [view, allRedAnswered, hasRed])
+
+  // Auto-confirm on orange when all NO and no red either
+  useEffect(() => {
+    if (view === 'orange' && allOrangeAnswered && !hasOrange && !hasRed) {
+      const t = setTimeout(() => confirm(false), 350)
+      return () => clearTimeout(t)
+    }
+  }, [view, allOrangeAnswered, hasOrange, hasRed])
+
   if (isCollapsed && allAnswered) {
     const summary = hasRed
       ? `Contraindicación absoluta: ${RED_CONTRAS.find((c) => redAnswers[c.id])?.short ?? '—'}`
@@ -116,7 +132,7 @@ export default function ContraindicationsStep({ onConfirm, isCollapsed = false }
 
   function setRed(id, val) {
     setRedAnswers((a) => ({ ...a, [id]: val }))
-    // If a red absolute is found, auto-advance to orange for completeness
+    // If YES found, still advance to orange so user can complete relatives
     if (val && view === 'red') setTimeout(() => setView('orange'), 400)
   }
 
@@ -127,12 +143,13 @@ export default function ContraindicationsStep({ onConfirm, isCollapsed = false }
   function markAllNoRed() {
     const allNo = Object.fromEntries(RED_CONTRAS.map((c) => [c.id, false]))
     setRedAnswers(allNo)
-    setView('orange')
+    // useEffect will auto-advance to orange
   }
 
   function markAllNoOrange() {
     const allNo = Object.fromEntries(ORANGE_CONTRAS.map((c) => [c.id, false]))
     setOrangeAnswers(allNo)
+    // useEffect will auto-confirm if no red either
   }
 
   function confirm(decidedNotToThrombolyze) {
@@ -158,6 +175,16 @@ export default function ContraindicationsStep({ onConfirm, isCollapsed = false }
             </div>
             <span className="text-[10px] text-neutral-400 font-medium">1 de 2</span>
           </div>
+
+          {/* Continuar button — top so no scroll needed */}
+          <button
+            type="button"
+            onClick={() => setView('orange')}
+            disabled={!allRedAnswered}
+            className="w-full flex items-center justify-center gap-2 mb-3 py-3 rounded-xl font-semibold text-sm transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed bg-brand-600 hover:bg-brand-700 text-white"
+          >
+            Continuar — relativas <ChevronRight size={16} />
+          </button>
 
           <p className="text-xs text-neutral-500 mb-3">
             Cualquier <strong className="text-blue-900">SÍ</strong> bloquea la trombolisis IV. Tocá ⓘ para detalles.
@@ -193,17 +220,6 @@ export default function ContraindicationsStep({ onConfirm, isCollapsed = false }
             </div>
           )}
         </StepCard>
-
-        <div className="mt-3">
-          <button
-            type="button"
-            onClick={() => setView('orange')}
-            disabled={!allRedAnswered}
-            className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-semibold text-sm transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed bg-brand-600 hover:bg-brand-700 text-white"
-          >
-            Continuar — relativas <ChevronRight size={16} />
-          </button>
-        </div>
       </div>
     )
   }
@@ -228,6 +244,48 @@ export default function ContraindicationsStep({ onConfirm, isCollapsed = false }
           >
             ← Absolutas
           </button>
+        </div>
+
+        {/* Submit actions — top so no scroll needed */}
+        <div className="mb-3 space-y-2">
+          {allOrangeAnswered ? (
+            <>
+              {hasOrange && !hasRed ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => confirm(false)}
+                    className="w-full flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-600 active:scale-95 text-white font-semibold py-3 rounded-xl transition-all text-sm"
+                  >
+                    Trombolizar con precaución <ChevronRight size={16} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => confirm(true)}
+                    className="w-full flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-800 active:scale-95 text-white font-semibold py-3 rounded-xl transition-all text-sm"
+                  >
+                    No trombolizar — Evaluar OGV <ChevronRight size={16} />
+                  </button>
+                </>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => confirm(hasRed)}
+                  className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-semibold py-3 rounded-xl transition-all text-sm"
+                >
+                  {hasRed ? 'Registrar — Evaluar OGV' : 'Registrar y continuar'} <ChevronRight size={16} />
+                </button>
+              )}
+            </>
+          ) : (
+            <button
+              type="button"
+              disabled
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm bg-neutral-100 text-neutral-400 cursor-not-allowed"
+            >
+              Responde todas las contraindicaciones relativas
+            </button>
+          )}
         </div>
 
         {hasRed && (
@@ -271,49 +329,6 @@ export default function ContraindicationsStep({ onConfirm, isCollapsed = false }
           </div>
         )}
       </StepCard>
-
-      {/* Submit actions */}
-      <div className="mt-3 space-y-2">
-        {allOrangeAnswered && (
-          <>
-            {hasOrange && !hasRed ? (
-              <>
-                <button
-                  type="button"
-                  onClick={() => confirm(false)}
-                  className="w-full flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-600 active:scale-95 text-white font-semibold py-4 rounded-xl transition-all"
-                >
-                  Trombolizar con precaución <ChevronRight size={18} />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => confirm(true)}
-                  className="w-full flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-800 active:scale-95 text-white font-semibold py-4 rounded-xl transition-all"
-                >
-                  No trombolizar — Evaluar OGV <ChevronRight size={18} />
-                </button>
-              </>
-            ) : (
-              <button
-                type="button"
-                onClick={() => confirm(hasRed)}
-                className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-semibold py-4 rounded-xl transition-all"
-              >
-                {hasRed ? 'Registrar — Evaluar OGV' : 'Registrar y continuar'} <ChevronRight size={18} />
-              </button>
-            )}
-          </>
-        )}
-        {!allOrangeAnswered && (
-          <button
-            type="button"
-            disabled
-            className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-semibold text-sm bg-neutral-100 text-neutral-400 cursor-not-allowed"
-          >
-            Responde todas las contraindicaciones relativas
-          </button>
-        )}
-      </div>
     </div>
   )
 }
