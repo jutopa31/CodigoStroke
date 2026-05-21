@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Activity, Zap, RotateCcw, Clock, ChevronRight } from 'lucide-react'
+import { Activity, Zap, RotateCcw, Clock, ChevronRight, BookOpen } from 'lucide-react'
 import { loadSession, getSessions } from '../lib/storage'
 
 function getRecentSession() {
@@ -22,7 +22,7 @@ function formatElapsed(ms) {
   return `${h}h ${min % 60}min`
 }
 
-export default function StartStep({ onStart, onResume }) {
+export default function StartStep({ onStart, onResume, onOpenEducational }) {
   const [resumeId, setResumeId] = useState('')
   const [error, setError] = useState(false)
   const [showManualResume, setShowManualResume] = useState(false)
@@ -153,6 +153,18 @@ export default function StartStep({ onStart, onResume }) {
       <p className="mt-10 text-xs text-neutral-300 text-center">
         Cada minuto importa · 1.9M neuronas/min
       </p>
+
+      {/* Educational mode button */}
+      {onOpenEducational && (
+        <button
+          type="button"
+          onClick={onOpenEducational}
+          className="mt-6 flex items-center gap-2 text-xs text-neutral-400 hover:text-amber-600 transition-colors"
+        >
+          <BookOpen size={14} strokeWidth={2} />
+          Modo educativo
+        </button>
+      )}
     </div>
   )
 }
