@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { ChevronRight, ChevronDown, Zap, MessageSquare, Eye, Scale, FileText } from 'lucide-react'
+import { ChevronRight, ChevronDown, Zap, MessageSquare, Eye, Scale, FileText, HelpCircle } from 'lucide-react'
 import StepCard, { CollapsedStep } from '../components/StepCard'
 import { PrimaryAction } from '../components/GuidedControls'
 import { nihssItems, getNihssSeverity } from '../content/nihss'
@@ -53,6 +53,15 @@ const SYMPTOMS = [
     nihssIds: [],
     defaults: {},
   },
+]
+
+const MRS_OPTIONS = [
+  { score: 0, label: 'Sin síntomas' },
+  { score: 1, label: 'Sin discapacidad significativa' },
+  { score: 2, label: 'Discapacidad leve' },
+  { score: 3, label: 'Discapacidad moderada' },
+  { score: 4, label: 'Moderadamente severa' },
+  { score: 5, label: 'Discapacidad severa' },
 ]
 
 const DISABLING_LIST = [
@@ -124,6 +133,8 @@ export default function SymptomsNihssStep({ onConfirm, isCollapsed = false }) {
   const [hasDisabling, setHasDisabling] = useState(null)
   const [showDisablingList, setShowDisablingList] = useState(false)
   const [showSubscales, setShowSubscales] = useState(false)
+  const [mrs, setMrs] = useState(null)
+  const [showMrsScale, setShowMrsScale] = useState(false)
   const flashKeyRef = useRef(0)
 
   const hasSymptom = Object.values(selected).some(Boolean)
@@ -143,7 +154,7 @@ export default function SymptomsNihssStep({ onConfirm, isCollapsed = false }) {
   const showDisablingBlock = hasSymptom && total < 5
   const onlyOther = activeSymptoms.length === 1 && selected['other']
   const otherValid = !onlyOther || otherScore !== ''
-  const canContinue = hasSymptom && otherValid && (!showDisablingBlock || hasDisabling !== null)
+  const canContinue = hasSymptom && otherValid && (!showDisablingBlock || hasDisabling !== null) && mrs !== null
 
   function toggleSymptom(id) {
     const sym = SYMPTOMS.find((s) => s.id === id)
@@ -172,7 +183,7 @@ export default function SymptomsNihssStep({ onConfirm, isCollapsed = false }) {
   useEffect(() => {
     function onKey(e) {
       if (e.key === 'Enter' && canContinue) {
-        onConfirm({ symptoms: { ...selected }, nihssScore: total, hasDisablingSymptoms: hasDisabling })
+        onConfirm({ symptoms: { ...selected }, nihssScore: total, hasDisablingSymptoms: hasDisabling, modifiedRankinScale: mrs !== null ? { score: mrs, label: MRS_OPTIONS[mrs].label } : null })
       }
     }
     window.addEventListener('keydown', onKey)
@@ -332,10 +343,57 @@ export default function SymptomsNihssStep({ onConfirm, isCollapsed = false }) {
             )}
           </div>
         )}
+        {/* mRS previo */}
+        <div className="border-t border-neutral-100 pt-4 mt-3">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-xs font-bold uppercase tracking-wider text-neutral-500">
+              Funcionalidad previa (mRS)
+            </p>
+            <button
+              type="button"
+              onClick={() => setShowMrsScale((v) => !v)}
+              className="flex items-center gap-1 text-xs text-neutral-400 hover:text-neutral-600 transition-colors"
+            >
+              <HelpCircle size={12} />
+              {showMrsScale ? 'Ocultar escala' : 'Ver escala'}
+            </button>
+          </div>
+          {showMrsScale && (
+            <div className="mb-3 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2.5 text-xs animate-fade-in">
+              {MRS_OPTIONS.map((o) => (
+                <div key={o.score} className="grid grid-cols-[20px_1fr] gap-2 py-0.5">
+                  <span className="font-bold text-neutral-800">{o.score}</span>
+                  <span className="text-neutral-600">{o.label}</span>
+                </div>
+              ))}
+            </div>
+          )}
+          <div className="grid grid-cols-6 gap-1.5">
+            {MRS_OPTIONS.map((o) => (
+              <button
+                key={o.score}
+                type="button"
+                onClick={() => setMrs(o.score)}
+                className={`py-2.5 rounded-lg border-2 text-sm font-bold transition-all active:scale-95 ${
+                  mrs === o.score
+                    ? 'border-blue-500 bg-blue-50 text-blue-700 ring-2 ring-blue-100'
+                    : 'border-neutral-200 text-neutral-500 hover:border-blue-300 hover:bg-blue-50/40'
+                }`}
+              >
+                {o.score}
+              </button>
+            ))}
+          </div>
+          {mrs !== null && (
+            <p className="mt-1.5 text-xs text-blue-600 font-medium animate-fade-in">
+              {MRS_OPTIONS[mrs].label}
+            </p>
+          )}
+        </div>
       </StepCard>
 
       <PrimaryAction
-        onClick={() => onConfirm({ symptoms: { ...selected }, nihssScore: total, hasDisablingSymptoms: hasDisabling })}
+        onClick={() => onConfirm({ symptoms: { ...selected }, nihssScore: total, hasDisablingSymptoms: hasDisabling, modifiedRankinScale: mrs !== null ? { score: mrs, label: MRS_OPTIONS[mrs].label } : null })}
         valid={canContinue}
         disabledLabel={
           !hasSymptom
