@@ -456,6 +456,8 @@ export default function SymptomsNihssStep({ onConfirm, isCollapsed = false }) {
             ? 'Selecciona al menos un síntoma'
             : onlyOther && !otherScore
             ? 'Ingresa puntaje NIHSS'
+            : mrs === null
+            ? 'Selecciona la funcionalidad previa (mRS)'
             : 'Responde si el déficit es discapacitante'
         }
       >
