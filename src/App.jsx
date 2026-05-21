@@ -22,6 +22,7 @@ import ThrombectomyStep from './steps/ThrombectomyStep'
 import TimestampPanel from './components/TimestampPanel'
 import AvisoModal from './components/AvisoModal'
 import { saveStrokeEvent, generatePatientId, saveSession } from './lib/storage'
+import ContactFAB from './components/ContactFAB'
 import { getNihssSeverity } from './content/nihss'
 import { sendStrokeAlert } from './lib/emailService'
 
@@ -1253,6 +1254,9 @@ export default function App() {
             forwardLabel={nextProtocolStep?.label ?? 'Protocolo completo'}
           />
         )}
+
+        {/* Interconsultation contact button */}
+        <ContactFAB getSummary={buildSummaryText} patient={patient} />
 
         {/* Modals */}
         <AvisoModal isOpen={showAvisoModal} onClose={handleAvisoClose} />
