@@ -2,9 +2,8 @@ import { useState, useEffect } from 'react'
 import { CheckCircle2, Clock } from 'lucide-react'
 import StepCard, { CollapsedStep } from '../components/StepCard'
 import { StatusPill } from '../components/GuidedControls'
+import { getElapsedMinutes, formatElapsed, getWindowStatus, IV_WINDOW_MINUTES, OGV_WINDOW_MINUTES } from '../lib/calculations'
 
-const IV_WINDOW_MINUTES = 270
-const OGV_WINDOW_MINUTES = 1440
 const MAX_SLIDER_MINUTES = 1440
 const IV_WINDOW_PERCENT = `${(IV_WINDOW_MINUTES / MAX_SLIDER_MINUTES) * 100}%`
 const OGV_WINDOW_PERCENT = `${(OGV_WINDOW_MINUTES / MAX_SLIDER_MINUTES) * 100}%`
@@ -32,20 +31,6 @@ function useInterval(ms) {
   }, [ms])
 }
 
-function getElapsedMinutes(dateStr) {
-  if (!dateStr) return 0
-  return Math.max(0, (Date.now() - new Date(dateStr).getTime()) / (1000 * 60))
-}
-
-function formatElapsed(minutes) {
-  const rounded = Math.max(0, Math.round(minutes))
-  const h = Math.floor(rounded / 60)
-  const m = rounded % 60
-  if (h > 0 && m > 0) return `${h}h ${m}min`
-  if (h > 0) return `${h}h`
-  return `${m} min`
-}
-
 function formatClock(dateStr) {
   if (!dateStr) return '--:--'
   return new Date(dateStr).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
@@ -62,8 +47,9 @@ export default function TimeStep({ onConfirm, isCollapsed = false }) {
 
   const lastSeen = combineDateTime(lastSeenDate, lastSeenTime)
   const elapsedMinutes = getElapsedMinutes(lastSeen)
-  const shouldEvaluateOgv = elapsedMinutes > IV_WINDOW_MINUTES && elapsedMinutes <= OGV_WINDOW_MINUTES
-  const isOutOfWindow = elapsedMinutes > OGV_WINDOW_MINUTES
+  const windowStatus = getWindowStatus(elapsedMinutes)
+  const shouldEvaluateOgv = windowStatus === 'ogv'
+  const isOutOfWindow = windowStatus === 'out'
   const timeTone = isOutOfWindow ? 'red' : shouldEvaluateOgv ? 'orange' : 'blue'
   const timeStatusLabel = isOutOfWindow ? 'Fuera de ventana' : shouldEvaluateOgv ? 'Evaluar OGV' : 'Ventana IV activa'
 
