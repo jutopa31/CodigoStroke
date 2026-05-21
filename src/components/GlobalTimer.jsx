@@ -1,12 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Clock, Activity, RotateCcw, BookOpen } from 'lucide-react'
 
-const MILESTONES = [
-  { minutes: 25, label: 'TC', tsKey: 'ctRequest' },
-  { minutes: 45, label: 'NIHSS', tsKey: null },
-  { minutes: 60, label: 'Aguja', tsKey: 'thrombolyticStart' },
-]
-
 function pad(n) {
   return String(n).padStart(2, '0')
 }
@@ -19,28 +13,36 @@ function formatElapsed(seconds) {
   return `${pad(m)}:${pad(s)}`
 }
 
+function fmtClock(ts) {
+  const d = ts instanceof Date ? ts : new Date(ts)
+  return d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
+}
+
 function getPhase(minutes) {
   if (minutes >= 60) return {
     bg: 'bg-blue-900',
     muted: 'text-blue-200',
-    done: 'bg-white/25 text-white',
-    over: 'bg-white/35 text-white',
-    pending: 'bg-white/10 text-white/50',
+    badge: 'bg-white/25 text-white',
   }
   if (minutes >= 30) return {
     bg: 'bg-amber-500',
     muted: 'text-amber-200',
-    done: 'bg-white/25 text-white',
-    over: 'bg-white/35 text-white',
-    pending: 'bg-white/10 text-white/50',
+    badge: 'bg-white/25 text-white',
   }
   return {
     bg: 'bg-brand-600',
     muted: 'text-brand-300',
-    done: 'bg-white/25 text-white',
-    over: 'bg-white/30 text-white',
-    pending: 'bg-white/10 text-white/50',
+    badge: 'bg-white/25 text-white',
   }
+}
+
+function EventBadge({ label, time, badgeClass }) {
+  return (
+    <span className={`flex items-center gap-1 px-2 py-0.5 rounded-md whitespace-nowrap ${badgeClass}`}>
+      <span className="text-[9px] font-semibold uppercase tracking-wide opacity-75">{label}</span>
+      <span className="text-[10px] font-mono font-bold">{fmtClock(time)}</span>
+    </span>
+  )
 }
 
 export default function GlobalTimer({ startTime, timestamps = {}, patient, onReset, progressPct, onEducationalOpen }) {
@@ -57,16 +59,6 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
   const minutes = elapsed / 60
   const phase = startTime ? getPhase(minutes) : null
   const bg = phase ? phase.bg : 'bg-brand-600'
-
-  const milestoneStatus = startTime
-    ? MILESTONES.map((m) => {
-        const done = m.tsKey && timestamps[m.tsKey]
-        const elapsedMin = done
-          ? Math.floor((new Date(timestamps[m.tsKey]).getTime() - startTime.getTime()) / 60000)
-          : null
-        return { ...m, done, elapsedMin }
-      })
-    : []
 
   return (
     <div
@@ -91,28 +83,23 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
           )}
         </div>
 
-        {/* Center: milestone badges when timer is running */}
+        {/* Center: action timestamps when timer is running */}
         {startTime && (
-          <div className="flex items-center gap-1 mx-2 shrink-0">
-            {milestoneStatus.map((m) => (
-              <span
-                key={m.label}
-                className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-md transition-colors ${
-                  m.done
-                    ? phase.done
-                    : minutes >= m.minutes
-                      ? phase.over
-                      : phase.pending
-                }`}
-              >
-                {m.label}
-                {m.done && <span className="ml-0.5 opacity-75">{m.elapsedMin}&apos;</span>}
-              </span>
-            ))}
+          <div className="flex items-center gap-1 mx-2 overflow-x-auto shrink min-w-0" style={{ scrollbarWidth: 'none' }}>
+            <EventBadge label="Código" time={startTime} badgeClass={phase.badge} />
+            {timestamps.ctRequest && (
+              <EventBadge label="TC" time={timestamps.ctRequest} badgeClass={phase.badge} />
+            )}
+            {timestamps.thrombolyticStart && (
+              <EventBadge label="Trombolisis" time={timestamps.thrombolyticStart} badgeClass={phase.badge} />
+            )}
+            {timestamps.angioRequest && (
+              <EventBadge label="Hemodinamia" time={timestamps.angioRequest} badgeClass={phase.badge} />
+            )}
           </div>
         )}
 
-        {/* Right: patient name (desktop) + reset */}
+        {/* Right: patient name (desktop) + buttons */}
         <div className="flex items-center gap-2 shrink-0">
           {startTime && patient && (
             <span className={`text-xs font-medium ${phase.muted} truncate max-w-[140px] hidden md:block`}>
