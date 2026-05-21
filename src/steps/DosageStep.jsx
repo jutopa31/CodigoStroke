@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { ChevronRight, CheckCircle2, Circle, Hospital, Ban, Pill, BarChart2, Brain, Microscope, Heart, Clock, Plus } from 'lucide-react'
 import StepCard from '../components/StepCard'
 import NihssModal from '../components/NihssModal'
+import { calcRtPA, calcTNK } from '../lib/calculations'
 
 const WEIGHT_PRESETS = [50, 60, 70, 80, 90, 100]
 
@@ -15,18 +16,6 @@ const POST_CHECKLIST = [
   { id: 'cardiology',       label: 'Eco + Holter',       sub: 'Estudio de fuente embólica',            Icon: Heart },
 ]
 
-function round1(n) { return Math.round(n * 10) / 10 }
-
-function calcRtPA(kg) {
-  const total    = Math.min(round1(kg * 0.9), 90)
-  const bolo     = round1(total * 0.1)
-  const infusion = round1(total * 0.9)
-  return { total, bolo, infusion }
-}
-
-function calcTNK(kg) {
-  return { total: Math.min(round1(kg * 0.25), 25) }
-}
 
 function fmtTime(date) {
   return date?.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' }) ?? null
