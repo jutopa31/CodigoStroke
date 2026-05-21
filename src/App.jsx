@@ -21,7 +21,7 @@ import DosageStep from './steps/DosageStep'
 import ThrombectomyStep from './steps/ThrombectomyStep'
 import TimestampPanel from './components/TimestampPanel'
 import AvisoModal from './components/AvisoModal'
-import { saveStrokeEvent, generatePatientId, saveSession } from './lib/storage'
+import { saveStrokeEvent, generatePatientId, saveSession, syncPendingEvents } from './lib/storage'
 import { getNihssSeverity } from './content/nihss'
 import { sendStrokeAlert } from './lib/emailService'
 import { useAuth } from './auth/AuthContext'
@@ -181,6 +181,13 @@ export default function App() {
     setStep(STEP.PATIENT)
     setActiveTab(STEP.PATIENT)
   }
+
+  useEffect(() => {
+    syncPendingEvents()
+    const handleOnline = () => syncPendingEvents()
+    window.addEventListener('online', handleOnline)
+    return () => window.removeEventListener('online', handleOnline)
+  }, [])
 
   useEffect(() => {
     function activateMockComplete() {
@@ -1129,7 +1136,7 @@ export default function App() {
 
         <GlobalTimer
           startTime={timerStart}
-          timestamps={{ ctRequest: ctRequestTime?.toISOString(), thrombolyticStart: thrombolyticStartTime?.toISOString() }}
+          timestamps={{ ctRequest: ctRequestTime?.toISOString(), thrombolyticStart: thrombolyticStartTime?.toISOString(), angioRequest: angioRequestTime?.toISOString() }}
           patient={patient}
           onReset={patient ? handleReset : undefined}
           onEducationalOpen={() => setShowEducationalOverlay(true)}
@@ -1221,10 +1228,10 @@ export default function App() {
               <div className="border-t border-neutral-100">
                 <TimestampPanel
                   variant="desktop"
-                  arrival={patientArrivalTime}
+                  codeStart={timerStart}
                   ct={ctRequestTime}
                   thrombolytic={thrombolyticStartTime}
-                  angio={angioRequestTime}
+                  hemo={angioRequestTime}
                 />
               </div>
             </aside>

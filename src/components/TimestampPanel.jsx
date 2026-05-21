@@ -1,18 +1,18 @@
-import { Clock, Scan, Syringe, Radio } from 'lucide-react'
+import { Activity, Scan, Syringe, Radio } from 'lucide-react'
 
 const ITEMS = [
-  { key: 'arrival',      label: 'Ingreso',      Icon: Clock },
-  { key: 'ct',           label: 'TC',           Icon: Scan },
-  { key: 'thrombolytic', label: 'Trombolítico', Icon: Syringe },
-  { key: 'angio',        label: 'AngioTAC',     Icon: Radio },
+  { key: 'codeStart',    label: 'Código activado',    Icon: Activity },
+  { key: 'ct',          label: 'TC solicitada',       Icon: Scan },
+  { key: 'thrombolytic', label: 'Trombolisis iniciada', Icon: Syringe },
+  { key: 'hemo',        label: 'Hemodinamia',         Icon: Radio },
 ]
 
 function fmt(date) {
   return date.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
 }
 
-export default function TimestampPanel({ arrival, ct, thrombolytic, angio, variant = 'desktop' }) {
-  const values = { arrival, ct, thrombolytic, angio }
+export default function TimestampPanel({ codeStart, ct, thrombolytic, hemo, variant = 'desktop' }) {
+  const values = { codeStart, ct, thrombolytic, hemo }
   const hasAny = Object.values(values).some(Boolean)
 
   if (variant === 'mobile') {
@@ -40,7 +40,7 @@ export default function TimestampPanel({ arrival, ct, thrombolytic, angio, varia
   return (
     <div className="mt-3 rounded-2xl border border-neutral-100 bg-white overflow-hidden">
       <div className="px-3 py-2.5 bg-neutral-50 border-b border-neutral-100">
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Tiempos clave</p>
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Tiempos registrados</p>
       </div>
       <div className="p-2 space-y-1">
         {ITEMS.map(({ key, label, Icon }) => {
