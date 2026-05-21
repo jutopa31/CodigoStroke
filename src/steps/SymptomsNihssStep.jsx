@@ -1,19 +1,28 @@
 import { useState, useEffect, useRef } from 'react'
-import { ChevronRight, ChevronDown, Zap, MessageSquare, Eye, Scale, FileText, HelpCircle, Calculator, RotateCcw } from 'lucide-react'
+import { ChevronRight, ChevronDown, Dumbbell, MessageSquare, Eye, Scale, FileText, HelpCircle, Calculator, RotateCcw, Brain } from 'lucide-react'
 import StepCard, { CollapsedStep } from '../components/StepCard'
 import { PrimaryAction } from '../components/GuidedControls'
 import { nihssItems, getNihssSeverity } from '../content/nihss'
 import NihssModal from '../components/NihssModal'
+import NihssFullEditor from '../components/NihssFullEditor'
 
-const NIHSS_BY_ID = Object.fromEntries(nihssItems.map((i) => [i.id, i]))
 const NIHSS_ORDER = nihssItems.map((i) => i.id)
 
 const SYMPTOMS = [
   {
+    id: 'consciousness',
+    label: 'Consciencia',
+    sub: 'Nivel de alerta',
+    Icon: Brain,
+    flashPts: 3,
+    nihssIds: ['1a', '1b', '1c'],
+    defaults: { '1a': 1, '1b': 1, '1c': 1 },
+  },
+  {
     id: 'weakness',
     label: 'Debilidad',
     sub: 'Unilateral',
-    Icon: Zap,
+    Icon: Dumbbell,
     flashPts: 3,
     nihssIds: ['4', '5a', '5b', '6a', '6b'],
     defaults: { '4': 1, '5a': 1, '5b': 0, '6a': 1, '6b': 0 },
@@ -90,72 +99,6 @@ function FlashBadge({ pts }) {
   )
 }
 
-function ItemRow({ itemId, score, onChange }) {
-  const item = NIHSS_BY_ID[itemId]
-  if (!item) return null
-  const shortLabel = item.label
-    .replace(/^\d+[abc]?\.\s*/i, '')
-    .replace('NC –', '')
-    .replace('Motor brazo –', 'Brazo')
-    .replace('Motor pierna –', 'Pierna')
-    .trim()
-
-  return (
-    <div className="flex items-center gap-2 py-1.5 border-b border-neutral-100 last:border-0">
-      <span className="text-xs text-neutral-600 flex-1 min-w-0 truncate" title={item.label}>
-        {shortLabel}
-      </span>
-      <div className="flex gap-1 shrink-0">
-        {item.options.map((opt) => (
-          <button
-            key={opt.score}
-            type="button"
-            title={opt.text}
-            onClick={() => onChange(itemId, opt.score)}
-            className={`w-7 h-7 rounded-lg text-xs font-semibold transition-all active:scale-95 ${
-              score === opt.score
-                ? 'bg-brand-600 text-white'
-                : 'bg-neutral-100 text-neutral-500 hover:bg-neutral-200'
-            }`}
-          >
-            {opt.score}
-          </button>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-function CriteriaPanel({ nihssIds }) {
-  return (
-    <div className="mt-2 rounded-xl border border-neutral-200 bg-white px-3 py-2 space-y-3 animate-fade-in">
-      {nihssIds.map((id) => {
-        const item = NIHSS_BY_ID[id]
-        if (!item) return null
-        const shortLabel = item.label
-          .replace(/^\d+[abc]?\.\s*/i, '')
-          .replace('NC –', '')
-          .replace('Motor brazo –', 'Brazo')
-          .replace('Motor pierna –', 'Pierna')
-          .trim()
-        return (
-          <div key={id}>
-            <p className="text-[10px] font-semibold text-neutral-700 mb-1">{shortLabel}</p>
-            <div className="space-y-0.5">
-              {item.options.map((opt) => (
-                <div key={opt.score} className="flex gap-2 text-[10px] text-neutral-600">
-                  <span className="font-mono font-bold text-neutral-400 w-3 shrink-0">{opt.score}</span>
-                  <span>{opt.text}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )
-      })}
-    </div>
-  )
-}
-
 export default function SymptomsNihssStep({ onConfirm, isCollapsed = false }) {
   const [selected, setSelected] = useState({})
   const [subscaleScores, setSubscaleScores] = useState({})
@@ -163,12 +106,12 @@ export default function SymptomsNihssStep({ onConfirm, isCollapsed = false }) {
   const [flash, setFlash] = useState(null)
   const [hasDisabling, setHasDisabling] = useState(null)
   const [showDisablingList, setShowDisablingList] = useState(false)
-  const [showSubscales, setShowSubscales] = useState(false)
-  const [showCriteria, setShowCriteria] = useState(false)
   const [mrs, setMrs] = useState(null)
   const [showMrsScale, setShowMrsScale] = useState(false)
   const [showGuidedModal, setShowGuidedModal] = useState(false)
+  const [showAdjustModal, setShowAdjustModal] = useState(false)
   const [guidedScore, setGuidedScore] = useState(null)
+  const [useFullScores, setUseFullScores] = useState(false)
   const flashKeyRef = useRef(0)
 
   const hasSymptom = Object.values(selected).some(Boolean)
@@ -180,7 +123,9 @@ export default function SymptomsNihssStep({ onConfirm, isCollapsed = false }) {
     ),
   ].sort((a, b) => NIHSS_ORDER.indexOf(a) - NIHSS_ORDER.indexOf(b))
 
-  const subscaleTotal = activeIds.reduce((sum, id) => sum + (subscaleScores[id] ?? 0), 0)
+  const subscaleTotal = useFullScores
+    ? nihssItems.reduce((sum, item) => sum + (subscaleScores[item.id] ?? 0), 0)
+    : activeIds.reduce((sum, id) => sum + (subscaleScores[id] ?? 0), 0)
   const otherNum = selected['other'] ? parseInt(otherScore, 10) || 0 : 0
   const total = guidedScore !== null ? guidedScore : subscaleTotal + otherNum
 
@@ -189,6 +134,7 @@ export default function SymptomsNihssStep({ onConfirm, isCollapsed = false }) {
   const onlyOther = activeSymptoms.length === 1 && selected['other']
   const otherValid = !onlyOther || otherScore !== ''
   const canContinue = hasSymptom && otherValid && (!showDisablingBlock || hasDisabling !== null) && mrs !== null
+  const isManualMode = guidedScore !== null || useFullScores
 
   function toggleSymptom(id) {
     const sym = SYMPTOMS.find((s) => s.id === id)
@@ -210,14 +156,22 @@ export default function SymptomsNihssStep({ onConfirm, isCollapsed = false }) {
     }
   }
 
-  function setItemScore(itemId, val) {
-    setSubscaleScores((prev) => ({ ...prev, [itemId]: val }))
-    if (guidedScore !== null) setGuidedScore(null)
-  }
-
   function handleGuidedLoad(score) {
     setGuidedScore(score)
+    setUseFullScores(false)
     setShowGuidedModal(false)
+  }
+
+  function handleFullEditorSave(scores) {
+    setSubscaleScores(scores)
+    setUseFullScores(true)
+    setGuidedScore(null)
+    setShowAdjustModal(false)
+  }
+
+  function resetToSymptomBased() {
+    setGuidedScore(null)
+    setUseFullScores(false)
   }
 
   useEffect(() => {
@@ -330,24 +284,24 @@ export default function SymptomsNihssStep({ onConfirm, isCollapsed = false }) {
               <span className={`text-2xl font-bold tabular-nums ${severity.color}`}>{total}</span>
               <span className={`font-medium text-sm flex-1 ${severity.color}`}>{severity.label}</span>
               {flash && <FlashBadge key={flash.key} pts={flash.pts} />}
-              {guidedScore !== null && (
+              {isManualMode && (
                 <span className="text-[10px] font-semibold rounded-md bg-white/70 px-1.5 py-0.5 text-neutral-500">
-                  Guiado
+                  {guidedScore !== null ? 'Guiado' : 'Manual'}
                 </span>
               )}
 
               {/* Action buttons */}
               <div className="flex items-center gap-1.5 shrink-0">
-                {guidedScore !== null ? (
+                {isManualMode && (
                   <button
                     type="button"
-                    onClick={() => setGuidedScore(null)}
+                    onClick={resetToSymptomBased}
                     title="Volver a cálculo por síntomas"
                     className="flex items-center gap-1 text-[10px] font-semibold rounded-lg px-2 py-1 bg-white/60 text-neutral-500 hover:bg-white/80 transition-all"
                   >
                     <RotateCcw size={10} /> Recalcular
                   </button>
-                ) : null}
+                )}
                 <button
                   type="button"
                   onClick={() => setShowGuidedModal(true)}
@@ -356,51 +310,16 @@ export default function SymptomsNihssStep({ onConfirm, isCollapsed = false }) {
                 >
                   <Calculator size={10} /> Guía
                 </button>
-                {activeIds.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => setShowSubscales((v) => !v)}
-                    className={`flex items-center gap-1 text-[10px] font-semibold rounded-lg px-2 py-1 transition-all ${
-                      showSubscales ? 'bg-white/70 text-neutral-600' : 'bg-white/50 text-neutral-500 hover:bg-white/70'
-                    }`}
-                  >
-                    <ChevronDown size={11} className={showSubscales ? 'rotate-180 transition-transform' : 'transition-transform'} />
-                    {showSubscales ? 'Ocultar' : 'Ajustar'}
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* Subscale items */}
-            {showSubscales && activeSymptoms.filter((s) => s.id !== 'other' && s.nihssIds.length > 0).map((sym) => (
-              <div key={sym.id} className="mb-3 animate-fade-in">
-                <div className="mb-1.5 flex items-center gap-1.5">
-                  <sym.Icon size={11} className="text-amber-500 shrink-0" strokeWidth={2} />
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-600 flex-1">{sym.label} — {sym.sub}</p>
-                </div>
-                <div className="rounded-xl bg-neutral-50 border border-neutral-100 px-3 py-1">
-                  {sym.nihssIds.map((id) => (
-                    <ItemRow
-                      key={id}
-                      itemId={id}
-                      score={subscaleScores[id] ?? 0}
-                      onChange={setItemScore}
-                    />
-                  ))}
-                </div>
-
-                {/* Criteria toggle per symptom group */}
                 <button
                   type="button"
-                  onClick={() => setShowCriteria((v) => !v)}
-                  className="mt-1.5 flex items-center gap-1 text-[10px] text-neutral-400 hover:text-neutral-600 transition-colors"
+                  onClick={() => setShowAdjustModal(true)}
+                  className="flex items-center gap-1 text-[10px] font-semibold rounded-lg px-2 py-1 bg-white/60 text-neutral-600 hover:bg-white/80 transition-all"
                 >
-                  <ChevronDown size={10} className={showCriteria ? 'rotate-180 transition-transform' : 'transition-transform'} />
-                  {showCriteria ? 'Ocultar criterios' : 'Ver criterios de puntuación'}
+                  <ChevronDown size={11} />
+                  Ajustar
                 </button>
-                {showCriteria && <CriteriaPanel nihssIds={sym.nihssIds} />}
               </div>
-            ))}
+            </div>
           </div>
         )}
 
@@ -498,6 +417,14 @@ export default function SymptomsNihssStep({ onConfirm, isCollapsed = false }) {
 
       {showGuidedModal && (
         <NihssModal onLoad={handleGuidedLoad} onClose={() => setShowGuidedModal(false)} />
+      )}
+
+      {showAdjustModal && (
+        <NihssFullEditor
+          scores={subscaleScores}
+          onSave={handleFullEditorSave}
+          onClose={() => setShowAdjustModal(false)}
+        />
       )}
     </div>
   )
