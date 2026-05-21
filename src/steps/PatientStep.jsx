@@ -1,12 +1,12 @@
 import { useRef, useState } from 'react'
-import { User, CreditCard, Lock, ChevronRight, CheckCircle2 } from 'lucide-react'
+import { User, CreditCard, Lock, ChevronRight, CheckCircle2, BookOpen } from 'lucide-react'
 import StepCard, { CollapsedStep } from '../components/StepCard'
 
 function fmtTime(date) {
   return date.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
 }
 
-export default function PatientStep({ onConfirm, confirmed = false, patient = null, patientId = null, arrivalTime = null, vitals = null, isCollapsed = false }) {
+export default function PatientStep({ onConfirm, confirmed = false, patient = null, patientId = null, arrivalTime = null, vitals = null, isCollapsed = false, onOpenEducational }) {
   const [dni, setDni] = useState('')
   const [name, setName] = useState('')
   const [passphrase, setPassphrase] = useState('')
@@ -103,6 +103,18 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
   return (
     <div className="pb-4">
       <StepCard step="1" title="Datos del paciente" accent="red">
+        {onOpenEducational && (
+          <div className="flex justify-end mb-3">
+            <button
+              type="button"
+              onClick={onOpenEducational}
+              className="flex items-center gap-1.5 text-xs text-neutral-400 hover:text-amber-600 transition-colors"
+            >
+              <BookOpen size={13} strokeWidth={2} />
+              Modo educativo
+            </button>
+          </div>
+        )}
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Identificación */}
           <div className="grid grid-cols-2 gap-3">

@@ -8,6 +8,7 @@ import StepProgressProvider from './components/StepProgressProvider'
 import QuickAddFAB from './components/QuickAddFAB'
 import OutOfWindowModal from './components/OutOfWindowModal'
 import EducationalOverlay from './components/EducationalOverlay'
+import EducationalMode from './components/EducationalMode'
 import StartStep from './steps/StartStep'
 import PatientStep from './steps/PatientStep'
 import TimeStep from './steps/TimeStep'
@@ -142,6 +143,8 @@ export default function App() {
   const [step, setStep] = useState(STEP.START)
   const [activeTab, setActiveTab] = useState(STEP.PATIENT)
   const [showEducationalOverlay, setShowEducationalOverlay] = useState(false)
+  const [showEducationalMode, setShowEducationalMode] = useState(false)
+  const [educationalSection, setEducationalSection] = useState('intro')
   const [timerStart, setTimerStart] = useState(null)
   const [patientArrivalTime, setPatientArrivalTime] = useState(null)
   const [ctRequestTime, setCtRequestTime] = useState(null)
@@ -984,7 +987,7 @@ export default function App() {
   }, [step, caseSaved, handleSaveCase])
 
   if (step === STEP.START) {
-    return <StartStep onStart={handleStart} onResume={handleResume} />
+    return <StartStep onStart={handleStart} onResume={handleResume} onOpenEducational={() => { setEducationalSection('intro'); setShowEducationalMode(true) }} />
   }
 
   const latestNihss = nihssReadings.length > 0
@@ -1009,6 +1012,7 @@ export default function App() {
             patientId={patientId}
             arrivalTime={patientArrivalTime}
             vitals={vitals}
+            onOpenEducational={step <= STEP.PATIENT ? () => { setEducationalSection('intro'); setShowEducationalMode(true) } : undefined}
           />
         )
       case STEP.TIME:
@@ -1265,9 +1269,17 @@ export default function App() {
           />
         )}
 
-        {/* Educational overlay */}
+        {/* Educational overlay (from header) */}
         {showEducationalOverlay && (
           <EducationalOverlay onClose={() => setShowEducationalOverlay(false)} />
+        )}
+
+        {/* Educational mode (from StartStep / PatientStep book button) */}
+        {showEducationalMode && (
+          <EducationalMode
+            initialSection={educationalSection}
+            onClose={() => setShowEducationalMode(false)}
+          />
         )}
       </div>
     </StepProgressProvider>
