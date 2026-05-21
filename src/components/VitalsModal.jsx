@@ -1,14 +1,5 @@
 import { useState } from 'react'
-import { Activity, HelpCircle, ChevronRight, AlertTriangle } from 'lucide-react'
-
-const MRS_OPTIONS = [
-  { score: 0, label: 'Sin síntomas' },
-  { score: 1, label: 'Sin discapacidad significativa' },
-  { score: 2, label: 'Discapacidad leve' },
-  { score: 3, label: 'Discapacidad moderada' },
-  { score: 4, label: 'Moderadamente severa' },
-  { score: 5, label: 'Discapacidad severa' },
-]
+import { Activity, ChevronRight, AlertTriangle } from 'lucide-react'
 
 function VitalAlert({ message }) {
   return (
@@ -23,28 +14,19 @@ export default function VitalsModal({ isOpen, onConfirm }) {
   const [sys, setSys] = useState('')
   const [dia, setDia] = useState('')
   const [glucose, setGlucose] = useState('')
-  const [mrs, setMrs] = useState('')
-  const [showMrsHelp, setShowMrsHelp] = useState(false)
 
   if (!isOpen) return null
 
   const sysNum = parseFloat(sys)
   const diaNum = parseFloat(dia)
   const glucNum = parseFloat(glucose)
-  const mrsNum = parseInt(mrs, 10)
 
   const taCritical = sys && sysNum > 185
   const taDiaCritical = dia && diaNum > 110
   const glucLow = glucose && glucNum < 50
   const glucHigh = glucose && glucNum > 400
-  const mrsValid = mrs !== '' && mrsNum >= 0 && mrsNum <= 5
 
-  const valid = sys && dia && glucose && mrsValid
-
-  function handleMrsChange(value) {
-    const digit = value.replace(/\D/g, '').slice(0, 1)
-    if (digit === '' || Number(digit) <= 5) setMrs(digit)
-  }
+  const valid = sys && dia && glucose
 
   function handleConfirm() {
     if (!valid) return
@@ -52,7 +34,6 @@ export default function VitalsModal({ isOpen, onConfirm }) {
       systolic: sysNum,
       diastolic: diaNum,
       glucose: glucNum,
-      modifiedRankinScale: { score: mrsNum, label: MRS_OPTIONS.find((o) => o.score === mrsNum)?.label ?? '' },
     })
   }
 
@@ -132,43 +113,6 @@ export default function VitalsModal({ isOpen, onConfirm }) {
               />
             </label>
 
-            {/* mRS */}
-            <div className="flex items-center justify-between gap-3 relative">
-              <span className="text-sm font-semibold text-slate-600 flex-1 flex items-center gap-1">
-                mRS previo
-                <button
-                  type="button"
-                  onMouseEnter={() => setShowMrsHelp(true)}
-                  onMouseLeave={() => setShowMrsHelp(false)}
-                  className="text-gray-300 hover:text-gray-500 transition-colors"
-                >
-                  <HelpCircle size={12} />
-                </button>
-              </span>
-              <input
-                type="text"
-                inputMode="numeric"
-                maxLength={1}
-                placeholder="0-5"
-                value={mrs}
-                onChange={(e) => handleMrsChange(e.target.value)}
-                className={`h-10 w-24 rounded-lg border-2 bg-slate-50 px-2 text-center text-base font-bold text-slate-900 outline-none transition placeholder:text-slate-300 ${
-                  mrsValid
-                    ? 'border-slate-500 bg-slate-50 focus:border-slate-600 focus:ring-2 focus:ring-slate-100'
-                    : 'border-slate-200 focus:border-slate-400 focus:ring-2 focus:ring-slate-100'
-                }`}
-              />
-              {showMrsHelp && (
-                <div className="absolute right-0 top-[46px] z-30 w-56 rounded-lg border border-slate-200 bg-white p-2.5 text-xs shadow-xl">
-                  {MRS_OPTIONS.map((o) => (
-                    <div key={o.score} className="grid grid-cols-[18px_1fr] gap-1.5 py-0.5">
-                      <span className="font-bold text-slate-900">{o.score}</span>
-                      <span className="text-slate-600">{o.label}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
           </div>
 
           {(taCritical || taDiaCritical || glucLow || glucHigh) && (

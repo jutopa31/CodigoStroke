@@ -1,8 +1,17 @@
 import { useState, useEffect } from 'react'
-import { ChevronRight, Zap, MessageSquare, Eye, Scale, FileText } from 'lucide-react'
+import { ChevronRight, Zap, MessageSquare, Eye, Scale, FileText, HelpCircle } from 'lucide-react'
 import StepCard from '../components/StepCard'
 import { PrimaryAction, SelectableButton } from '../components/GuidedControls'
 import { nihssItems, getNihssSeverity } from '../content/nihss'
+
+const MRS_OPTIONS = [
+  { score: 0, label: 'Sin síntomas' },
+  { score: 1, label: 'Sin discapacidad significativa' },
+  { score: 2, label: 'Discapacidad leve' },
+  { score: 3, label: 'Discapacidad moderada' },
+  { score: 4, label: 'Moderadamente severa' },
+  { score: 5, label: 'Discapacidad severa' },
+]
 
 const NIHSS_BY_ID = Object.fromEntries(nihssItems.map((i) => [i.id, i]))
 const NIHSS_ORDER = nihssItems.map((i) => i.id)
@@ -128,6 +137,8 @@ export default function SymptomsNihssStep({ onConfirm }) {
   const [flash, setFlash] = useState(null)   // { pts, key }
   const [hasDisabling, setHasDisabling] = useState(null)
   const [showDisablingList, setShowDisablingList] = useState(false)
+  const [mrs, setMrs] = useState(null)
+  const [showMrsScale, setShowMrsScale] = useState(false)
 
   const hasSymptom = Object.values(selected).some(Boolean)
   const activeSymptoms = SYMPTOMS.filter((s) => selected[s.id])
@@ -147,7 +158,7 @@ export default function SymptomsNihssStep({ onConfirm }) {
   const showDisablingBlock = hasSymptom && total < 5
   const onlyOther = activeSymptoms.length === 1 && selected['other']
   const otherValid = !onlyOther || otherScore !== ''
-  const canContinue = hasSymptom && otherValid && (!showDisablingBlock || hasDisabling !== null)
+  const canContinue = hasSymptom && otherValid && (!showDisablingBlock || hasDisabling !== null) && mrs !== null
 
   function toggleSymptom(id) {
     const sym = SYMPTOMS.find((s) => s.id === id)
@@ -172,15 +183,22 @@ export default function SymptomsNihssStep({ onConfirm }) {
     setSubscaleScores((prev) => ({ ...prev, [itemId]: val }))
   }
 
+  function buildConfirmData() {
+    return {
+      symptoms: { ...selected },
+      nihssScore: total,
+      hasDisablingSymptoms: hasDisabling,
+      modifiedRankinScale: mrs !== null ? { score: mrs, label: MRS_OPTIONS[mrs].label } : null,
+    }
+  }
+
   useEffect(() => {
     function onKey(e) {
-      if (e.key === 'Enter' && canContinue) {
-        onConfirm({ symptoms: { ...selected }, nihssScore: total, hasDisablingSymptoms: hasDisabling })
-      }
+      if (e.key === 'Enter' && canContinue) onConfirm(buildConfirmData())
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [canContinue, selected, total, hasDisabling, onConfirm])
+  }, [canContinue, selected, total, hasDisabling, mrs, onConfirm])
 
   return (
     <div className="space-y-2">
@@ -314,17 +332,70 @@ export default function SymptomsNihssStep({ onConfirm }) {
             )}
           </div>
         )}
+
+        {/* ── mRS previo ── */}
+        <div className="border-t border-gray-100 pt-4 mt-3">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-xs font-bold uppercase tracking-wider text-gray-500">
+              Funcionalidad previa (mRS)
+            </p>
+            <button
+              type="button"
+              onClick={() => setShowMrsScale((v) => !v)}
+              className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <HelpCircle size={12} />
+              {showMrsScale ? 'Ocultar escala' : 'Ver escala'}
+            </button>
+          </div>
+
+          {showMrsScale && (
+            <div className="mb-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs animate-fade-in">
+              {MRS_OPTIONS.map((o) => (
+                <div key={o.score} className="grid grid-cols-[20px_1fr] gap-2 py-0.5">
+                  <span className="font-bold text-slate-800">{o.score}</span>
+                  <span className="text-slate-600">{o.label}</span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="grid grid-cols-6 gap-1.5">
+            {MRS_OPTIONS.map((o) => (
+              <button
+                key={o.score}
+                type="button"
+                onClick={() => setMrs(o.score)}
+                className={`py-2.5 rounded-lg border-2 text-sm font-bold transition-all active:scale-95 ${
+                  mrs === o.score
+                    ? 'border-blue-500 bg-blue-50 text-blue-700 ring-2 ring-blue-100'
+                    : 'border-slate-200 text-slate-500 hover:border-blue-300 hover:bg-blue-50/40'
+                }`}
+              >
+                {o.score}
+              </button>
+            ))}
+          </div>
+
+          {mrs !== null && (
+            <p className="mt-1.5 text-xs text-blue-600 font-medium animate-fade-in">
+              {MRS_OPTIONS[mrs].label}
+            </p>
+          )}
+        </div>
       </StepCard>
 
       <PrimaryAction
-        onClick={() => onConfirm({ symptoms: { ...selected }, nihssScore: total, hasDisablingSymptoms: hasDisabling })}
+        onClick={() => onConfirm(buildConfirmData())}
         valid={canContinue}
         disabledLabel={
           !hasSymptom
             ? 'Selecciona al menos un síntoma'
             : onlyOther && !otherScore
             ? 'Ingresa puntaje NIHSS'
-            : 'Responde si el déficit es discapacitante'
+            : showDisablingBlock && hasDisabling === null
+            ? 'Responde si el déficit es discapacitante'
+            : 'Selecciona el mRS previo'
         }
       >
         Continuar <ChevronRight size={18} />
