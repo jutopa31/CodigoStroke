@@ -1114,7 +1114,7 @@ export default function App() {
 
         <GlobalTimer
           startTime={timerStart}
-          timestamps={{ ctRequest: ctRequestTime?.toISOString(), thrombolyticStart: thrombolyticStartTime?.toISOString() }}
+          timestamps={{ ctRequest: ctRequestTime?.toISOString(), thrombolyticStart: thrombolyticStartTime?.toISOString(), angioRequest: angioRequestTime?.toISOString() }}
           patient={patient}
           onReset={patient ? handleReset : undefined}
           onEducationalOpen={() => setShowEducationalOverlay(true)}
@@ -1204,10 +1204,10 @@ export default function App() {
               <div className="border-t border-neutral-100">
                 <TimestampPanel
                   variant="desktop"
-                  arrival={patientArrivalTime}
+                  codeStart={timerStart}
                   ct={ctRequestTime}
                   thrombolytic={thrombolyticStartTime}
-                  angio={angioRequestTime}
+                  hemo={angioRequestTime}
                 />
               </div>
             </aside>
