@@ -24,6 +24,8 @@ import AvisoModal from './components/AvisoModal'
 import { saveStrokeEvent, generatePatientId, saveSession } from './lib/storage'
 import { getNihssSeverity } from './content/nihss'
 import { sendStrokeAlert } from './lib/emailService'
+import { useAuth } from './auth/AuthContext'
+import LoginModal from './auth/LoginModal'
 
 const STEP = {
   START: 0,
@@ -168,6 +170,8 @@ export default function App() {
   const [showAvisoModal, setShowAvisoModal] = useState(false)
   const [showAlertModal, setShowAlertModal] = useState(false)
   const [caseSaved, setCaseSaved] = useState(false)
+  const { user } = useAuth()
+  const [showLoginModal, setShowLoginModal] = useState(false)
 
   function advanceTo(nextStep) {
     setStep((currentStep) => Math.max(currentStep, nextStep))
@@ -983,7 +987,18 @@ export default function App() {
   }, [step, caseSaved, handleSaveCase])
 
   if (step === STEP.START) {
-    return <StartStep onStart={handleStart} onResume={handleResume} onOpenEducational={() => { setEducationalSection('intro'); setShowEducationalMode(true) }} />
+    return (
+      <>
+        <StartStep
+          onStart={handleStart}
+          onResume={handleResume}
+          onOpenEducational={() => { setEducationalSection('intro'); setShowEducationalMode(true) }}
+          authUser={user}
+          onAuthClick={() => setShowLoginModal(true)}
+        />
+        {showLoginModal && <LoginModal onClose={() => setShowLoginModal(false)} />}
+      </>
+    )
   }
 
   const latestNihss = nihssReadings.length > 0
@@ -1122,6 +1137,8 @@ export default function App() {
             ? (Math.min(step, STEP.THROMBECTOMY) / STEP.THROMBECTOMY) * 100
             : 0
           }
+          authUser={user}
+          onAuthClick={() => setShowLoginModal(true)}
         />
 
         {/* Body area below fixed header */}
@@ -1256,6 +1273,10 @@ export default function App() {
 
         {/* Modals */}
         <AvisoModal isOpen={showAvisoModal} onClose={handleAvisoClose} />
+
+        {showLoginModal && (
+          <LoginModal onClose={() => setShowLoginModal(false)} />
+        )}
 
         {showAlertModal && patient && (
           <AlertModal

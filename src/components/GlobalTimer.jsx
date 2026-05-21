@@ -1,5 +1,10 @@
 import { useEffect, useState } from 'react'
-import { Clock, Activity, RotateCcw, BookOpen } from 'lucide-react'
+import { Clock, Activity, RotateCcw, BookOpen, User } from 'lucide-react'
+
+function getInitials(user) {
+  const name = user?.user_metadata?.display_name || user?.email || '?'
+  return name.split(/[\s@]/).filter(Boolean).slice(0, 2).map(s => s[0].toUpperCase()).join('')
+}
 
 const MILESTONES = [
   { minutes: 25, label: 'TC', tsKey: 'ctRequest' },
@@ -43,7 +48,7 @@ function getPhase(minutes) {
   }
 }
 
-export default function GlobalTimer({ startTime, timestamps = {}, patient, onReset, progressPct, onEducationalOpen }) {
+export default function GlobalTimer({ startTime, timestamps = {}, patient, onReset, progressPct, onEducationalOpen, authUser, onAuthClick }) {
   const [elapsed, setElapsed] = useState(0)
 
   useEffect(() => {
@@ -123,6 +128,20 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
             <span className={`text-xs font-medium ${phase ? phase.muted : 'text-brand-300'} truncate max-w-[90px] md:hidden`}>
               {patient.name.split(' ')[0]}
             </span>
+          )}
+          {onAuthClick && (
+            <button
+              type="button"
+              onClick={onAuthClick}
+              className="w-8 h-8 rounded-lg border border-white/20 bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
+              title={authUser ? 'Tu cuenta' : 'Iniciar sesión'}
+              aria-label={authUser ? 'Tu cuenta' : 'Iniciar sesión'}
+            >
+              {authUser
+                ? <span className="text-[10px] font-bold leading-none">{getInitials(authUser)}</span>
+                : <User size={14} strokeWidth={2} />
+              }
+            </button>
           )}
           {onEducationalOpen && (
             <button
