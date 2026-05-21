@@ -1,12 +1,11 @@
 import { useState, useEffect, useRef } from 'react'
-import { ChevronRight, ChevronDown, Dumbbell, MessageSquare, Eye, Scale, FileText, HelpCircle, Calculator, RotateCcw, Brain } from 'lucide-react'
+import { ChevronRight, ChevronDown, Dumbbell, MessageSquare, Eye, Scale, FileText, HelpCircle, Calculator, Brain } from 'lucide-react'
 import StepCard, { CollapsedStep } from '../components/StepCard'
 import { PrimaryAction } from '../components/GuidedControls'
 import { nihssItems, getNihssSeverity } from '../content/nihss'
 import NihssFullEditor from '../components/NihssFullEditor'
 
 const NIHSS_BY_ID = Object.fromEntries(nihssItems.map((i) => [i.id, i]))
-const NIHSS_ORDER = nihssItems.map((i) => i.id)
 
 const SYMPTOMS = [
   {
@@ -151,11 +150,10 @@ export default function SymptomsNihssStep({ onConfirm, isCollapsed = false }) {
   const [flash, setFlash] = useState(null)
   const [hasDisabling, setHasDisabling] = useState(null)
   const [showDisablingList, setShowDisablingList] = useState(false)
-  // Ajustar: inline collapsible subscale view
+  // Ajustar: inline collapsible — shows all 15 NIHSS items in order
   const [showSubscales, setShowSubscales] = useState(false)
   // Guía: NihssFullEditor modal (full scale with descriptions)
   const [showGuidedModal, setShowGuidedModal] = useState(false)
-  const [useFullScores, setUseFullScores] = useState(false)
   const [mrs, setMrs] = useState(null)
   const [showMrsScale, setShowMrsScale] = useState(false)
   const flashKeyRef = useRef(0)
@@ -163,15 +161,8 @@ export default function SymptomsNihssStep({ onConfirm, isCollapsed = false }) {
   const hasSymptom = Object.values(selected).some(Boolean)
   const activeSymptoms = SYMPTOMS.filter((s) => selected[s.id])
 
-  const activeIds = [
-    ...new Set(
-      activeSymptoms.filter((s) => s.id !== 'other').flatMap((s) => s.nihssIds)
-    ),
-  ].sort((a, b) => NIHSS_ORDER.indexOf(a) - NIHSS_ORDER.indexOf(b))
-
-  const subscaleTotal = useFullScores
-    ? nihssItems.reduce((sum, item) => sum + (subscaleScores[item.id] ?? 0), 0)
-    : activeIds.reduce((sum, id) => sum + (subscaleScores[id] ?? 0), 0)
+  // Always sum all 15 items — shortcuts pre-fill defaults, Ajustar lets you edit any item
+  const subscaleTotal = nihssItems.reduce((sum, item) => sum + (subscaleScores[item.id] ?? 0), 0)
   const otherNum = selected['other'] ? parseInt(otherScore, 10) || 0 : 0
   const total = subscaleTotal + otherNum
 
@@ -205,15 +196,10 @@ export default function SymptomsNihssStep({ onConfirm, isCollapsed = false }) {
     setSubscaleScores((prev) => ({ ...prev, [itemId]: val }))
   }
 
-  // Called when NihssFullEditor (Guía) saves — full 15-item scores
+  // Called when NihssFullEditor (Guía) saves — merges all 15-item scores
   function handleGuidedSave(scores) {
     setSubscaleScores(scores)
-    setUseFullScores(true)
     setShowGuidedModal(false)
-  }
-
-  function resetToSymptomBased() {
-    setUseFullScores(false)
   }
 
   useEffect(() => {
@@ -331,25 +317,9 @@ export default function SymptomsNihssStep({ onConfirm, isCollapsed = false }) {
               <span className={`text-2xl font-bold tabular-nums ${severity.color}`}>{total}</span>
               <span className={`font-medium text-sm flex-1 ${severity.color}`}>{severity.label}</span>
               {flash && <FlashBadge key={flash.key} pts={flash.pts} />}
-              {useFullScores && (
-                <span className="text-[10px] font-semibold rounded-md bg-white/70 px-1.5 py-0.5 text-neutral-500">
-                  Manual
-                </span>
-              )}
 
               {/* Action buttons */}
               <div className="flex items-center gap-1.5 shrink-0">
-                {useFullScores && (
-                  <button
-                    type="button"
-                    onClick={resetToSymptomBased}
-                    title="Volver a cálculo por síntomas"
-                    className="flex items-center gap-1 text-[10px] font-semibold rounded-lg px-2 py-1 bg-white/60 text-neutral-500 hover:bg-white/80 transition-all"
-                  >
-                    <RotateCcw size={10} /> Recalcular
-                  </button>
-                )}
-
                 {/* Guía → NihssFullEditor modal (escala completa con descripciones) */}
                 <button
                   type="button"
@@ -360,49 +330,36 @@ export default function SymptomsNihssStep({ onConfirm, isCollapsed = false }) {
                   <Calculator size={10} /> Guía
                 </button>
 
-                {/* Ajustar → inline collapsible con botones numéricos + consignas */}
-                {activeIds.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => setShowSubscales((v) => !v)}
-                    className={`flex items-center gap-1 text-[10px] font-semibold rounded-lg px-2 py-1 transition-all ${
-                      showSubscales ? 'bg-white/70 text-neutral-600' : 'bg-white/50 text-neutral-500 hover:bg-white/70'
-                    }`}
-                  >
-                    <ChevronDown
-                      size={11}
-                      className={showSubscales ? 'rotate-180 transition-transform' : 'transition-transform'}
-                    />
-                    {showSubscales ? 'Ocultar' : 'Ajustar'}
-                  </button>
-                )}
+                {/* Ajustar → inline collapsible: todos los 15 ítems en orden NIHSS */}
+                <button
+                  type="button"
+                  onClick={() => setShowSubscales((v) => !v)}
+                  className={`flex items-center gap-1 text-[10px] font-semibold rounded-lg px-2 py-1 transition-all ${
+                    showSubscales ? 'bg-white/70 text-neutral-600' : 'bg-white/50 text-neutral-500 hover:bg-white/70'
+                  }`}
+                >
+                  <ChevronDown
+                    size={11}
+                    className={showSubscales ? 'rotate-180 transition-transform' : 'transition-transform'}
+                  />
+                  {showSubscales ? 'Ocultar' : 'Ajustar'}
+                </button>
               </div>
             </div>
 
-            {/* Inline subscale items (Ajustar mode) */}
-            {showSubscales &&
-              activeSymptoms
-                .filter((s) => s.id !== 'other' && s.nihssIds.length > 0)
-                .map((sym) => (
-                  <div key={sym.id} className="mb-3 animate-fade-in">
-                    <div className="mb-1.5 flex items-center gap-1.5">
-                      <sym.Icon size={11} className="text-amber-500 shrink-0" strokeWidth={2} />
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-600">
-                        {sym.label} — {sym.sub}
-                      </p>
-                    </div>
-                    <div className="rounded-xl bg-neutral-50 border border-neutral-100 px-3 py-1">
-                      {sym.nihssIds.map((id) => (
-                        <ItemRow
-                          key={id}
-                          itemId={id}
-                          score={subscaleScores[id] ?? 0}
-                          onChange={setItemScore}
-                        />
-                      ))}
-                    </div>
-                  </div>
+            {/* Inline subscale items (Ajustar mode) — escala completa en orden NIHSS */}
+            {showSubscales && (
+              <div className="mb-3 animate-fade-in rounded-xl bg-neutral-50 border border-neutral-100 px-3 py-1">
+                {nihssItems.map((item) => (
+                  <ItemRow
+                    key={item.id}
+                    itemId={item.id}
+                    score={subscaleScores[item.id] ?? 0}
+                    onChange={setItemScore}
+                  />
                 ))}
+              </div>
+            )}
           </div>
         )}
 
