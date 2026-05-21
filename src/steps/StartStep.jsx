@@ -1,6 +1,11 @@
 import { useState } from 'react'
-import { Activity, Zap, RotateCcw, Clock, ChevronRight, BookOpen } from 'lucide-react'
+import { Activity, Zap, RotateCcw, Clock, ChevronRight, BookOpen, User } from 'lucide-react'
 import { loadSession, getSessions } from '../lib/storage'
+
+function getInitials(user) {
+  const name = user?.user_metadata?.display_name || user?.email || '?'
+  return name.split(/[\s@]/).filter(Boolean).slice(0, 2).map(s => s[0].toUpperCase()).join('')
+}
 
 function getRecentSession() {
   const sessions = getSessions()
@@ -22,7 +27,7 @@ function formatElapsed(ms) {
   return `${h}h ${min % 60}min`
 }
 
-export default function StartStep({ onStart, onResume, onOpenEducational }) {
+export default function StartStep({ onStart, onResume, onOpenEducational, authUser, onAuthClick }) {
   const [resumeId, setResumeId] = useState('')
   const [error, setError] = useState(false)
   const [showManualResume, setShowManualResume] = useState(false)
@@ -154,17 +159,32 @@ export default function StartStep({ onStart, onResume, onOpenEducational }) {
         Cada minuto importa · 1.9M neuronas/min
       </p>
 
-      {/* Educational mode button */}
-      {onOpenEducational && (
-        <button
-          type="button"
-          onClick={onOpenEducational}
-          className="mt-6 flex items-center gap-2 text-xs text-neutral-400 hover:text-amber-600 transition-colors"
-        >
-          <BookOpen size={14} strokeWidth={2} />
-          Modo educativo
-        </button>
-      )}
+      {/* Bottom actions */}
+      <div className="mt-6 flex items-center gap-4">
+        {onOpenEducational && (
+          <button
+            type="button"
+            onClick={onOpenEducational}
+            className="flex items-center gap-2 text-xs text-neutral-400 hover:text-amber-600 transition-colors"
+          >
+            <BookOpen size={14} strokeWidth={2} />
+            Modo educativo
+          </button>
+        )}
+        {onAuthClick && (
+          <button
+            type="button"
+            onClick={onAuthClick}
+            className="flex items-center gap-2 text-xs text-neutral-400 hover:text-brand-600 transition-colors"
+          >
+            <User size={14} strokeWidth={2} />
+            {authUser
+              ? (authUser.user_metadata?.display_name || authUser.email || getInitials(authUser))
+              : 'Iniciar sesión'
+            }
+          </button>
+        )}
+      </div>
     </div>
   )
 }
