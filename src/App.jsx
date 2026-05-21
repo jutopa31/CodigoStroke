@@ -439,7 +439,7 @@ export default function App() {
   function handleSymptomsNihssConfirm(data) {
     const nihssData = { nihssScore: data.nihssScore, hasDisablingSymptoms: data.hasDisablingSymptoms }
     setNihss(nihssData)
-    setSymptoms((prev) => ({ ...prev, symptoms: data.symptoms }))
+    setSymptoms((prev) => ({ ...prev, symptoms: data.symptoms, modifiedRankinScale: data.modifiedRankinScale }))
     setShowAnticoagModal(true)
   }
 
