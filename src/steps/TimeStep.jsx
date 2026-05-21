@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { CheckCircle2, Clock } from 'lucide-react'
+import { CheckCircle2, Clock, Pencil } from 'lucide-react'
 import StepCard, { CollapsedStep } from '../components/StepCard'
 import { StatusPill } from '../components/GuidedControls'
 import { getElapsedMinutes, formatElapsed, getWindowStatus, IV_WINDOW_MINUTES, OGV_WINDOW_MINUTES } from '../lib/calculations'
@@ -7,6 +7,7 @@ import { getElapsedMinutes, formatElapsed, getWindowStatus, IV_WINDOW_MINUTES, O
 const MAX_SLIDER_MINUTES = 1440
 const IV_WINDOW_PERCENT = `${(IV_WINDOW_MINUTES / MAX_SLIDER_MINUTES) * 100}%`
 const OGV_WINDOW_PERCENT = `${(OGV_WINDOW_MINUTES / MAX_SLIDER_MINUTES) * 100}%`
+
 
 function toLocalDateInput(date) {
   const pad = (n) => String(n).padStart(2, '0')
@@ -42,6 +43,7 @@ export default function TimeStep({ onConfirm, isCollapsed = false }) {
   const [offsetMinutes, setOffsetMinutes] = useState(0)
   const [confirmed, setConfirmed] = useState(false)
   const [isIncierto, setIsIncierto] = useState(false)
+  const [editingTime, setEditingTime] = useState(false)
 
   useInterval(1000)
 
@@ -53,6 +55,15 @@ export default function TimeStep({ onConfirm, isCollapsed = false }) {
   const timeTone = isOutOfWindow ? 'red' : shouldEvaluateOgv ? 'orange' : 'blue'
   const timeStatusLabel = isOutOfWindow ? 'Fuera de ventana' : shouldEvaluateOgv ? 'Evaluar OGV' : 'Ventana IV activa'
 
+  // Etiqueta dinámica de candidatura — cambia en tiempo real según elapsed e isIncierto
+  const candidacyLabel = (() => {
+    if (elapsedMinutes >= IV_WINDOW_MINUTES) return 'Evaluar OGV'
+    return isIncierto ? 'Incierto' : 'Candidato a Trombolisis'
+  })()
+
+  // Es hoy o fecha anterior
+  const isToday = lastSeenDate === toLocalDateInput(new Date())
+
   function applyOffset(mins) {
     const rounded = Number(mins)
     const date = new Date()
@@ -60,6 +71,26 @@ export default function TimeStep({ onConfirm, isCollapsed = false }) {
     setOffsetMinutes(rounded)
     setLastSeenDate(toLocalDateInput(date))
     setLastSeenTime(toLocalTimeInput(date))
+    setConfirmed(false)
+  }
+
+  // Input manual de hora: si la hora resultante está en el futuro, asume que fue ayer
+  function handleTimeInput(timeValue) {
+    if (!timeValue) return
+    const [h, m] = timeValue.split(':').map(Number)
+    const now = new Date()
+    const candidate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m)
+    if (candidate > now) candidate.setDate(candidate.getDate() - 1)
+    const elapsedMins = (now.getTime() - candidate.getTime()) / (1000 * 60)
+    setLastSeenDate(toLocalDateInput(candidate))
+    setLastSeenTime(toLocalTimeInput(candidate))
+    setOffsetMinutes(Math.round(Math.min(Math.max(0, elapsedMins), MAX_SLIDER_MINUTES)))
+    setConfirmed(false)
+  }
+
+  function handleDateInput(dateValue) {
+    setLastSeenDate(dateValue)
+    setOffsetMinutes(0)
     setConfirmed(false)
   }
 
@@ -83,23 +114,26 @@ export default function TimeStep({ onConfirm, isCollapsed = false }) {
       label: 'text-blue-900',
       elapsed: 'text-blue-900',
       slider: 'accent-blue-900',
+      timeInput: 'border-blue-200 focus:ring-blue-300 text-blue-900',
     },
     orange: {
       container: 'bg-amber-50/50 border-amber-100',
       label: 'text-amber-700',
       elapsed: 'text-amber-600',
       slider: 'accent-amber-500',
+      timeInput: 'border-amber-200 focus:ring-amber-300 text-amber-700',
     },
     blue: {
       container: 'bg-blue-50/50 border-blue-100',
       label: 'text-blue-700',
       elapsed: 'text-blue-600',
       slider: 'accent-blue-500',
+      timeInput: 'border-blue-200 focus:ring-blue-300 text-blue-700',
     },
   }[timeTone]
 
-  const stepTitle = isIncierto ? 'Última vez asintomático' : 'Inicio de síntomas'
-  const sliderLabel = isIncierto ? 'Última vez visto asintomático' : 'Inicio de síntomas'
+  const stepTitle = isIncierto ? 'Última vez asintomático' : 'Reconocimiento de síntomas'
+  const sliderLabel = isIncierto ? 'Última vez visto asintomático' : 'Reconocimiento de síntomas'
 
   if (isCollapsed && confirmed) {
     return (
@@ -112,19 +146,61 @@ export default function TimeStep({ onConfirm, isCollapsed = false }) {
   return (
     <StepCard step="2" title={stepTitle} accent={timeTone}>
       <div className={`rounded-xl border p-4 ${toneStyles.container}`}>
-        {/* Header */}
+
+        {/* Header: label + input de hora editable + elapsed + pill */}
         <div className="flex items-center justify-between gap-2 mb-3">
-          <label className={`text-[11px] font-semibold uppercase tracking-wider flex items-center gap-1.5 ${toneStyles.label}`}>
-            <Clock size={12} strokeWidth={2} /> {sliderLabel}
-          </label>
-          <div className="flex items-center gap-2">
+
+          {/* Izquierda: ícono + label + hora editable */}
+          <div className="flex items-center gap-2 min-w-0 flex-wrap">
+            <label className={`text-[11px] font-semibold uppercase tracking-wider flex items-center gap-1.5 shrink-0 ${toneStyles.label}`}>
+              <Clock size={12} strokeWidth={2} />
+              {sliderLabel}
+            </label>
+
+            {/* Bloque de hora editable */}
+            <div className="flex items-center gap-1">
+              {/* Fecha — solo si no es hoy */}
+              {!isToday && (
+                <input
+                  type="date"
+                  value={lastSeenDate}
+                  onChange={(e) => handleDateInput(e.target.value)}
+                  className={`text-[10px] font-medium rounded border bg-white/80 px-1.5 py-0.5 focus:outline-none focus:ring-1 cursor-pointer ${toneStyles.timeInput}`}
+                />
+              )}
+
+              {/* Hora — siempre visible, editable */}
+              <div className="relative flex items-center group">
+                <input
+                  type="time"
+                  value={lastSeenTime}
+                  onChange={(e) => handleTimeInput(e.target.value)}
+                  onFocus={() => setEditingTime(true)}
+                  onBlur={() => setEditingTime(false)}
+                  className={`text-sm font-bold tabular-nums rounded-lg border bg-white/80 px-2 py-0.5 focus:outline-none focus:ring-1 cursor-pointer transition-all ${toneStyles.timeInput} ${
+                    editingTime ? 'ring-1 shadow-sm' : 'hover:border-opacity-70'
+                  }`}
+                  style={{ colorScheme: 'light' }}
+                />
+                <Pencil
+                  size={9}
+                  strokeWidth={2}
+                  className={`absolute -right-3 transition-opacity ${toneStyles.label} ${editingTime ? 'opacity-0' : 'opacity-40 group-hover:opacity-70'}`}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Derecha: tiempo transcurrido + pill dinámica */}
+          <div className="flex items-center gap-2 shrink-0">
             {lastSeen && (
               <span className={`text-sm font-bold tabular-nums ${toneStyles.elapsed}`}>
                 {formatElapsed(elapsedMinutes)}
               </span>
             )}
+            {/* Pill interactiva: muestra candidatura antes de confirmar, estado clínico tras confirmar */}
             <StatusPill complete={confirmed}>
-              {confirmed ? timeStatusLabel : 'Pendiente'}
+              {confirmed ? timeStatusLabel : candidacyLabel}
             </StatusPill>
           </div>
         </div>
@@ -142,8 +218,8 @@ export default function TimeStep({ onConfirm, isCollapsed = false }) {
             className={`h-2 w-full cursor-pointer rounded-full ${toneStyles.slider}`}
             aria-label="Minutos desde ultima vez asintomático"
           />
-          
-          {/* Markers */}
+
+          {/* Marcadores */}
           <button
             type="button"
             onClick={() => applyOffset(IV_WINDOW_MINUTES)}
@@ -164,43 +240,37 @@ export default function TimeStep({ onConfirm, isCollapsed = false }) {
           </button>
         </div>
 
-        {/* Footer */}
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={handleSubmit}
-              disabled={!lastSeen}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl font-medium text-xs transition-all active:scale-[0.98] ${
-                confirmed
-                  ? 'bg-emerald-50 border border-emerald-200 text-emerald-700'
-                  : lastSeen
-                    ? 'bg-brand-600 hover:bg-brand-700 text-white'
-                    : 'bg-neutral-100 text-neutral-400 cursor-not-allowed'
-              }`}
-            >
-              {confirmed ? <><CheckCircle2 size={12} strokeWidth={2} /> Registrado</> : 'Registrar'}
-            </button>
-            <button
-              type="button"
-              aria-pressed={isIncierto}
-              onClick={() => { setIsIncierto((v) => !v); setConfirmed(false) }}
-              className={`flex h-8 items-center gap-1.5 rounded-xl border px-3 text-[11px] font-medium transition-all active:scale-[0.98] ${
-                isIncierto
-                  ? 'border-indigo-200 bg-indigo-50 text-indigo-700'
-                  : 'border-neutral-200 bg-white text-neutral-400 hover:bg-neutral-50'
-              }`}
-            >
-              <Clock size={11} strokeWidth={2} />
-              Incierto
-            </button>
-          </div>
-          {lastSeen && (
-            <span className="text-xs font-medium text-neutral-400 tabular-nums">
-              {formatClock(lastSeen)}
-            </span>
-          )}
+        {/* Footer: botones de acción */}
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={!lastSeen}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl font-medium text-xs transition-all active:scale-[0.98] ${
+              confirmed
+                ? 'bg-emerald-50 border border-emerald-200 text-emerald-700'
+                : lastSeen
+                  ? 'bg-brand-600 hover:bg-brand-700 text-white'
+                  : 'bg-neutral-100 text-neutral-400 cursor-not-allowed'
+            }`}
+          >
+            {confirmed ? <><CheckCircle2 size={12} strokeWidth={2} /> Registrado</> : 'Registrar'}
+          </button>
+          <button
+            type="button"
+            aria-pressed={isIncierto}
+            onClick={() => { setIsIncierto((v) => !v); setConfirmed(false) }}
+            className={`flex h-8 items-center gap-1.5 rounded-xl border px-3 text-[11px] font-medium transition-all active:scale-[0.98] ${
+              isIncierto
+                ? 'border-indigo-200 bg-indigo-50 text-indigo-700'
+                : 'border-neutral-200 bg-white text-neutral-400 hover:bg-neutral-50'
+            }`}
+          >
+            <Clock size={11} strokeWidth={2} />
+            Incierto
+          </button>
         </div>
+
       </div>
     </StepCard>
   )
