@@ -57,13 +57,13 @@ export default function TimeStep({ onConfirm, isCollapsed = false }) {
   const timeStatusLabel = isOutOfWindow ? 'Fuera de ventana' : shouldEvaluateOgv ? 'Evaluar OGV' : 'Ventana IV activa'
 
   // Etiqueta dinámica de candidatura — cambia en tiempo real según elapsed e isIncierto
-  // < 4.5h (ambos modos)          → Candidato a Trombolisis
-  // 4.5h–9h + isIncierto          → Incierto
-  // ≥ 4.5h clásico | ≥ 9h inciert → Evaluar OGV
+  // < 4.5h (ambos modos)              → Candidato a Trombolisis
+  // 4.5h–9h + isIncierto              → Candidato a Trombolisis (ventana extendida)
+  // ≥ 4.5h clásico | ≥ 9h incierto   → Evaluar OGV
   const candidacyLabel = (() => {
-    if (elapsedMinutes < IV_WINDOW_MINUTES) return 'Candidato a Trombolisis'
-    if (isIncierto && elapsedMinutes < INCIERTO_WINDOW_MINUTES) return 'Incierto'
-    return 'Evaluar OGV'
+    const enVentanaIV       = elapsedMinutes < IV_WINDOW_MINUTES
+    const enVentanaIncierta = isIncierto && elapsedMinutes < INCIERTO_WINDOW_MINUTES
+    return (enVentanaIV || enVentanaIncierta) ? 'Candidato a Trombolisis' : 'Evaluar OGV'
   })()
 
   // Es hoy o fecha anterior
