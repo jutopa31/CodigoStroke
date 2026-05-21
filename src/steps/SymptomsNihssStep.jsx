@@ -3,9 +3,9 @@ import { ChevronRight, ChevronDown, Dumbbell, MessageSquare, Eye, Scale, FileTex
 import StepCard, { CollapsedStep } from '../components/StepCard'
 import { PrimaryAction } from '../components/GuidedControls'
 import { nihssItems, getNihssSeverity } from '../content/nihss'
-import NihssModal from '../components/NihssModal'
 import NihssFullEditor from '../components/NihssFullEditor'
 
+const NIHSS_BY_ID = Object.fromEntries(nihssItems.map((i) => [i.id, i]))
 const NIHSS_ORDER = nihssItems.map((i) => i.id)
 
 const SYMPTOMS = [
@@ -99,6 +99,51 @@ function FlashBadge({ pts }) {
   )
 }
 
+/**
+ * Inline row for compact subscale adjustment.
+ * Shows the item label, the clinical prompt (in italic), and the score buttons.
+ */
+function ItemRow({ itemId, score, onChange }) {
+  const item = NIHSS_BY_ID[itemId]
+  if (!item) return null
+  const shortLabel = item.label
+    .replace(/^\d+[abc]?\.\s*/i, '')
+    .replace('NC –', '')
+    .replace('Motor brazo –', 'Brazo')
+    .replace('Motor pierna –', 'Pierna')
+    .trim()
+
+  return (
+    <div className="py-2 border-b border-neutral-100 last:border-0">
+      <div className="flex items-start gap-2">
+        <div className="flex-1 min-w-0">
+          <span className="text-xs font-medium text-neutral-700 leading-snug block">{shortLabel}</span>
+          {item.prompt && (
+            <span className="text-[10px] italic text-neutral-400 leading-snug block mt-0.5">{item.prompt}</span>
+          )}
+        </div>
+        <div className="flex gap-1 shrink-0 mt-0.5">
+          {item.options.map((opt) => (
+            <button
+              key={opt.score}
+              type="button"
+              title={opt.text}
+              onClick={() => onChange(itemId, opt.score)}
+              className={`w-7 h-7 rounded-lg text-xs font-semibold transition-all active:scale-95 ${
+                score === opt.score
+                  ? 'bg-brand-600 text-white'
+                  : 'bg-neutral-100 text-neutral-500 hover:bg-neutral-200'
+              }`}
+            >
+              {opt.score}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function SymptomsNihssStep({ onConfirm, isCollapsed = false }) {
   const [selected, setSelected] = useState({})
   const [subscaleScores, setSubscaleScores] = useState({})
@@ -106,12 +151,13 @@ export default function SymptomsNihssStep({ onConfirm, isCollapsed = false }) {
   const [flash, setFlash] = useState(null)
   const [hasDisabling, setHasDisabling] = useState(null)
   const [showDisablingList, setShowDisablingList] = useState(false)
+  // Ajustar: inline collapsible subscale view
+  const [showSubscales, setShowSubscales] = useState(false)
+  // Guía: NihssFullEditor modal (full scale with descriptions)
+  const [showGuidedModal, setShowGuidedModal] = useState(false)
+  const [useFullScores, setUseFullScores] = useState(false)
   const [mrs, setMrs] = useState(null)
   const [showMrsScale, setShowMrsScale] = useState(false)
-  const [showGuidedModal, setShowGuidedModal] = useState(false)
-  const [showAdjustModal, setShowAdjustModal] = useState(false)
-  const [guidedScore, setGuidedScore] = useState(null)
-  const [useFullScores, setUseFullScores] = useState(false)
   const flashKeyRef = useRef(0)
 
   const hasSymptom = Object.values(selected).some(Boolean)
@@ -127,14 +173,13 @@ export default function SymptomsNihssStep({ onConfirm, isCollapsed = false }) {
     ? nihssItems.reduce((sum, item) => sum + (subscaleScores[item.id] ?? 0), 0)
     : activeIds.reduce((sum, id) => sum + (subscaleScores[id] ?? 0), 0)
   const otherNum = selected['other'] ? parseInt(otherScore, 10) || 0 : 0
-  const total = guidedScore !== null ? guidedScore : subscaleTotal + otherNum
+  const total = subscaleTotal + otherNum
 
   const severity = hasSymptom ? getNihssSeverity(total) : null
   const showDisablingBlock = hasSymptom && total < 5
   const onlyOther = activeSymptoms.length === 1 && selected['other']
   const otherValid = !onlyOther || otherScore !== ''
   const canContinue = hasSymptom && otherValid && (!showDisablingBlock || hasDisabling !== null) && mrs !== null
-  const isManualMode = guidedScore !== null || useFullScores
 
   function toggleSymptom(id) {
     const sym = SYMPTOMS.find((s) => s.id === id)
@@ -156,28 +201,30 @@ export default function SymptomsNihssStep({ onConfirm, isCollapsed = false }) {
     }
   }
 
-  function handleGuidedLoad(score) {
-    setGuidedScore(score)
-    setUseFullScores(false)
+  function setItemScore(itemId, val) {
+    setSubscaleScores((prev) => ({ ...prev, [itemId]: val }))
+  }
+
+  // Called when NihssFullEditor (Guía) saves — full 15-item scores
+  function handleGuidedSave(scores) {
+    setSubscaleScores(scores)
+    setUseFullScores(true)
     setShowGuidedModal(false)
   }
 
-  function handleFullEditorSave(scores) {
-    setSubscaleScores(scores)
-    setUseFullScores(true)
-    setGuidedScore(null)
-    setShowAdjustModal(false)
-  }
-
   function resetToSymptomBased() {
-    setGuidedScore(null)
     setUseFullScores(false)
   }
 
   useEffect(() => {
     function onKey(e) {
       if (e.key === 'Enter' && canContinue) {
-        onConfirm({ symptoms: { ...selected }, nihssScore: total, hasDisablingSymptoms: hasDisabling, modifiedRankinScale: mrs !== null ? { score: mrs, label: MRS_OPTIONS[mrs].label } : null })
+        onConfirm({
+          symptoms: { ...selected },
+          nihssScore: total,
+          hasDisablingSymptoms: hasDisabling,
+          modifiedRankinScale: mrs !== null ? { score: mrs, label: MRS_OPTIONS[mrs].label } : null,
+        })
       }
     }
     window.addEventListener('keydown', onKey)
@@ -284,15 +331,15 @@ export default function SymptomsNihssStep({ onConfirm, isCollapsed = false }) {
               <span className={`text-2xl font-bold tabular-nums ${severity.color}`}>{total}</span>
               <span className={`font-medium text-sm flex-1 ${severity.color}`}>{severity.label}</span>
               {flash && <FlashBadge key={flash.key} pts={flash.pts} />}
-              {isManualMode && (
+              {useFullScores && (
                 <span className="text-[10px] font-semibold rounded-md bg-white/70 px-1.5 py-0.5 text-neutral-500">
-                  {guidedScore !== null ? 'Guiado' : 'Manual'}
+                  Manual
                 </span>
               )}
 
               {/* Action buttons */}
               <div className="flex items-center gap-1.5 shrink-0">
-                {isManualMode && (
+                {useFullScores && (
                   <button
                     type="button"
                     onClick={resetToSymptomBased}
@@ -302,24 +349,60 @@ export default function SymptomsNihssStep({ onConfirm, isCollapsed = false }) {
                     <RotateCcw size={10} /> Recalcular
                   </button>
                 )}
+
+                {/* Guía → NihssFullEditor modal (escala completa con descripciones) */}
                 <button
                   type="button"
                   onClick={() => setShowGuidedModal(true)}
-                  title="Abrir calculadora guiada ítem por ítem"
+                  title="Escala NIHSS completa con opciones descriptivas"
                   className="flex items-center gap-1 text-[10px] font-semibold rounded-lg px-2 py-1 bg-white/60 text-brand-600 hover:bg-white/80 transition-all"
                 >
                   <Calculator size={10} /> Guía
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setShowAdjustModal(true)}
-                  className="flex items-center gap-1 text-[10px] font-semibold rounded-lg px-2 py-1 bg-white/60 text-neutral-600 hover:bg-white/80 transition-all"
-                >
-                  <ChevronDown size={11} />
-                  Ajustar
-                </button>
+
+                {/* Ajustar → inline collapsible con botones numéricos + consignas */}
+                {activeIds.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setShowSubscales((v) => !v)}
+                    className={`flex items-center gap-1 text-[10px] font-semibold rounded-lg px-2 py-1 transition-all ${
+                      showSubscales ? 'bg-white/70 text-neutral-600' : 'bg-white/50 text-neutral-500 hover:bg-white/70'
+                    }`}
+                  >
+                    <ChevronDown
+                      size={11}
+                      className={showSubscales ? 'rotate-180 transition-transform' : 'transition-transform'}
+                    />
+                    {showSubscales ? 'Ocultar' : 'Ajustar'}
+                  </button>
+                )}
               </div>
             </div>
+
+            {/* Inline subscale items (Ajustar mode) */}
+            {showSubscales &&
+              activeSymptoms
+                .filter((s) => s.id !== 'other' && s.nihssIds.length > 0)
+                .map((sym) => (
+                  <div key={sym.id} className="mb-3 animate-fade-in">
+                    <div className="mb-1.5 flex items-center gap-1.5">
+                      <sym.Icon size={11} className="text-amber-500 shrink-0" strokeWidth={2} />
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-600">
+                        {sym.label} — {sym.sub}
+                      </p>
+                    </div>
+                    <div className="rounded-xl bg-neutral-50 border border-neutral-100 px-3 py-1">
+                      {sym.nihssIds.map((id) => (
+                        <ItemRow
+                          key={id}
+                          itemId={id}
+                          score={subscaleScores[id] ?? 0}
+                          onChange={setItemScore}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                ))}
           </div>
         )}
 
@@ -402,7 +485,14 @@ export default function SymptomsNihssStep({ onConfirm, isCollapsed = false }) {
       </StepCard>
 
       <PrimaryAction
-        onClick={() => onConfirm({ symptoms: { ...selected }, nihssScore: total, hasDisablingSymptoms: hasDisabling, modifiedRankinScale: mrs !== null ? { score: mrs, label: MRS_OPTIONS[mrs].label } : null })}
+        onClick={() =>
+          onConfirm({
+            symptoms: { ...selected },
+            nihssScore: total,
+            hasDisablingSymptoms: hasDisabling,
+            modifiedRankinScale: mrs !== null ? { score: mrs, label: MRS_OPTIONS[mrs].label } : null,
+          })
+        }
         valid={canContinue}
         disabledLabel={
           !hasSymptom
@@ -415,15 +505,12 @@ export default function SymptomsNihssStep({ onConfirm, isCollapsed = false }) {
         Continuar <ChevronRight size={16} strokeWidth={2} />
       </PrimaryAction>
 
+      {/* Guía: NihssFullEditor (escala completa con opciones descriptivas) */}
       {showGuidedModal && (
-        <NihssModal onLoad={handleGuidedLoad} onClose={() => setShowGuidedModal(false)} />
-      )}
-
-      {showAdjustModal && (
         <NihssFullEditor
           scores={subscaleScores}
-          onSave={handleFullEditorSave}
-          onClose={() => setShowAdjustModal(false)}
+          onSave={handleGuidedSave}
+          onClose={() => setShowGuidedModal(false)}
         />
       )}
     </div>
