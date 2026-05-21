@@ -706,14 +706,28 @@ export default function App() {
   }
 
   function handleProtocolForward() {
-    goToProtocolTarget(getNextMissingTarget())
+    const path = getProtocolPath()
+    const currentTabIndex = path.findIndex((item) => item.step === activeTab)
+    const fallbackIndex = path.reduce((last, item, index) => (item.step <= step ? index : last), 0)
+    const usedIndex = currentTabIndex >= 0 ? currentTabIndex : fallbackIndex
+    const nextIndex = Math.min(path.length - 1, usedIndex + 1)
+    const target = path[nextIndex]
+    if (target && target.step !== activeTab) {
+      setActiveTab(target.step)
+    }
   }
 
-  const nextMissingTarget = getNextMissingTarget()
   const canUseProtocolNav = patient && step > STEP.ALERT
   const protocolPath = getProtocolPath()
   const currentTabProtocolIndex = protocolPath.findIndex((item) => item.step === activeTab)
-  const canGoBack = canUseProtocolNav && currentTabProtocolIndex > 0
+  const effectiveTabProtocolIndex = currentTabProtocolIndex >= 0
+    ? currentTabProtocolIndex
+    : protocolPath.reduce((last, item, index) => (item.step <= step ? index : last), 0)
+  const canGoBack = canUseProtocolNav && effectiveTabProtocolIndex > 0
+  const nextProtocolStep = effectiveTabProtocolIndex < protocolPath.length - 1
+    ? protocolPath[effectiveTabProtocolIndex + 1]
+    : null
+  const canGoForward = canUseProtocolNav && Boolean(nextProtocolStep) && nextProtocolStep.step <= step
 
   const RED_CONTRA_LABELS = {
     prior_ich:         'Hemorragia intracraneal previa o actual',
@@ -1239,8 +1253,8 @@ export default function App() {
             onBack={handleProtocolBack}
             onForward={handleProtocolForward}
             canGoBack={canGoBack}
-            canGoForward={Boolean(nextMissingTarget)}
-            forwardLabel={nextMissingTarget?.label ?? 'Protocolo completo'}
+            canGoForward={canGoForward}
+            forwardLabel={nextProtocolStep?.label ?? 'Protocolo completo'}
           />
         )}
 
