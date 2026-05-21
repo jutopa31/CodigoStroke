@@ -7,6 +7,7 @@ import { getElapsedMinutes, formatElapsed, getWindowStatus, IV_WINDOW_MINUTES, O
 const MAX_SLIDER_MINUTES = 1440
 const IV_WINDOW_PERCENT = `${(IV_WINDOW_MINUTES / MAX_SLIDER_MINUTES) * 100}%`
 const OGV_WINDOW_PERCENT = `${(OGV_WINDOW_MINUTES / MAX_SLIDER_MINUTES) * 100}%`
+const INCIERTO_WINDOW_MINUTES = 540 // 9 horas
 
 
 function toLocalDateInput(date) {
@@ -56,9 +57,13 @@ export default function TimeStep({ onConfirm, isCollapsed = false }) {
   const timeStatusLabel = isOutOfWindow ? 'Fuera de ventana' : shouldEvaluateOgv ? 'Evaluar OGV' : 'Ventana IV activa'
 
   // Etiqueta dinámica de candidatura — cambia en tiempo real según elapsed e isIncierto
+  // < 4.5h (ambos modos)              → Candidato a Trombolisis
+  // 4.5h–9h + isIncierto              → Candidato a Trombolisis (ventana extendida)
+  // ≥ 4.5h clásico | ≥ 9h incierto   → Evaluar OGV
   const candidacyLabel = (() => {
-    if (elapsedMinutes >= IV_WINDOW_MINUTES) return 'Evaluar OGV'
-    return isIncierto ? 'Incierto' : 'Candidato a Trombolisis'
+    const enVentanaIV       = elapsedMinutes < IV_WINDOW_MINUTES
+    const enVentanaIncierta = isIncierto && elapsedMinutes < INCIERTO_WINDOW_MINUTES
+    return (enVentanaIV || enVentanaIncierta) ? 'Candidato a Trombolisis' : 'Evaluar OGV'
   })()
 
   // Es hoy o fecha anterior
@@ -147,61 +152,67 @@ export default function TimeStep({ onConfirm, isCollapsed = false }) {
     <StepCard step="2" title={stepTitle} accent={timeTone}>
       <div className={`rounded-xl border p-4 ${toneStyles.container}`}>
 
-        {/* Header: label + input de hora editable + elapsed + pill */}
-        <div className="flex items-center justify-between gap-2 mb-3">
+        {/* Header: label + input de hora editable + elapsed + pill
+            NOTA layout: el pill usa min-w fijo para que su texto variable
+            no desplace la hora al cambiar de ventana. */}
+        <div className="flex items-center gap-2 mb-3">
 
-          {/* Izquierda: ícono + label + hora editable */}
-          <div className="flex items-center gap-2 min-w-0 flex-wrap">
-            <label className={`text-[11px] font-semibold uppercase tracking-wider flex items-center gap-1.5 shrink-0 ${toneStyles.label}`}>
-              <Clock size={12} strokeWidth={2} />
-              {sliderLabel}
-            </label>
+          {/* Izquierda: ícono + label + hora — siempre en una sola línea, sin wrap */}
+          <label className={`text-[11px] font-semibold uppercase tracking-wider flex items-center gap-1.5 shrink-0 whitespace-nowrap ${toneStyles.label}`}>
+            <Clock size={12} strokeWidth={2} />
+            {sliderLabel}
+          </label>
 
-            {/* Bloque de hora editable */}
-            <div className="flex items-center gap-1">
-              {/* Fecha — solo si no es hoy */}
-              {!isToday && (
-                <input
-                  type="date"
-                  value={lastSeenDate}
-                  onChange={(e) => handleDateInput(e.target.value)}
-                  className={`text-[10px] font-medium rounded border bg-white/80 px-1.5 py-0.5 focus:outline-none focus:ring-1 cursor-pointer ${toneStyles.timeInput}`}
-                />
-              )}
+          {/* Bloque de hora editable — posición fija, no depende del ancho del pill */}
+          <div className="flex items-center gap-1 shrink-0">
+            {/* Fecha — solo si no es hoy */}
+            {!isToday && (
+              <input
+                type="date"
+                value={lastSeenDate}
+                onChange={(e) => handleDateInput(e.target.value)}
+                className={`text-[10px] font-medium rounded border bg-white/80 px-1.5 py-0.5 focus:outline-none focus:ring-1 cursor-pointer ${toneStyles.timeInput}`}
+              />
+            )}
 
-              {/* Hora — siempre visible, editable */}
-              <div className="relative flex items-center group">
-                <input
-                  type="time"
-                  value={lastSeenTime}
-                  onChange={(e) => handleTimeInput(e.target.value)}
-                  onFocus={() => setEditingTime(true)}
-                  onBlur={() => setEditingTime(false)}
-                  className={`text-sm font-bold tabular-nums rounded-lg border bg-white/80 px-2 py-0.5 focus:outline-none focus:ring-1 cursor-pointer transition-all ${toneStyles.timeInput} ${
-                    editingTime ? 'ring-1 shadow-sm' : 'hover:border-opacity-70'
-                  }`}
-                  style={{ colorScheme: 'light' }}
-                />
-                <Pencil
-                  size={9}
-                  strokeWidth={2}
-                  className={`absolute -right-3 transition-opacity ${toneStyles.label} ${editingTime ? 'opacity-0' : 'opacity-40 group-hover:opacity-70'}`}
-                />
-              </div>
+            {/* Hora — siempre visible, editable */}
+            <div className="relative flex items-center group">
+              <input
+                type="time"
+                value={lastSeenTime}
+                onChange={(e) => handleTimeInput(e.target.value)}
+                onFocus={() => setEditingTime(true)}
+                onBlur={() => setEditingTime(false)}
+                className={`text-sm font-bold tabular-nums rounded-lg border bg-white/80 px-2 py-0.5 focus:outline-none focus:ring-1 cursor-pointer transition-all ${toneStyles.timeInput} ${
+                  editingTime ? 'ring-1 shadow-sm' : 'hover:border-opacity-70'
+                }`}
+                style={{ colorScheme: 'light' }}
+              />
+              <Pencil
+                size={9}
+                strokeWidth={2}
+                className={`absolute -right-3 transition-opacity ${toneStyles.label} ${editingTime ? 'opacity-0' : 'opacity-40 group-hover:opacity-70'}`}
+              />
             </div>
           </div>
 
-          {/* Derecha: tiempo transcurrido + pill dinámica */}
+          {/* Separador flexible — empuja el bloque derecho al extremo */}
+          <div className="flex-1" />
+
+          {/* Derecha: tiempo transcurrido + pill con ancho mínimo fijo
+              min-w-[9rem] ≥ ancho de "Candidato a Trombolisis" para evitar
+              que el pill empuje la hora al cambiar de texto */}
           <div className="flex items-center gap-2 shrink-0">
             {lastSeen && (
               <span className={`text-sm font-bold tabular-nums ${toneStyles.elapsed}`}>
                 {formatElapsed(elapsedMinutes)}
               </span>
             )}
-            {/* Pill interactiva: muestra candidatura antes de confirmar, estado clínico tras confirmar */}
-            <StatusPill complete={confirmed}>
-              {confirmed ? timeStatusLabel : candidacyLabel}
-            </StatusPill>
+            <div className="min-w-[9rem] flex justify-end">
+              <StatusPill complete={confirmed}>
+                {confirmed ? timeStatusLabel : candidacyLabel}
+              </StatusPill>
+            </div>
           </div>
         </div>
 
