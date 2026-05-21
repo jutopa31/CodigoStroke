@@ -39,11 +39,11 @@ export default function AvisoModal({ isOpen, onClose }) {
   }, [isOpen])
 
   useEffect(() => {
-    if (done) {
+    if (done && isOpen) {
       const timeout = setTimeout(onClose, 400)
       return () => clearTimeout(timeout)
     }
-  }, [done, onClose])
+  }, [done, isOpen, onClose])
 
   if (!isOpen) return null
 
