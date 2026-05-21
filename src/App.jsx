@@ -11,6 +11,7 @@ import EducationalOverlay from './components/EducationalOverlay'
 import StartStep from './steps/StartStep'
 import PatientStep from './steps/PatientStep'
 import TimeStep from './steps/TimeStep'
+import VitalsStep from './steps/VitalsStep'
 import SymptomsNihssStep from './steps/SymptomsNihssStep'
 import CTResultStep from './steps/CTResultStep'
 import MRIResultStep from './steps/MRIResultStep'
@@ -20,7 +21,6 @@ import ThrombectomyStep from './steps/ThrombectomyStep'
 import TimestampPanel from './components/TimestampPanel'
 import AnticoagModal from './components/AnticoagModal'
 import AvisoModal from './components/AvisoModal'
-import VitalsModal from './components/VitalsModal'
 import { saveStrokeEvent, generatePatientId, saveSession } from './lib/storage'
 import { getNihssSeverity } from './content/nihss'
 import { sendStrokeAlert } from './lib/emailService'
@@ -39,7 +39,7 @@ const STEP = {
   DONE: 10,
 }
 
-const SIDEBAR_VALUES = [1, 3, 5, 6, 7, 8, 9]
+const SIDEBAR_VALUES = [1, 3, 4, 5, 6, 7, 8, 9]
 
 const MOCK_PATIENT = {
   name: 'Paciente Test',
@@ -166,7 +166,6 @@ export default function App() {
   const [showAnticoagModal, setShowAnticoagModal] = useState(false)
   const [showAvisoModal, setShowAvisoModal] = useState(false)
   const [showAlertModal, setShowAlertModal] = useState(false)
-  const [showVitalsModal, setShowVitalsModal] = useState(false)
   const [caseSaved, setCaseSaved] = useState(false)
 
   function advanceTo(nextStep) {
@@ -334,21 +333,9 @@ export default function App() {
     setShowAlertModal(true)
   }
 
-  function handleAlertConfirm() {
-    setShowAlertModal(false)
-    setShowVitalsModal(true)
-  }
-
-  function handleAlertClose() {
-    setShowAlertModal(false)
-    setStep(STEP.PATIENT)
-  }
-
-
-  async function handleVitalsModalConfirm(vitalsData) {
+  async function handleAlertConfirm() {
     const now = new Date()
-    setVitals(vitalsData)
-    setShowVitalsModal(false)
+    setShowAlertModal(false)
     setTimerStart(now)
     setStep(STEP.TIME)
     setActiveTab(STEP.TIME)
@@ -374,6 +361,17 @@ export default function App() {
       startTime: now.toISOString(),
       emailSent: true,
     })
+  }
+
+  function handleAlertClose() {
+    setShowAlertModal(false)
+    setStep(STEP.PATIENT)
+  }
+
+  function handleVitalsConfirm(vitalsData) {
+    setVitals(vitalsData)
+    advanceTo(STEP.NIHSS_SYMPTOMS)
+    setActiveTab(STEP.NIHSS_SYMPTOMS)
   }
 
   function handleCtRequest(time) {
@@ -432,8 +430,8 @@ export default function App() {
 
   function handleTimeConfirm(data) {
     setSymptoms((prev) => ({ ...prev, ...data }))
-    advanceTo(STEP.NIHSS_SYMPTOMS)
-    setActiveTab(STEP.NIHSS_SYMPTOMS)
+    advanceTo(STEP.VITALS)
+    setActiveTab(STEP.VITALS)
   }
 
   function handleSymptomsNihssConfirm(data) {
@@ -632,6 +630,7 @@ export default function App() {
     const path = [
       { step: STEP.PATIENT, target: 'top', label: 'Datos del paciente' },
       { step: STEP.TIME, target: 'time', label: 'Tiempo de sintomas' },
+      { step: STEP.VITALS, target: 'vitals', label: 'Signos vitales' },
       { step: STEP.NIHSS_SYMPTOMS, target: 'nihss', label: 'Sintomas / NIHSS' },
       { step: STEP.CT_RESULT, target: 'ctResult', label: symptoms?.isWakeUpStroke ? 'RMN de encefalo' : 'TAC de encefalo' },
     ]
@@ -655,6 +654,9 @@ export default function App() {
   function getNextMissingTarget() {
     if (!symptoms?.lastSeenNormal) {
       return { step: STEP.TIME, target: 'time', label: 'Completar tiempo de sintomas' }
+    }
+    if (!vitals) {
+      return { step: STEP.VITALS, target: 'vitals', label: 'Completar signos vitales' }
     }
     if (!nihss) {
       return { step: STEP.NIHSS_SYMPTOMS, target: 'nihss', label: 'Completar sintomas / NIHSS' }
@@ -698,7 +700,6 @@ export default function App() {
     const target = path[targetIndex]
 
     if (showAlertModal) setShowAlertModal(false)
-    if (showVitalsModal) setShowVitalsModal(false)
     if (showAnticoagModal) setShowAnticoagModal(false)
     if (showAvisoModal) setShowAvisoModal(false)
 
@@ -1028,6 +1029,9 @@ export default function App() {
       case STEP.TIME:
         if (step < STEP.TIME) return <LockedTabView />
         return <TimeStep onConfirm={handleTimeConfirm} isCollapsed={false} />
+      case STEP.VITALS:
+        if (step < STEP.VITALS) return <LockedTabView />
+        return <VitalsStep onConfirm={handleVitalsConfirm} isCollapsed={false} />
       case STEP.NIHSS_SYMPTOMS:
         if (step < STEP.NIHSS_SYMPTOMS) return <LockedTabView />
         return <SymptomsNihssStep onConfirm={handleSymptomsNihssConfirm} isCollapsed={false} />
@@ -1259,7 +1263,6 @@ export default function App() {
         )}
 
         {/* Modals */}
-        <VitalsModal isOpen={showVitalsModal} onConfirm={handleVitalsModalConfirm} />
         <AnticoagModal isOpen={showAnticoagModal} onConfirm={handleAnticoagConfirm} />
         <AvisoModal isOpen={showAvisoModal} onClose={handleAvisoClose} />
 

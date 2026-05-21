@@ -201,7 +201,7 @@ export default function SymptomsNihssStep({ onConfirm, isCollapsed = false }) {
 
   return (
     <div className="space-y-3">
-      <StepCard step="3" title="Síntomas / NIHSS" accent="orange">
+      <StepCard step="4" title="Síntomas / NIHSS" accent="orange">
 
         {/* Symptom pills */}
         <div className="flex flex-wrap gap-2 mb-4">
