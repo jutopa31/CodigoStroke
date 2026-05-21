@@ -21,7 +21,7 @@ import DosageStep from './steps/DosageStep'
 import ThrombectomyStep from './steps/ThrombectomyStep'
 import TimestampPanel from './components/TimestampPanel'
 import AvisoModal from './components/AvisoModal'
-import { saveStrokeEvent, generatePatientId, saveSession } from './lib/storage'
+import { saveStrokeEvent, generatePatientId, saveSession, syncPendingEvents } from './lib/storage'
 import ContactFAB from './components/ContactFAB'
 import { getNihssSeverity } from './content/nihss'
 import { sendStrokeAlert } from './lib/emailService'
@@ -178,6 +178,13 @@ export default function App() {
     setStep(STEP.PATIENT)
     setActiveTab(STEP.PATIENT)
   }
+
+  useEffect(() => {
+    syncPendingEvents()
+    const handleOnline = () => syncPendingEvents()
+    window.addEventListener('online', handleOnline)
+    return () => window.removeEventListener('online', handleOnline)
+  }, [])
 
   useEffect(() => {
     function activateMockComplete() {
