@@ -1,6 +1,12 @@
 import { useState, useEffect } from 'react'
-import { ChevronRight, ChevronDown, Info, ShieldCheck, AlertTriangle } from 'lucide-react'
+import { ChevronRight, ChevronDown, Info, ShieldCheck, AlertTriangle, ShieldAlert } from 'lucide-react'
 import StepCard, { CollapsedStep } from '../components/StepCard'
+
+const ANTICOAG_TYPES = [
+  { id: 'doac',         label: 'DOAC' },
+  { id: 'heparina',    label: 'Heparina' },
+  { id: 'acenocumarol',label: 'Acenocumarol' },
+]
 
 const RED_CONTRAS = [
   { id: 'prior_ich',         short: 'HIC previa o actual',        label: 'Hemorragia intracraneal previa o actual',       sub: 'Cualquier antecedente de HIC' },
@@ -93,29 +99,44 @@ function ContraRow({ item, value, onChange, color, expanded, onToggleExpand }) {
   )
 }
 
-export default function ContraindicationsStep({ onConfirm, isCollapsed = false }) {
+export default function ContraindicationsStep({ onConfirm, onAnticoagChange, isCollapsed = false, initialAnticoag = null }) {
   const [redAnswers, setRedAnswers]       = useState({})
   const [orangeAnswers, setOrangeAnswers] = useState({})
   const [expandedRow, setExpandedRow]     = useState(null)
   // 'red' = absolute view, 'orange' = relative view
   const [view, setView] = useState('red')
+  const [anticoag, setAnticoag] = useState(initialAnticoag ?? { active: null, type: '' })
 
   const hasRed    = Object.values(redAnswers).some(Boolean)
-  const hasOrange = Object.values(orangeAnswers).some(Boolean)
+  // anticoag activa cuenta como contraindicación relativa
+  const hasOrange = Object.values(orangeAnswers).some(Boolean) || anticoag.active === true
 
+  const anticoagAnswered = anticoag.active === false || (anticoag.active === true && anticoag.type !== '')
   const allRedAnswered    = RED_CONTRAS.every((c) => redAnswers[c.id]    !== undefined)
   const allOrangeAnswered = ORANGE_CONTRAS.every((c) => orangeAnswers[c.id] !== undefined)
-  const allAnswered       = allRedAnswered && allOrangeAnswered
+  const allAnswered       = allRedAnswered && allOrangeAnswered && anticoagAnswered
 
-  // Auto-advance red→orange when all answered with NO
+  function handleAnticoagAnswer(active) {
+    const next = { active, type: '' }
+    setAnticoag(next)
+    if (!active) onAnticoagChange?.({ active: false, type: '' })
+  }
+
+  function handleAnticoagType(typeId) {
+    const next = { active: true, type: typeId }
+    setAnticoag(next)
+    onAnticoagChange?.(next)
+  }
+
+  // Auto-advance red→orange when all red answered with NO and anticoag answered
   useEffect(() => {
-    if (view === 'red' && allRedAnswered && !hasRed) {
+    if (view === 'red' && allRedAnswered && !hasRed && anticoagAnswered) {
       const t = setTimeout(() => setView('orange'), 350)
       return () => clearTimeout(t)
     }
-  }, [view, allRedAnswered, hasRed])
+  }, [view, allRedAnswered, hasRed, anticoagAnswered])
 
-  // Auto-confirm on orange when all NO and no red either
+  // Auto-confirm on orange when all NO, no red, and no anticoag active
   useEffect(() => {
     if (view === 'orange' && allOrangeAnswered && !hasOrange && !hasRed) {
       const t = setTimeout(() => confirm(false), 350)
@@ -167,6 +188,75 @@ export default function ContraindicationsStep({ onConfirm, isCollapsed = false }
     return (
       <div className="px-4 pb-4">
         <StepCard step="6" title="Contraindicaciones absolutas" accent="blue">
+
+          {/* ── Anticoagulación — arriba, separada ───────────────────────── */}
+          <div className="mb-4 pb-4 border-b-2 border-dashed border-neutral-200">
+            <div className="flex items-center gap-2 mb-2.5">
+              <ShieldAlert size={14} className="text-brand-600 shrink-0" />
+              <p className="text-xs font-bold text-neutral-600 uppercase tracking-wide">Anticoagulación</p>
+            </div>
+            <p className="text-xs text-neutral-600 mb-2.5">¿El paciente recibe anticoagulación?</p>
+
+            <div className="flex shrink-0 rounded-lg overflow-hidden border border-neutral-200 text-[11px] font-bold w-fit mb-2.5">
+              <button
+                type="button"
+                onClick={() => handleAnticoagAnswer(false)}
+                className={`px-4 py-2 transition-all active:scale-95 ${
+                  anticoag.active === false ? 'bg-slate-600 text-white' : 'bg-white text-neutral-400 hover:bg-neutral-50'
+                }`}
+              >
+                NO
+              </button>
+              <div className="w-px bg-neutral-200 shrink-0" />
+              <button
+                type="button"
+                onClick={() => handleAnticoagAnswer(true)}
+                className={`px-4 py-2 transition-all active:scale-95 ${
+                  anticoag.active === true ? 'bg-amber-500 text-white' : 'bg-white text-neutral-400 hover:bg-neutral-50'
+                }`}
+              >
+                SÍ
+              </button>
+            </div>
+
+            {anticoag.active === true && (
+              <div className="space-y-2 animate-fade-in">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-500">Tipo — toca para confirmar</p>
+                <div className="grid grid-cols-3 gap-2">
+                  {ANTICOAG_TYPES.map(({ id, label }) => (
+                    <button
+                      key={id}
+                      type="button"
+                      onClick={() => handleAnticoagType(id)}
+                      className={`flex items-center justify-center rounded-xl border py-2.5 text-xs font-semibold transition-all active:scale-[0.97] ${
+                        anticoag.type === id
+                          ? 'border-amber-400 bg-amber-100 text-amber-800'
+                          : 'border-amber-200 bg-amber-50/60 text-amber-800 hover:bg-amber-100'
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+                {anticoag.type && (
+                  <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5 flex items-start gap-2 animate-fade-in">
+                    <AlertTriangle size={13} className="shrink-0 mt-0.5 text-amber-600" />
+                    <p className="text-xs text-amber-700 leading-snug">
+                      Contraindicación relativa. Esperar laboratorio según droga.
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {anticoag.active === false && (
+              <div className="rounded-xl border border-emerald-100 bg-emerald-50/60 px-3 py-2 animate-fade-in">
+                <p className="text-xs text-emerald-600">Sin anticoagulación activa.</p>
+              </div>
+            )}
+          </div>
+          {/* ─────────────────────────────────────────────────────────────── */}
+
           {/* Progress indicator */}
           <div className="flex items-center gap-2 mb-3">
             <div className="flex gap-1.5">
@@ -180,7 +270,7 @@ export default function ContraindicationsStep({ onConfirm, isCollapsed = false }
           <button
             type="button"
             onClick={() => setView('orange')}
-            disabled={!allRedAnswered}
+            disabled={!allRedAnswered || !anticoagAnswered}
             className="w-full flex items-center justify-center gap-2 mb-3 py-3 rounded-xl font-semibold text-sm transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed bg-brand-600 hover:bg-brand-700 text-white"
           >
             Continuar — relativas <ChevronRight size={16} />
@@ -287,6 +377,16 @@ export default function ContraindicationsStep({ onConfirm, isCollapsed = false }
             </button>
           )}
         </div>
+
+        {/* Anticoag summary chip */}
+        {anticoag.active === true && anticoag.type && (
+          <div className="flex items-center gap-2 mb-3 px-3 py-2 rounded-xl bg-amber-50 border border-amber-200">
+            <ShieldAlert size={13} className="text-amber-600 shrink-0" />
+            <p className="text-xs font-semibold text-amber-700">
+              Anticoagulación activa: {ANTICOAG_TYPES.find(t => t.id === anticoag.type)?.label ?? anticoag.type}
+            </p>
+          </div>
+        )}
 
         {hasRed && (
           <div className="flex items-center gap-2 mb-3 px-3 py-2 rounded-xl bg-blue-900/10 border border-blue-800/30">

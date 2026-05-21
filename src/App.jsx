@@ -20,7 +20,6 @@ import ContraindicationsStep from './steps/ContraindicationsStep'
 import DosageStep from './steps/DosageStep'
 import ThrombectomyStep from './steps/ThrombectomyStep'
 import TimestampPanel from './components/TimestampPanel'
-import AnticoagModal from './components/AnticoagModal'
 import AvisoModal from './components/AvisoModal'
 import { saveStrokeEvent, generatePatientId, saveSession } from './lib/storage'
 import { getNihssSeverity } from './content/nihss'
@@ -166,7 +165,6 @@ export default function App() {
   const [vitalsReadings, setVitalsReadings] = useState([])
   const [glucoseReadings, setGlucoseReadings] = useState([])
   const [showOutOfWindow, setShowOutOfWindow] = useState(false)
-  const [showAnticoagModal, setShowAnticoagModal] = useState(false)
   const [showAvisoModal, setShowAvisoModal] = useState(false)
   const [showAlertModal, setShowAlertModal] = useState(false)
   const [caseSaved, setCaseSaved] = useState(false)
@@ -441,27 +439,14 @@ export default function App() {
     const nihssData = { nihssScore: data.nihssScore, hasDisablingSymptoms: data.hasDisablingSymptoms }
     setNihss(nihssData)
     setSymptoms((prev) => ({ ...prev, symptoms: data.symptoms, modifiedRankinScale: data.modifiedRankinScale }))
-    setShowAnticoagModal(true)
-  }
-
-  function handleAnticoagConfirm(anticoag) {
-    setSymptoms((prev) => ({ ...prev, anticoagulation: anticoag }))
-    setShowAnticoagModal(false)
-    const nihssScore = nihss?.nihssScore ?? 0
-    const hasDisabling = nihss?.hasDisablingSymptoms ?? false
-    const indicated = nihssScore >= 5 || hasDisabling
-    if (indicated) {
-      setShowAvisoModal(true)
-    } else {
-      advanceTo(STEP.CT_RESULT)
-      setActiveTab(STEP.CT_RESULT)
-    }
+    advanceTo(STEP.CT_RESULT)
+    setActiveTab(STEP.CT_RESULT)
   }
 
   function handleAvisoClose() {
     setShowAvisoModal(false)
-    advanceTo(STEP.CT_RESULT)
-    setActiveTab(STEP.CT_RESULT)
+    advanceTo(STEP.DOSAGE)
+    setActiveTab(STEP.DOSAGE)
   }
 
   function handleCtResultConfirm(data) {
@@ -484,7 +469,7 @@ export default function App() {
 
   function handleMRIResultConfirm(data) {
     setCtResult(data)
-    if (data.mismatch && !symptoms?.anticoagulation?.active) {
+    if (data.mismatch) {
       advanceTo(STEP.CONTRAINDICATIONS)
       setActiveTab(STEP.CONTRAINDICATIONS)
     } else {
@@ -499,8 +484,8 @@ export default function App() {
       advanceTo(STEP.THROMBECTOMY)
       setActiveTab(STEP.THROMBECTOMY)
     } else {
-      advanceTo(STEP.DOSAGE)
-      setActiveTab(STEP.DOSAGE)
+      // Contraindicaciones descartadas → indicación de trombolisis confirmada
+      setShowAvisoModal(true)
     }
   }
 
@@ -627,7 +612,7 @@ export default function App() {
     symptoms?.isWakeUpStroke
       ? ctResult?.mismatch === true
       : (nihss?.nihssScore >= 5 || nihss?.hasDisablingSymptoms === true)
-  ) && !symptoms?.anticoagulation?.active
+  )
 
   function getProtocolPath() {
     const path = [
@@ -663,9 +648,6 @@ export default function App() {
     }
     if (!nihss) {
       return { step: STEP.NIHSS_SYMPTOMS, target: 'nihss', label: 'Completar sintomas / NIHSS' }
-    }
-    if (!symptoms?.anticoagulation) {
-      return { step: STEP.NIHSS_SYMPTOMS, target: 'nihss', label: 'Completar anticoagulacion' }
     }
     if (!ctResult) {
       return { step: STEP.CT_RESULT, target: 'ctResult', label: symptoms?.isWakeUpStroke ? 'Completar RMN' : 'Completar TAC' }
@@ -703,7 +685,6 @@ export default function App() {
     const target = path[targetIndex]
 
     if (showAlertModal) setShowAlertModal(false)
-    if (showAnticoagModal) setShowAnticoagModal(false)
     if (showAvisoModal) setShowAvisoModal(false)
 
     setActiveTab(target.step)
@@ -1053,7 +1034,14 @@ export default function App() {
           )
       case STEP.CONTRAINDICATIONS:
         if (step < STEP.CONTRAINDICATIONS || !thrombolysisPathActive) return <LockedTabView />
-        return <ContraindicationsStep onConfirm={handleContraindicationsConfirm} isCollapsed={false} />
+        return (
+          <ContraindicationsStep
+            onConfirm={handleContraindicationsConfirm}
+            onAnticoagChange={(anticoag) => setSymptoms((prev) => ({ ...prev, anticoagulation: anticoag }))}
+            initialAnticoag={symptoms?.anticoagulation ?? null}
+            isCollapsed={false}
+          />
+        )
       case STEP.DOSAGE:
         if (step < STEP.DOSAGE || !thrombolysisPathActive || contraindications?.hasAbsolute || contraindications?.decidedNotToThrombolyze) return <LockedTabView />
         return (
@@ -1267,7 +1255,6 @@ export default function App() {
         )}
 
         {/* Modals */}
-        <AnticoagModal isOpen={showAnticoagModal} onConfirm={handleAnticoagConfirm} />
         <AvisoModal isOpen={showAvisoModal} onClose={handleAvisoClose} />
 
         {showAlertModal && patient && (
