@@ -342,22 +342,13 @@ export default function ContraindicationsStep({ onConfirm, onAnticoagChange, isC
         {/* Submit actions — top so no scroll needed */}
         <div className="mb-3 space-y-2">
           {hasOrange && !hasRed ? (
-            <>
-              <button
-                type="button"
-                onClick={() => setShowRelativeWarning(true)}
-                className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-semibold py-3 rounded-xl transition-all text-sm"
-              >
-                Continuar <ChevronRight size={16} />
-              </button>
-              <button
-                type="button"
-                onClick={() => confirm(true)}
-                className="w-full flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-800 active:scale-95 text-white font-semibold py-3 rounded-xl transition-all text-sm"
-              >
-                No trombolizar — Evaluar OGV <ChevronRight size={16} />
-              </button>
-            </>
+            <button
+              type="button"
+              onClick={() => setShowRelativeWarning(true)}
+              className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-semibold py-3 rounded-xl transition-all text-sm"
+            >
+              Continuar <ChevronRight size={16} />
+            </button>
           ) : allOrangeAnswered ? (
             <button
               type="button"
@@ -489,7 +480,13 @@ export default function ContraindicationsStep({ onConfirm, onAnticoagChange, isC
               onClick={() => { setShowRelativeWarning(false); confirm(false) }}
               className="flex w-full items-center justify-center gap-2 rounded-xl bg-amber-500 px-4 py-3 text-sm font-semibold text-white transition-all hover:bg-amber-600 active:scale-[0.98]"
             >
-              Realizado — continuar con precaución
+              Trombolisis <ChevronRight size={16} />
+            </button>
+            <button
+              onClick={() => { setShowRelativeWarning(false); confirm(true) }}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-700 px-4 py-3 text-sm font-semibold text-white transition-all hover:bg-slate-800 active:scale-[0.98]"
+            >
+              No Trombolisis — buscar OGV <ChevronRight size={16} />
             </button>
             <button
               onClick={() => setShowRelativeWarning(false)}
