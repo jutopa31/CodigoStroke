@@ -341,35 +341,31 @@ export default function ContraindicationsStep({ onConfirm, onAnticoagChange, isC
 
         {/* Submit actions — top so no scroll needed */}
         <div className="mb-3 space-y-2">
-          {allOrangeAnswered ? (
+          {hasOrange && !hasRed ? (
             <>
-              {hasOrange && !hasRed ? (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => setShowRelativeWarning(true)}
-                    className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-semibold py-3 rounded-xl transition-all text-sm"
-                  >
-                    Continuar <ChevronRight size={16} />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => confirm(true)}
-                    className="w-full flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-800 active:scale-95 text-white font-semibold py-3 rounded-xl transition-all text-sm"
-                  >
-                    No trombolizar — Evaluar OGV <ChevronRight size={16} />
-                  </button>
-                </>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => confirm(hasRed)}
-                  className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-semibold py-3 rounded-xl transition-all text-sm"
-                >
-                  {hasRed ? 'Registrar — Evaluar OGV' : 'Registrar y continuar'} <ChevronRight size={16} />
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={() => setShowRelativeWarning(true)}
+                className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-semibold py-3 rounded-xl transition-all text-sm"
+              >
+                Continuar <ChevronRight size={16} />
+              </button>
+              <button
+                type="button"
+                onClick={() => confirm(true)}
+                className="w-full flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-800 active:scale-95 text-white font-semibold py-3 rounded-xl transition-all text-sm"
+              >
+                No trombolizar — Evaluar OGV <ChevronRight size={16} />
+              </button>
             </>
+          ) : allOrangeAnswered ? (
+            <button
+              type="button"
+              onClick={() => confirm(hasRed)}
+              className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-semibold py-3 rounded-xl transition-all text-sm"
+            >
+              {hasRed ? 'Registrar — Evaluar OGV' : 'Registrar y continuar'} <ChevronRight size={16} />
+            </button>
           ) : (
             <button
               type="button"
