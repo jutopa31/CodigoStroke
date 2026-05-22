@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import { ChevronRight, ChevronDown, Info, ShieldCheck, AlertTriangle, ShieldAlert } from 'lucide-react'
+import { createPortal } from 'react-dom'
+import { ChevronRight, ChevronDown, Info, ShieldCheck, AlertTriangle, ShieldAlert, X } from 'lucide-react'
 import StepCard, { CollapsedStep } from '../components/StepCard'
 
 const ANTICOAG_TYPES = [
@@ -106,6 +107,7 @@ export default function ContraindicationsStep({ onConfirm, onAnticoagChange, isC
   // 'red' = absolute view, 'orange' = relative view
   const [view, setView] = useState('red')
   const [anticoag, setAnticoag] = useState(initialAnticoag ?? { active: null, type: '' })
+  const [showRelativeWarning, setShowRelativeWarning] = useState(false)
 
   const hasRed    = Object.values(redAnswers).some(Boolean)
   // anticoag activa cuenta como contraindicación relativa
@@ -316,6 +318,7 @@ export default function ContraindicationsStep({ onConfirm, onAnticoagChange, isC
 
   // ── VIEW: Relative contraindications ──────────────────────────────────────
   return (
+  <>
     <div className="px-4 pb-4">
       <StepCard step="" title="Contraindicaciones relativas" accent="orange">
         {/* Progress + back */}
@@ -344,10 +347,10 @@ export default function ContraindicationsStep({ onConfirm, onAnticoagChange, isC
                 <>
                   <button
                     type="button"
-                    onClick={() => confirm(false)}
-                    className="w-full flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-600 active:scale-95 text-white font-semibold py-3 rounded-xl transition-all text-sm"
+                    onClick={() => setShowRelativeWarning(true)}
+                    className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-semibold py-3 rounded-xl transition-all text-sm"
                   >
-                    Trombolizar con precaución <ChevronRight size={16} />
+                    Continuar <ChevronRight size={16} />
                   </button>
                   <button
                     type="button"
@@ -430,5 +433,79 @@ export default function ContraindicationsStep({ onConfirm, onAnticoagChange, isC
         )}
       </StepCard>
     </div>
+
+    {/* ── Relative contraindication warning modal ──────────────────────── */}
+    {showRelativeWarning && createPortal(
+      <div
+        className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm sm:items-center"
+        onClick={() => setShowRelativeWarning(false)}
+      >
+        <div
+          className="w-full max-w-sm rounded-t-3xl bg-white shadow-modal animate-slide-up sm:rounded-2xl"
+          onClick={e => e.stopPropagation()}
+        >
+          {/* Header */}
+          <div className="flex items-start justify-between border-b border-amber-100 bg-amber-50 px-5 py-4 rounded-t-3xl sm:rounded-t-2xl">
+            <div className="flex items-start gap-3">
+              <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-100">
+                <AlertTriangle size={16} className="text-amber-600" />
+              </div>
+              <div>
+                <h2 className="text-sm font-bold text-amber-800">Contraindicación relativa</h2>
+                <p className="mt-0.5 text-xs text-amber-600">Confirmar interconsulta antes de continuar</p>
+              </div>
+            </div>
+            <button
+              onClick={() => setShowRelativeWarning(false)}
+              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-amber-400 hover:bg-amber-100"
+            >
+              <X size={15} />
+            </button>
+          </div>
+
+          {/* Active contraindications list */}
+          <div className="px-5 py-4 space-y-2">
+            <p className="text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-3">
+              Contraindicaciones presentes
+            </p>
+            {anticoag.active === true && anticoag.type && (
+              <div className="flex items-center gap-2 rounded-xl bg-amber-50 border border-amber-200 px-3 py-2">
+                <ShieldAlert size={13} className="text-amber-600 shrink-0" />
+                <p className="text-xs font-medium text-amber-800">
+                  Anticoagulación activa: {ANTICOAG_TYPES.find(t => t.id === anticoag.type)?.label ?? anticoag.type}
+                </p>
+              </div>
+            )}
+            {ORANGE_CONTRAS.filter(c => orangeAnswers[c.id] === true).map(c => (
+              <div key={c.id} className="flex items-center gap-2 rounded-xl bg-amber-50 border border-amber-200 px-3 py-2">
+                <AlertTriangle size={13} className="text-amber-600 shrink-0" />
+                <p className="text-xs font-medium text-amber-800">{c.label}</p>
+              </div>
+            ))}
+            <p className="pt-2 text-xs text-neutral-500 leading-relaxed">
+              Se recomienda realizar una interconsulta con el especialista correspondiente y valorar riesgo/beneficio individual antes de proceder con la trombolisis.
+            </p>
+          </div>
+
+          {/* Actions */}
+          <div className="border-t border-neutral-100 px-5 pb-6 pt-4 space-y-2">
+            <button
+              onClick={() => { setShowRelativeWarning(false); confirm(false) }}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-amber-500 px-4 py-3 text-sm font-semibold text-white transition-all hover:bg-amber-600 active:scale-[0.98]"
+            >
+              Realizado — continuar con precaución
+            </button>
+            <button
+              onClick={() => setShowRelativeWarning(false)}
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm font-semibold text-neutral-700 transition-all hover:bg-neutral-50 active:scale-[0.98]"
+            >
+              Atrás
+            </button>
+          </div>
+        </div>
+      </div>,
+      document.body
+    )}
+  </>
   )
 }
