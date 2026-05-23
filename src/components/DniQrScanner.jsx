@@ -118,7 +118,8 @@ export default function DniQrScanner({ onScan, onClose }) {
             if (scannedRef.current) return
             const result = parseDniQr(decodedText)
             if (!result) {
-              setError('Código no reconocido como DNI. Escaneá el PDF417 o QR del frente.')
+              // DEBUG TEMPORAL: muestra los primeros 80 chars para entender el formato
+              setError(`Formato no reconocido. Raw: "${decodedText.slice(0, 80)}"`)
               return
             }
             scannedRef.current = true
