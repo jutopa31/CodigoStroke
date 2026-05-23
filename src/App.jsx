@@ -451,6 +451,7 @@ export default function App() {
       startTime: timerStart?.toISOString(),
       thrombolyticStartTime: data.thrombolyticStartTime,
     })
+    setActiveTab('cuidados')
   }
 
   function handleThrombolyticStart(time) {
@@ -692,6 +693,7 @@ export default function App() {
             vitalsReadings={vitalsReadings}
             onAddNihss={handleAddNihss}
             onAddVitals={handleAddVitals}
+            onContinue={() => setActiveTab('trombectomia')}
           />
         )
       default:
@@ -735,7 +737,7 @@ export default function App() {
       />
 
       {/* Body below header */}
-      <div className="flex-1 flex flex-col overflow-hidden pt-14">
+      <div className="flex-1 flex flex-col overflow-hidden" style={{ paddingTop: 'calc(3.5rem + env(safe-area-inset-top, 0px))' }}>
 
         {/* TabBar — colored band */}
         <div className="shrink-0 bg-brand-600">

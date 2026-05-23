@@ -14,8 +14,8 @@ const PHASE1_TABS = [
 const PHASE2_TABS = [
   { id: 'decision',      label: 'Decisión',   Icon: CheckCircle2 },
   { id: 'trombolisis',   label: 'Trombol.',   Icon: Syringe },
-  { id: 'trombectomia',  label: 'Trombect.',  Icon: Zap },
   { id: 'cuidados',      label: 'Cuidados',   Icon: Heart },
+  { id: 'trombectomia',  label: 'Trombect.',  Icon: Zap },
 ]
 
 // ─── Single tab item ─────────────────────────────────────────────────────────
