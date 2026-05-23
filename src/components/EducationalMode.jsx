@@ -15,24 +15,37 @@ const MRS_LEVELS = [
 
 // ─── Contraindications data ──────────────────────────────────────────────────
 const RED_CONTRAS = [
-  { label: 'Hemorragia intracraneal previa o actual', sub: 'Cualquier antecedente de HIC', detail: 'Incluye HIC espontánea, hemorrágica por transformación, y trauma. Contraindicación absoluta sin excepciones.' },
-  { label: 'Infarto extenso en TC', sub: 'ASPECTS < 3 o más de 1/3 del territorio de ACM', detail: 'El ASPECTS evalúa 10 regiones del territorio de ACM. Puntaje < 3 indica infarto muy extenso con alto riesgo de transformación hemorrágica.' },
-  { label: 'TCE grave o cirugía intracraneal reciente', sub: 'En los últimos 3 meses', detail: 'Incluye cirugía craneal, raquimedular o trauma cefálico grave en las últimas 12 semanas.' },
-  { label: 'Tumor intra-axial', sub: 'Neoplasia cerebral intraparenquimatosa', detail: 'Los tumores extra-axiales (meningiomas) requieren evaluación individual; los intra-axiales son contraindicación absoluta.' },
-  { label: 'Coagulopatía severa', sub: 'RIN > 1.7 / KPTT > 40 / Plaquetas < 100.000', detail: 'Cualquiera de estos valores por sí solo es suficiente para contraindicar. Verificar resultados recientes (< 1h si es posible).' },
-  { label: 'Disección aórtica', sub: 'Sospecha o confirmada', detail: 'La trombolisis sistémica puede extender una disección aórtica y ser fatal. Ante sospecha clínica (dolor torácico/dorsal + déficit neurológico), contraindicar.' },
+  { label: 'TC con hipodensidad extensa', sub: 'Hipodensidad clara mayor que la sustancia blanca contralateral', detail: 'La hipodensidad debe ser responsable de los síntomas clínicos del ACV. La densidad de la hipodensidad debe ser menor que la de la sustancia blanca contralateral no afectada.' },
+  { label: 'TC con hemorragia intracraneal aguda', sub: '', detail: 'Cualquier hemorragia intracraneal aguda visible en neuroimagen es contraindicación absoluta para trombolisis IV.' },
+  { label: 'TCE moderado a grave en los últimos 14 días', sub: '> 30 min de inconsciencia y GCS < 13, O hemorragia/contusión/fractura en neuroimagen', detail: 'Incluye pérdida de consciencia > 30 minutos con GCS < 13, o evidencia de hemorragia, contusión o fractura de cráneo en neuroimagen.' },
+  { label: 'Neurocirugía o cirugía espinal en los últimos 14 días', sub: '', detail: 'Cirugía intracraneal o raquimedular dentro de los 14 días previos. Potencialmente dañina y no debe administrarse.' },
+  { label: 'Lesión medular aguda en los últimos 3 meses', sub: '', detail: 'La trombolisis IV es probablemente contraindicada en lesión medular aguda dentro de los 3 meses previos.' },
+  { label: 'Neoplasia intracraneal intra-axial', sub: '', detail: 'Los tumores extra-axiales (meningiomas) requieren evaluación individual; los intra-axiales son contraindicación absoluta.' },
   { label: 'Endocarditis infecciosa activa', sub: '', detail: 'Alto riesgo de embolias sépticas y transformación hemorrágica. Evaluar trombectomía mecánica como alternativa.' },
+  { label: 'Coagulopatía severa o trombocitopenia', sub: 'Plaquetas < 100.000/mm³ / RIN > 1.7 / KPTT > 40s / TP > 15s', detail: 'Cualquiera de estos valores por sí solo es suficiente para contraindicar. En pacientes sin warfarina ni heparina reciente puede iniciarse antes de tener los resultados, pero suspender si se alteran.' },
+  { label: 'Disección de arco aórtico conocida o sospechada', sub: '', detail: 'La trombolisis sistémica puede extender una disección aórtica y ser fatal. Ante sospecha clínica (dolor torácico/dorsal + déficit neurológico), contraindicar.' },
+  { label: 'ARIA (Anomalías de imagen relacionadas con amiloide)', sub: 'Inmunoterapia anti-amiloide o ARIA conocida', detail: 'El riesgo de HIC relacionada con trombolisis en pacientes con inmunoterapia anti-amiloide o ARIA es desconocido. Debe evitarse la trombolisis IV.' },
 ]
 
 const ORANGE_CONTRAS = [
-  { label: 'ACV isquémico en los últimos 3 meses', sub: '', detail: 'Riesgo aumentado de transformación hemorrágica del infarto previo. Evaluar extensión del infarto antiguo vs beneficio.' },
-  { label: 'Cirugía mayor o trauma grave reciente', sub: 'En las últimas 2 semanas', detail: 'El riesgo de sangrado en el sitio quirúrgico debe sopesarse contra el beneficio de la trombolisis.' },
-  { label: 'ACODs en las últimas 48h', sub: 'Apixaban, rivaroxaban, dabigatran, edoxaban', detail: 'Si hay niveles terapéuticos detectables, contraindicación relativa. Si < 48h y función renal normal, evaluar con laboratorio. Idarucizumab puede revertir dabigatran.' },
-  { label: 'Sangrado GI/GU reciente', sub: 'En los últimos 21 días', detail: 'Consultar endoscopía/urología para evaluar riesgo activo de resangrado.' },
-  { label: 'Punción arterial reciente en sitio no compresible', sub: '', detail: 'Ej: arteria subclavia o femoral proximal. El sitio femoral estándar es compresible y no es contraindicación.' },
-  { label: 'MAV conocida', sub: 'Malformación arteriovenosa', detail: 'Riesgo de ruptura de la MAV con la trombolisis. Evaluar individualmente según localización y morfología.' },
-  { label: 'Aneurisma no roto conocido > 10 mm', sub: '', detail: 'Los aneurismas pequeños (< 10 mm) tienen evidencia más permisiva. Los grandes requieren evaluación neuroquirúrgica si el tiempo lo permite.' },
-  { label: 'Disección arterial intracraneal', sub: '', detail: 'Riesgo de extensión y transformación hemorrágica. Preferir anticoagulación o trombectomía según anatomía.' },
+  { label: 'Discapacidad preexistente o fragilidad', sub: '', detail: 'El riesgo/beneficio de la trombolisis en pacientes con discapacidad o fragilidad preexistente es incierto. Determinar en forma individual.' },
+  { label: 'Exposición a DOAC en las últimas 48h', sub: 'Apixaban, rivaroxaban, dabigatran, edoxaban', detail: 'Considerar tiempo desde última dosis, función renal, severidad del ACV y disponibilidad de agentes revertidores. Ensayos clínicos definitivos son necesarios.' },
+  { label: 'ACV isquémico en los últimos 3 meses', sub: '', detail: 'Riesgo aumentado de transformación hemorrágica del infarto previo. Evaluar extensión del infarto antiguo, tiempo transcurrido y severidad del déficit actual.' },
+  { label: 'Hemorragia intracraneal previa', sub: '', detail: 'Mayor riesgo de hemorragia sintomática. Pacientes con angiopatía amiloide tienen mayor riesgo. En HIC por causas modificables (HTA, coagulopatía), puede haber mayor beneficio que riesgo. Determinar individualmente.' },
+  { label: 'Trauma mayor no-SNC entre 14 días y 3 meses', sub: '', detail: 'Mayor riesgo de hemorragia sistémica grave. Considerar áreas comprometidas y consultar con especialista quirúrgico.' },
+  { label: 'Cirugía mayor no-SNC en los últimos 10 días', sub: '', detail: 'Mayor riesgo de daño por trombolisis IV. Considerar área quirúrgica y consultar con especialista.' },
+  { label: 'Sangrado GI/GU en los últimos 21 días', sub: '', detail: 'Consultar GI/GU para evaluar si el sangrado fue tratado y el riesgo modificado.' },
+  { label: 'Disección arterial intracraneal', sub: '', detail: 'La seguridad de la trombolisis IV en disección intracraneal es desconocida.' },
+  { label: 'Malformación vascular intracraneal conocida', sub: 'MAV, aneurisma no tratado', detail: 'La seguridad de la trombolisis IV en presencia de una malformación vascular intracraneal no rota y no tratada es desconocida.' },
+  { label: 'STEMI reciente en los últimos 3 meses', sub: '', detail: 'Considerar hemopericardio en STEMI muy reciente. Para STEMI + ACV agudo, tratar con dosis para isquemia cerebral y consultar cardiología de urgencia.' },
+  { label: 'Pericarditis aguda', sub: '', detail: 'Puede ser razonable en ACV mayor con discapacidad severa. Consultar cardiología de urgencia.' },
+  { label: 'Trombo auricular o ventricular izquierdo conocido', sub: '', detail: 'Puede ser razonable en ACV mayor con discapacidad severa. Consultar cardiología de urgencia.' },
+  { label: 'Neoplasia sistémica activa', sub: '', detail: 'Considerar tipo, estadio y complicaciones activas del cáncer. Consultar oncología de urgencia para análisis riesgo/beneficio.' },
+  { label: 'Embarazo o período posparto', sub: '', detail: 'Puede considerarse si el beneficio supera el riesgo de sangrado uterino en ACV moderado o grave. Consultar obstetricia de urgencia.' },
+  { label: 'Punción dural en los últimos 7 días', sub: '', detail: 'Puede considerarse incluso si hubo punción lumbar en los 7 días previos.' },
+  { label: 'Punción arterial en vaso no compresible en los últimos 7 días', sub: 'Ej: arteria subclavia', detail: 'La seguridad de la trombolisis IV es desconocida en este contexto.' },
+  { label: 'TCE moderado a grave entre 14 días y 3 meses', sub: '', detail: 'Considerar tipo y severidad del trauma. Consultar con neurocirugía y cuidados neurocríticos.' },
+  { label: 'Neurocirugía o cirugía espinal entre 14 días y 3 meses', sub: '', detail: 'Puede considerarse en forma individual.' },
 ]
 
 // ─── Sections config ─────────────────────────────────────────────────────────

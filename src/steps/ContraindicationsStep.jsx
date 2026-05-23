@@ -10,24 +10,37 @@ const ANTICOAG_TYPES = [
 ]
 
 const RED_CONTRAS = [
-  { id: 'prior_ich',         short: 'HIC previa o actual',        label: 'Hemorragia intracraneal previa o actual',       sub: 'Cualquier antecedente de HIC' },
-  { id: 'large_infarct',    short: 'Infarto extenso TC',          label: 'Infarto extenso en TC',                        sub: 'ASPECTS < 3 o mas de 1/3 del territorio de ACM' },
-  { id: 'tce',              short: 'TCE / cirugía reciente',      label: 'TCE grave o cirugia intracraneal reciente',    sub: 'En los ultimos 3 meses' },
-  { id: 'axial_tumor',      short: 'Tumor intra-axial',           label: 'Tumor intra-axial',                            sub: 'Neoplasia cerebral intraparenquimatosa' },
-  { id: 'coagulopathy',     short: 'Coagulopatia severa',         label: 'Coagulopatia severa',                          sub: 'RIN > 1.7 / KPTT > 40 / Plaquetas < 100.000' },
-  { id: 'aortic_dissection',short: 'Diseccion aortica',           label: 'Diseccion aortica',                            sub: 'Sospecha o confirmada' },
-  { id: 'endocarditis',     short: 'Endocarditis activa',         label: 'Endocarditis infecciosa activa',               sub: '' },
+  { id: 'ct_hypodensity',   short: 'TC: hipodensidad extensa',    label: 'TC con hipodensidad extensa',                  sub: 'Hipodensidad clara responsable de los sintomas, mayor que la sustancia blanca contralateral' },
+  { id: 'ct_hemorrhage',    short: 'TC: hemorragia intracraneal', label: 'TC con hemorragia intracraneal aguda',          sub: 'Cualquier hemorragia intracraneal aguda en neuroimagen' },
+  { id: 'tce_14d',          short: 'TCE moderado-grave < 14 dias',label: 'TCE moderado a grave en los ultimos 14 dias',  sub: '> 30 min de perdida de consciencia y GCS < 13, O hemorragia/contusion/fractura en neuroimagen' },
+  { id: 'neurosurgery_14d', short: 'Neurocirugia < 14 dias',      label: 'Neurocirugia o cirugia espinal en los ultimos 14 dias', sub: 'Cirugia intracraneal o raquimedular reciente' },
+  { id: 'spinal_cord',      short: 'Lesion medular aguda < 3m',   label: 'Lesion medular aguda en los ultimos 3 meses',  sub: '' },
+  { id: 'axial_tumor',      short: 'Neoplasia intra-axial',       label: 'Neoplasia intracraneal intra-axial',           sub: '' },
+  { id: 'endocarditis',     short: 'Endocarditis infecciosa',     label: 'Endocarditis infecciosa activa',               sub: '' },
+  { id: 'coagulopathy',     short: 'Coagulopatia severa',         label: 'Coagulopatia severa o trombocitopenia',        sub: 'Plaquetas < 100.000/mm³ / RIN > 1.7 / KPTT > 40s / TP > 15s' },
+  { id: 'aortic_dissection',short: 'Diseccion de arco aortico',   label: 'Diseccion de arco aortico conocida o sospechada', sub: '' },
+  { id: 'aria',             short: 'ARIA',                        label: 'Anomalias de imagen relacionadas con amiloide (ARIA)', sub: 'Inmunoterapia anti-amiloide o ARIA conocida. Evitar trombolisis IV.' },
 ]
 
 const ORANGE_CONTRAS = [
-  { id: 'prev_stroke',       short: 'ACV isquemico < 3 meses',    label: 'ACV isquemico en los ultimos 3 meses',         sub: '' },
-  { id: 'major_surgery',    short: 'Cirugia mayor < 2 semanas',   label: 'Cirugia mayor o trauma grave reciente',        sub: 'En las ultimas 2 semanas' },
-  { id: 'acod',             short: 'ACODs < 48h',                 label: 'ACODs en las ultimas 48h',                    sub: 'Apixaban, rivaroxaban, dabigatran, edoxaban' },
-  { id: 'gi_bleed',         short: 'Sangrado GI/GU < 21 dias',    label: 'Sangrado GI/GU reciente',                     sub: 'En los ultimos 21 dias' },
-  { id: 'arterial_puncture',short: 'Puncion arterial',            label: 'Puncion arterial reciente en sitio no compresible', sub: '' },
-  { id: 'avm',              short: 'MAV conocida',                label: 'MAV conocida',                                sub: 'Malformacion arteriovenosa' },
-  { id: 'aneurysm',         short: 'Aneurisma > 10 mm',           label: 'Aneurisma no roto conocido > 10 mm',          sub: '' },
-  { id: 'ic_dissection',    short: 'Diseccion IC',                label: 'Diseccion arterial intracraneal',             sub: '' },
+  { id: 'disability',         short: 'Discapacidad preexistente',  label: 'Discapacidad preexistente o fragilidad',       sub: 'Riesgo/beneficio incierto. Determinar en forma individual.' },
+  { id: 'doac',               short: 'DOAC < 48h',                 label: 'Exposicion a DOAC en las ultimas 48h',         sub: 'Apixaban, rivaroxaban, dabigatran, edoxaban. Considerar funcion renal, severidad, disponibilidad de agentes revertidores.' },
+  { id: 'prev_stroke',        short: 'ACV isquemico < 3 meses',    label: 'ACV isquemico en los ultimos 3 meses',         sub: 'Mayor riesgo de hemorragia intracraneal. Ponderar en funcion del tamano y tiempo del ACV previo.' },
+  { id: 'prior_ich',          short: 'HIC previa',                 label: 'Hemorragia intracraneal previa',               sub: 'Mayor riesgo de hemorragia sintomatica. Angiopatia amiloide implica mayor riesgo. Determinar en forma individual.' },
+  { id: 'trauma_14d_3m',      short: 'Trauma mayor no-SNC 14d-3m', label: 'Trauma mayor no-SNC entre 14 dias y 3 meses', sub: 'Mayor riesgo de hemorragia sistemica grave. Considerar areas comprometidas y consultar con especialista quirurgico.' },
+  { id: 'major_surgery',      short: 'Cirugia mayor no-SNC < 10d', label: 'Cirugia mayor no-SNC en los ultimos 10 dias',  sub: 'Mayor riesgo de dano por trombolisis IV. Considerar area quirurgica y consultar con especialista.' },
+  { id: 'gi_bleed',           short: 'Sangrado GI/GU < 21 dias',   label: 'Sangrado GI/GU en los ultimos 21 dias',        sub: 'Considerar si el sangrado fue tratado y el riesgo modificado. Consultar con especialista GI/GU.' },
+  { id: 'ic_dissection',      short: 'Diseccion arterial IC',       label: 'Diseccion arterial intracraneal',              sub: 'La seguridad de la trombolisis IV en diseccion intracraneal es desconocida.' },
+  { id: 'vascular_malformation', short: 'Malformacion vascular IC', label: 'Malformacion vascular intracraneal conocida',  sub: 'MAV, aneurisma no tratado. La seguridad de la trombolisis IV es desconocida.' },
+  { id: 'stemi_3m',           short: 'STEMI reciente < 3 meses',   label: 'STEMI reciente en los ultimos 3 meses',        sub: 'Considerar hemopericardio en STEMI muy reciente. Consultar cardiologia de urgencia.' },
+  { id: 'pericarditis',       short: 'Pericarditis aguda',         label: 'Pericarditis aguda',                           sub: 'Puede ser razonable en ACV mayor con discapacidad severa. Consultar cardiologia de urgencia.' },
+  { id: 'cardiac_thrombus',   short: 'Trombo AI/VI izquierdo',     label: 'Trombo auricular o ventricular izquierdo conocido', sub: 'Puede ser razonable en ACV mayor con discapacidad severa. Consultar cardiologia de urgencia.' },
+  { id: 'malignancy',         short: 'Neoplasia activa sistemica',  label: 'Neoplasia sistemica activa',                   sub: 'Considerar tipo, estadio y complicaciones activas. Consultar oncologia de urgencia.' },
+  { id: 'pregnancy',          short: 'Embarazo / puerperio',       label: 'Embarazo o periodo posparto',                  sub: 'Puede considerarse si el beneficio supera el riesgo de sangrado uterino. Consultar obstetricia de urgencia.' },
+  { id: 'dural_puncture',     short: 'Puncion dural < 7 dias',     label: 'Puncion dural en los ultimos 7 dias',          sub: 'Puede considerarse incluso si hubo puncion lumbar en los 7 dias previos.' },
+  { id: 'arterial_puncture',  short: 'Puncion arterial < 7 dias',  label: 'Puncion arterial en vaso no compresible en los ultimos 7 dias', sub: 'Ej: linea de arteria subclavia. La seguridad de la trombolisis IV es desconocida.' },
+  { id: 'tbi_moderate',       short: 'TCE moderado-grave 14d-3m',  label: 'TCE moderado a grave entre 14 dias y 3 meses', sub: 'Considerar tipo y severidad del trauma. Consultar con neurocirugia y cuidados neurocriticos.' },
+  { id: 'neurosurgery_14d_3m',short: 'Neurocirugia 14d-3m',        label: 'Neurocirugia o cirugia espinal entre 14 dias y 3 meses', sub: 'Puede considerarse en forma individual.' },
 ]
 
 // Compact segmented NO|SÍ toggle
