@@ -236,8 +236,8 @@ export default function App() {
       const weight = 60 + Math.floor(Math.random() * 31) // 60–90 kg
       const ctReqTime = ago(22 + Math.floor(Math.random() * 10))
 
-      const RED_IDS   = ['prior_ich','large_infarct','tce','axial_tumor','coagulopathy','aortic_dissection','endocarditis']
-      const ORANGE_IDS = ['prev_stroke','major_surgery','acod','gi_bleed','arterial_puncture','avm','aneurysm','ic_dissection']
+      const RED_IDS   = ['ct_hypodensity','ct_hemorrhage','tce_14d','neurosurgery_14d','spinal_cord','axial_tumor','endocarditis','coagulopathy','aortic_dissection','aria']
+      const ORANGE_IDS = ['disability','doac','prev_stroke','prior_ich','trauma_14d_3m','major_surgery','gi_bleed','ic_dissection','vascular_malformation','stemi_3m','pericarditis','cardiac_thrombus','malignancy','pregnancy','dural_puncture','arterial_puncture','tbi_moderate','neurosurgery_14d_3m']
       const allNo = (ids) => Object.fromEntries(ids.map((k) => [k, false]))
 
       const rtpaDose = (w) => {
@@ -266,7 +266,7 @@ export default function App() {
       } else if (scenario === 2) {
         // Contraindicación absoluta → trombectomía sin trombolisis
         ctResultData = { bleeding: false, ctRequestTime: ctReqTime.toISOString(), ctElapsedSeconds: 600 }
-        const redAnswers = { ...allNo(RED_IDS), prior_ich: true }
+        const redAnswers = { ...allNo(RED_IDS), ct_hemorrhage: true }
         contraindicationsData = { red: redAnswers, orange: allNo(ORANGE_IDS), hasAbsolute: true, hasRelative: false, decidedNotToThrombolyze: false }
         angioReqTime = ago(8)
         thrombectomyData = { angioRequested: true, angioRequestTime: angioReqTime.toISOString(), hemodinamisNotified: true, aspectScore: 8, thrombectomyActivationTime: null }
@@ -726,13 +726,16 @@ export default function App() {
   const canGoForward = canUseProtocolNav && Boolean(nextProtocolStep) && nextProtocolStep.step <= step
 
   const RED_CONTRA_LABELS = {
-    prior_ich:         'Hemorragia intracraneal previa o actual',
-    large_infarct:     'Infarto extenso en TC (ASPECTS < 3)',
-    tce:               'TCE grave o cirugía intracraneal reciente',
-    axial_tumor:       'Tumor intra-axial',
-    coagulopathy:      'Coagulopatía severa',
-    aortic_dissection: 'Disección aórtica',
-    endocarditis:      'Endocarditis infecciosa activa',
+    ct_hypodensity:   'TC con hipodensidad extensa',
+    ct_hemorrhage:    'TC con hemorragia intracraneal aguda',
+    tce_14d:          'TCE moderado a grave en los últimos 14 días',
+    neurosurgery_14d: 'Neurocirugía o cirugía espinal en los últimos 14 días',
+    spinal_cord:      'Lesión medular aguda en los últimos 3 meses',
+    axial_tumor:      'Neoplasia intracraneal intra-axial',
+    endocarditis:     'Endocarditis infecciosa activa',
+    coagulopathy:     'Coagulopatía severa o trombocitopenia',
+    aortic_dissection:'Disección de arco aórtico conocida o sospechada',
+    aria:             'ARIA (Anomalías de imagen relacionadas con amiloide)',
   }
 
   function getDoneContent() {
