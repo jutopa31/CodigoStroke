@@ -93,14 +93,24 @@ export default function DniQrScanner({ onScan, onClose }) {
         await scanner.start(
           { facingMode: 'environment' },
           {
-            fps: 12,
-            qrbox: { width: 280, height: 180 },   // más ancho para PDF417
+            fps: 8,
+            // qrbox proporcional: el usuario puede alejarse y la cámara enfoca bien
+            qrbox: (w, h) => ({
+              width:  Math.floor(w * 0.88),
+              height: Math.floor(h * 0.52),
+            }),
             formatsToSupport: [
               Html5QrcodeSupportedFormats.QR_CODE,
               Html5QrcodeSupportedFormats.PDF_417,
               Html5QrcodeSupportedFormats.DATA_MATRIX,
               Html5QrcodeSupportedFormats.AZTEC,
             ],
+            // Alta resolución + autofocus continuo → mejor foco a distancia normal
+            videoConstraints: {
+              width:  { ideal: 1920 },
+              height: { ideal: 1080 },
+              advanced: [{ focusMode: 'continuous' }],
+            },
           },
           (decodedText) => {
             if (scannedRef.current) return
@@ -166,7 +176,9 @@ export default function DniQrScanner({ onScan, onClose }) {
             </div>
           ) : (
             <p className="text-xs text-neutral-400 text-center">
-              Apuntá al <strong>QR o al código de barras</strong> del frente del DNI
+              Apuntá al <strong>QR o código de barras</strong> del frente del DNI
+              <br />
+              <span className="text-neutral-300">Mantené el DNI a ~20–25 cm de distancia</span>
             </p>
           )}
         </div>
