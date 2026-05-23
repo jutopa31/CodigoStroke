@@ -20,6 +20,7 @@
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "uuid": "^14.0.0",
+    "html5-qrcode": "^2.3.8",
     "workbox-window": "7.4.1"
   },
   "devDependencies": {
