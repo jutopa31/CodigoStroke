@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode'
-import { X, ScanLine, AlertCircle } from 'lucide-react'
-
-const CONTAINER_ID = 'dni-qr-reader'
+import { BrowserMultiFormatReader } from '@zxing/browser'
+import { BarcodeFormat, DecodeHintType } from '@zxing/library'
+import { X, ScanLine, AlertCircle, Loader2 } from 'lucide-react'
 
 /**
  * Parsea el PDF417 / QR del DNI argentino.
@@ -24,13 +23,9 @@ const CONTAINER_ID = 'dni-qr-reader'
  *   Sin TRAMITE al inicio, más campos (16-17):
  *     [0] APELLIDOS  [1] NOMBRES  [2] SEXO  [3] DNI  …
  *
- * ─── Detección de formato ──────────────────────────────────────────────────
- *   Si parts[0] es todo dígitos (≥7) → formato nuevo (tramite primero).
- *
  * ─── Caracteres especiales en PDF417 modo texto (ASCII 127) ────────────────
  *   Ñ se codifica como "NXX"  →  normalizamos a Ñ
  *   Ü se codifica como "UXX"  →  normalizamos a Ü
- *   Acentos (á é í ó ú) a veces se omiten; los dejamos como vienen.
  */
 function parseDniQr(raw) {
   const parts = raw.split('@').filter((p) => p.trim() !== '')
@@ -38,7 +33,6 @@ function parseDniQr(raw) {
 
   let apellido, nombre, dniNum
 
-  // Si el primer campo es solo dígitos → formato nuevo (tramite primero)
   const isNuevoFormato = /^\d{7,}$/.test(parts[0]?.trim())
 
   if (isNuevoFormato) {
@@ -46,7 +40,6 @@ function parseDniQr(raw) {
     nombre   = parts[2]?.trim()
     dniNum   = parts[4]?.trim()
   } else {
-    // Formato viejo: apellido primero, DNI en índice 3
     apellido = parts[0]?.trim()
     nombre   = parts[1]?.trim()
     dniNum   = parts[3]?.trim()
@@ -54,11 +47,10 @@ function parseDniQr(raw) {
 
   if (!apellido || !nombre || !dniNum) return null
 
-  // Reemplaza NXX → Ñ y UXX → Ü (limitación de PDF417 con ASCII extendido)
   const fixSpecialChars = (s) =>
     s.replace(/NXX/gi, 'Ñ').replace(/UXX/gi, 'Ü')
 
-  // No usar \b\w — solo reconoce ASCII y rompe con ñ/ü
+  // split+map en vez de \b\w — \b solo reconoce ASCII y rompe con ñ/ü
   const toTitle = (s) =>
     fixSpecialChars(s)
       .toLowerCase()
@@ -67,7 +59,7 @@ function parseDniQr(raw) {
       .join(' ')
 
   const dniClean = dniNum.replace(/\D/g, '')
-  if (dniClean.length < 7) return null   // sanity check
+  if (dniClean.length < 7) return null
 
   return {
     name: `${toTitle(nombre)} ${toTitle(apellido)}`,
@@ -75,69 +67,67 @@ function parseDniQr(raw) {
   }
 }
 
+// Configuración ZXing: PDF417 + formatos alternativos, TRY_HARDER para imágenes difíciles
+const HINTS = new Map([
+  [DecodeHintType.POSSIBLE_FORMATS, [
+    BarcodeFormat.PDF_417,
+    BarcodeFormat.QR_CODE,
+    BarcodeFormat.DATA_MATRIX,
+    BarcodeFormat.AZTEC,
+  ]],
+  [DecodeHintType.TRY_HARDER, true],
+])
+
+const VIDEO_CONSTRAINTS = {
+  video: {
+    facingMode: { ideal: 'environment' },
+    width:  { ideal: 1920 },
+    height: { ideal: 1080 },
+  },
+}
+
 export default function DniQrScanner({ onScan, onClose }) {
-  const [error, setError] = useState(null)
-  const scannerRef = useRef(null)
-  const scannedRef = useRef(false)    // evita callbacks dobles
-  const onScanRef  = useRef(onScan)
+  const videoRef  = useRef(null)
+  const doneRef   = useRef(false)
+  const onScanRef = useRef(onScan)
+  const [error,   setError]   = useState(null)
+  const [loading, setLoading] = useState(true)
+
   useEffect(() => { onScanRef.current = onScan }, [onScan])
 
   useEffect(() => {
-    let scanner
+    const reader = new BrowserMultiFormatReader(HINTS)
+    let controls = null
 
-    async function start() {
-      scanner = new Html5Qrcode(CONTAINER_ID)
-      scannerRef.current = scanner
+    reader
+      .decodeFromConstraints(VIDEO_CONSTRAINTS, videoRef.current, (result, err, ctrl) => {
+        controls = ctrl
+        setLoading(false)
 
-      try {
-        await scanner.start(
-          { facingMode: 'environment' },
-          {
-            fps: 8,
-            // qrbox proporcional: el usuario puede alejarse ~20-25cm y la cámara enfoca
-            qrbox: (w, h) => ({
-              width:  Math.floor(w * 0.88),
-              height: Math.floor(h * 0.52),
-            }),
-            formatsToSupport: [
-              Html5QrcodeSupportedFormats.QR_CODE,
-              Html5QrcodeSupportedFormats.PDF_417,
-              Html5QrcodeSupportedFormats.DATA_MATRIX,
-              Html5QrcodeSupportedFormats.AZTEC,
-            ],
-            // videoConstraints DEBE incluir facingMode — cuando está presente,
-            // sobreescribe el primer argumento de start() por completo.
-            videoConstraints: {
-              facingMode: { ideal: 'environment' },  // ← cámara trasera
-              width:  { ideal: 1920 },
-              height: { ideal: 1080 },
-              advanced: [{ focusMode: 'continuous' }],
-            },
-          },
-          (decodedText) => {
-            if (scannedRef.current) return
-            const result = parseDniQr(decodedText)
-            if (!result) {
-              // DEBUG TEMPORAL: muestra los primeros 80 chars para entender el formato
-              setError(`Formato no reconocido. Raw: "${decodedText.slice(0, 80)}"`)
-              return
-            }
-            scannedRef.current = true
-            scanner.stop()
-              .catch(() => {})
-              .finally(() => onScanRef.current(result))
-          },
-          () => {} // frames sin QR — ignorar
-        )
-      } catch {
+        if (!result) return   // frame sin código — ignorar
+
+        if (doneRef.current) return
+        const text = result.getText()
+        const parsed = parseDniQr(text)
+
+        if (!parsed) {
+          // DEBUG: muestra raw para diagnosticar formato inesperado
+          setError(`Formato no reconocido: "${text.slice(0, 80)}"`)
+          return
+        }
+
+        doneRef.current = true
+        ctrl?.stop()
+        onScanRef.current(parsed)
+      })
+      .catch(() => {
+        setLoading(false)
         setError('No se pudo acceder a la cámara. Verificá los permisos del navegador.')
-      }
-    }
-
-    start()
+      })
 
     return () => {
-      scannerRef.current?.stop().catch(() => {})
+      doneRef.current = true
+      controls?.stop()
     }
   }, [])
 
@@ -164,24 +154,32 @@ export default function DniQrScanner({ onScan, onClose }) {
           </button>
         </div>
 
-        {/* Camera area */}
+        {/* Video */}
         <div className="p-4 space-y-3">
-          <div
-            id={CONTAINER_ID}
-            className="rounded-xl overflow-hidden bg-neutral-900"
-            style={{ minHeight: 280 }}
-          />
+          <div className="relative rounded-xl overflow-hidden bg-neutral-900" style={{ minHeight: 300 }}>
+            <video
+              ref={videoRef}
+              className="w-full h-full object-cover"
+              playsInline
+              muted
+            />
+            {loading && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Loader2 size={28} className="text-white/60 animate-spin" />
+              </div>
+            )}
+          </div>
 
           {error ? (
             <div className="flex items-start gap-2 bg-red-50 border border-red-100 rounded-xl px-3 py-2.5">
               <AlertCircle size={14} className="text-red-500 mt-0.5 shrink-0" />
-              <p className="text-xs text-red-600 leading-snug">{error}</p>
+              <p className="text-xs text-red-600 leading-snug break-all">{error}</p>
             </div>
           ) : (
             <p className="text-xs text-neutral-400 text-center">
-              Apuntá al <strong>QR o código de barras</strong> del frente del DNI
+              Apuntá la <strong>barra del costado</strong> del DNI a la cámara
               <br />
-              <span className="text-neutral-300">Mantené el DNI a ~20–25 cm de distancia</span>
+              <span className="text-neutral-300">Mantené el DNI a ~20 cm de distancia</span>
             </p>
           )}
         </div>
