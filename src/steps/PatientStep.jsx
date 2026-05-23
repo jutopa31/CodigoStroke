@@ -122,7 +122,7 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
             className="flex items-center gap-1.5 text-xs font-medium text-brand-600 hover:text-brand-700 bg-brand-50 hover:bg-brand-100 px-2.5 py-1.5 rounded-lg transition-colors"
           >
             <ScanLine size={13} strokeWidth={2} />
-            Escanear QR del DNI
+            Escanear código del DNI
           </button>
           {onOpenEducational && (
             <button
