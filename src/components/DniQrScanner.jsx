@@ -5,30 +5,70 @@ import { X, ScanLine, AlertCircle } from 'lucide-react'
 const CONTAINER_ID = 'dni-qr-reader'
 
 /**
- * Parsea el QR del DNI argentino.
+ * Parsea el PDF417 / QR del DNI argentino.
  *
- * Formato: @APELLIDO@NOMBRE@SEXO@DNI@EJEMPLAR@NACIMIENTO@TRAMITE@VENCIMIENTO
- * Al hacer split('@') y filtrar vacíos queda:
- *   [0] APELLIDO  [1] NOMBRE  [2] SEXO  [3] DNI  [4] EJEMPLAR  [5] FNac  [6] TRAMITE  [7] VTO
+ * ─── FORMATO NUEVO (DNI desde 2009, la gran mayoría) ───────────────────────
+ *   @TRAMITE@APELLIDOS@NOMBRES@SEXO@DNI@EJEMPLAR@FNAC@FEMISION@CUIL_PARCIAL
+ *   Tras split('@').filter(Boolean):
+ *     [0] TRAMITE (numérico, 10-11 dígitos)
+ *     [1] APELLIDOS
+ *     [2] NOMBRES
+ *     [3] SEXO (M/F)
+ *     [4] DNI
+ *     [5] EJEMPLAR (A/B/C)
+ *     [6] FECHA NACIMIENTO (DD/MM/YYYY)  ← futuro: exponer en el modelo
+ *     [7] FECHA EMISION (DD/MM/YYYY)
+ *     [8] CUIL parcial
  *
- * Nota (futuro): parts[5] contiene la fecha de nacimiento en formato dd/mm/yyyy.
+ * ─── FORMATO VIEJO (DNI anterior a 2009, poco frecuente) ───────────────────
+ *   Sin TRAMITE al inicio, más campos (16-17):
+ *     [0] APELLIDOS  [1] NOMBRES  [2] SEXO  [3] DNI  …
+ *
+ * ─── Detección de formato ──────────────────────────────────────────────────
+ *   Si parts[0] es todo dígitos (≥7) → formato nuevo (tramite primero).
+ *
+ * ─── Caracteres especiales en PDF417 modo texto (ASCII 127) ────────────────
+ *   Ñ se codifica como "NXX"  →  normalizamos a Ñ
+ *   Ü se codifica como "UXX"  →  normalizamos a Ü
+ *   Acentos (á é í ó ú) a veces se omiten; los dejamos como vienen.
  */
 function parseDniQr(raw) {
-  const parts = raw.split('@').filter(Boolean)
+  const parts = raw.split('@').filter((p) => p.trim() !== '')
   if (parts.length < 4) return null
 
-  const apellido = parts[0]?.trim()
-  const nombre   = parts[1]?.trim()
-  const dniNum   = parts[3]?.trim()
+  let apellido, nombre, dniNum
+
+  // Si el primer campo es solo dígitos → formato nuevo (tramite primero)
+  const isNuevoFormato = /^\d{7,}$/.test(parts[0]?.trim())
+
+  if (isNuevoFormato) {
+    apellido = parts[1]?.trim()
+    nombre   = parts[2]?.trim()
+    dniNum   = parts[4]?.trim()
+  } else {
+    // Formato viejo: apellido primero, DNI en índice 3
+    apellido = parts[0]?.trim()
+    nombre   = parts[1]?.trim()
+    dniNum   = parts[3]?.trim()
+  }
 
   if (!apellido || !nombre || !dniNum) return null
 
+  // Reemplaza NXX → Ñ y UXX → Ü (limitación de PDF417 con ASCII extendido)
+  const fixSpecialChars = (s) =>
+    s.replace(/NXX/gi, 'Ñ').replace(/UXX/gi, 'Ü')
+
   const toTitle = (s) =>
-    s.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase())
+    fixSpecialChars(s)
+      .toLowerCase()
+      .replace(/\b\w/g, (c) => c.toUpperCase())
+
+  const dniClean = dniNum.replace(/\D/g, '')
+  if (dniClean.length < 7) return null   // sanity check
 
   return {
     name: `${toTitle(nombre)} ${toTitle(apellido)}`,
-    dni:  dniNum.replace(/\D/g, ''),
+    dni:  dniClean,
   }
 }
 
@@ -63,7 +103,7 @@ export default function DniQrScanner({ onScan, onClose }) {
             if (scannedRef.current) return
             const result = parseDniQr(decodedText)
             if (!result) {
-              setError('QR no reconocido. Escaneá el código del dorso del DNI.')
+              setError('Código no reconocido como DNI. Escaneá el PDF417 o QR del frente.')
               return
             }
             scannedRef.current = true
