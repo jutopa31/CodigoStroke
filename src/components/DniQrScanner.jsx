@@ -58,10 +58,13 @@ function parseDniQr(raw) {
   const fixSpecialChars = (s) =>
     s.replace(/NXX/gi, 'Ñ').replace(/UXX/gi, 'Ü')
 
+  // No usar \b\w — solo reconoce ASCII y rompe con ñ/ü
   const toTitle = (s) =>
     fixSpecialChars(s)
       .toLowerCase()
-      .replace(/\b\w/g, (c) => c.toUpperCase())
+      .split(' ')
+      .map((w) => (w.length > 0 ? w[0].toUpperCase() + w.slice(1) : w))
+      .join(' ')
 
   const dniClean = dniNum.replace(/\D/g, '')
   if (dniClean.length < 7) return null   // sanity check
