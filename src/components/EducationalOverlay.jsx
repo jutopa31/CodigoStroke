@@ -1,24 +1,37 @@
 import { BookOpen, X, Clock, AlertTriangle, Shield, Pill, Activity, Zap } from 'lucide-react'
 
 const RED_CONTRAS = [
-  { label: 'Hemorragia intracraneal previa o actual', sub: 'Cualquier antecedente de HIC' },
-  { label: 'Infarto extenso en TC', sub: 'ASPECTS < 3 o más de 1/3 del territorio de ACM' },
-  { label: 'TCE grave o cirugía intracraneal reciente', sub: 'En los últimos 3 meses' },
-  { label: 'Tumor intra-axial', sub: 'Neoplasia cerebral intraparenquimatosa' },
-  { label: 'Coagulopatía severa', sub: 'RIN > 1.7 / KPTT > 40 / Plaquetas < 100.000' },
-  { label: 'Disección aórtica', sub: 'Sospecha o confirmada' },
+  { label: 'TC con hipodensidad extensa', sub: 'Hipodensidad clara mayor que la sustancia blanca contralateral' },
+  { label: 'TC con hemorragia intracraneal aguda', sub: '' },
+  { label: 'TCE moderado a grave en los últimos 14 días', sub: '> 30 min de inconsciencia y GCS < 13, O hemorragia/contusión/fractura en neuroimagen' },
+  { label: 'Neurocirugía o cirugía espinal en los últimos 14 días', sub: '' },
+  { label: 'Lesión medular aguda en los últimos 3 meses', sub: '' },
+  { label: 'Neoplasia intracraneal intra-axial', sub: '' },
   { label: 'Endocarditis infecciosa activa', sub: '' },
+  { label: 'Coagulopatía severa o trombocitopenia', sub: 'Plaquetas < 100.000/mm³ / RIN > 1.7 / KPTT > 40s / TP > 15s' },
+  { label: 'Disección de arco aórtico conocida o sospechada', sub: '' },
+  { label: 'ARIA (Anomalías de imagen relacionadas con amiloide)', sub: 'Inmunoterapia anti-amiloide o ARIA conocida' },
 ]
 
 const ORANGE_CONTRAS = [
+  { label: 'Discapacidad preexistente o fragilidad', sub: '' },
+  { label: 'Exposición a DOAC en las últimas 48h', sub: 'Apixaban, rivaroxaban, dabigatran, edoxaban' },
   { label: 'ACV isquémico en los últimos 3 meses', sub: '' },
-  { label: 'Cirugía mayor o trauma grave reciente', sub: 'En las últimas 2 semanas' },
-  { label: 'ACODs en las últimas 48h', sub: 'Apixaban, rivaroxaban, dabigatran, edoxaban' },
-  { label: 'Sangrado GI/GU reciente', sub: 'En los últimos 21 días' },
-  { label: 'Punción arterial reciente en sitio no compresible', sub: '' },
-  { label: 'MAV conocida', sub: 'Malformación arteriovenosa' },
-  { label: 'Aneurisma no roto conocido > 10 mm', sub: '' },
+  { label: 'Hemorragia intracraneal previa', sub: '' },
+  { label: 'Trauma mayor no-SNC entre 14 días y 3 meses', sub: '' },
+  { label: 'Cirugía mayor no-SNC en los últimos 10 días', sub: '' },
+  { label: 'Sangrado GI/GU en los últimos 21 días', sub: '' },
   { label: 'Disección arterial intracraneal', sub: '' },
+  { label: 'Malformación vascular intracraneal conocida', sub: 'MAV, aneurisma no tratado' },
+  { label: 'STEMI reciente en los últimos 3 meses', sub: '' },
+  { label: 'Pericarditis aguda', sub: '' },
+  { label: 'Trombo auricular o ventricular izquierdo conocido', sub: '' },
+  { label: 'Neoplasia sistémica activa', sub: '' },
+  { label: 'Embarazo o período posparto', sub: '' },
+  { label: 'Punción dural en los últimos 7 días', sub: '' },
+  { label: 'Punción arterial en vaso no compresible en los últimos 7 días', sub: '' },
+  { label: 'TCE moderado a grave entre 14 días y 3 meses', sub: '' },
+  { label: 'Neurocirugía o cirugía espinal entre 14 días y 3 meses', sub: '' },
 ]
 
 const POST_CHECKLIST = [

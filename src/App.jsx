@@ -193,8 +193,9 @@ export default function App() {
       const nihssData = { nihssScore, hasDisablingSymptoms: nihssScore < 5 && Math.random() > 0.5 }
       const weight = 60 + Math.floor(Math.random() * 31)
       const ctReqTime = ago(22 + Math.floor(Math.random() * 10))
-      const RED_IDS   = ['prior_ich','large_infarct','tce','axial_tumor','coagulopathy','aortic_dissection','endocarditis']
-      const ORANGE_IDS = ['prev_stroke','major_surgery','acod','gi_bleed','arterial_puncture','avm','aneurysm','ic_dissection']
+
+      const RED_IDS   = ['ct_hypodensity','ct_hemorrhage','tce_14d','neurosurgery_14d','spinal_cord','axial_tumor','endocarditis','coagulopathy','aortic_dissection','aria']
+      const ORANGE_IDS = ['disability','doac','prev_stroke','prior_ich','trauma_14d_3m','major_surgery','gi_bleed','ic_dissection','vascular_malformation','stemi_3m','pericarditis','cardiac_thrombus','malignancy','pregnancy','dural_puncture','arterial_puncture','tbi_moderate','neurosurgery_14d_3m']
       const allNo = (ids) => Object.fromEntries(ids.map((k) => [k, false]))
       const rtpaDose = (w) => { const total = Math.round(w * 0.9 * 10) / 10; const bolo = Math.round(total * 0.1 * 10) / 10; return { total, bolo, infusion: Math.round((total - bolo) * 10) / 10 } }
 
@@ -212,7 +213,8 @@ export default function App() {
         ctResultData = { bleeding: true, ctRequestTime: ctReqTime.toISOString(), ctElapsedSeconds: 600 }
       } else if (scenario === 2) {
         ctResultData = { bleeding: false, ctRequestTime: ctReqTime.toISOString(), ctElapsedSeconds: 600 }
-        contraindicationsData = { red: { ...allNo(RED_IDS), prior_ich: true }, orange: allNo(ORANGE_IDS), hasAbsolute: true, hasRelative: false, decidedNotToThrombolyze: false }
+        const redAnswers = { ...allNo(RED_IDS), ct_hemorrhage: true }
+        contraindicationsData = { red: redAnswers, orange: allNo(ORANGE_IDS), hasAbsolute: true, hasRelative: false, decidedNotToThrombolyze: false }
         angioReqTime = ago(8)
         thrombectomyData = { angioRequested: true, angioRequestTime: angioReqTime.toISOString(), hemodinamisNotified: true, aspectScore: 8, thrombectomyActivationTime: null }
       } else if (scenario === 3) {
@@ -245,8 +247,8 @@ export default function App() {
       setContraindications(contraindicationsData)
       // Sync split CI state for mock
       if (contraindicationsData) {
-        const RED_IDS_LIST   = ['prior_ich','large_infarct','tce','axial_tumor','coagulopathy','aortic_dissection','endocarditis']
-        const ORANGE_IDS_LIST = ['prev_stroke','major_surgery','acod','gi_bleed','arterial_puncture','avm','aneurysm','ic_dissection']
+        const RED_IDS_LIST   = ['ct_hypodensity','ct_hemorrhage','tce_14d','neurosurgery_14d','spinal_cord','axial_tumor','endocarditis','coagulopathy','aortic_dissection','aria']
+        const ORANGE_IDS_LIST = ['disability','doac','prev_stroke','prior_ich','trauma_14d_3m','major_surgery','gi_bleed','ic_dissection','vascular_malformation','stemi_3m','pericarditis','cardiac_thrombus','malignancy','pregnancy','dural_puncture','arterial_puncture','tbi_moderate','neurosurgery_14d_3m']
         setContraAbsolutes({
           answers: contraindicationsData.red,
           allAnswered: RED_IDS_LIST.every((k) => contraindicationsData.red[k] !== undefined),

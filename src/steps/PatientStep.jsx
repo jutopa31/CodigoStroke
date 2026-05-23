@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
-import { User, CreditCard, Lock, ChevronRight, CheckCircle2, BookOpen } from 'lucide-react'
+import { User, CreditCard, Lock, ChevronRight, CheckCircle2, BookOpen, ScanLine } from 'lucide-react'
 import StepCard, { CollapsedStep } from '../components/StepCard'
+import DniQrScanner from '../components/DniQrScanner'
 
 function fmtTime(date) {
   return date.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
@@ -10,11 +11,18 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
   const [dni, setDni] = useState('')
   const [name, setName] = useState('')
   const [passphrase, setPassphrase] = useState('')
+  const [showScanner, setShowScanner] = useState(false)
   const nameRef = useRef(null)
   const passphraseRef = useRef(null)
 
   const valid = dni.trim().length >= 7 && name.trim().length >= 2
   const showHint = !valid && (dni.length > 0 || name.length > 0)
+
+  function handleScan({ name: scannedName, dni: scannedDni }) {
+    setName(scannedName)
+    setDni(scannedDni)
+    setShowScanner(false)
+  }
 
   function handleSubmit(e) {
     e.preventDefault()
@@ -102,9 +110,21 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
 
   return (
     <div className="pb-4">
+      {showScanner && (
+        <DniQrScanner onScan={handleScan} onClose={() => setShowScanner(false)} />
+      )}
       <StepCard step="1" title="Datos del paciente" accent="red">
-        {onOpenEducational && (
-          <div className="flex justify-end mb-3">
+        {/* Barra superior: modo educativo + escanear QR */}
+        <div className="flex items-center justify-between mb-3">
+          <button
+            type="button"
+            onClick={() => setShowScanner(true)}
+            className="flex items-center gap-1.5 text-xs font-medium text-brand-600 hover:text-brand-700 bg-brand-50 hover:bg-brand-100 px-2.5 py-1.5 rounded-lg transition-colors"
+          >
+            <ScanLine size={13} strokeWidth={2} />
+            Escanear QR del DNI
+          </button>
+          {onOpenEducational && (
             <button
               type="button"
               onClick={onOpenEducational}
@@ -113,8 +133,8 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
               <BookOpen size={13} strokeWidth={2} />
               Modo educativo
             </button>
-          </div>
-        )}
+          )}
+        </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Identificación */}
           <div className="grid grid-cols-2 gap-3">
