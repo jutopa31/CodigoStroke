@@ -1,38 +1,27 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { BrowserMultiFormatReader } from '@zxing/browser'
 import { BarcodeFormat, DecodeHintType } from '@zxing/library'
-import { X, ScanLine, AlertCircle, Loader2 } from 'lucide-react'
+import { X, ScanLine, AlertCircle, Camera, Loader2, CheckCircle2 } from 'lucide-react'
 
 /**
  * Parsea el PDF417 / QR del DNI argentino.
  *
  * ─── FORMATO NUEVO (DNI desde 2009, la gran mayoría) ───────────────────────
  *   @TRAMITE@APELLIDOS@NOMBRES@SEXO@DNI@EJEMPLAR@FNAC@FEMISION@CUIL_PARCIAL
- *   Tras split('@').filter(Boolean):
- *     [0] TRAMITE (numérico, 10-11 dígitos)
- *     [1] APELLIDOS
- *     [2] NOMBRES
- *     [3] SEXO (M/F)
- *     [4] DNI
- *     [5] EJEMPLAR (A/B/C)
- *     [6] FECHA NACIMIENTO (DD/MM/YYYY)  ← futuro: exponer en el modelo
- *     [7] FECHA EMISION (DD/MM/YYYY)
- *     [8] CUIL parcial
+ *     [0] TRAMITE  [1] APELLIDOS  [2] NOMBRES  [3] SEXO  [4] DNI  [5] EJEMPLAR
+ *     [6] FNAC (DD/MM/YYYY) ← futuro: exponer en el modelo de datos
  *
  * ─── FORMATO VIEJO (DNI anterior a 2009, poco frecuente) ───────────────────
- *   Sin TRAMITE al inicio, más campos (16-17):
- *     [0] APELLIDOS  [1] NOMBRES  [2] SEXO  [3] DNI  …
+ *   Sin TRAMITE: [0] APELLIDOS  [1] NOMBRES  [2] SEXO  [3] DNI
  *
- * ─── Caracteres especiales en PDF417 modo texto (ASCII 127) ────────────────
- *   Ñ se codifica como "NXX"  →  normalizamos a Ñ
- *   Ü se codifica como "UXX"  →  normalizamos a Ü
+ * ─── Caracteres especiales (PDF417 solo soporta ASCII 127) ─────────────────
+ *   Ñ → NXX  |  Ü → UXX
  */
 function parseDniQr(raw) {
   const parts = raw.split('@').filter((p) => p.trim() !== '')
   if (parts.length < 4) return null
 
   let apellido, nombre, dniNum
-
   const isNuevoFormato = /^\d{7,}$/.test(parts[0]?.trim())
 
   if (isNuevoFormato) {
@@ -50,7 +39,6 @@ function parseDniQr(raw) {
   const fixSpecialChars = (s) =>
     s.replace(/NXX/gi, 'Ñ').replace(/UXX/gi, 'Ü')
 
-  // split+map en vez de \b\w — \b solo reconoce ASCII y rompe con ñ/ü
   const toTitle = (s) =>
     fixSpecialChars(s)
       .toLowerCase()
@@ -67,7 +55,6 @@ function parseDniQr(raw) {
   }
 }
 
-// Configuración ZXing: PDF417 + formatos alternativos, TRY_HARDER para imágenes difíciles
 const HINTS = new Map([
   [DecodeHintType.POSSIBLE_FORMATS, [
     BarcodeFormat.PDF_417,
@@ -78,58 +65,52 @@ const HINTS = new Map([
   [DecodeHintType.TRY_HARDER, true],
 ])
 
-const VIDEO_CONSTRAINTS = {
-  video: {
-    facingMode: { ideal: 'environment' },
-    width:  { ideal: 1920 },
-    height: { ideal: 1080 },
-  },
-}
-
+/**
+ * Estrategia: foto estática en vez de video continuo.
+ *
+ * El celular no puede enfocar bien a corta distancia en video continuo.
+ * Al usar `<input capture="environment">` se abre la cámara nativa del
+ * teléfono — que tiene mucho mejor autofocus — y el usuario puede tomarse
+ * el tiempo para enfocar bien antes de confirmar la foto.
+ * ZXing luego decodifica la imagen estática, que es mucho más confiable.
+ */
 export default function DniQrScanner({ onScan, onClose }) {
-  const videoRef  = useRef(null)
-  const doneRef   = useRef(false)
-  const onScanRef = useRef(onScan)
+  const inputRef            = useRef(null)
+  const [loading, setLoading] = useState(false)
   const [error,   setError]   = useState(null)
-  const [loading, setLoading] = useState(true)
 
-  useEffect(() => { onScanRef.current = onScan }, [onScan])
+  async function handleFile(e) {
+    const file = e.target.files?.[0]
+    if (!file) return
 
-  useEffect(() => {
-    const reader = new BrowserMultiFormatReader(HINTS)
-    let controls = null
+    setLoading(true)
+    setError(null)
 
-    reader
-      .decodeFromConstraints(VIDEO_CONSTRAINTS, videoRef.current, (result, err, ctrl) => {
-        controls = ctrl
-        setLoading(false)
+    const url = URL.createObjectURL(file)
+    try {
+      const reader = new BrowserMultiFormatReader(HINTS)
+      const result = await reader.decodeFromImageUrl(url)
+      const parsed = parseDniQr(result.getText())
 
-        if (!result) return   // frame sin código — ignorar
+      if (!parsed) {
+        // DEBUG: mostrar raw si el código se leyó pero el parser no lo reconoció
+        setError(`Código leído pero formato no reconocido:\n"${result.getText().slice(0, 100)}"`)
+        return
+      }
 
-        if (doneRef.current) return
-        const text = result.getText()
-        const parsed = parseDniQr(text)
-
-        if (!parsed) {
-          // DEBUG: muestra raw para diagnosticar formato inesperado
-          setError(`Formato no reconocido: "${text.slice(0, 80)}"`)
-          return
-        }
-
-        doneRef.current = true
-        ctrl?.stop()
-        onScanRef.current(parsed)
-      })
-      .catch(() => {
-        setLoading(false)
-        setError('No se pudo acceder a la cámara. Verificá los permisos del navegador.')
-      })
-
-    return () => {
-      doneRef.current = true
-      controls?.stop()
+      onScan(parsed)
+    } catch {
+      setError(
+        'No se encontró el código de barras en la foto.\n' +
+        'Intentá nuevamente: enfocá bien la barra del costado y tomá la foto a ~20 cm.'
+      )
+    } finally {
+      URL.revokeObjectURL(url)
+      setLoading(false)
+      // Reset input para poder intentar de nuevo con otra foto
+      if (inputRef.current) inputRef.current.value = ''
     }
-  }, [])
+  }
 
   return (
     <div
@@ -142,46 +123,71 @@ export default function DniQrScanner({ onScan, onClose }) {
         <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-100">
           <div className="flex items-center gap-2">
             <ScanLine size={16} className="text-brand-600" />
-            <span className="font-semibold text-sm text-neutral-800">Escaneá el código del DNI</span>
+            <span className="font-semibold text-sm text-neutral-800">Escaneá el DNI</span>
           </div>
           <button
             type="button"
             onClick={onClose}
             className="text-neutral-400 hover:text-neutral-600 transition-colors p-1 rounded-lg hover:bg-neutral-100"
-            aria-label="Cerrar escáner"
+            aria-label="Cerrar"
           >
             <X size={18} />
           </button>
         </div>
 
-        {/* Video */}
-        <div className="p-4 space-y-3">
-          <div className="relative rounded-xl overflow-hidden bg-neutral-900" style={{ minHeight: 300 }}>
-            <video
-              ref={videoRef}
-              className="w-full h-full object-cover"
-              playsInline
-              muted
-            />
-            {loading && (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <Loader2 size={28} className="text-white/60 animate-spin" />
-              </div>
-            )}
+        {/* Body */}
+        <div className="p-5 space-y-4">
+
+          {/* Ilustración / instrucción */}
+          <div className="bg-neutral-50 rounded-xl p-4 space-y-2">
+            <p className="text-xs font-semibold text-neutral-600 text-center uppercase tracking-wider">
+              Cómo hacerlo
+            </p>
+            <ol className="text-xs text-neutral-500 space-y-1.5 list-none">
+              <li className="flex items-start gap-2">
+                <span className="bg-brand-100 text-brand-700 rounded-full w-4 h-4 flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">1</span>
+                Apoyá el DNI sobre una superficie plana con buena luz
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="bg-brand-100 text-brand-700 rounded-full w-4 h-4 flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">2</span>
+                Tocá el botón y apuntá al <strong>código de barras del frente</strong>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="bg-brand-100 text-brand-700 rounded-full w-4 h-4 flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">3</span>
+                Esperá que la cámara enfoque y sacá la foto
+              </li>
+            </ol>
           </div>
 
-          {error ? (
+          {/* Botón principal */}
+          <input
+            ref={inputRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            className="hidden"
+            onChange={handleFile}
+          />
+          <button
+            type="button"
+            onClick={() => inputRef.current?.click()}
+            disabled={loading}
+            className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-[0.98] text-white font-semibold py-3.5 rounded-xl transition-all disabled:bg-neutral-200 disabled:text-neutral-400"
+          >
+            {loading
+              ? <><Loader2 size={16} className="animate-spin" /> Procesando…</>
+              : <><Camera size={16} /> Fotografiar código del DNI</>
+            }
+          </button>
+
+          {/* Error */}
+          {error && (
             <div className="flex items-start gap-2 bg-red-50 border border-red-100 rounded-xl px-3 py-2.5">
               <AlertCircle size={14} className="text-red-500 mt-0.5 shrink-0" />
-              <p className="text-xs text-red-600 leading-snug break-all">{error}</p>
+              <p className="text-xs text-red-600 leading-snug whitespace-pre-line break-all">{error}</p>
             </div>
-          ) : (
-            <p className="text-xs text-neutral-400 text-center">
-              Apuntá la <strong>barra del costado</strong> del DNI a la cámara
-              <br />
-              <span className="text-neutral-300">Mantené el DNI a ~20 cm de distancia</span>
-            </p>
           )}
+
         </div>
       </div>
     </div>
