@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
-import { Copy, Check } from 'lucide-react'
+import { Copy, Check, Syringe } from 'lucide-react'
 import GlobalTimer from './components/GlobalTimer'
 import AlertModal from './components/AlertModal'
 import TabBar from './components/TabBar'
@@ -11,11 +11,12 @@ import EducationalOverlay from './components/EducationalOverlay'
 import EducationalMode from './components/EducationalMode'
 import TimestampPanel from './components/TimestampPanel'
 import StartStep from './steps/StartStep'
-import PatientStep from './steps/PatientStep'
+import PatientVitalsTab from './steps/PatientVitalsTab'
 import TimeStep from './steps/TimeStep'
 import ClinicalTab from './steps/ClinicalTab'
 import ImagingTab from './steps/ImagingTab'
-import ContraindicationsStep from './steps/ContraindicationsStep'
+import CIAbsolutasTab from './steps/CIAbsolutasTab'
+import CIRelativasTab from './steps/CIRelativasTab'
 import DecisionTab from './steps/DecisionTab'
 import DosageStep from './steps/DosageStep'
 import ThrombectomyStep from './steps/ThrombectomyStep'
@@ -44,25 +45,27 @@ function fmtDateTime(value) {
   return `${date.toLocaleDateString('es-AR')} ${fmtTime(date)}`
 }
 
-// ── Tab completion logic ─────────────────────────────────────────────────────
+// ── Tab completion logic (6 Phase-1 tabs) ───────────────────────────────────
 
-function getTabCompletion({ patient, symptoms, vitals, nihss, ctResult, contraindications }) {
-  const paciente = !!(patient?.name)
-  const tiempo = !!(symptoms?.lastSeenNormal)
-  const clinica = !!(vitals !== null && nihss !== null)
+function getTabCompletion({ patient, vitals, symptoms, nihss, ctResult, contraAbsolutes, contraRelatives }) {
+  const paciente = !!(patient?.name && vitals !== null)
+  const tiempo   = !!(symptoms?.lastSeenNormal || symptoms?.isWakeUpStroke === true)
+  const clinica  = !!(nihss !== null)
   const imagenes = !!(
     ctResult?.bleeding === true || ctResult?.bleeding === false ||
-    ctResult?.mismatch === true || ctResult?.mismatch === false
+    ctResult?.mismatch  === true || ctResult?.mismatch  === false
   )
-  const contraindicaciones = !!(contraindications !== null)
+  const ci_abs = !!(contraAbsolutes?.allAnswered)
+  const ci_rel = !!(contraRelatives?.allAnswered)
 
   return {
-    paciente:           paciente ? 'complete' : 'empty',
-    tiempo:             tiempo ? 'complete' : 'empty',
-    clinica:            clinica ? 'complete' : vitals !== null || nihss !== null ? 'partial' : 'empty',
-    imagenes:           imagenes ? 'complete' : 'empty',
-    contraindicaciones: contraindicaciones ? 'complete' : 'empty',
-    allComplete:        paciente && tiempo && clinica && imagenes && contraindicaciones,
+    paciente: paciente ? 'complete' : patient?.name || vitals ? 'partial' : 'empty',
+    tiempo:   tiempo   ? 'complete' : 'empty',
+    clinica:  clinica  ? 'complete' : 'empty',
+    imagenes: imagenes ? 'complete' : 'empty',
+    ci_abs:   ci_abs   ? 'complete' : contraAbsolutes ? 'partial' : 'empty',
+    ci_rel:   ci_rel   ? 'complete' : contraRelatives ? 'partial' : 'empty',
+    allComplete: paciente && tiempo && clinica && imagenes && ci_abs && ci_rel,
   }
 }
 
@@ -108,6 +111,7 @@ export default function App() {
   // Phase management
   const [phase, setPhase] = useState('start') // 'start' | 'pre' | 'post'
   const [activeTab, setActiveTab] = useState('paciente')
+  const [showTrombolisisHint, setShowTrombolisisHint] = useState(false)
 
   // Modal state
   const [showEducationalOverlay, setShowEducationalOverlay] = useState(false)
@@ -137,6 +141,9 @@ export default function App() {
   const [dosage, setDosage] = useState(null)
   const [thrombectomy, setThrombectomy] = useState(null)
   const [decisionResult, setDecisionResult] = useState(null)
+  // Split CI state (auto-saved per toggle)
+  const [contraAbsolutes, setContraAbsolutes] = useState(null)
+  const [contraRelatives, setContraRelatives] = useState(null)
 
   // Serial readings
   const [nihssReadings, setNihssReadings] = useState([])
@@ -233,9 +240,26 @@ export default function App() {
       setNihss(nihssData)
       setCtResult(ctResultData)
       setContraindications(contraindicationsData)
+      // Sync split CI state for mock
+      if (contraindicationsData) {
+        const RED_IDS_LIST   = ['prior_ich','large_infarct','tce','axial_tumor','coagulopathy','aortic_dissection','endocarditis']
+        const ORANGE_IDS_LIST = ['prev_stroke','major_surgery','acod','gi_bleed','arterial_puncture','avm','aneurysm','ic_dissection']
+        setContraAbsolutes({
+          answers: contraindicationsData.red,
+          allAnswered: RED_IDS_LIST.every((k) => contraindicationsData.red[k] !== undefined),
+          hasAbsolute: contraindicationsData.hasAbsolute,
+        })
+        setContraRelatives({
+          answers: contraindicationsData.orange,
+          anticoag: { active: false, type: '' },
+          allAnswered: ORANGE_IDS_LIST.every((k) => contraindicationsData.orange[k] !== undefined),
+          hasRelative: contraindicationsData.hasRelative,
+        })
+      }
       setDosage(dosageData)
       setThrombectomy(thrombectomyData)
       setDecisionResult(mockDecision)
+      if (mockDecision.thrombolyze === true) setShowTrombolisisHint(true)
       setPhase('post')
       setActiveTab('decision')
     }
@@ -346,18 +370,39 @@ export default function App() {
     setCtRequestTime(time)
   }
 
-  function handleContraindicationsConfirm(data) {
-    setContraindications(data)
-    setSymptoms((prev) => ({ ...prev, anticoagulation: data.anticoagulation ?? prev?.anticoagulation }))
+  // CI tabs auto-save on each toggle
+  function handleContraAbsUpdate(state) {
+    setContraAbsolutes(state)
+  }
+
+  function handleContraRelUpdate(state) {
+    setContraRelatives(state)
+  }
+
+  function handleAnticoagChange(anticoag) {
+    setSymptoms((prev) => ({ ...prev, anticoagulation: anticoag }))
   }
 
   // ── Decision trigger ────────────────────────────────────────────────────────
 
   function handleComputeDecision() {
-    const result = computeStrokeDecision({ symptoms, nihss, ctResult, contraindications })
+    // Combine the two independent CI tabs into the format the algorithm expects
+    const combinedContra = {
+      red:   contraAbsolutes?.answers ?? {},
+      orange: contraRelatives?.answers ?? {},
+      hasAbsolute: !!(contraAbsolutes?.hasAbsolute),
+      hasRelative: !!(contraRelatives?.hasRelative),
+      decidedNotToThrombolyze: false,
+      anticoagulation: contraRelatives?.anticoag ?? null,
+    }
+    setContraindications(combinedContra)
+
+    const result = computeStrokeDecision({ symptoms, nihss, ctResult, contraindications: combinedContra })
     setDecisionResult(result)
     setPhase('post')
     setActiveTab('decision')
+    // Show floating trombolisis hint if indicated
+    if (result.thrombolyze === true) setShowTrombolisisHint(true)
 
     saveStrokeEvent({
       id: eventId,
@@ -370,7 +415,7 @@ export default function App() {
       vitals,
       nihss,
       ctResult,
-      contraindications,
+      contraindications: combinedContra,
       decisionResult: result,
     })
   }
@@ -488,7 +533,7 @@ export default function App() {
 
   // ── Tab completion ──────────────────────────────────────────────────────────
 
-  const tabCompletion = getTabCompletion({ patient, symptoms, vitals, nihss, ctResult, contraindications })
+  const tabCompletion = getTabCompletion({ patient, vitals, symptoms, nihss, ctResult, contraAbsolutes, contraRelatives })
 
   // Phase 2: show Trombolisis tab only if thrombolysis indicated
   const phase2TabCompletion = {
@@ -535,14 +580,13 @@ export default function App() {
       switch (activeTab) {
         case 'paciente':
           return (
-            <PatientStep
-              onConfirm={handlePatientConfirm}
-              confirmed={!!patient}
-              isCollapsed={false}
+            <PatientVitalsTab
               patient={patient}
               patientId={patientId}
               arrivalTime={patientArrivalTime}
               vitals={vitals}
+              onPatientConfirm={handlePatientConfirm}
+              onVitalsConfirm={handleVitalsConfirm}
               onOpenEducational={() => { setEducationalSection('intro'); setShowEducationalMode(true) }}
             />
           )
@@ -551,9 +595,7 @@ export default function App() {
         case 'clinica':
           return (
             <ClinicalTab
-              onVitalsConfirm={handleVitalsConfirm}
               onNihssConfirm={handleNihssConfirm}
-              vitals={vitals}
               nihss={nihss}
               symptoms={symptoms}
             />
@@ -569,13 +611,19 @@ export default function App() {
               initialCtRequestTime={ctRequestTime}
             />
           )
-        case 'contraindicaciones':
+        case 'ci_abs':
           return (
-            <ContraindicationsStep
-              onConfirm={handleContraindicationsConfirm}
-              onAnticoagChange={(anticoag) => setSymptoms((prev) => ({ ...prev, anticoagulation: anticoag }))}
-              initialAnticoag={symptoms?.anticoagulation ?? null}
-              isCollapsed={false}
+            <CIAbsolutasTab
+              initialState={contraAbsolutes}
+              onUpdate={handleContraAbsUpdate}
+            />
+          )
+        case 'ci_rel':
+          return (
+            <CIRelativasTab
+              initialState={contraRelatives}
+              onUpdate={handleContraRelUpdate}
+              onAnticoagChange={handleAnticoagChange}
             />
           )
         default:
@@ -583,7 +631,7 @@ export default function App() {
       }
     }
 
-    // Phase 2
+    // ── Phase 2 ──────────────────────────────────────────────────────────────
     switch (activeTab) {
       case 'decision':
         return (
@@ -631,9 +679,20 @@ export default function App() {
 
   // ── Main render ─────────────────────────────────────────────────────────────
 
+  const PHASE1_TAB_IDS = ['paciente', 'tiempo', 'clinica', 'imagenes', 'ci_abs', 'ci_rel']
   const progressPct = phase === 'pre'
-    ? (['paciente','tiempo','clinica','imagenes','contraindicaciones'].filter((k) => tabCompletion[k] === 'complete').length / 5) * 100
+    ? (PHASE1_TAB_IDS.filter((k) => tabCompletion[k] === 'complete').length / PHASE1_TAB_IDS.length) * 100
     : 100
+
+  // Floating trombolisis button: visible in Phase 2 when indicated, not already on that tab
+  const showTrombolisisFAB = phase === 'post'
+    && decisionResult?.thrombolyze === true
+    && activeTab !== 'trombolisis'
+
+  // Bottom padding for scrollable content
+  // Phase 1: needs space for fixed DecisionButton (~72px) + optional safe area
+  // Phase 2: needs space for mobile QuickAddFAB toolbar (~72px)
+  const contentPaddingBottom = 'calc(5rem + env(safe-area-inset-bottom, 0px))'
 
   return (
     <div className="h-dvh flex flex-col overflow-hidden bg-neutral-50">
@@ -657,9 +716,8 @@ export default function App() {
       {/* Body below header */}
       <div className="flex-1 flex flex-col overflow-hidden pt-14">
 
-        {/* TabBar lives in the colored header band */}
-        <div className="shrink-0 bg-brand-600 transition-colors duration-500"
-          style={{ backgroundColor: timerStart ? undefined : undefined }}>
+        {/* TabBar — colored band */}
+        <div className="shrink-0 bg-brand-600">
           <TabBar
             phase={phase}
             activeTab={activeTab}
@@ -734,6 +792,16 @@ export default function App() {
                 />
               </div>
 
+              {/* Trombolisis shortcut (desktop sidebar, Phase 2) */}
+              {showTrombolisisFAB && (
+                <div className="p-3 border-t border-emerald-100 bg-emerald-50/60">
+                  <button type="button" onClick={() => setActiveTab('trombolisis')}
+                    className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition-all active:scale-[0.98]">
+                    <Syringe size={13} /> Ir a Trombolisis
+                  </button>
+                </div>
+              )}
+
               {/* Summary copy (Phase 2 only) */}
               {phase === 'post' && (
                 <div className="p-3 border-t border-neutral-100">
@@ -758,27 +826,30 @@ export default function App() {
           {/* Main content */}
           <div className="flex-1 flex flex-col overflow-hidden">
             <main className="flex-1 overflow-y-auto">
-              <div className="max-w-2xl mx-auto px-0 py-4"
-                style={{ paddingBottom: 'calc(5rem + env(safe-area-inset-bottom, 0px))' }}>
+              <div className="max-w-2xl mx-auto px-0 py-3"
+                style={{ paddingBottom: contentPaddingBottom }}>
                 {renderTabContent()}
               </div>
             </main>
-
-            {/* Decision button (Phase 1 only, inside the brand-colored section) */}
-            {phase === 'pre' && (
-              <div className="shrink-0 bg-brand-600">
-                <DecisionButton
-                  allComplete={tabCompletion.allComplete}
-                  onClick={handleComputeDecision}
-                  executed={false}
-                />
-              </div>
-            )}
           </div>
         </div>
 
-        {/* Mobile bottom toolbar */}
-        {timerStart && (
+        {/* ── Fixed bottom: DecisionButton (Phase 1) ── */}
+        {phase === 'pre' && (
+          <div
+            className="fixed inset-x-0 bottom-0 z-50 bg-brand-700/95 backdrop-blur-sm border-t border-brand-500/30 px-4 py-3"
+            style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}
+          >
+            <DecisionButton
+              allComplete={tabCompletion.allComplete}
+              onClick={handleComputeDecision}
+              executed={false}
+            />
+          </div>
+        )}
+
+        {/* ── Fixed bottom: QuickAddFAB toolbar (Phase 2, mobile only) ── */}
+        {phase === 'post' && timerStart && (
           <div
             className="fixed inset-x-0 bottom-0 z-40 border-t border-neutral-200 bg-white/95 px-3 pb-3 pt-2 shadow-elevated backdrop-blur-md md:hidden"
             style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}
@@ -794,6 +865,26 @@ export default function App() {
               latestGlucose={latestGlucose}
             />
           </div>
+        )}
+
+        {/* ── Floating Trombolisis FAB (mobile — appears above toolbar) ── */}
+        {showTrombolisisFAB && (
+          <button
+            type="button"
+            onClick={() => setActiveTab('trombolisis')}
+            className="fixed z-50 flex items-center gap-2 px-4 py-3 rounded-2xl shadow-xl
+              bg-emerald-600 hover:bg-emerald-700 active:scale-[0.97] text-white font-bold text-sm
+              transition-all animate-fade-in md:hidden"
+            style={{
+              bottom: timerStart
+                ? 'calc(5rem + env(safe-area-inset-bottom, 0px))'
+                : 'calc(1.5rem + env(safe-area-inset-bottom, 0px))',
+              right: '1rem',
+            }}
+          >
+            <Syringe size={16} strokeWidth={2} />
+            Trombolisis
+          </button>
         )}
       </div>
 

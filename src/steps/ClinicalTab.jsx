@@ -399,34 +399,19 @@ function NihssSection({ onConfirm, confirmed, initialNihss, initialSymptoms }) {
   )
 }
 
-// ── ClinicalTab (exported) ──────────────────────────────────────────────────
+// ── ClinicalTab (exported) — NIHSS + symptoms only ──────────────────────────
 
-export default function ClinicalTab({
-  onVitalsConfirm,
-  onNihssConfirm,
-  vitals,
-  nihss,
-  symptoms,
-}) {
-  const vitalsConfirmed = vitals !== null
+export default function ClinicalTab({ onNihssConfirm, nihss, symptoms }) {
   const nihssConfirmed = nihss !== null
 
   return (
     <div className="px-4 pb-4 space-y-4">
-      {/* Completion banner */}
-      {vitalsConfirmed && nihssConfirmed && (
+      {nihssConfirmed && (
         <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-emerald-50 border border-emerald-200 animate-fade-in">
           <CheckCircle2 size={14} className="text-emerald-600 shrink-0" />
-          <p className="text-xs font-semibold text-emerald-700">Evaluación clínica completa</p>
+          <p className="text-xs font-semibold text-emerald-700">NIHSS registrado — {nihss.nihssScore} pts</p>
         </div>
       )}
-
-      <VitalsSection
-        onConfirm={onVitalsConfirm}
-        confirmed={vitalsConfirmed}
-        initialVitals={vitals}
-      />
-
       <NihssSection
         onConfirm={onNihssConfirm}
         confirmed={nihssConfirmed}
