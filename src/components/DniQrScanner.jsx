@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Html5Qrcode } from 'html5-qrcode'
+import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode'
 import { X, ScanLine, AlertCircle } from 'lucide-react'
 
 const CONTAINER_ID = 'dni-qr-reader'
@@ -49,7 +49,16 @@ export default function DniQrScanner({ onScan, onClose }) {
       try {
         await scanner.start(
           { facingMode: 'environment' },
-          { fps: 12, qrbox: { width: 240, height: 240 } },
+          {
+            fps: 12,
+            qrbox: { width: 280, height: 180 },   // más ancho para PDF417
+            formatsToSupport: [
+              Html5QrcodeSupportedFormats.QR_CODE,
+              Html5QrcodeSupportedFormats.PDF_417,
+              Html5QrcodeSupportedFormats.DATA_MATRIX,
+              Html5QrcodeSupportedFormats.AZTEC,
+            ],
+          },
           (decodedText) => {
             if (scannedRef.current) return
             const result = parseDniQr(decodedText)
@@ -87,7 +96,7 @@ export default function DniQrScanner({ onScan, onClose }) {
         <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-100">
           <div className="flex items-center gap-2">
             <ScanLine size={16} className="text-brand-600" />
-            <span className="font-semibold text-sm text-neutral-800">Escaneá el QR del DNI</span>
+            <span className="font-semibold text-sm text-neutral-800">Escaneá el código del DNI</span>
           </div>
           <button
             type="button"
@@ -114,7 +123,7 @@ export default function DniQrScanner({ onScan, onClose }) {
             </div>
           ) : (
             <p className="text-xs text-neutral-400 text-center">
-              Apuntá al código QR en el <strong>frente</strong> del DNI
+              Apuntá al <strong>QR o al código de barras</strong> del frente del DNI
             </p>
           )}
         </div>
