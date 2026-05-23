@@ -94,7 +94,7 @@ export default function DniQrScanner({ onScan, onClose }) {
           { facingMode: 'environment' },
           {
             fps: 8,
-            // qrbox proporcional: el usuario puede alejarse y la cámara enfoca bien
+            // qrbox proporcional: el usuario puede alejarse ~20-25cm y la cámara enfoca
             qrbox: (w, h) => ({
               width:  Math.floor(w * 0.88),
               height: Math.floor(h * 0.52),
@@ -105,8 +105,10 @@ export default function DniQrScanner({ onScan, onClose }) {
               Html5QrcodeSupportedFormats.DATA_MATRIX,
               Html5QrcodeSupportedFormats.AZTEC,
             ],
-            // Alta resolución + autofocus continuo → mejor foco a distancia normal
+            // videoConstraints DEBE incluir facingMode — cuando está presente,
+            // sobreescribe el primer argumento de start() por completo.
             videoConstraints: {
+              facingMode: { ideal: 'environment' },  // ← cámara trasera
               width:  { ideal: 1920 },
               height: { ideal: 1080 },
               advanced: [{ focusMode: 'continuous' }],
