@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import { BrowserMultiFormatReader } from '@zxing/browser'
 import { BarcodeFormat, DecodeHintType } from '@zxing/library'
-import { X, ScanLine, AlertCircle, Camera, Loader2, CheckCircle2 } from 'lucide-react'
+import { X, ScanLine, AlertCircle, Camera, Loader2 } from 'lucide-react'
 
 /**
  * Parsea el PDF417 / QR del DNI argentino.
@@ -11,8 +11,8 @@ import { X, ScanLine, AlertCircle, Camera, Loader2, CheckCircle2 } from 'lucide-
  *     [0] TRAMITE  [1] APELLIDOS  [2] NOMBRES  [3] SEXO  [4] DNI  [5] EJEMPLAR
  *     [6] FNAC (DD/MM/YYYY) ← futuro: exponer en el modelo de datos
  *
- * ─── FORMATO VIEJO (DNI anterior a 2009, poco frecuente) ───────────────────
- *   Sin TRAMITE: [0] APELLIDOS  [1] NOMBRES  [2] SEXO  [3] DNI
+ * ─── FORMATO VIEJO (DNI anterior a 2009) ───────────────────────────────────
+ *   [0] APELLIDOS  [1] NOMBRES  [2] SEXO  [3] DNI
  *
  * ─── Caracteres especiales (PDF417 solo soporta ASCII 127) ─────────────────
  *   Ñ → NXX  |  Ü → UXX
@@ -55,6 +55,8 @@ function parseDniQr(raw) {
   }
 }
 
+// ─── Decode helpers ──────────────────────────────────────────────────────────
+
 const HINTS = new Map([
   [DecodeHintType.POSSIBLE_FORMATS, [
     BarcodeFormat.PDF_417,
@@ -65,17 +67,61 @@ const HINTS = new Map([
   [DecodeHintType.TRY_HARDER, true],
 ])
 
+/** Dibuja un ImageBitmap en un canvas rotado y devuelve un blob URL. */
+function bitmapToRotatedUrl(bitmap, angleDeg) {
+  const rad  = (angleDeg * Math.PI) / 180
+  const swap = angleDeg === 90 || angleDeg === 270
+  const canvas = document.createElement('canvas')
+  canvas.width  = swap ? bitmap.height : bitmap.width
+  canvas.height = swap ? bitmap.width  : bitmap.height
+  const ctx = canvas.getContext('2d')
+  ctx.translate(canvas.width / 2, canvas.height / 2)
+  ctx.rotate(rad)
+  ctx.drawImage(bitmap, -bitmap.width / 2, -bitmap.height / 2)
+  return new Promise((res) => canvas.toBlob((b) => res(URL.createObjectURL(b)), 'image/jpeg', 0.92))
+}
+
 /**
- * Estrategia: foto estática en vez de video continuo.
- *
- * El celular no puede enfocar bien a corta distancia en video continuo.
- * Al usar `<input capture="environment">` se abre la cámara nativa del
- * teléfono — que tiene mucho mejor autofocus — y el usuario puede tomarse
- * el tiempo para enfocar bien antes de confirmar la foto.
- * ZXing luego decodifica la imagen estática, que es mucho más confiable.
+ * Intenta decodificar con ZXing en las 4 orientaciones posibles.
+ * Necesario porque el celular puede guardar la foto con orientación EXIF
+ * que ZXing no respeta, haciendo que el PDF417 aparezca "de costado".
  */
+async function decodeWithZXing(bitmap) {
+  const reader = new BrowserMultiFormatReader(HINTS)
+  for (const angle of [0, 90, 270, 180]) {
+    const url = await bitmapToRotatedUrl(bitmap, angle)
+    try {
+      const result = await reader.decodeFromImageUrl(url)
+      URL.revokeObjectURL(url)
+      return result.getText()
+    } catch {
+      URL.revokeObjectURL(url)
+    }
+  }
+  return null
+}
+
+/**
+ * Intenta decodificar con la BarcodeDetector API nativa de Chrome/Android.
+ * Maneja EXIF automáticamente y es más confiable que ZXing en este entorno.
+ */
+async function decodeWithNativeAPI(bitmap) {
+  if (!('BarcodeDetector' in window)) return null
+  try {
+    const detector = new window.BarcodeDetector({
+      formats: ['pdf_417', 'qr_code', 'data_matrix', 'aztec'],
+    })
+    const results = await detector.detect(bitmap)
+    return results[0]?.rawValue ?? null
+  } catch {
+    return null
+  }
+}
+
+// ─── Componente ──────────────────────────────────────────────────────────────
+
 export default function DniQrScanner({ onScan, onClose }) {
-  const inputRef            = useRef(null)
+  const inputRef              = useRef(null)
   const [loading, setLoading] = useState(false)
   const [error,   setError]   = useState(null)
 
@@ -86,28 +132,44 @@ export default function DniQrScanner({ onScan, onClose }) {
     setLoading(true)
     setError(null)
 
-    const url = URL.createObjectURL(file)
+    // createImageBitmap respeta la orientación EXIF del celular
+    let bitmap
     try {
-      const reader = new BrowserMultiFormatReader(HINTS)
-      const result = await reader.decodeFromImageUrl(url)
-      const parsed = parseDniQr(result.getText())
+      bitmap = await createImageBitmap(file)
+    } catch {
+      setError('No se pudo leer la imagen. Intentá de nuevo.')
+      setLoading(false)
+      return
+    }
 
+    try {
+      // 1. Intentar con la API nativa del browser (Chrome Android — más confiable)
+      let text = await decodeWithNativeAPI(bitmap)
+
+      // 2. Fallback: ZXing con 4 rotaciones (por si EXIF no se aplicó correctamente)
+      if (!text) {
+        text = await decodeWithZXing(bitmap)
+      }
+
+      if (!text) {
+        setError(
+          'No se encontró el código de barras.\n' +
+          'Asegurate de fotografiar la barra negra del frente del DNI, bien enfocada.'
+        )
+        return
+      }
+
+      const parsed = parseDniQr(text)
       if (!parsed) {
-        // DEBUG: mostrar raw si el código se leyó pero el parser no lo reconoció
-        setError(`Código leído pero formato no reconocido:\n"${result.getText().slice(0, 100)}"`)
+        // DEBUG: mostrar raw para diagnosticar formato inesperado
+        setError(`Código leído pero formato no reconocido:\n"${text.slice(0, 100)}"`)
         return
       }
 
       onScan(parsed)
-    } catch {
-      setError(
-        'No se encontró el código de barras en la foto.\n' +
-        'Intentá nuevamente: enfocá bien la barra del costado y tomá la foto a ~20 cm.'
-      )
     } finally {
-      URL.revokeObjectURL(url)
+      bitmap.close()
       setLoading(false)
-      // Reset input para poder intentar de nuevo con otra foto
       if (inputRef.current) inputRef.current.value = ''
     }
   }
@@ -138,7 +200,6 @@ export default function DniQrScanner({ onScan, onClose }) {
         {/* Body */}
         <div className="p-5 space-y-4">
 
-          {/* Ilustración / instrucción */}
           <div className="bg-neutral-50 rounded-xl p-4 space-y-2">
             <p className="text-xs font-semibold text-neutral-600 text-center uppercase tracking-wider">
               Cómo hacerlo
@@ -150,16 +211,15 @@ export default function DniQrScanner({ onScan, onClose }) {
               </li>
               <li className="flex items-start gap-2">
                 <span className="bg-brand-100 text-brand-700 rounded-full w-4 h-4 flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">2</span>
-                Tocá el botón y apuntá al <strong>código de barras del frente</strong>
+                Tocá el botón y enfocá la <strong>barra negra del frente</strong>
               </li>
               <li className="flex items-start gap-2">
                 <span className="bg-brand-100 text-brand-700 rounded-full w-4 h-4 flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">3</span>
-                Esperá que la cámara enfoque y sacá la foto
+                Esperá que enfoque bien y sacá la foto
               </li>
             </ol>
           </div>
 
-          {/* Botón principal */}
           <input
             ref={inputRef}
             type="file"
@@ -168,6 +228,7 @@ export default function DniQrScanner({ onScan, onClose }) {
             className="hidden"
             onChange={handleFile}
           />
+
           <button
             type="button"
             onClick={() => inputRef.current?.click()}
@@ -180,7 +241,6 @@ export default function DniQrScanner({ onScan, onClose }) {
             }
           </button>
 
-          {/* Error */}
           {error && (
             <div className="flex items-start gap-2 bg-red-50 border border-red-100 rounded-xl px-3 py-2.5">
               <AlertCircle size={14} className="text-red-500 mt-0.5 shrink-0" />
