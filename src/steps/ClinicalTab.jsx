@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { CheckCircle2, AlertTriangle, ChevronRight, ChevronDown, HelpCircle, Calculator, RotateCcw } from 'lucide-react'
+import { CheckCircle2, AlertTriangle, ChevronDown, Calculator, RotateCcw } from 'lucide-react'
 import { Dumbbell, MessageSquare, Eye, Scale, FileText, Brain } from 'lucide-react'
 import { getNihssSeverity, nihssItems } from '../content/nihss'
 import NihssFullEditor from '../components/NihssFullEditor'
@@ -137,15 +137,6 @@ const SYMPTOMS = [
   { id: 'other',         label: 'Otro',        sub: 'Otro síntoma',     Icon: FileText,      flashPts: 0, nihssIds: [], defaults: {} },
 ]
 
-const MRS_OPTIONS = [
-  { score: 0, label: 'Sin síntomas' },
-  { score: 1, label: 'Sin discapacidad significativa' },
-  { score: 2, label: 'Discapacidad leve' },
-  { score: 3, label: 'Discapacidad moderada' },
-  { score: 4, label: 'Moderadamente severa' },
-  { score: 5, label: 'Discapacidad severa' },
-]
-
 const DISABLING_LIST = [
   'Afasia o dificultad severa para comunicarse',
   'Paresia que impide deambulación o uso del miembro',
@@ -185,11 +176,9 @@ function NihssSection({ onConfirm, confirmed, initialNihss, initialSymptoms }) {
   const [subscaleScores, setSubscaleScores] = useState({})
   const [otherScore, setOtherScore] = useState('')
   const [hasDisabling, setHasDisabling] = useState(initialNihss?.hasDisablingSymptoms ?? null)
-  const [showSubscales, setShowSubscales] = useState(false)
+  const [showSubscales, setShowSubscales] = useState(true)
   const [showGuidedModal, setShowGuidedModal] = useState(false)
   const [useFullScores, setUseFullScores] = useState(false)
-  const [mrs, setMrs] = useState(initialSymptoms?.modifiedRankinScale?.score ?? null)
-  const [showMrsScale, setShowMrsScale] = useState(false)
   const [showDisablingList, setShowDisablingList] = useState(false)
 
   const hasSymptom = Object.values(selected).some(Boolean)
@@ -206,7 +195,7 @@ function NihssSection({ onConfirm, confirmed, initialNihss, initialSymptoms }) {
   const showDisablingBlock = hasSymptom && total < 5
   const onlyOther = activeSymptoms.length === 1 && selected['other']
   const otherValid = !onlyOther || otherScore !== ''
-  const canConfirm = hasSymptom && otherValid && (!showDisablingBlock || hasDisabling !== null) && mrs !== null
+  const canConfirm = hasSymptom && otherValid && (!showDisablingBlock || hasDisabling !== null)
 
   function toggleSymptom(id) {
     const sym = SYMPTOMS.find((s) => s.id === id)
@@ -233,7 +222,6 @@ function NihssSection({ onConfirm, confirmed, initialNihss, initialSymptoms }) {
       symptoms: { ...selected },
       nihssScore: total,
       hasDisablingSymptoms: hasDisabling,
-      modifiedRankinScale: mrs !== null ? { score: mrs, label: MRS_OPTIONS[mrs].label } : null,
     })
   }
 
@@ -254,46 +242,10 @@ function NihssSection({ onConfirm, confirmed, initialNihss, initialSymptoms }) {
           {confirmed
             ? <><CheckCircle2 size={15} /> NIHSS registrado</>
             : !hasSymptom ? 'Seleccioná síntomas primero'
-            : mrs === null ? 'Seleccioná mRS basal'
             : showDisablingBlock && hasDisabling === null ? 'Responder si el déficit es discapacitante'
             : 'Registrar evaluación clínica'
           }
         </button>
-      </div>
-
-      {/* mRS */}
-      <div className="mb-4">
-        <div className="flex items-center justify-between mb-2">
-          <p className="text-xs font-bold uppercase tracking-wider text-neutral-500">Funcionalidad previa (mRS)</p>
-          <button type="button" onClick={() => setShowMrsScale((v) => !v)}
-            className="flex items-center gap-1 text-xs text-neutral-400 hover:text-neutral-600 transition-colors">
-            <HelpCircle size={12} />
-            {showMrsScale ? 'Ocultar' : 'Ver escala'}
-          </button>
-        </div>
-        {showMrsScale && (
-          <div className="mb-3 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2.5 text-xs animate-fade-in">
-            {MRS_OPTIONS.map((o) => (
-              <div key={o.score} className="grid grid-cols-[20px_1fr] gap-2 py-0.5">
-                <span className="font-bold text-neutral-800">{o.score}</span>
-                <span className="text-neutral-600">{o.label}</span>
-              </div>
-            ))}
-          </div>
-        )}
-        <div className="grid grid-cols-6 gap-1.5">
-          {MRS_OPTIONS.map((o) => (
-            <button key={o.score} type="button" onClick={() => setMrs(o.score)}
-              className={`py-2.5 rounded-lg border-2 text-sm font-bold transition-all active:scale-95 ${
-                mrs === o.score
-                  ? 'border-blue-500 bg-blue-50 text-blue-700 ring-2 ring-blue-100'
-                  : 'border-neutral-200 text-neutral-500 hover:border-blue-300 hover:bg-blue-50/40'
-              }`}>
-              {o.score}
-            </button>
-          ))}
-        </div>
-        {mrs !== null && <p className="mt-1.5 text-xs text-blue-600 font-medium animate-fade-in">{MRS_OPTIONS[mrs].label}</p>}
       </div>
 
       {/* Symptoms */}
