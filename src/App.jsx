@@ -105,6 +105,9 @@ function SummarySection({ title, children }) {
   )
 }
 
+// ── Phase-1 tab order (module-level so handlers can reference it) ─────────────
+const PHASE1_TAB_IDS = ['paciente', 'tiempo', 'clinica', 'imagenes', 'ci_abs', 'ci_rel']
+
 // ── Main App ─────────────────────────────────────────────────────────────────
 
 export default function App() {
@@ -339,16 +342,19 @@ export default function App() {
 
   function handleTimeConfirm(data) {
     setSymptoms((prev) => ({ ...prev, ...data }))
+    advanceToNext('tiempo')
   }
 
   function handleVitalsConfirm(vitalsData) {
     setVitals(vitalsData)
+    advanceToNext('paciente')
   }
 
   function handleNihssConfirm(data) {
     const nihssData = { nihssScore: data.nihssScore, hasDisablingSymptoms: data.hasDisablingSymptoms }
     setNihss(nihssData)
     setSymptoms((prev) => ({ ...prev, symptoms: data.symptoms, modifiedRankinScale: data.modifiedRankinScale }))
+    advanceToNext('clinica')
   }
 
   function handleCtConfirm(data) {
@@ -360,10 +366,12 @@ export default function App() {
       startTime: timerStart?.toISOString(),
       ctRequestTime: data.ctRequestTime,
     })
+    advanceToNext('imagenes')
   }
 
   function handleMriConfirm(data) {
     setCtResult(data)
+    advanceToNext('imagenes')
   }
 
   function handleCtRequest(time) {
@@ -373,6 +381,7 @@ export default function App() {
   // CI tabs auto-save on each toggle
   function handleContraAbsUpdate(state) {
     setContraAbsolutes(state)
+    if (state.allAnswered) advanceToNext('ci_abs')
   }
 
   function handleContraRelUpdate(state) {
@@ -381,6 +390,14 @@ export default function App() {
 
   function handleAnticoagChange(anticoag) {
     setSymptoms((prev) => ({ ...prev, anticoagulation: anticoag }))
+  }
+
+  // ── Auto-advance to next tab on completion ────────────────────────────────────
+
+  function advanceToNext(currentTab) {
+    if (phase !== 'pre' || activeTab !== currentTab) return
+    const idx = PHASE1_TAB_IDS.indexOf(currentTab)
+    if (idx >= 0 && idx < PHASE1_TAB_IDS.length - 1) setActiveTab(PHASE1_TAB_IDS[idx + 1])
   }
 
   // ── Decision trigger ────────────────────────────────────────────────────────
@@ -679,7 +696,6 @@ export default function App() {
 
   // ── Main render ─────────────────────────────────────────────────────────────
 
-  const PHASE1_TAB_IDS = ['paciente', 'tiempo', 'clinica', 'imagenes', 'ci_abs', 'ci_rel']
   const progressPct = phase === 'pre'
     ? (PHASE1_TAB_IDS.filter((k) => tabCompletion[k] === 'complete').length / PHASE1_TAB_IDS.length) * 100
     : 100

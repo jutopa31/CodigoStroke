@@ -216,6 +216,37 @@ export default function TimeStep({ onConfirm, isCollapsed = false }) {
           </div>
         </div>
 
+        {/* Botones de acción — antes del slider para no requerir scroll */}
+        <div className="flex items-center gap-2 mb-3">
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={!lastSeen}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl font-medium text-xs transition-all active:scale-[0.98] ${
+              confirmed
+                ? 'bg-emerald-50 border border-emerald-200 text-emerald-700'
+                : lastSeen
+                  ? 'bg-brand-600 hover:bg-brand-700 text-white'
+                  : 'bg-neutral-100 text-neutral-400 cursor-not-allowed'
+            }`}
+          >
+            {confirmed ? <><CheckCircle2 size={12} strokeWidth={2} /> Registrado</> : 'Registrar tiempo'}
+          </button>
+          <button
+            type="button"
+            aria-pressed={isIncierto}
+            onClick={() => { setIsIncierto((v) => !v); setConfirmed(false) }}
+            className={`flex h-8 items-center gap-1.5 rounded-xl border px-3 text-[11px] font-medium transition-all active:scale-[0.98] ${
+              isIncierto
+                ? 'border-indigo-200 bg-indigo-50 text-indigo-700'
+                : 'border-neutral-200 bg-white text-neutral-400 hover:bg-neutral-50'
+            }`}
+          >
+            <Clock size={11} strokeWidth={2} />
+            Incierto / Wake-up
+          </button>
+        </div>
+
         {/* Slider */}
         <div className="relative pb-8">
           <input
@@ -248,37 +279,6 @@ export default function TimeStep({ onConfirm, isCollapsed = false }) {
           >
             <span className="h-2 w-0.5 rounded-full bg-blue-700" />
             <span className="text-[10px] font-semibold text-blue-800 bg-white px-1.5 py-0.5 rounded-md border border-blue-200">24h</span>
-          </button>
-        </div>
-
-        {/* Footer: botones de acción */}
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={handleSubmit}
-            disabled={!lastSeen}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl font-medium text-xs transition-all active:scale-[0.98] ${
-              confirmed
-                ? 'bg-emerald-50 border border-emerald-200 text-emerald-700'
-                : lastSeen
-                  ? 'bg-brand-600 hover:bg-brand-700 text-white'
-                  : 'bg-neutral-100 text-neutral-400 cursor-not-allowed'
-            }`}
-          >
-            {confirmed ? <><CheckCircle2 size={12} strokeWidth={2} /> Registrado</> : 'Registrar'}
-          </button>
-          <button
-            type="button"
-            aria-pressed={isIncierto}
-            onClick={() => { setIsIncierto((v) => !v); setConfirmed(false) }}
-            className={`flex h-8 items-center gap-1.5 rounded-xl border px-3 text-[11px] font-medium transition-all active:scale-[0.98] ${
-              isIncierto
-                ? 'border-indigo-200 bg-indigo-50 text-indigo-700'
-                : 'border-neutral-200 bg-white text-neutral-400 hover:bg-neutral-50'
-            }`}
-          >
-            <Clock size={11} strokeWidth={2} />
-            Incierto
           </button>
         </div>
 

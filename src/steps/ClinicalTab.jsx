@@ -239,6 +239,28 @@ function NihssSection({ onConfirm, confirmed, initialNihss, initialSymptoms }) {
 
   return (
     <StepCard step="" title="Síntomas / NIHSS" accent="orange">
+      {/* Sticky confirm at top — stays visible while scrolling through symptoms/NIHSS */}
+      <div className="sticky top-0 z-10 -mx-5 px-5 pb-2 mb-3 bg-white md:-mx-6 md:px-6">
+        <button
+          type="button" onClick={handleConfirm} disabled={!canConfirm}
+          className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-semibold text-sm transition-all active:scale-[0.98] ${
+            confirmed
+              ? 'bg-emerald-50 border border-emerald-200 text-emerald-700'
+              : canConfirm
+                ? 'bg-brand-600 hover:bg-brand-700 text-white'
+                : 'bg-neutral-100 text-neutral-400 cursor-not-allowed'
+          }`}
+        >
+          {confirmed
+            ? <><CheckCircle2 size={15} /> NIHSS registrado</>
+            : !hasSymptom ? 'Seleccioná síntomas primero'
+            : mrs === null ? 'Seleccioná mRS basal'
+            : showDisablingBlock && hasDisabling === null ? 'Responder si el déficit es discapacitante'
+            : 'Registrar evaluación clínica'
+          }
+        </button>
+      </div>
+
       {/* mRS */}
       <div className="mb-4">
         <div className="flex items-center justify-between mb-2">
@@ -375,22 +397,6 @@ function NihssSection({ onConfirm, confirmed, initialNihss, initialSymptoms }) {
           )}
         </div>
       )}
-
-      <button
-        type="button" onClick={handleConfirm} disabled={!canConfirm}
-        className={`mt-4 w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-all active:scale-[0.98] ${
-          confirmed
-            ? 'bg-emerald-50 border border-emerald-200 text-emerald-700'
-            : canConfirm
-              ? 'bg-brand-600 hover:bg-brand-700 text-white'
-              : 'bg-neutral-100 text-neutral-400 cursor-not-allowed'
-        }`}
-      >
-        {confirmed
-          ? <><CheckCircle2 size={15} /> NIHSS registrado</>
-          : !hasSymptom ? 'Selecciona síntomas' : !mrs ? 'Completar mRS' : showDisablingBlock && hasDisabling === null ? 'Responder si es discapacitante' : 'Registrar evaluación clínica'
-        }
-      </button>
 
       {showGuidedModal && (
         <NihssFullEditor scores={subscaleScores} onSave={handleGuidedSave} onClose={() => setShowGuidedModal(false)} />

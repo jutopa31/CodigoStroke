@@ -180,32 +180,47 @@ export default function ImagingTab({
   isWakeUpStroke,
   initialCtRequestTime,
 }) {
-  // If wake-up stroke is explicitly true, default to MRI view; otherwise CT
   const [mode, setMode] = useState(isWakeUpStroke === true ? 'mri' : 'ct')
 
-  const ctConfirmed = ctResult?.bleeding === true || ctResult?.bleeding === false
-  const mriConfirmed = ctResult?.mismatch === true || ctResult?.mismatch === false
+  // When Tiempo tab changes wake-up status, update the imaging mode accordingly
+  useEffect(() => {
+    setMode(isWakeUpStroke === true ? 'mri' : 'ct')
+  }, [isWakeUpStroke])
+
+  const ctConfirmed  = ctResult?.bleeding === true || ctResult?.bleeding === false
+  const mriConfirmed = ctResult?.mismatch  === true || ctResult?.mismatch  === false
+
+  // MRI toggle only appears when time window is uncertain (wake-up stroke)
+  const showMriToggle = isWakeUpStroke === true
 
   return (
     <div className="px-4 pb-4 space-y-3">
-      {/* Mode toggle */}
-      <div className="flex rounded-xl overflow-hidden border border-neutral-200 text-sm font-semibold">
-        {[
-          { id: 'ct',  label: 'TC de encéfalo' },
-          { id: 'mri', label: 'RMN (Wake-up)' },
-        ].map(({ id, label }) => (
-          <button key={id} type="button" onClick={() => setMode(id)}
-            className={`flex-1 py-2.5 transition-all ${
-              mode === id ? 'bg-blue-600 text-white' : 'bg-white text-neutral-500 hover:bg-blue-50'
-            }`}>
-            {label}
-            {id === 'ct' && ctConfirmed && <span className="ml-1.5 inline-block w-2 h-2 rounded-full bg-emerald-400" />}
-            {id === 'mri' && mriConfirmed && <span className="ml-1.5 inline-block w-2 h-2 rounded-full bg-emerald-400" />}
-          </button>
-        ))}
-      </div>
+      {/* Mode toggle — only visible for wake-up / uncertain window */}
+      {showMriToggle ? (
+        <div className="flex rounded-xl overflow-hidden border border-neutral-200 text-sm font-semibold">
+          {[
+            { id: 'ct',  label: 'TC de encéfalo' },
+            { id: 'mri', label: 'RMN (Wake-up)' },
+          ].map(({ id, label }) => (
+            <button key={id} type="button" onClick={() => setMode(id)}
+              className={`flex-1 py-2.5 transition-all ${
+                mode === id ? 'bg-blue-600 text-white' : 'bg-white text-neutral-500 hover:bg-blue-50'
+              }`}>
+              {label}
+              {id === 'ct' && ctConfirmed  && <span className="ml-1.5 inline-block w-2 h-2 rounded-full bg-emerald-400" />}
+              {id === 'mri' && mriConfirmed && <span className="ml-1.5 inline-block w-2 h-2 rounded-full bg-emerald-400" />}
+            </button>
+          ))}
+        </div>
+      ) : (
+        <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-blue-50 border border-blue-100">
+          <Scan size={13} className="text-blue-500 shrink-0" />
+          <p className="text-xs text-blue-700 font-medium">Ventana terapéutica conocida — solo TC de encéfalo</p>
+        </div>
+      )}
 
-      {mode === 'ct' && (
+      {/* CT section — always shown unless wake-up mode is active on MRI tab */}
+      {(!showMriToggle || mode === 'ct') && (
         <StepCard step="" title="TAC de encéfalo" accent="blue">
           <CTSection
             onConfirm={onCtConfirm}
@@ -227,7 +242,8 @@ export default function ImagingTab({
         </StepCard>
       )}
 
-      {mode === 'mri' && (
+      {/* MRI section — only for wake-up stroke / uncertain window */}
+      {showMriToggle && mode === 'mri' && (
         <StepCard step="" title="RMN — ACV del despertar" accent="blue">
           <MRISection
             onConfirm={onMriConfirm}

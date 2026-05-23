@@ -172,6 +172,16 @@ function VitalsSection({ vitals, onConfirm }) {
 
   return (
     <div className="space-y-3">
+      {/* Sticky confirm — always visible at top while filling fields */}
+      <div className="sticky top-0 z-10 bg-white pb-1">
+        <button type="button" onClick={handleConfirm} disabled={!valid}
+          className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-semibold text-sm transition-all active:scale-[0.98] ${
+            valid ? 'bg-brand-600 hover:bg-brand-700 text-white' : 'bg-neutral-100 text-neutral-400 cursor-not-allowed'
+          }`}>
+          {valid ? <><CheckCircle2 size={14}/> Registrar signos vitales</> : 'Completar TA, glucemia y mRS'}
+        </button>
+      </div>
+
       {/* TA + Glucemia */}
       <div className="grid grid-cols-[1fr_auto_1fr_1fr] items-center gap-2">
         <div>
@@ -233,12 +243,6 @@ function VitalsSection({ vitals, onConfirm }) {
         )}
       </div>
 
-      <button type="button" onClick={handleConfirm} disabled={!valid}
-        className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-all active:scale-[0.98] ${
-          valid ? 'bg-brand-600 hover:bg-brand-700 text-white' : 'bg-neutral-100 text-neutral-400 cursor-not-allowed'
-        }`}>
-        {valid ? <><CheckCircle2 size={14}/> Registrar signos vitales</> : 'Completar TA, glucemia y mRS'}
-      </button>
     </div>
   )
 }
