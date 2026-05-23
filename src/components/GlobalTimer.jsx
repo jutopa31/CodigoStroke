@@ -104,16 +104,11 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
           </div>
         )}
 
-        {/* Right: patient name (desktop) + buttons */}
+        {/* Right: patient name (desktop only) + buttons */}
         <div className="flex items-center gap-2 shrink-0">
           {startTime && patient && (
             <span className={`text-xs font-medium ${phase.muted} truncate max-w-[140px] hidden md:block`}>
               {patient.name}
-            </span>
-          )}
-          {patient && (
-            <span className={`text-xs font-medium ${phase ? phase.muted : 'text-brand-300'} truncate max-w-[90px] md:hidden`}>
-              {patient.name.split(' ')[0]}
             </span>
           )}
           {onAuthClick && (

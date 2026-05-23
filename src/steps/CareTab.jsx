@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Plus, Brain, Activity, AlertTriangle, Heart, FileText, CheckCircle2, Circle } from 'lucide-react'
+import { Plus, Brain, Activity, AlertTriangle, Heart, FileText, CheckCircle2, ChevronDown, ChevronRight } from 'lucide-react'
 import StepCard from '../components/StepCard'
 
 function fmtTime(date) {
@@ -8,22 +8,52 @@ function fmtTime(date) {
 }
 
 const BP_ALERTS = [
-  { id: 'deterioration', label: 'Deterioro neurológico', sub: 'Caída ≥ 4 puntos en NIHSS' },
-  { id: 'headache',      label: 'Cefalea súbita',       sub: 'Especialmente post-trombolisis' },
-  { id: 'vomiting',      label: 'Náuseas / vómitos',    sub: 'Signo de HIC' },
-  { id: 'seizure',       label: 'Convulsiones',         sub: 'Nuevo déficit o empeoramiento' },
-  { id: 'bp_spike',      label: 'TA > 180/105 mmHg',   sub: 'Requiere tratamiento inmediato' },
+  {
+    id: 'deterioration', label: 'Deterioro neurológico', sub: 'Caída ≥ 4 puntos en NIHSS',
+    info: 'TC urgente para descartar transformación hemorrágica. Evaluar suspensión del trombolítico si aún corre.',
+  },
+  {
+    id: 'headache', label: 'Cefalea súbita', sub: 'Especialmente post-trombolisis',
+    info: 'Alta sospecha de HIC. TC urgente sin contraste. Suspender trombolítico. Avisar neurocirugía.',
+  },
+  {
+    id: 'vomiting', label: 'Náuseas / vómitos', sub: 'Signo de HIC',
+    info: 'Valorar en contexto clínico. Si se acompaña de deterioro o cefalea, solicitar TC urgente.',
+  },
+  {
+    id: 'seizure', label: 'Convulsiones', sub: 'Nuevo déficit o empeoramiento',
+    info: 'Benzodiacepinas IV. TC urgente. Sospechar transformación hemorrágica o edema cerebral.',
+  },
+  {
+    id: 'bp_spike', label: 'TA > 180/105 mmHg', sub: 'Requiere tratamiento inmediato',
+    info: 'Labetalol 10 mg IV o Nicardipino 5 mg/h. Meta: PAS < 180, PAD < 105 mmHg.',
+  },
 ]
 
 const ADVERSE_EFFECTS = [
-  { id: 'angioedema',    label: 'Angioedema',            sub: 'Hinchazón de lengua/labios/vía aérea', tone: 'red' },
-  { id: 'major_bleed',  label: 'Sangrado mayor',         sub: 'Sistémico o intracraneal', tone: 'red' },
-  { id: 'hemorrhagic',  label: 'Transformación hemorrágica', sub: 'TC control a las 24h', tone: 'orange' },
-  { id: 'reperfusion',  label: 'Síndrome de reperfusión', sub: 'Edema, hiperperfusión', tone: 'orange' },
-  { id: 'allergic',     label: 'Reacción alérgica',      sub: 'Urticaria, hipotensión', tone: 'orange' },
+  {
+    id: 'angioedema', label: 'Angioedema', sub: 'Hinchazón de lengua/labios/vía aérea', tone: 'red',
+    info: 'Suspender trombolítico inmediatamente. Adrenalina 0.5 mg IM. Proteger vía aérea. Antihistamínicos + corticoides IV.',
+  },
+  {
+    id: 'major_bleed', label: 'Sangrado mayor', sub: 'Sistémico o intracraneal', tone: 'red',
+    info: 'Suspender trombolítico. Crioprecipitado + plaquetas. TC urgente si sospecha HIC. Consulta Hematología y Neurocirugía.',
+  },
+  {
+    id: 'hemorrhagic', label: 'Transformación hemorrágica', sub: 'TC control a las 24h', tone: 'orange',
+    info: 'Si sintomática: revertir fibrinólisis. Soporte UCI. TC sin contraste a las 24h antes de reiniciar antitrombóticos.',
+  },
+  {
+    id: 'reperfusion', label: 'Síndrome de reperfusión', sub: 'Edema, hiperperfusión', tone: 'orange',
+    info: 'Control estricto de TA. Monitoreo neurológico frecuente. Considerar ingreso a cuidados críticos.',
+  },
+  {
+    id: 'allergic', label: 'Reacción alérgica', sub: 'Urticaria, hipotensión', tone: 'orange',
+    info: 'Suspender infusión. Adrenalina 0.5 mg IM si anafilaxia. Difenhidramina + metilprednisolona IV.',
+  },
 ]
 
-function NihssRow({ reading, idx }) {
+function NihssRow({ reading }) {
   const severity = (() => {
     const s = reading.score
     if (s === 0) return { color: 'text-emerald-700', bg: 'bg-emerald-50', border: 'border-emerald-200' }
@@ -58,18 +88,46 @@ function VitalsRow({ reading }) {
   )
 }
 
+function InfoItem({ item, accent = 'red' }) {
+  const [open, setOpen] = useState(false)
+  const accentColor = accent === 'red' ? 'text-red-400' : 'text-amber-400'
+  return (
+    <button
+      type="button"
+      onClick={() => setOpen((v) => !v)}
+      className="w-full flex flex-col px-3 py-2.5 rounded-xl border border-neutral-200 bg-white hover:bg-neutral-50 text-left transition-all active:scale-[0.98]"
+    >
+      <div className="flex items-center gap-3">
+        <AlertTriangle size={13} className={`${accentColor} shrink-0`} />
+        <div className="flex-1 min-w-0">
+          <p className="text-xs font-semibold text-neutral-700">{item.label}</p>
+          <p className="text-[10px] text-neutral-400 mt-0.5">{item.sub}</p>
+        </div>
+        <ChevronDown
+          size={13}
+          className={`text-neutral-400 shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+        />
+      </div>
+      {open && (
+        <p className="mt-2 pt-2 border-t border-neutral-100 text-xs text-neutral-600 leading-relaxed animate-fade-in text-left">
+          {item.info}
+        </p>
+      )}
+    </button>
+  )
+}
+
 export default function CareTab({
   nihssReadings = [],
   vitalsReadings = [],
   onAddNihss,
   onAddVitals,
+  onContinue,
 }) {
   const [nihssEntry, setNihssEntry] = useState('')
   const [showNihssInput, setShowNihssInput] = useState(false)
   const [vitalsEntry, setVitalsEntry] = useState({ sys: '', dia: '' })
   const [showVitalsInput, setShowVitalsInput] = useState(false)
-  const [alarmChecked, setAlarmChecked] = useState({})
-  const [adverseChecked, setAdverseChecked] = useState({})
   const [notes, setNotes] = useState('')
 
   const nihssNum = parseInt(nihssEntry, 10)
@@ -99,7 +157,7 @@ export default function CareTab({
 
         {nihssReadings.length > 0 && (
           <div className="space-y-1.5 mb-3">
-            {nihssReadings.map((r, i) => <NihssRow key={i} reading={r} idx={i} />)}
+            {nihssReadings.map((r, i) => <NihssRow key={i} reading={r} />)}
           </div>
         )}
 
@@ -181,58 +239,23 @@ export default function CareTab({
         )}
       </StepCard>
 
-      {/* Alarm signs */}
+      {/* Alarm signs — informational, expandable */}
       <StepCard step="" title="Signos de alarma" accent="red">
-        <p className="text-xs text-neutral-500 mb-3">Marcar los que se presentan para documentación.</p>
+        <p className="text-xs text-neutral-500 mb-3">Tocá cada ítem para ver qué hacer si se presenta.</p>
         <div className="space-y-2">
-          {BP_ALERTS.map((item) => {
-            const checked = !!alarmChecked[item.id]
-            return (
-              <button key={item.id} type="button"
-                onClick={() => setAlarmChecked((a) => ({ ...a, [item.id]: !a[item.id] }))}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border-2 text-left transition-all active:scale-[0.98] ${
-                  checked ? 'bg-red-50 border-red-300' : 'bg-white border-neutral-200 hover:border-red-200'
-                }`}>
-                <div className="shrink-0">
-                  {checked ? <CheckCircle2 size={15} className="text-red-500" /> : <Circle size={15} className="text-neutral-300" />}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className={`text-xs font-semibold ${checked ? 'text-red-700' : 'text-neutral-700'}`}>{item.label}</p>
-                  <p className="text-[10px] text-neutral-400 mt-0.5">{item.sub}</p>
-                </div>
-                {checked && <AlertTriangle size={13} className="text-red-500 shrink-0" />}
-              </button>
-            )
-          })}
+          {BP_ALERTS.map((item) => (
+            <InfoItem key={item.id} item={item} accent="red" />
+          ))}
         </div>
       </StepCard>
 
-      {/* Adverse effects */}
+      {/* Adverse effects — informational, expandable */}
       <StepCard step="" title="Efectos adversos / Complicaciones" accent="red">
-        <p className="text-xs text-neutral-500 mb-3">Documentar si se presentan. Actuar de inmediato en rojo.</p>
+        <p className="text-xs text-neutral-500 mb-3">Tocá cada ítem para ver el manejo correspondiente.</p>
         <div className="space-y-2">
-          {ADVERSE_EFFECTS.map((item) => {
-            const checked = !!adverseChecked[item.id]
-            const toneClass = item.tone === 'red'
-              ? checked ? 'bg-blue-50 border-blue-300' : 'bg-white border-neutral-200 hover:border-blue-200'
-              : checked ? 'bg-amber-50 border-amber-300' : 'bg-white border-neutral-200 hover:border-amber-200'
-            return (
-              <button key={item.id} type="button"
-                onClick={() => setAdverseChecked((a) => ({ ...a, [item.id]: !a[item.id] }))}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border-2 text-left transition-all active:scale-[0.98] ${toneClass}`}>
-                <div className="shrink-0">
-                  {checked
-                    ? <CheckCircle2 size={15} className={item.tone === 'red' ? 'text-blue-700' : 'text-amber-600'} />
-                    : <Circle size={15} className="text-neutral-300" />
-                  }
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className={`text-xs font-semibold ${checked ? (item.tone === 'red' ? 'text-blue-900' : 'text-amber-800') : 'text-neutral-700'}`}>{item.label}</p>
-                  <p className="text-[10px] text-neutral-400 mt-0.5">{item.sub}</p>
-                </div>
-              </button>
-            )
-          })}
+          {ADVERSE_EFFECTS.map((item) => (
+            <InfoItem key={item.id} item={item} accent={item.tone} />
+          ))}
         </div>
       </StepCard>
 
@@ -252,6 +275,17 @@ export default function CareTab({
           </div>
         )}
       </StepCard>
+
+      {/* Navigation to next section */}
+      {onContinue && (
+        <button
+          type="button"
+          onClick={onContinue}
+          className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-semibold text-sm bg-brand-600 hover:bg-brand-700 text-white transition-all active:scale-[0.98]"
+        >
+          Continuar → Trombectomía <ChevronRight size={16} />
+        </button>
+      )}
 
     </div>
   )

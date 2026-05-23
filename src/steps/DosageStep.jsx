@@ -343,7 +343,7 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
               <ChevronRight size={14} className="text-blue-300" />
             </div>
             <p className="text-xs font-semibold leading-snug text-white">Todas realizadas</p>
-            <p className="text-[9px] text-blue-300 leading-snug">Finalizar protocolo</p>
+            <p className="text-[9px] text-blue-300 leading-snug">Continuar → Cuidados</p>
           </button>
         </div>
 
@@ -412,7 +412,7 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
           disabled={!canContinue}
           className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-semibold py-4 rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          Finalizar protocolo <ChevronRight size={18} />
+          Continuar → Cuidados <ChevronRight size={18} />
         </button>
       </div>
 
