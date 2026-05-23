@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
-import { User, CheckCircle2, AlertTriangle, CreditCard, Lock, BookOpen } from 'lucide-react'
+import { User, CheckCircle2, AlertTriangle, CreditCard, Lock, BookOpen, ScanLine } from 'lucide-react'
+import DniQrScanner from '../components/DniQrScanner'
 
 const MRS_OPTIONS = [
   { score: 0, label: 'Sin síntomas' },
@@ -13,12 +14,19 @@ const MRS_OPTIONS = [
 // ── Patient section ──────────────────────────────────────────────────────────
 
 function PatientSection({ patient, patientId, arrivalTime, onConfirm, onOpenEducational }) {
-  const [dni, setDni]         = useState('')
-  const [name, setName]       = useState('')
-  const [pass, setPass]       = useState('')
-  const nameRef               = useRef(null)
-  const passRef               = useRef(null)
-  const valid                 = dni.trim().length >= 7 && name.trim().length >= 2
+  const [dni, setDni]           = useState('')
+  const [name, setName]         = useState('')
+  const [pass, setPass]         = useState('')
+  const [showScanner, setShowScanner] = useState(false)
+  const nameRef                 = useRef(null)
+  const passRef                 = useRef(null)
+  const valid                   = dni.trim().length >= 7 && name.trim().length >= 2
+
+  function handleScan({ name: scannedName, dni: scannedDni }) {
+    setName(scannedName)
+    setDni(scannedDni)
+    setShowScanner(false)
+  }
 
   function handleSubmit(e) {
     e.preventDefault()
@@ -46,15 +54,22 @@ function PatientSection({ patient, patientId, arrivalTime, onConfirm, onOpenEduc
   }
 
   return (
+    <>
+    {showScanner && <DniQrScanner onScan={handleScan} onClose={() => setShowScanner(false)} />}
     <form onSubmit={handleSubmit} className="space-y-2.5">
-      {onOpenEducational && (
-        <div className="flex justify-end">
+      <div className="flex items-center justify-between">
+        <button type="button" onClick={() => setShowScanner(true)}
+          className="flex items-center gap-1.5 text-xs font-medium text-brand-600 hover:text-brand-700 bg-brand-50 hover:bg-brand-100 px-2.5 py-1.5 rounded-lg transition-colors">
+          <ScanLine size={13} strokeWidth={2} />
+          Escanear QR del DNI
+        </button>
+        {onOpenEducational && (
           <button type="button" onClick={onOpenEducational}
             className="flex items-center gap-1 text-xs text-neutral-400 hover:text-amber-600 transition-colors">
             <BookOpen size={12} strokeWidth={2} /> Modo educativo
           </button>
-        </div>
-      )}
+        )}
+      </div>
       <div className="grid grid-cols-2 gap-2">
         <div>
           <label className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400 flex items-center gap-1 mb-1">
@@ -91,6 +106,7 @@ function PatientSection({ patient, patientId, arrivalTime, onConfirm, onOpenEduc
         <Lock size={14} /> Activar Código Stroke
       </button>
     </form>
+    </>
   )
 }
 
