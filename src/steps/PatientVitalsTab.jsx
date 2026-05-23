@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { User, CheckCircle2, AlertTriangle, CreditCard, Lock, BookOpen, ScanLine } from 'lucide-react'
 import DniQrScanner from '../components/DniQrScanner'
 
@@ -112,13 +112,19 @@ function PatientSection({ patient, patientId, arrivalTime, onConfirm, onOpenEduc
 
 // ── Vitals section ────────────────────────────────────────────────────────────
 
-function VitalsSection({ vitals, onConfirm }) {
-  const [sys,     setSys]     = useState(vitals ? String(vitals.systolic)  : '')
-  const [dia,     setDia]     = useState(vitals ? String(vitals.diastolic) : '')
-  const [glucose, setGlucose] = useState(vitals ? String(vitals.glucose)  : '')
-  const [mrs,     setMrs]     = useState(vitals?.modifiedRankinScale?.score ?? null)
+function VitalsSection({ vitals, onConfirm, draftVitals, onDraftChange }) {
+  const [sys,     setSys]     = useState(vitals ? String(vitals.systolic)  : (draftVitals?.sys ?? ''))
+  const [dia,     setDia]     = useState(vitals ? String(vitals.diastolic) : (draftVitals?.dia ?? ''))
+  const [glucose, setGlucose] = useState(vitals ? String(vitals.glucose)  : (draftVitals?.glucose ?? ''))
+  const [mrs,     setMrs]     = useState(vitals?.modifiedRankinScale?.score ?? draftVitals?.mrs ?? null)
   const diaRef     = useRef(null)
   const glucoseRef = useRef(null)
+
+  useEffect(() => {
+    if (!vitals && onDraftChange) {
+      onDraftChange({ sys, dia, glucose, mrs })
+    }
+  }, [sys, dia, glucose, mrs])
 
   const sysNum  = parseFloat(sys)
   const diaNum  = parseFloat(dia)
@@ -182,14 +188,14 @@ function VitalsSection({ vitals, onConfirm }) {
         </button>
       </div>
 
-      {/* TA + Glucemia */}
-      <div className="grid grid-cols-[1fr_auto_1fr_1fr] items-center gap-2">
+      {/* TA */}
+      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400 mb-1">TA Sistólica</p>
           <input type="text" inputMode="numeric" maxLength={3} placeholder="120"
             value={sys} onChange={(e) => setSys(e.target.value.replace(/\D/g, '').slice(0, 3))}
             onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); diaRef.current?.focus() } }}
-            className={fieldCls(taCrit, !!sys)} />
+            className={`w-full ${fieldCls(taCrit, !!sys)}`} />
         </div>
         <span className="text-neutral-300 font-bold mt-5">/</span>
         <div>
@@ -197,13 +203,16 @@ function VitalsSection({ vitals, onConfirm }) {
           <input ref={diaRef} type="text" inputMode="numeric" maxLength={3} placeholder="80"
             value={dia} onChange={(e) => setDia(e.target.value.replace(/\D/g, '').slice(0, 3))}
             onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); glucoseRef.current?.focus() } }}
-            className={fieldCls(diaCrit, !!dia)} />
+            className={`w-full ${fieldCls(diaCrit, !!dia)}`} />
         </div>
+      </div>
+      {/* Glucemia */}
+      <div className="grid grid-cols-2 gap-2">
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400 mb-1">Glucemia</p>
           <input ref={glucoseRef} type="text" inputMode="numeric" maxLength={3} placeholder="120"
             value={glucose} onChange={(e) => setGlucose(e.target.value.replace(/\D/g, '').slice(0, 3))}
-            className={fieldCls(glucLow || glucHigh, !!glucose)} />
+            className={`w-full ${fieldCls(glucLow || glucHigh, !!glucose)}`} />
         </div>
       </div>
 
@@ -257,6 +266,8 @@ export default function PatientVitalsTab({
   onPatientConfirm,
   onVitalsConfirm,
   onOpenEducational,
+  draftVitals,
+  onDraftVitalsChange,
 }) {
   const patientDone = !!patient
   const vitalsDone  = vitals !== null
@@ -292,7 +303,7 @@ export default function PatientVitalsTab({
           )}
         </div>
         {patientDone ? (
-          <VitalsSection vitals={vitals} onConfirm={onVitalsConfirm} />
+          <VitalsSection vitals={vitals} onConfirm={onVitalsConfirm} draftVitals={draftVitals} onDraftChange={onDraftVitalsChange} />
         ) : (
           <div className="grid grid-cols-3 gap-2 opacity-40 pointer-events-none select-none">
             {['TA', 'Glucemia', 'mRS'].map(l => (

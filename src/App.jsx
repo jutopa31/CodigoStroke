@@ -138,6 +138,7 @@ export default function App() {
   const [patientId, setPatientId] = useState('')
   const [symptoms, setSymptoms] = useState(null)
   const [vitals, setVitals] = useState(null)
+  const [draftVitals, setDraftVitals] = useState({ sys: '', dia: '', glucose: '', mrs: null })
   const [nihss, setNihss] = useState(null)
   const [ctResult, setCtResult] = useState(null)
   const [contraindications, setContraindications] = useState(null)
@@ -607,6 +608,8 @@ export default function App() {
               onPatientConfirm={handlePatientConfirm}
               onVitalsConfirm={handleVitalsConfirm}
               onOpenEducational={() => { setEducationalSection('intro'); setShowEducationalMode(true) }}
+              draftVitals={draftVitals}
+              onDraftVitalsChange={setDraftVitals}
             />
           )
         case 'tiempo':
