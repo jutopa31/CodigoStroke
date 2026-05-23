@@ -114,7 +114,7 @@ export default function DniQrScanner({ onScan, onClose }) {
             </div>
           ) : (
             <p className="text-xs text-neutral-400 text-center">
-              Apuntá al código QR en el <strong>dorso</strong> del DNI
+              Apuntá al código QR en el <strong>frente</strong> del DNI
             </p>
           )}
         </div>
