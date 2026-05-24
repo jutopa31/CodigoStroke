@@ -9,7 +9,6 @@ import QuickAddFAB from './components/QuickAddFAB'
 import OutOfWindowModal from './components/OutOfWindowModal'
 import EducationalOverlay from './components/EducationalOverlay'
 import EducationalMode from './components/EducationalMode'
-import TimestampPanel from './components/TimestampPanel'
 import StartStep from './steps/StartStep'
 import PatientVitalsTab from './steps/PatientVitalsTab'
 import TimeStep from './steps/TimeStep'
@@ -839,8 +838,18 @@ export default function App() {
               <div className="w-full max-w-5xl mx-auto px-0 py-3 pb-20 md:px-5 md:py-3 md:pb-5">
                 {renderTabContent()}
               </div>
-            </main>
+            )}
           </div>
+        )}
+
+        {/* Main content */}
+        <div className="flex-1 overflow-hidden">
+          <main className="h-full overflow-y-auto">
+            <div className="max-w-3xl mx-auto px-0 py-3"
+              style={{ paddingBottom: contentPaddingBottom }}>
+              {renderTabContent()}
+            </div>
+          </main>
         </div>
 
         {/* ── Fixed bottom: DecisionButton (Phase 1) ── */}
@@ -849,11 +858,13 @@ export default function App() {
             className="fixed inset-x-0 bottom-0 z-50 bg-brand-700/95 backdrop-blur-sm border-t border-brand-500/30 px-4 py-3 md:hidden"
             style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}
           >
-            <DecisionButton
-              allComplete={tabCompletion.allComplete}
-              onClick={handleComputeDecision}
-              executed={false}
-            />
+            <div className="max-w-3xl mx-auto">
+              <DecisionButton
+                allComplete={tabCompletion.allComplete}
+                onClick={handleComputeDecision}
+                executed={false}
+              />
+            </div>
           </div>
         )}
 

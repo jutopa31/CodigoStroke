@@ -31,8 +31,8 @@ function getPhase(minutes) {
     timer: 'md:bg-stroke-panel md:text-white',
   }
   if (minutes >= 30) return {
-    bg: 'bg-amber-500',
-    muted: 'text-amber-200',
+    bg: 'bg-brand-700',
+    muted: 'text-brand-200',
     badge: 'bg-white/25 text-white',
     timer: 'md:bg-amber-500 md:text-white',
   }
