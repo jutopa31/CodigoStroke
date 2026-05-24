@@ -91,12 +91,12 @@ export function SectionPrompt({ tone = 'blue', title, helper, complete, status }
   }
 
   return (
-    <div className={`mb-3 rounded-xl border px-3 py-2.5 ${toneClasses[tone] ?? toneClasses.blue}`}>
+    <div className={`mb-3 rounded-lg border px-3 py-2 ${toneClasses[tone] ?? toneClasses.blue}`}>
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-sm font-semibold">{title}</p>
+        <p className="text-[13px] font-semibold">{title}</p>
         <StatusPill complete={complete}>{status ?? (complete ? 'Completo' : 'Pendiente')}</StatusPill>
       </div>
-      {helper && <p className="mt-1 text-xs opacity-80">{helper}</p>}
+      {helper && <p className="mt-0.5 text-[11px] leading-snug opacity-80">{helper}</p>}
     </div>
   )
 }
@@ -106,7 +106,7 @@ export function PrimaryAction({ valid, children, disabledLabel, className = '', 
     <button
       ref={buttonRef}
       disabled={!valid}
-      className={`w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-[0.98] text-white font-semibold py-3.5 rounded-xl transition-all disabled:bg-neutral-100 disabled:text-neutral-400 disabled:cursor-not-allowed ${className}`}
+      className={`w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-[0.98] text-white font-semibold py-3 rounded-xl transition-all disabled:bg-neutral-100 disabled:text-neutral-400 disabled:cursor-not-allowed ${className}`}
       {...props}
     >
       {valid ? children : disabledLabel}

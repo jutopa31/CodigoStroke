@@ -45,12 +45,12 @@ function CTSection({ onConfirm, initialCtRequestTime, onCtRequest }) {
   }
 
   return (
-    <div className={`overflow-hidden rounded-2xl border transition-all duration-200 ${
+    <div className={`overflow-hidden rounded-xl border transition-all duration-200 ${
       !ctRequestTime ? 'border-blue-200 bg-blue-50/70' : bleeding === true ? 'border-blue-800/40 bg-blue-900/8' : bleeding === false ? 'border-emerald-200 bg-emerald-50/80' : 'border-blue-100 bg-white'
     }`}>
-      <div className="flex items-start gap-3 px-4 py-4">
-        <span className={`mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors ${ctRequestTime ? 'bg-emerald-500 text-white' : 'bg-blue-600 text-white'}`}>
-          {ctRequestTime ? <CheckCircle2 size={21} strokeWidth={2.4} /> : <Scan size={21} strokeWidth={2.4} />}
+      <div className="flex items-start gap-3 px-3 py-3">
+        <span className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors ${ctRequestTime ? 'bg-emerald-500 text-white' : 'bg-blue-600 text-white'}`}>
+          {ctRequestTime ? <CheckCircle2 size={17} strokeWidth={2.4} /> : <Scan size={17} strokeWidth={2.4} />}
         </span>
         <div className="min-w-0 flex-1">
           <p className={`text-sm font-bold leading-tight ${ctRequestTime ? 'text-emerald-800' : 'text-blue-800'}`}>
@@ -66,22 +66,22 @@ function CTSection({ onConfirm, initialCtRequestTime, onCtRequest }) {
       </div>
 
       {!ctRequestTime ? (
-        <div className="border-t border-blue-100 bg-white/60 p-3">
+        <div className="border-t border-blue-100 bg-white/60 p-2.5">
           <button type="button" onClick={handleCtRequest}
-            className="flex min-h-[54px] w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-sm font-bold text-white transition-all hover:bg-blue-700 active:scale-[0.98]">
+            className="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-bold text-white transition-all hover:bg-blue-700 active:scale-[0.98]">
             <Scan size={17} strokeWidth={2.5} /> TAC solicitada
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-2 border-t border-blue-100 bg-white/70 p-3 animate-fade-in">
+        <div className="grid grid-cols-2 gap-2 border-t border-blue-100 bg-white/70 p-2.5 animate-fade-in">
           <button type="button" onClick={() => handleBleedingSelect(true)}
-            className={`flex min-h-[58px] items-center justify-center gap-2 rounded-xl border px-3 py-3 text-sm font-bold transition-all active:scale-[0.98] ${
+            className={`flex min-h-[44px] items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-sm font-bold transition-all active:scale-[0.98] ${
               bleeding === true ? 'border-blue-900 bg-blue-900 text-white' : 'border-blue-200 bg-white text-blue-900 hover:border-blue-300 hover:bg-blue-50'
             }`}>
             <Droplets size={17} strokeWidth={2.5} /> Sí sangre
           </button>
           <button type="button" onClick={() => handleBleedingSelect(false)}
-            className={`flex min-h-[58px] items-center justify-center gap-2 rounded-xl border px-3 py-3 text-sm font-bold transition-all active:scale-[0.98] ${
+            className={`flex min-h-[44px] items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-sm font-bold transition-all active:scale-[0.98] ${
               bleeding === false ? 'border-emerald-500 bg-emerald-600 text-white' : 'border-emerald-200 bg-white text-emerald-700 hover:border-emerald-300 hover:bg-emerald-50'
             }`}>
             <CheckCircle2 size={17} strokeWidth={2.5} /> No sangre
@@ -113,27 +113,27 @@ function MRISection({ onConfirm }) {
   }
 
   return (
-    <div className="rounded-2xl border border-indigo-200 bg-indigo-50/50 overflow-hidden">
+    <div className="rounded-xl border border-indigo-200 bg-indigo-50/50 overflow-hidden">
       <div className="flex items-center gap-2 px-4 py-3 bg-indigo-100/50">
         <Moon size={14} className="text-indigo-600 shrink-0" />
         <span className="text-xs font-semibold text-indigo-700">Protocolo WAKE-UP — evaluar mismatch FLAIR-DWI</span>
       </div>
 
       {!mriRequestTime ? (
-        <div className="p-3">
+        <div className="p-2.5">
           <button type="button" onClick={() => setMriRequestTime(new Date())}
-            className="w-full flex items-center justify-center gap-2 py-4 bg-indigo-700 hover:bg-indigo-800 active:scale-95 text-white font-semibold rounded-xl transition-all">
+            className="w-full flex items-center justify-center gap-2 py-2.5 bg-indigo-700 hover:bg-indigo-800 active:scale-95 text-white font-semibold rounded-lg transition-all">
             <Moon size={16} /> Solicitar RMN DWI + FLAIR
           </button>
         </div>
       ) : (
-        <div className="p-3 space-y-3">
+        <div className="p-2.5 space-y-2">
           <div className="flex items-center gap-2 bg-indigo-100/60 border border-indigo-200 rounded-xl px-3 py-2">
             <Clock size={13} className="text-indigo-600 shrink-0" />
             <span className="text-xs font-medium text-indigo-700">RMN solicitada hace {elapsed}</span>
           </div>
 
-          <div className="bg-white/60 rounded-xl px-3 py-2.5 text-xs text-neutral-500 space-y-1">
+          <div className="bg-white/60 rounded-lg px-3 py-2 text-xs text-neutral-500 space-y-1">
             <p className="font-semibold text-neutral-700">Criterio mismatch FLAIR-DWI</p>
             <p>DWI (+): restricción de difusión presente</p>
             <p>FLAIR (−) o sutil: sin cambios establecidos</p>
@@ -141,13 +141,13 @@ function MRISection({ onConfirm }) {
 
           <div className="grid grid-cols-2 gap-2">
             <button type="button" onClick={() => handleMismatch(false)}
-              className={`py-4 rounded-xl border font-bold text-base transition-all active:scale-[0.98] ${
+              className={`py-2.5 rounded-lg border font-bold text-sm transition-all active:scale-[0.98] ${
                 mismatch === false ? 'border-neutral-400 bg-neutral-700 text-white' : 'border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50'
               }`}>
               NO mismatch
             </button>
             <button type="button" onClick={() => handleMismatch(true)}
-              className={`py-4 rounded-xl border font-bold text-base transition-all active:scale-[0.98] ${
+              className={`py-2.5 rounded-lg border font-bold text-sm transition-all active:scale-[0.98] ${
                 mismatch === true ? 'border-emerald-500 bg-emerald-600 text-white' : 'border-emerald-200 bg-white text-emerald-700 hover:bg-emerald-50'
               }`}>
               SÍ mismatch
@@ -190,7 +190,7 @@ export default function ImagingTab({
   const mode = showMriToggle ? (selectedMode ?? 'mri') : 'ct'
 
   return (
-    <div className="px-4 pb-4 space-y-3">
+    <div className="px-4 pb-4 space-y-3 md:px-0">
       {/* Mode toggle — only visible for wake-up / uncertain window */}
       {showMriToggle ? (
         <div className="flex rounded-xl overflow-hidden border border-neutral-200 text-sm font-semibold">
@@ -224,13 +224,13 @@ export default function ImagingTab({
             onCtRequest={onCtRequest}
           />
           {ctResult?.bleeding === true && (
-            <div className="mt-3 bg-blue-900/10 border-2 border-blue-800/50 rounded-xl px-4 py-3 animate-fade-in">
+          <div className="mt-3 bg-blue-900/10 border border-blue-800/50 rounded-lg px-3 py-2.5 animate-fade-in">
               <p className="text-sm font-bold text-blue-900 mb-1">Hemorragia intracraneal presente</p>
               <p className="text-xs text-blue-800 leading-relaxed">Contraindicación absoluta para trombolisis IV.</p>
             </div>
           )}
           {ctResult?.bleeding === false && (
-            <div className="mt-3 bg-emerald-50 border-2 border-emerald-300 rounded-xl px-4 py-3 animate-fade-in">
+          <div className="mt-3 bg-emerald-50 border border-emerald-300 rounded-lg px-3 py-2.5 animate-fade-in">
               <p className="text-xs font-semibold text-emerald-700">TAC sin hemorragia — continuar evaluación.</p>
             </div>
           )}

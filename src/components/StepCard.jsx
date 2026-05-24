@@ -53,7 +53,7 @@ export default function StepCard({
 
   const card = (
     <div className={`
-      relative bg-white rounded-2xl border transition-all duration-200
+      relative bg-white rounded-xl border transition-all duration-200
       ${isActive 
         ? 'border-brand-200 shadow-elevated' 
         : isCompleted 
@@ -62,14 +62,14 @@ export default function StepCard({
       }
     `}>
       {/* Minimal accent line */}
-      <div className={`absolute left-0 top-4 bottom-4 w-0.5 rounded-full ${accentColors[accent]} opacity-60`} />
+      <div className={`absolute left-0 top-3 bottom-3 w-0.5 rounded-full ${accentColors[accent]} opacity-60`} />
       
-      <div className="p-5 md:p-6">
+      <div className="p-4 md:p-4">
         {(step || title) && (
-          <div className="flex items-center gap-3 mb-4">
+          <div className="flex items-center gap-2.5 mb-3">
             {step && (
               <span className={`
-                hidden md:flex w-7 h-7 rounded-full text-white text-xs font-semibold 
+                hidden md:flex w-6 h-6 rounded-full text-white text-[11px] font-semibold
                 items-center justify-center shrink-0 transition-colors
                 ${isCompleted ? 'bg-emerald-500' : accentColors[accent]}
               `}>
@@ -77,7 +77,7 @@ export default function StepCard({
               </span>
             )}
             {title && (
-              <h2 className="text-neutral-800 text-base font-semibold tracking-tight">{title}</h2>
+              <h2 className="text-neutral-800 text-[15px] font-semibold tracking-tight">{title}</h2>
             )}
           </div>
         )}
