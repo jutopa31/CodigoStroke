@@ -25,8 +25,8 @@ function fmtClock(ts) {
 
 function getPhase(minutes) {
   if (minutes >= 60) return {
-    bg: 'bg-blue-900',
-    muted: 'text-blue-200',
+    bg: 'bg-brand-800',
+    muted: 'text-brand-200',
     badge: 'bg-white/25 text-white',
   }
   if (minutes >= 30) return {

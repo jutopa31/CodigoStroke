@@ -5,15 +5,15 @@ export default {
     extend: {
       colors: {
         brand: {
-          50:  '#EFF6FF',
-          100: '#DBEAFE',
-          200: '#BFDBFE',
-          300: '#93C5FD',
-          400: '#60A5FA',
-          500: '#3B82F6',
-          600: '#1D4ED8',
-          700: '#1E40AF',
-          800: '#1E3A8A',
+          50:  '#edf2ff',
+          100: '#d3e0ff',
+          200: '#aac0ff',
+          300: '#7fa0f5',
+          400: '#567ee0',
+          500: '#2e5cc4',
+          600: '#0f2654',
+          700: '#0c1e42',
+          800: '#091630',
         },
         surface: {
           DEFAULT: '#FFFFFF',
