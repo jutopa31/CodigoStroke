@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Plus, Brain, Activity, AlertTriangle, Heart, FileText, CheckCircle2, ChevronDown, ChevronRight } from 'lucide-react'
+import { Plus, Brain, Activity, AlertTriangle, Heart, ChevronDown, ChevronRight } from 'lucide-react'
 import StepCard from '../components/StepCard'
 
 function fmtTime(date) {

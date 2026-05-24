@@ -25,7 +25,7 @@ import { saveStrokeEvent, generatePatientId, saveSession, syncPendingEvents } fr
 import { getNihssSeverity } from './content/nihss'
 import { sendStrokeAlert } from './lib/emailService'
 import { computeStrokeDecision } from './lib/strokeAlgorithm'
-import { useAuth } from './auth/AuthContext'
+import { useAuth } from './auth/useAuth'
 import LoginModal from './auth/LoginModal'
 
 const MOCK_PATIENT = {
@@ -80,31 +80,6 @@ const SYMPTOM_LABELS = {
   other: 'Otro',
 }
 
-function SummaryRow({ label, value, tone = 'gray' }) {
-  const toneClass = {
-    gray:   'bg-neutral-50 text-neutral-700',
-    blue:   'bg-blue-50/50 text-blue-700',
-    green:  'bg-emerald-50/50 text-emerald-700',
-    orange: 'bg-amber-50/50 text-amber-700',
-    red:    'bg-blue-900/10 text-blue-900',
-  }[tone]
-  return (
-    <div className={`rounded-xl px-3 py-2.5 ${toneClass}`}>
-      <p className="text-[10px] font-semibold uppercase tracking-wider opacity-60">{label}</p>
-      <p className="mt-0.5 text-sm font-medium leading-snug">{value ?? 'No registrado'}</p>
-    </div>
-  )
-}
-
-function SummarySection({ title, children }) {
-  return (
-    <div className="rounded-2xl bg-white border border-neutral-100 px-4 py-4">
-      <h3 className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400 mb-3">{title}</h3>
-      <div className="grid gap-2 md:grid-cols-2">{children}</div>
-    </div>
-  )
-}
-
 // ── Phase-1 tab order (module-level so handlers can reference it) ─────────────
 const PHASE1_TAB_IDS = ['paciente', 'tiempo', 'clinica', 'imagenes', 'ci_abs', 'ci_rel']
 
@@ -114,7 +89,6 @@ export default function App() {
   // Phase management
   const [phase, setPhase] = useState('start') // 'start' | 'pre' | 'post'
   const [activeTab, setActiveTab] = useState('paciente')
-  const [showTrombolisisHint, setShowTrombolisisHint] = useState(false)
 
   // Modal state
   const [showEducationalOverlay, setShowEducationalOverlay] = useState(false)
@@ -141,7 +115,6 @@ export default function App() {
   const [draftVitals, setDraftVitals] = useState({ sys: '', dia: '', glucose: '', mrs: null })
   const [nihss, setNihss] = useState(null)
   const [ctResult, setCtResult] = useState(null)
-  const [contraindications, setContraindications] = useState(null)
   const [dosage, setDosage] = useState(null)
   const [thrombectomy, setThrombectomy] = useState(null)
   const [decisionResult, setDecisionResult] = useState(null)
@@ -245,7 +218,6 @@ export default function App() {
       setVitals(vitalsData)
       setNihss(nihssData)
       setCtResult(ctResultData)
-      setContraindications(contraindicationsData)
       // Sync split CI state for mock
       if (contraindicationsData) {
         const RED_IDS_LIST   = ['ct_hypodensity','ct_hemorrhage','tce_14d','neurosurgery_14d','spinal_cord','axial_tumor','endocarditis','coagulopathy','aortic_dissection','aria']
@@ -265,7 +237,6 @@ export default function App() {
       setDosage(dosageData)
       setThrombectomy(thrombectomyData)
       setDecisionResult(mockDecision)
-      if (mockDecision.thrombolyze === true) setShowTrombolisisHint(true)
       setPhase('post')
       setActiveTab('decision')
     }
@@ -415,14 +386,11 @@ export default function App() {
       decidedNotToThrombolyze: false,
       anticoagulation: contraRelatives?.anticoag ?? null,
     }
-    setContraindications(combinedContra)
-
     const result = computeStrokeDecision({ symptoms, nihss, ctResult, contraindications: combinedContra })
     setDecisionResult(result)
     setPhase('post')
     setActiveTab('decision')
     // Show floating trombolisis hint if indicated
-    if (result.thrombolyze === true) setShowTrombolisisHint(true)
 
     saveStrokeEvent({
       id: eventId,
@@ -716,6 +684,9 @@ export default function App() {
   // Phase 1: needs space for fixed DecisionButton (~72px) + optional safe area
   // Phase 2: needs space for mobile QuickAddFAB toolbar (~72px)
   const contentPaddingBottom = 'calc(5rem + env(safe-area-inset-bottom, 0px))'
+  const headerOffsetClass = timerStart
+    ? 'pt-[calc(6.85rem+env(safe-area-inset-top,0px))] md:pt-[calc(3.5rem+env(safe-area-inset-top,0px))]'
+    : 'pt-[calc(3.75rem+env(safe-area-inset-top,0px))] md:pt-[calc(3.5rem+env(safe-area-inset-top,0px))]'
 
   return (
     <div className="h-dvh flex flex-col overflow-hidden bg-neutral-50">
@@ -737,7 +708,7 @@ export default function App() {
       />
 
       {/* Body below header */}
-      <div className="flex-1 flex flex-col overflow-hidden" style={{ paddingTop: 'calc(3.5rem + env(safe-area-inset-top, 0px))' }}>
+      <div className={`flex-1 flex flex-col overflow-hidden ${headerOffsetClass}`}>
 
         {/* TabBar — colored band */}
         <div className="shrink-0 bg-brand-600">
@@ -849,7 +820,7 @@ export default function App() {
           {/* Main content */}
           <div className="flex-1 flex flex-col overflow-hidden">
             <main className="flex-1 overflow-y-auto">
-              <div className="max-w-2xl mx-auto px-0 py-3"
+              <div className="w-full max-w-4xl mx-auto px-0 py-3"
                 style={{ paddingBottom: contentPaddingBottom }}>
                 {renderTabContent()}
               </div>

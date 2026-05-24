@@ -23,7 +23,6 @@ export default function StepTimeline({ currentStep, completedSteps = [], onStepC
               const isCompleted = completedSteps.includes(step.value)
               const isActive = activeTab === step.value
               const isUnlocked = currentStep >= step.value || isCompleted
-              const isPending = !isCompleted && !isActive && !isUnlocked
               return (
                 <button
                   key={step.value}

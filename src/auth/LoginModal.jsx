@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { X, User, LogOut, CheckCircle, Loader2, ChevronLeft } from 'lucide-react'
-import { useAuth } from './AuthContext'
+import { X, LogOut, CheckCircle, Loader2, ChevronLeft } from 'lucide-react'
+import { useAuth } from './useAuth'
 
 function getInitials(user) {
   const name = user?.user_metadata?.display_name || user?.email || '?'

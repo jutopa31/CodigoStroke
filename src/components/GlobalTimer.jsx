@@ -41,13 +41,23 @@ function getPhase(minutes) {
   }
 }
 
-function EventBadge({ label, time, badgeClass }) {
+function EventBadge({ label, time, badgeClass, compact = false }) {
   return (
-    <span className={`flex items-center gap-1 px-2 py-0.5 rounded-md whitespace-nowrap ${badgeClass}`}>
-      <span className="text-[9px] font-semibold uppercase tracking-wide opacity-75">{label}</span>
-      <span className="text-[10px] font-mono font-bold">{fmtClock(time)}</span>
+    <span className={`flex items-center gap-1 rounded-md whitespace-nowrap ${compact ? 'px-2.5 py-1.5' : 'px-2 py-0.5'} ${badgeClass}`}>
+      <span className={`${compact ? 'text-[10px]' : 'text-[9px]'} font-semibold uppercase tracking-wide opacity-75`}>{label}</span>
+      <span className={`${compact ? 'text-[11px]' : 'text-[10px]'} font-mono font-bold`}>{fmtClock(time)}</span>
     </span>
   )
+}
+
+function getEventBadges(startTime, timestamps) {
+  if (!startTime) return []
+  return [
+    { label: 'Código', time: startTime },
+    timestamps.ctRequest && { label: 'TC', time: timestamps.ctRequest },
+    timestamps.thrombolyticStart && { label: 'Trombolisis', time: timestamps.thrombolyticStart },
+    timestamps.angioRequest && { label: 'Hemodinamia', time: timestamps.angioRequest },
+  ].filter(Boolean)
 }
 
 export default function GlobalTimer({ startTime, timestamps = {}, patient, onReset, progressPct, onEducationalOpen, authUser, onAuthClick }) {
@@ -64,47 +74,46 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
   const minutes = elapsed / 60
   const phase = startTime ? getPhase(minutes) : null
   const bg = phase ? phase.bg : 'bg-brand-600'
+  const eventBadges = getEventBadges(startTime, timestamps)
+  const primaryEvent = eventBadges[eventBadges.length - 1]
 
   return (
     <div
       className={`fixed top-0 left-0 right-0 z-50 ${bg} transition-colors duration-500`}
       style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
     >
-      <div className="flex items-center justify-between px-4 py-3 md:px-6">
-        {/* Left: brand icon + timer or app name */}
-        <div className="flex items-center gap-2.5 min-w-0">
-          <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center shrink-0">
+      <div className="flex items-center justify-between gap-3 px-3 py-2 md:px-6 md:py-3">
+        <div className="flex items-center gap-2.5 min-w-0 shrink">
+          <div className="w-10 h-10 md:w-8 md:h-8 rounded-xl md:rounded-lg bg-white/20 flex items-center justify-center shrink-0">
             {startTime
               ? <Clock size={16} className="text-white" strokeWidth={2} />
               : <Activity size={16} className="text-white" strokeWidth={2} />
             }
           </div>
           {startTime ? (
-            <span className="font-mono font-bold text-xl text-white tracking-tight tabular-nums">
-              {formatElapsed(elapsed)}
-            </span>
+            <div className="min-w-0">
+              <span className="block font-mono font-bold text-[1.35rem] leading-none md:text-xl text-white tracking-tight tabular-nums">
+                {formatElapsed(elapsed)}
+              </span>
+              {primaryEvent && (
+                <span className="mt-1 block truncate text-[10px] font-semibold uppercase tracking-wide text-white/65 md:hidden">
+                  {primaryEvent.label} {fmtClock(primaryEvent.time)}
+                </span>
+              )}
+            </div>
           ) : (
             <span className="text-white font-semibold text-sm tracking-wide">Código Stroke</span>
           )}
         </div>
 
-        {/* Center: action timestamps when timer is running */}
         {startTime && (
-          <div className="flex items-center gap-1 mx-2 overflow-x-auto shrink min-w-0" style={{ scrollbarWidth: 'none' }}>
-            <EventBadge label="Código" time={startTime} badgeClass={phase.badge} />
-            {timestamps.ctRequest && (
-              <EventBadge label="TC" time={timestamps.ctRequest} badgeClass={phase.badge} />
-            )}
-            {timestamps.thrombolyticStart && (
-              <EventBadge label="Trombolisis" time={timestamps.thrombolyticStart} badgeClass={phase.badge} />
-            )}
-            {timestamps.angioRequest && (
-              <EventBadge label="Hemodinamia" time={timestamps.angioRequest} badgeClass={phase.badge} />
-            )}
+          <div className="hidden md:flex items-center justify-center gap-1 mx-2 overflow-x-auto shrink min-w-0" style={{ scrollbarWidth: 'none' }}>
+            {eventBadges.map((event) => (
+              <EventBadge key={event.label} label={event.label} time={event.time} badgeClass={phase.badge} />
+            ))}
           </div>
         )}
 
-        {/* Right: patient name (desktop only) + buttons */}
         <div className="flex items-center gap-2 shrink-0">
           {startTime && patient && (
             <span className={`text-xs font-medium ${phase.muted} truncate max-w-[140px] hidden md:block`}>
@@ -115,7 +124,7 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
             <button
               type="button"
               onClick={onAuthClick}
-              className="w-8 h-8 rounded-lg border border-white/20 bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
+              className="w-11 h-11 md:w-8 md:h-8 rounded-xl md:rounded-lg border border-white/20 bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
               title={authUser ? 'Tu cuenta' : 'Iniciar sesión'}
               aria-label={authUser ? 'Tu cuenta' : 'Iniciar sesión'}
             >
@@ -129,7 +138,7 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
             <button
               type="button"
               onClick={onEducationalOpen}
-              className="w-8 h-8 rounded-lg border border-white/20 bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
+              className="w-11 h-11 md:w-8 md:h-8 rounded-xl md:rounded-lg border border-white/20 bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
               title="Referencia educativa del protocolo"
               aria-label="Abrir referencia educativa"
             >
@@ -140,7 +149,7 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
             <button
               type="button"
               onClick={onReset}
-              className="w-8 h-8 rounded-lg border border-white/20 bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
+              className="w-11 h-11 md:w-8 md:h-8 rounded-xl md:rounded-lg border border-white/20 bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
               title="Reiniciar protocolo"
               aria-label="Reiniciar protocolo"
             >
@@ -150,7 +159,19 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
         </div>
       </div>
 
-      {/* Progress bar */}
+      {startTime && eventBadges.length > 1 && (
+        <div className="md:hidden border-t border-white/10 px-3 pb-2">
+          <div
+            className="flex gap-1.5 overflow-x-auto pt-2 pr-8 [mask-image:linear-gradient(to_right,black_0%,black_86%,transparent_100%)]"
+            style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}
+          >
+            {eventBadges.map((event) => (
+              <EventBadge key={event.label} label={event.label} time={event.time} badgeClass={phase.badge} compact />
+            ))}
+          </div>
+        </div>
+      )}
+
       {progressPct > 0 && (
         <div className="h-0.5 bg-white/20">
           <div
