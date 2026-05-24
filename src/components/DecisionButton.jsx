@@ -1,8 +1,7 @@
 import { Brain, ChevronRight, CheckCircle2 } from 'lucide-react'
 
 /**
- * DecisionButton — rendered as a fixed-bottom full-width element by App.jsx.
- * This component is purely presentational; positioning is handled by the parent.
+ * DecisionButton is presentational; positioning is handled by App.jsx.
  */
 export default function DecisionButton({ allComplete, onClick, executed }) {
   if (executed) return null
@@ -13,7 +12,7 @@ export default function DecisionButton({ allComplete, onClick, executed }) {
       onClick={onClick}
       className="w-full flex items-center justify-center gap-2.5 py-4 rounded-2xl font-bold text-sm
         bg-white text-brand-700 shadow-elevated transition-all active:scale-[0.98] hover:bg-white/90
-        animate-pulse-subtle"
+        animate-pulse-subtle md:animate-none md:rounded-lg md:bg-neutral-950 md:py-3 md:text-white md:shadow-none md:hover:bg-neutral-800"
     >
       <Brain size={18} strokeWidth={2} />
       Calcular decisión de trombolisis
@@ -21,7 +20,8 @@ export default function DecisionButton({ allComplete, onClick, executed }) {
     </button>
   ) : (
     <div className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl
-      bg-white/10 border border-white/20 text-white/40 text-sm font-medium cursor-not-allowed select-none">
+      bg-white/10 border border-white/20 text-white/40 text-sm font-medium cursor-not-allowed select-none
+      md:rounded-lg md:border-neutral-200 md:bg-neutral-50 md:py-3 md:text-neutral-400">
       <CheckCircle2 size={15} strokeWidth={2} />
       Completá los 6 tabs para calcular
     </div>

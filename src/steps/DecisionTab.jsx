@@ -33,7 +33,7 @@ function DetailChip({ label, tone }) {
     gray:   'bg-neutral-50 border-neutral-200 text-neutral-600',
   }[tone] ?? 'bg-neutral-50 border-neutral-200 text-neutral-600'
   return (
-    <div className={`rounded-lg border px-2.5 py-1.5 text-xs font-medium ${colors}`}>
+    <div className={`rounded-lg md:rounded-md border px-2.5 py-1.5 text-xs font-medium ${colors}`}>
       {label}
     </div>
   )
@@ -49,22 +49,22 @@ export default function DecisionTab({ result, onGoToThrombolysis, onGoToThrombec
   const { thrombolyze, icon, title, body, drug, absoluteCI, relativeCI, absoluteDetails, relativeDetails } = result
 
   return (
-    <div className="px-4 pb-4 animate-slide-down">
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
+    <div className="px-4 pb-4 animate-slide-down md:px-0">
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-start xl:gap-5">
         <div className="space-y-4">
-          <div className={`bg-white rounded-2xl border-2 ${borderMap[icon] ?? 'border-neutral-200'} p-6 lg:p-8`}>
-            <div className={`w-14 h-14 ${iconBgMap[icon] ?? 'bg-neutral-100'} rounded-2xl flex items-center justify-center mx-auto mb-4`}>
+          <div className={`bg-white rounded-2xl border-2 md:rounded-lg md:border ${borderMap[icon] ?? 'border-neutral-200'} p-6 md:p-6 lg:p-8`}>
+            <div className={`w-14 h-14 md:w-11 md:h-11 ${iconBgMap[icon] ?? 'bg-neutral-100'} rounded-2xl md:rounded-lg flex items-center justify-center mx-auto md:mx-0 mb-4`}>
               <DecisionIcon icon={icon} />
             </div>
-            <h2 className="text-neutral-800 text-lg lg:text-xl font-bold text-center mb-2">{title}</h2>
-            <p className="text-sm text-neutral-500 text-center leading-relaxed max-w-2xl mx-auto">{body}</p>
+            <h2 className="text-neutral-800 text-lg lg:text-xl font-bold text-center md:text-left mb-2">{title}</h2>
+            <p className="text-sm text-neutral-500 text-center md:text-left leading-relaxed max-w-2xl mx-auto md:mx-0">{body}</p>
           </div>
 
           {thrombolyze === true && drug && (
-            <div className="rounded-2xl bg-emerald-50 border border-emerald-200 px-4 py-4">
+            <div className="rounded-2xl md:rounded-lg bg-emerald-50 border border-emerald-200 px-4 py-4">
               <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 mb-2">Fármaco recomendado</p>
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-xl md:rounded-lg bg-emerald-100 flex items-center justify-center shrink-0">
                   <Syringe size={18} className="text-emerald-700" />
                 </div>
                 <div>
@@ -83,7 +83,7 @@ export default function DecisionTab({ result, onGoToThrombolysis, onGoToThrombec
           )}
 
           {absoluteCI && absoluteDetails.length > 0 && (
-            <div className="rounded-2xl bg-blue-50 border border-blue-200 px-4 py-4">
+            <div className="rounded-2xl md:rounded-lg bg-blue-50 border border-blue-200 px-4 py-4">
               <p className="text-[10px] font-bold uppercase tracking-wider text-blue-900 mb-2">Contraindicaciones absolutas</p>
               <div className="space-y-1.5">
                 {absoluteDetails.map((d) => <DetailChip key={d} label={d} tone="red" />)}
@@ -92,7 +92,7 @@ export default function DecisionTab({ result, onGoToThrombolysis, onGoToThrombec
           )}
 
           {relativeCI && relativeDetails.length > 0 && (
-            <div className="rounded-2xl bg-amber-50 border border-amber-200 px-4 py-4">
+            <div className="rounded-2xl md:rounded-lg bg-amber-50 border border-amber-200 px-4 py-4">
               <p className="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-2">Contraindicaciones relativas</p>
               <div className="space-y-1.5">
                 {relativeDetails.map((d) => <DetailChip key={d} label={d} tone="orange" />)}
@@ -106,11 +106,11 @@ export default function DecisionTab({ result, onGoToThrombolysis, onGoToThrombec
           )}
         </div>
 
-        <div className="space-y-2 lg:sticky lg:top-4">
+        <div className="space-y-2 lg:sticky lg:top-4 md:rounded-lg md:border md:border-neutral-200 md:bg-white md:p-3">
           <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 px-1">Próximos pasos</p>
           {thrombolyze === true && (
             <button type="button" onClick={onGoToThrombolysis}
-              className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] transition-all text-white">
+              className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl md:rounded-lg bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] transition-all text-white">
               <Syringe size={18} />
               <div className="text-left">
                 <p className="text-sm font-bold">Ir a Trombolisis</p>
@@ -119,7 +119,7 @@ export default function DecisionTab({ result, onGoToThrombolysis, onGoToThrombec
             </button>
           )}
           <button type="button" onClick={onGoToThrombectomy}
-            className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl bg-blue-600 hover:bg-blue-700 active:scale-[0.98] transition-all text-white">
+            className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl md:rounded-lg bg-blue-600 hover:bg-blue-700 active:scale-[0.98] transition-all text-white">
             <Zap size={18} />
             <div className="text-left">
               <p className="text-sm font-bold">Ir a Trombectomía</p>

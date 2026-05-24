@@ -680,16 +680,12 @@ export default function App() {
     && decisionResult?.thrombolyze === true
     && activeTab !== 'trombolisis'
 
-  // Bottom padding for scrollable content
-  // Phase 1: needs space for fixed DecisionButton (~72px) + optional safe area
-  // Phase 2: needs space for mobile QuickAddFAB toolbar (~72px)
-  const contentPaddingBottom = 'calc(5rem + env(safe-area-inset-bottom, 0px))'
   const headerOffsetClass = timerStart
     ? 'pt-[calc(6.85rem+env(safe-area-inset-top,0px))] md:pt-[calc(3.5rem+env(safe-area-inset-top,0px))]'
     : 'pt-[calc(3.75rem+env(safe-area-inset-top,0px))] md:pt-[calc(3.5rem+env(safe-area-inset-top,0px))]'
 
   return (
-    <div className="h-dvh flex flex-col overflow-hidden bg-neutral-50">
+    <div className="h-dvh flex flex-col overflow-hidden bg-neutral-50 md:bg-[#f6f6f4]">
 
       {/* Fixed header */}
       <GlobalTimer
@@ -711,7 +707,7 @@ export default function App() {
       <div className={`flex-1 flex flex-col overflow-hidden ${headerOffsetClass}`}>
 
         {/* TabBar — colored band */}
-        <div className="shrink-0 bg-brand-600">
+        <div className="shrink-0 bg-brand-600 md:border-b md:border-neutral-200 md:bg-[#f6f6f4] md:px-6 md:py-3">
           <TabBar
             phase={phase}
             activeTab={activeTab}
@@ -721,37 +717,46 @@ export default function App() {
         </div>
 
         {/* Two-column layout: sidebar (desktop) + main content */}
-        <div className="flex-1 flex overflow-hidden">
+        <div className="flex-1 flex overflow-hidden md:px-6 md:pb-6">
 
           {/* Desktop sidebar */}
-          {patient && (
-            <aside className="hidden md:flex md:flex-col w-[220px] shrink-0 border-r border-neutral-100 bg-white overflow-y-auto">
-              <div className="p-4 border-b border-neutral-100">
-                <div className="flex items-start justify-between gap-2 mb-1">
-                  <p className="font-semibold text-neutral-800 text-sm leading-snug">{patient.name}</p>
-                  {patientId && <p className="text-[10px] font-mono font-bold text-brand-600 tracking-wider shrink-0">{patientId}</p>}
-                </div>
-                <p className="text-xs text-neutral-400">DNI {patient.dni}</p>
+          {(patient || phase === 'pre') && (
+            <aside className="hidden md:flex md:flex-col md:gap-3 w-[280px] shrink-0 overflow-y-auto border-r border-neutral-200 pr-4 pt-4">
+              <div className="rounded-lg border border-neutral-200 bg-white p-4">
+                {patient ? (
+                  <>
+                    <div className="flex items-start justify-between gap-2 mb-1">
+                      <p className="font-semibold text-neutral-900 text-sm leading-snug">{patient.name}</p>
+                      {patientId && <p className="text-[10px] font-mono font-bold text-neutral-500 tracking-wider shrink-0">{patientId}</p>}
+                    </div>
+                    <p className="text-xs text-neutral-500">DNI {patient.dni}</p>
+                  </>
+                ) : (
+                  <>
+                    <p className="font-semibold text-neutral-900 text-sm leading-snug">Evaluación inicial</p>
+                    <p className="text-xs text-neutral-500">Cargar paciente y signos vitales</p>
+                  </>
+                )}
 
                 {(latestNihss !== null || latestVitals || latestGlucose !== null) && (
-                  <div className="mt-3 pt-3 border-t border-neutral-100 grid grid-cols-3 gap-2">
+                  <div className="mt-4 pt-4 border-t border-neutral-100 grid grid-cols-3 gap-2">
                     {latestNihss !== null && (() => {
                       const sev = getNihssSeverity(latestNihss)
                       return (
-                        <div className={`rounded-lg px-2 py-1.5 text-center ${sev.bg}`}>
+                        <div className={`rounded-md px-2 py-2 text-center ${sev.bg}`}>
                           <p className="text-[9px] text-neutral-400 uppercase tracking-wider font-semibold mb-0.5">NIHSS</p>
                           <p className={`text-sm font-bold tabular-nums ${sev.color}`}>{latestNihss}</p>
                         </div>
                       )
                     })()}
                     {latestVitals && (
-                      <div className={`rounded-lg px-2 py-1.5 text-center ${latestVitals.systolic > 185 ? 'bg-blue-900/10' : 'bg-blue-50/60'}`}>
+                      <div className={`rounded-md px-2 py-2 text-center ${latestVitals.systolic > 185 ? 'bg-blue-900/10' : 'bg-neutral-50'}`}>
                         <p className="text-[9px] text-neutral-400 uppercase tracking-wider font-semibold mb-0.5">TA</p>
                         <p className={`text-xs font-bold tabular-nums ${latestVitals.systolic > 185 ? 'text-blue-900' : 'text-blue-700'}`}>{latestVitals.systolic}/{latestVitals.diastolic}</p>
                       </div>
                     )}
                     {latestGlucose !== null && (
-                      <div className={`rounded-lg px-2 py-1.5 text-center ${latestGlucose < 50 ? 'bg-blue-900/10' : latestGlucose > 400 ? 'bg-orange-50' : 'bg-violet-50/60'}`}>
+                      <div className={`rounded-md px-2 py-2 text-center ${latestGlucose < 50 ? 'bg-blue-900/10' : latestGlucose > 400 ? 'bg-orange-50' : 'bg-neutral-50'}`}>
                         <p className="text-[9px] text-neutral-400 uppercase tracking-wider font-semibold mb-0.5">GLC</p>
                         <p className={`text-xs font-bold tabular-nums ${latestGlucose < 50 ? 'text-blue-900' : latestGlucose > 400 ? 'text-orange-600' : 'text-violet-700'}`}>{latestGlucose}</p>
                       </div>
@@ -761,7 +766,7 @@ export default function App() {
               </div>
 
               {timerStart && (
-                <div className="px-3 py-3 border-b border-neutral-100">
+                <div className="rounded-lg border border-neutral-200 bg-white p-3">
                   <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Registros rápidos</p>
                   <QuickAddFAB
                     variant="sidebar"
@@ -776,7 +781,7 @@ export default function App() {
                 </div>
               )}
 
-              <div className="border-t border-neutral-100">
+              <div>
                 <TimestampPanel
                   variant="desktop"
                   codeStart={timerStart}
@@ -786,11 +791,22 @@ export default function App() {
                 />
               </div>
 
+              {phase === 'pre' && (
+                <div className="rounded-lg border border-neutral-200 bg-white p-3">
+                  <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Decisión</p>
+                  <DecisionButton
+                    allComplete={tabCompletion.allComplete}
+                    onClick={handleComputeDecision}
+                    executed={false}
+                  />
+                </div>
+              )}
+
               {/* Trombolisis shortcut (desktop sidebar, Phase 2) */}
               {showTrombolisisFAB && (
-                <div className="p-3 border-t border-emerald-100 bg-emerald-50/60">
+                <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3">
                   <button type="button" onClick={() => setActiveTab('trombolisis')}
-                    className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition-all active:scale-[0.98]">
+                    className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition-all active:scale-[0.98]">
                     <Syringe size={13} /> Ir a Trombolisis
                   </button>
                 </div>
@@ -798,9 +814,9 @@ export default function App() {
 
               {/* Summary copy (Phase 2 only) */}
               {phase === 'post' && (
-                <div className="p-3 border-t border-neutral-100">
+                <div className="rounded-lg border border-neutral-200 bg-white p-3">
                   <button type="button" onClick={handleCopy}
-                    className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-medium border transition-all ${
+                    className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-medium border transition-all ${
                       copied ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50'
                     }`}>
                     {copied ? <><Check size={13} /> Copiado</> : <><Copy size={13} /> Copiar resumen</>}
@@ -809,7 +825,7 @@ export default function App() {
                     const url = `https://wa.me/?text=${encodeURIComponent(buildSummaryText())}`
                     window.open(url, '_blank')
                   }}
-                    className="w-full flex items-center justify-center gap-2 py-2.5 mt-1 rounded-xl text-xs font-medium border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-all">
+                    className="w-full flex items-center justify-center gap-2 py-2.5 mt-1 rounded-lg text-xs font-medium border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-all">
                     WhatsApp
                   </button>
                 </div>
@@ -820,8 +836,7 @@ export default function App() {
           {/* Main content */}
           <div className="flex-1 flex flex-col overflow-hidden">
             <main className="flex-1 overflow-y-auto">
-              <div className="w-full max-w-4xl mx-auto px-0 py-3"
-                style={{ paddingBottom: contentPaddingBottom }}>
+              <div className="w-full max-w-4xl xl:max-w-6xl mx-auto px-0 py-3 pb-20 md:px-5 md:py-4 md:pb-8">
                 {renderTabContent()}
               </div>
             </main>
@@ -831,7 +846,7 @@ export default function App() {
         {/* ── Fixed bottom: DecisionButton (Phase 1) ── */}
         {phase === 'pre' && (
           <div
-            className="fixed inset-x-0 bottom-0 z-50 bg-brand-700/95 backdrop-blur-sm border-t border-brand-500/30 px-4 py-3"
+            className="fixed inset-x-0 bottom-0 z-50 bg-brand-700/95 backdrop-blur-sm border-t border-brand-500/30 px-4 py-3 md:hidden"
             style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}
           >
             <DecisionButton
