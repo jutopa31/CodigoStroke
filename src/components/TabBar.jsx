@@ -25,12 +25,12 @@ function TabItem({ tab, active, completion, onClick }) {
 
   // icon container
   const iconBg = active
-    ? 'bg-white/25 text-white'
+    ? 'bg-brand-400 text-white'
     : completion === 'complete'
       ? 'bg-emerald-100 text-emerald-700'
       : completion === 'partial'
         ? 'bg-amber-100 text-amber-600'
-        : 'bg-white/10 text-white/40'
+        : 'bg-brand-500/50 text-white/60'
 
   // ring
   const ring = completion === 'complete' && !active
@@ -46,7 +46,7 @@ function TabItem({ tab, active, completion, onClick }) {
       ? 'text-emerald-200 font-medium'
       : completion === 'partial'
         ? 'text-amber-200'
-        : 'text-white/40'
+        : 'text-white/50'
 
   return (
     <button
