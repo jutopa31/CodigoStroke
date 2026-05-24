@@ -28,16 +28,19 @@ function getPhase(minutes) {
     bg: 'bg-blue-900',
     muted: 'text-blue-200',
     badge: 'bg-white/25 text-white',
+    timer: 'md:bg-stroke-panel md:text-white',
   }
   if (minutes >= 30) return {
     bg: 'bg-brand-700',
     muted: 'text-brand-200',
     badge: 'bg-white/25 text-white',
+    timer: 'md:bg-amber-500 md:text-white',
   }
   return {
     bg: 'bg-brand-600',
     muted: 'text-brand-300',
     badge: 'bg-white/25 text-white',
+    timer: 'md:bg-stroke-panel md:text-white',
   }
 }
 
@@ -79,12 +82,12 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
 
   return (
     <div
-      className={`fixed top-0 left-0 right-0 z-50 ${bg} transition-colors duration-500`}
+      className={`fixed top-0 left-0 right-0 z-50 ${bg} transition-colors duration-500 md:border-b md:border-stroke-line md:bg-stroke-navy`}
       style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
     >
-      <div className="flex items-center justify-between gap-3 px-3 py-2 md:px-6 md:py-3">
-        <div className="flex items-center gap-2.5 min-w-0 shrink">
-          <div className="w-10 h-10 md:w-8 md:h-8 rounded-xl md:rounded-lg bg-white/20 flex items-center justify-center shrink-0">
+      <div className="flex items-center justify-between gap-3 px-3 py-2 md:h-11 md:px-5 md:py-0">
+        <div className="flex items-center gap-2.5 min-w-0 shrink md:gap-3">
+          <div className={`w-10 h-10 md:w-7 md:h-7 rounded-xl md:rounded-lg bg-white/20 flex items-center justify-center shrink-0 ${phase?.timer ?? 'md:bg-stroke-panel md:text-white'}`}>
             {startTime
               ? <Clock size={16} className="text-white" strokeWidth={2} />
               : <Activity size={16} className="text-white" strokeWidth={2} />
@@ -92,7 +95,7 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
           </div>
           {startTime ? (
             <div className="min-w-0">
-              <span className="block font-mono font-bold text-[1.35rem] leading-none md:text-xl text-white tracking-tight tabular-nums">
+              <span className="block font-mono font-bold text-[1.35rem] leading-none md:text-lg text-white tracking-tight tabular-nums">
                 {formatElapsed(elapsed)}
               </span>
               {primaryEvent && (
@@ -107,16 +110,21 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
         </div>
 
         {startTime && (
-          <div className="hidden md:flex items-center justify-center gap-1 mx-2 overflow-x-auto shrink min-w-0" style={{ scrollbarWidth: 'none' }}>
+          <div className="hidden md:flex items-center justify-center gap-1.5 mx-2 overflow-x-auto shrink min-w-0" style={{ scrollbarWidth: 'none' }}>
             {eventBadges.map((event) => (
-              <EventBadge key={event.label} label={event.label} time={event.time} badgeClass={phase.badge} />
+              <EventBadge
+                key={event.label}
+                label={event.label}
+                time={event.time}
+                badgeClass={`${phase.badge} md:bg-white/10 md:text-stroke-textMuted`}
+              />
             ))}
           </div>
         )}
 
         <div className="flex items-center gap-2 shrink-0">
           {startTime && patient && (
-            <span className={`text-xs font-medium ${phase.muted} truncate max-w-[140px] hidden md:block`}>
+            <span className={`text-xs font-medium ${phase.muted} md:text-white truncate max-w-[140px] hidden md:block`}>
               {patient.name}
             </span>
           )}
@@ -124,7 +132,7 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
             <button
               type="button"
               onClick={onAuthClick}
-              className="w-11 h-11 md:w-8 md:h-8 rounded-xl md:rounded-lg border border-white/20 bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
+              className="w-11 h-11 md:w-7 md:h-7 rounded-xl md:rounded-lg border border-white/20 md:border-white/10 bg-white/10 md:bg-white/10 flex items-center justify-center text-white md:text-stroke-textMuted hover:bg-white/20 md:hover:bg-white/15 transition-colors"
               title={authUser ? 'Tu cuenta' : 'Iniciar sesión'}
               aria-label={authUser ? 'Tu cuenta' : 'Iniciar sesión'}
             >
@@ -138,7 +146,7 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
             <button
               type="button"
               onClick={onEducationalOpen}
-              className="w-11 h-11 md:w-8 md:h-8 rounded-xl md:rounded-lg border border-white/20 bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
+              className="w-11 h-11 md:w-7 md:h-7 rounded-xl md:rounded-lg border border-white/20 md:border-white/10 bg-white/10 md:bg-white/10 flex items-center justify-center text-white md:text-stroke-textMuted hover:bg-white/20 md:hover:bg-white/15 transition-colors"
               title="Referencia educativa del protocolo"
               aria-label="Abrir referencia educativa"
             >
@@ -149,7 +157,7 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
             <button
               type="button"
               onClick={onReset}
-              className="w-11 h-11 md:w-8 md:h-8 rounded-xl md:rounded-lg border border-white/20 bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
+              className="w-11 h-11 md:w-7 md:h-7 rounded-xl md:rounded-lg border border-white/20 md:border-white/10 bg-white/10 md:bg-white/10 flex items-center justify-center text-white md:text-stroke-textMuted hover:bg-white/20 md:hover:bg-white/15 transition-colors"
               title="Reiniciar protocolo"
               aria-label="Reiniciar protocolo"
             >
@@ -173,9 +181,9 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
       )}
 
       {progressPct > 0 && (
-        <div className="h-0.5 bg-white/20">
+        <div className="h-0.5 bg-white/20 md:bg-stroke-line">
           <div
-            className="h-full bg-white/60 rounded-r-full transition-all duration-500"
+            className="h-full bg-white/60 md:bg-stroke-iconActive rounded-r-full transition-all duration-500"
             style={{ width: `${progressPct}%` }}
           />
         </div>

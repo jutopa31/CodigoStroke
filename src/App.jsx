@@ -679,16 +679,12 @@ export default function App() {
     && decisionResult?.thrombolyze === true
     && activeTab !== 'trombolisis'
 
-  // Bottom padding for scrollable content
-  // Phase 1: needs space for fixed DecisionButton (~72px) + optional safe area
-  // Phase 2: needs space for mobile QuickAddFAB toolbar (~72px)
-  const contentPaddingBottom = 'calc(5rem + env(safe-area-inset-bottom, 0px))'
   const headerOffsetClass = timerStart
-    ? 'pt-[calc(6.85rem+env(safe-area-inset-top,0px))] md:pt-[calc(3.5rem+env(safe-area-inset-top,0px))]'
-    : 'pt-[calc(3.75rem+env(safe-area-inset-top,0px))] md:pt-[calc(3.5rem+env(safe-area-inset-top,0px))]'
+    ? 'pt-[calc(6.85rem+env(safe-area-inset-top,0px))] md:pt-[calc(2.75rem+env(safe-area-inset-top,0px))]'
+    : 'pt-[calc(3.75rem+env(safe-area-inset-top,0px))] md:pt-[calc(2.75rem+env(safe-area-inset-top,0px))]'
 
   return (
-    <div className="h-dvh flex flex-col overflow-hidden bg-neutral-50">
+    <div className="h-dvh flex flex-col overflow-hidden bg-neutral-50 md:bg-[#f6f6f4]">
 
       {/* Fixed header */}
       <GlobalTimer
@@ -710,7 +706,7 @@ export default function App() {
       <div className={`flex-1 flex flex-col overflow-hidden ${headerOffsetClass}`}>
 
         {/* TabBar — colored band */}
-        <div className="shrink-0 bg-brand-600">
+        <div className="shrink-0 bg-brand-600 md:border-b md:border-stroke-line md:bg-stroke-navy md:px-5 md:py-1">
           <TabBar
             phase={phase}
             activeTab={activeTab}
@@ -719,98 +715,137 @@ export default function App() {
           />
         </div>
 
-        {/* Desktop info bar — vitals + quick-add + actions, hidden on mobile */}
-        {patient && timerStart && (
-          <div className="hidden md:flex items-center gap-3 px-6 py-2 bg-white border-b border-neutral-100 shrink-0">
-            {/* Patient name + ID */}
-            <div className="flex items-center gap-2 shrink-0">
-              <span className="text-sm font-semibold text-neutral-800 truncate max-w-[180px]">{patient.name}</span>
-              {patientId && <span className="text-[10px] font-mono font-bold text-brand-600">{patientId}</span>}
-            </div>
+        {/* Two-column layout: sidebar (desktop) + main content */}
+        <div className="flex-1 flex overflow-hidden md:px-4 md:pb-3">
 
-            {(latestNihss !== null || latestVitals || latestGlucose !== null) && (
-              <>
-                <div className="h-3.5 w-px bg-neutral-200 shrink-0" />
-                <div className="flex items-center gap-1.5">
-                  {latestNihss !== null && (() => {
-                    const sev = getNihssSeverity(latestNihss)
-                    return (
-                      <span className={`text-[11px] font-semibold px-2 py-1 rounded-lg ${sev.bg} ${sev.color}`}>
-                        NIHSS {latestNihss}
-                      </span>
-                    )
-                  })()}
-                  {latestVitals && (
-                    <span className={`text-[11px] font-semibold px-2 py-1 rounded-lg ${latestVitals.systolic > 185 ? 'bg-blue-900/10 text-blue-900' : 'bg-blue-50 text-blue-700'}`}>
-                      TA {latestVitals.systolic}/{latestVitals.diastolic}
-                    </span>
-                  )}
-                  {latestGlucose !== null && (
-                    <span className={`text-[11px] font-semibold px-2 py-1 rounded-lg ${latestGlucose < 50 ? 'bg-blue-900/10 text-blue-900' : latestGlucose > 400 ? 'bg-orange-50 text-orange-600' : 'bg-violet-50 text-violet-700'}`}>
-                      GLC {latestGlucose}
-                    </span>
-                  )}
-                </div>
-              </>
-            )}
+          {/* Desktop sidebar */}
+          {(patient || phase === 'pre') && (
+            <aside className="hidden md:flex md:flex-col md:gap-2.5 w-[270px] shrink-0 overflow-y-auto border-r border-neutral-200 pr-3 pt-3">
+              <div className="rounded-lg border border-neutral-200 bg-white p-3">
+                {patient ? (
+                  <>
+                    <div className="flex items-start justify-between gap-2 mb-1">
+                      <p className="font-semibold text-neutral-900 text-sm leading-snug">{patient.name}</p>
+                      {patientId && <p className="text-[10px] font-mono font-bold text-neutral-500 tracking-wider shrink-0">{patientId}</p>}
+                    </div>
+                    <p className="text-xs text-neutral-500">DNI {patient.dni}</p>
+                  </>
+                ) : (
+                  <>
+                    <p className="font-semibold text-neutral-900 text-sm leading-snug">Evaluación inicial</p>
+                    <p className="text-xs text-neutral-500">Cargar paciente y signos vitales</p>
+                  </>
+                )}
 
-            <div className="h-3.5 w-px bg-neutral-200 shrink-0" />
-
-            {/* Quick-add */}
-            <QuickAddFAB
-              variant="compact-row"
-              onAddNihss={handleAddNihss}
-              onAddVitals={handleAddVitals}
-              onAddGlucose={handleAddGlucose}
-              onOutOfWindow={() => setShowOutOfWindow(true)}
-              latestNihss={latestNihss}
-              latestVitals={latestVitals}
-              latestGlucose={latestGlucose}
-            />
-
-            <div className="flex-1" />
-
-            {/* Trombolisis shortcut — Phase 2 */}
-            {showTrombolisisFAB && (
-              <button type="button" onClick={() => setActiveTab('trombolisis')}
-                className="flex items-center gap-1.5 py-2 px-3 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition-all active:scale-[0.98]">
-                <Syringe size={13} /> Ir a Trombolisis
-              </button>
-            )}
-
-            {/* Summary actions — Phase 2 */}
-            {phase === 'post' && (
-              <div className="flex items-center gap-1.5">
-                <button type="button" onClick={handleCopy}
-                  className={`flex items-center gap-1.5 py-2 px-3 rounded-xl text-xs font-medium border transition-all ${
-                    copied ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50'
-                  }`}>
-                  {copied ? <><Check size={12} /> Copiado</> : <><Copy size={12} /> Copiar</>}
-                </button>
-                <button type="button"
-                  onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(buildSummaryText())}`, '_blank')}
-                  className="flex items-center gap-1.5 py-2 px-3 rounded-xl text-xs font-medium border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-all">
-                  WhatsApp
-                </button>
+                {(latestNihss !== null || latestVitals || latestGlucose !== null) && (
+                  <div className="mt-3 pt-3 border-t border-neutral-100 grid grid-cols-3 gap-1.5">
+                    {latestNihss !== null && (() => {
+                      const sev = getNihssSeverity(latestNihss)
+                      return (
+                        <div className={`rounded-md px-2 py-2 text-center ${sev.bg}`}>
+                          <p className="text-[9px] text-neutral-400 uppercase tracking-wider font-semibold mb-0.5">NIHSS</p>
+                          <p className={`text-sm font-bold tabular-nums ${sev.color}`}>{latestNihss}</p>
+                        </div>
+                      )
+                    })()}
+                    {latestVitals && (
+                      <div className={`rounded-md px-2 py-2 text-center ${latestVitals.systolic > 185 ? 'bg-blue-900/10' : 'bg-neutral-50'}`}>
+                        <p className="text-[9px] text-neutral-400 uppercase tracking-wider font-semibold mb-0.5">TA</p>
+                        <p className={`text-xs font-bold tabular-nums ${latestVitals.systolic > 185 ? 'text-blue-900' : 'text-blue-700'}`}>{latestVitals.systolic}/{latestVitals.diastolic}</p>
+                      </div>
+                    )}
+                    {latestGlucose !== null && (
+                      <div className={`rounded-md px-2 py-2 text-center ${latestGlucose < 50 ? 'bg-blue-900/10' : latestGlucose > 400 ? 'bg-orange-50' : 'bg-neutral-50'}`}>
+                        <p className="text-[9px] text-neutral-400 uppercase tracking-wider font-semibold mb-0.5">GLC</p>
+                        <p className={`text-xs font-bold tabular-nums ${latestGlucose < 50 ? 'text-blue-900' : latestGlucose > 400 ? 'text-orange-600' : 'text-violet-700'}`}>{latestGlucose}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-        )}
 
-        {/* Main content */}
-        <div className="flex-1 overflow-hidden">
-          <main className="h-full overflow-y-auto">
-            <div className="max-w-3xl mx-auto px-0 py-3"
-              style={{ paddingBottom: contentPaddingBottom }}>
-              {renderTabContent()}
-            </div>
-          </main>
+              {timerStart && (
+                <div className="rounded-lg border border-neutral-200 bg-white p-2.5">
+                  <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Registros rápidos</p>
+                  <QuickAddFAB
+                    variant="sidebar"
+                    onAddNihss={handleAddNihss}
+                    onAddVitals={handleAddVitals}
+                    onAddGlucose={handleAddGlucose}
+                    onOutOfWindow={() => setShowOutOfWindow(true)}
+                    latestNihss={latestNihss}
+                    latestVitals={latestVitals}
+                    latestGlucose={latestGlucose}
+                  />
+                </div>
+              )}
+
+              <div>
+                <TimestampPanel
+                  variant="desktop"
+                  codeStart={timerStart}
+                  ct={ctRequestTime}
+                  thrombolytic={thrombolyticStartTime}
+                  hemo={angioRequestTime}
+                />
+              </div>
+
+              {phase === 'pre' && (
+                <div className="rounded-lg border border-neutral-200 bg-white p-3">
+                  <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Decisión</p>
+                  <DecisionButton
+                    allComplete={tabCompletion.allComplete}
+                    onClick={handleComputeDecision}
+                    executed={false}
+                  />
+                </div>
+              )}
+
+              {/* Trombolisis shortcut (desktop sidebar, Phase 2) */}
+              {showTrombolisisFAB && (
+                <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3">
+                  <button type="button" onClick={() => setActiveTab('trombolisis')}
+                    className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition-all active:scale-[0.98]">
+                    <Syringe size={13} /> Ir a Trombolisis
+                  </button>
+                </div>
+              )}
+
+              {/* Summary copy (Phase 2 only) */}
+              {phase === 'post' && (
+                <div className="rounded-lg border border-neutral-200 bg-white p-3">
+                  <button type="button" onClick={handleCopy}
+                    className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-medium border transition-all ${
+                      copied ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50'
+                    }`}>
+                    {copied ? <><Check size={13} /> Copiado</> : <><Copy size={13} /> Copiar resumen</>}
+                  </button>
+                  <button type="button" onClick={() => {
+                    const url = `https://wa.me/?text=${encodeURIComponent(buildSummaryText())}`
+                    window.open(url, '_blank')
+                  }}
+                    className="w-full flex items-center justify-center gap-2 py-2.5 mt-1 rounded-lg text-xs font-medium border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-all">
+                    WhatsApp
+                  </button>
+                </div>
+              )}
+            </aside>
+          )}
+
+          {/* Main content */}
+          <div className="flex-1 flex flex-col overflow-hidden">
+            <main className="flex-1 overflow-y-auto">
+              <div className="w-full max-w-5xl mx-auto px-0 py-3 pb-20 md:px-5 md:py-3 md:pb-5">
+                {renderTabContent()}
+              </div>
+            </main>
+          </div>
         </div>
 
         {/* ── Fixed bottom: DecisionButton (Phase 1) ── */}
         {phase === 'pre' && (
           <div
-            className="fixed inset-x-0 bottom-0 z-50 bg-brand-700/95 backdrop-blur-sm border-t border-brand-500/30 px-4 py-3"
+            className="fixed inset-x-0 bottom-0 z-50 bg-brand-700/95 backdrop-blur-sm border-t border-brand-500/30 px-4 py-3 md:hidden"
             style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}
           >
             <div className="max-w-3xl mx-auto">

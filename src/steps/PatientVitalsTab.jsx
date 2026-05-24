@@ -36,19 +36,19 @@ function PatientSection({ patient, patientId, arrivalTime, onConfirm, onOpenEduc
 
   if (patient) {
     return (
-      <div className="flex items-center gap-3 px-4 py-3 bg-emerald-50 rounded-2xl border border-emerald-200">
-        <div className="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0">
-          <User size={16} className="text-emerald-700" />
+      <div className="flex items-center gap-3 px-4 py-3 bg-emerald-50 rounded-2xl border border-emerald-200 md:gap-3 md:px-4 md:py-3">
+        <div className="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0 md:h-10 md:w-10 md:rounded-xl">
+          <User size={16} className="text-emerald-700 md:h-5 md:w-5" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="font-semibold text-sm text-neutral-800 truncate">{patient.name}</p>
-          <p className="text-xs text-neutral-500 mt-0.5">
+          <p className="font-semibold text-sm text-neutral-800 truncate md:text-base">{patient.name}</p>
+          <p className="text-xs text-neutral-500 mt-0.5 md:text-sm">
             DNI {patient.dni}
             {arrivalTime && ` · ${arrivalTime.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}`}
             {patientId && <span className="font-mono font-bold text-brand-600 ml-1.5">{patientId}</span>}
           </p>
         </div>
-        <CheckCircle2 size={16} className="text-emerald-500 shrink-0" />
+        <CheckCircle2 size={16} className="text-emerald-500 shrink-0 md:h-4 md:w-4" />
       </div>
     )
   }
@@ -56,8 +56,8 @@ function PatientSection({ patient, patientId, arrivalTime, onConfirm, onOpenEduc
   return (
     <>
     {showScanner && <DniQrScanner onScan={handleScan} onClose={() => setShowScanner(false)} />}
-    <form onSubmit={handleSubmit} className="space-y-2.5">
-      <div className="flex items-center justify-between">
+    <form onSubmit={handleSubmit} className="space-y-2.5 md:space-y-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <button type="button" onClick={() => setShowScanner(true)}
           className="flex items-center gap-1.5 text-xs font-medium text-brand-600 hover:text-brand-700 bg-brand-50 hover:bg-brand-100 px-2.5 py-1.5 rounded-lg transition-colors">
           <ScanLine size={13} strokeWidth={2} />
@@ -70,9 +70,9 @@ function PatientSection({ patient, patientId, arrivalTime, onConfirm, onOpenEduc
           </button>
         )}
       </div>
-      <div className="grid grid-cols-2 gap-2">
-        <div>
-          <label className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400 flex items-center gap-1 mb-1">
+      <div className="flex flex-wrap items-end gap-3 md:gap-4">
+        <div className="w-full md:w-[13rem]">
+          <label className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400 flex items-center gap-1 mb-1 md:text-xs md:text-neutral-500 md:mb-1.5">
             <CreditCard size={10} /> DNI
           </label>
           <input
@@ -80,31 +80,33 @@ function PatientSection({ patient, patientId, arrivalTime, onConfirm, onOpenEduc
             value={dni} onChange={(e) => setDni(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); nameRef.current?.focus() } }}
             autoFocus
-            className="w-full h-10 bg-neutral-50 border border-neutral-200 rounded-xl px-3 text-sm font-semibold focus:bg-white focus:ring-2 focus:ring-brand-100 focus:border-brand-300 placeholder-neutral-300 transition-all"
+            className="w-full h-10 bg-neutral-50 border border-neutral-200 rounded-xl px-3 text-sm font-semibold focus:bg-white focus:ring-2 focus:ring-brand-100 focus:border-brand-300 placeholder-neutral-300 transition-all md:h-11 md:text-base"
           />
         </div>
-        <div>
-          <label className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400 flex items-center gap-1 mb-1">
+        <div className="w-full md:w-[20rem]">
+          <label className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400 flex items-center gap-1 mb-1 md:text-xs md:text-neutral-500 md:mb-1.5">
             <User size={10} /> Nombre
           </label>
           <input
             ref={nameRef} type="text" placeholder="Nombre y apellido"
             value={name} onChange={(e) => setName(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); passRef.current?.focus() } }}
-            className="w-full h-10 bg-neutral-50 border border-neutral-200 rounded-xl px-3 text-sm focus:bg-white focus:ring-2 focus:ring-brand-100 focus:border-brand-300 placeholder-neutral-300 transition-all"
+            className="w-full h-10 bg-neutral-50 border border-neutral-200 rounded-xl px-3 text-sm focus:bg-white focus:ring-2 focus:ring-brand-100 focus:border-brand-300 placeholder-neutral-300 transition-all md:h-11 md:text-base"
           />
         </div>
       </div>
-      <input
-        ref={passRef} type="password" placeholder="Contraseña de turno (opcional)"
-        value={pass} onChange={(e) => setPass(e.target.value)}
-        className="w-full h-10 bg-neutral-50 border border-neutral-200 rounded-xl px-3 text-sm focus:bg-white focus:ring-2 focus:ring-brand-100 focus:border-brand-300 placeholder-neutral-300 transition-all"
-      />
-      <button type="submit" disabled={!valid}
-        className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-all active:scale-[0.98] disabled:cursor-not-allowed
-          bg-brand-600 hover:bg-brand-700 text-white disabled:bg-neutral-100 disabled:text-neutral-400">
-        <Lock size={14} /> Activar Código Stroke
-      </button>
+      <div className="flex flex-wrap items-center gap-3 md:gap-4">
+        <input
+          ref={passRef} type="password" placeholder="Contraseña de turno (opcional)"
+          value={pass} onChange={(e) => setPass(e.target.value)}
+          className="h-10 w-full bg-neutral-50 border border-neutral-200 rounded-xl px-3 text-sm focus:bg-white focus:ring-2 focus:ring-brand-100 focus:border-brand-300 placeholder-neutral-300 transition-all md:h-11 md:w-[22rem] md:text-base"
+        />
+        <button type="submit" disabled={!valid}
+          className="flex h-10 w-full items-center justify-center gap-2 rounded-xl px-5 text-sm font-semibold transition-all active:scale-[0.98] disabled:cursor-not-allowed md:h-11 md:w-auto md:min-w-[14rem] md:text-base
+            bg-brand-600 hover:bg-brand-700 text-white disabled:bg-neutral-100 disabled:text-neutral-400">
+          <Lock size={14} /> Activar Código Stroke
+        </button>
+      </div>
     </form>
     </>
   )
@@ -148,20 +150,20 @@ function VitalsSection({ vitals, onConfirm, draftVitals, onDraftChange }) {
   if (vitals) {
     const v = vitals
     return (
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-4 gap-2 md:gap-3">
         {[
           { label: 'TA',       value: `${v.systolic}/${v.diastolic}`, unit: 'mmHg', warn: v.systolic > 185 || v.diastolic > 110 },
           { label: 'Glucemia', value: v.glucose,                       unit: 'mg/dL', warn: v.glucose < 50 || v.glucose > 400 },
           { label: 'mRS',      value: v.modifiedRankinScale?.score ?? '—', unit: 'pts', warn: false },
         ].map(({ label, value, unit, warn }) => (
           <div key={label}
-            className={`rounded-xl px-2 py-2 col-span-${label === 'TA' ? 2 : 1} ${warn ? 'bg-blue-900/8 border border-blue-800/20' : 'bg-neutral-50 border border-neutral-100'}`}>
-            <p className="text-[9px] uppercase tracking-wider font-semibold text-neutral-400 mb-0.5">{label}</p>
-            <p className={`text-sm font-bold tabular-nums leading-none ${warn ? 'text-blue-900' : 'text-neutral-800'}`}>{value}</p>
-            <p className="text-[9px] text-neutral-400 mt-0.5">{unit}</p>
+            className={`rounded-xl px-2 py-2 col-span-${label === 'TA' ? 2 : 1} md:px-4 md:py-4 ${warn ? 'bg-blue-900/8 border border-blue-800/20' : 'bg-neutral-50 border border-neutral-100'}`}>
+            <p className="text-[9px] uppercase tracking-wider font-semibold text-neutral-400 mb-0.5 md:text-xs md:text-neutral-500">{label}</p>
+            <p className={`text-sm font-bold tabular-nums leading-none md:text-xl ${warn ? 'text-blue-900' : 'text-neutral-800'}`}>{value}</p>
+            <p className="text-[9px] text-neutral-400 mt-0.5 md:text-xs">{unit}</p>
           </div>
         ))}
-        <div className="col-span-1 rounded-xl px-2 py-2 bg-emerald-50 border border-emerald-100 flex items-center justify-center">
+        <div className="col-span-1 rounded-xl px-2 py-2 bg-emerald-50 border border-emerald-100 flex items-center justify-center md:px-4 md:py-4">
           <CheckCircle2 size={14} className="text-emerald-500" />
         </div>
       </div>
@@ -169,7 +171,7 @@ function VitalsSection({ vitals, onConfirm, draftVitals, onDraftChange }) {
   }
 
   function fieldCls(warn, filled) {
-    return `h-10 rounded-xl border bg-neutral-50 px-2 text-center text-sm font-semibold focus:outline-none transition placeholder:text-neutral-300 ${
+    return `h-10 w-[7rem] rounded-xl border bg-neutral-50 px-2 text-center text-sm font-semibold focus:outline-none transition placeholder:text-neutral-300 md:h-12 md:w-[8rem] md:px-3 md:text-lg ${
       warn   ? 'border-red-300 bg-red-50/40 focus:ring-2 focus:ring-red-100' :
       filled ? 'border-blue-300 bg-blue-50/30 focus:ring-2 focus:ring-blue-100' :
                'border-neutral-200 focus:border-brand-300 focus:ring-2 focus:ring-brand-100'
@@ -177,11 +179,11 @@ function VitalsSection({ vitals, onConfirm, draftVitals, onDraftChange }) {
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2.5">
       {/* Sticky confirm — always visible at top while filling fields */}
-      <div className="sticky top-0 z-10 bg-white pb-1">
+      <div className="sticky top-0 z-10 bg-white pb-1 md:static">
         <button type="button" onClick={handleConfirm} disabled={!valid}
-          className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-semibold text-sm transition-all active:scale-[0.98] ${
+          className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all active:scale-[0.98] md:w-auto md:py-2.5 md:text-sm ${
             valid ? 'bg-brand-600 hover:bg-brand-700 text-white' : 'bg-neutral-100 text-neutral-400 cursor-not-allowed'
           }`}>
           {valid ? <><CheckCircle2 size={14}/> Registrar signos vitales</> : 'Completar TA, glucemia y mRS'}
@@ -189,30 +191,27 @@ function VitalsSection({ vitals, onConfirm, draftVitals, onDraftChange }) {
       </div>
 
       {/* TA */}
-      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
-        <div>
+      <div className="flex flex-wrap items-end gap-3 md:gap-4">
+        <div className="shrink-0">
           <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400 mb-1">TA Sistólica</p>
           <input type="text" inputMode="numeric" maxLength={3} placeholder="120"
             value={sys} onChange={(e) => setSys(e.target.value.replace(/\D/g, '').slice(0, 3))}
             onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); diaRef.current?.focus() } }}
-            className={`w-full ${fieldCls(taCrit, !!sys)}`} />
+            className={fieldCls(taCrit, !!sys)} />
         </div>
-        <span className="text-neutral-300 font-bold mt-5">/</span>
-        <div>
+        <span className="pb-2 text-xl font-bold text-neutral-300 md:pb-2.5 md:text-2xl">/</span>
+        <div className="shrink-0">
           <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400 mb-1">Diastólica</p>
           <input ref={diaRef} type="text" inputMode="numeric" maxLength={3} placeholder="80"
             value={dia} onChange={(e) => setDia(e.target.value.replace(/\D/g, '').slice(0, 3))}
             onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); glucoseRef.current?.focus() } }}
-            className={`w-full ${fieldCls(diaCrit, !!dia)}`} />
+            className={fieldCls(diaCrit, !!dia)} />
         </div>
-      </div>
-      {/* Glucemia */}
-      <div className="grid grid-cols-2 gap-2">
-        <div>
+        <div className="shrink-0">
           <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400 mb-1">Glucemia</p>
           <input ref={glucoseRef} type="text" inputMode="numeric" maxLength={3} placeholder="120"
             value={glucose} onChange={(e) => setGlucose(e.target.value.replace(/\D/g, '').slice(0, 3))}
-            className={`w-full ${fieldCls(glucLow || glucHigh, !!glucose)}`} />
+            className={fieldCls(glucLow || glucHigh, !!glucose)} />
         </div>
       </div>
 
@@ -231,14 +230,14 @@ function VitalsSection({ vitals, onConfirm, draftVitals, onDraftChange }) {
 
       {/* mRS */}
       <div>
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400 mb-1.5">
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400 mb-1">
           mRS basal (funcionalidad previa)
         </p>
-        <div className="grid grid-cols-6 gap-1">
+        <div className="grid grid-cols-6 gap-1 md:max-w-lg">
           {MRS_OPTIONS.map((o) => (
             <button key={o.score} type="button" onClick={() => setMrs(o.score)}
               title={o.label}
-              className={`py-2 rounded-xl border-2 text-sm font-bold transition-all active:scale-95 ${
+              className={`rounded-lg border py-1.5 text-sm font-bold transition-all active:scale-95 ${
                 mrs === o.score
                   ? 'border-brand-500 bg-brand-50 text-brand-700 ring-2 ring-brand-100'
                   : 'border-neutral-200 text-neutral-500 hover:border-brand-300 hover:bg-brand-50/40'
@@ -248,7 +247,7 @@ function VitalsSection({ vitals, onConfirm, draftVitals, onDraftChange }) {
           ))}
         </div>
         {mrs !== null && (
-          <p className="mt-1 text-xs text-brand-600 font-medium animate-fade-in">{MRS_OPTIONS[mrs].label}</p>
+          <p className="mt-0.5 text-xs text-brand-600 font-medium animate-fade-in">{MRS_OPTIONS[mrs].label}</p>
         )}
       </div>
 
@@ -273,18 +272,18 @@ export default function PatientVitalsTab({
   const vitalsDone  = vitals !== null
 
   return (
-    <div className="px-4 pb-6 space-y-4">
+      <div className="px-4 pb-6 space-y-4 md:px-0 md:space-y-3">
       {/* Completion banner */}
       {patientDone && vitalsDone && (
-        <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-emerald-50 border border-emerald-200 animate-fade-in">
+        <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-emerald-50 border border-emerald-200 animate-fade-in md:px-4 md:py-3">
           <CheckCircle2 size={14} className="text-emerald-600 shrink-0" />
-          <p className="text-xs font-semibold text-emerald-700">Paciente y signos vitales registrados</p>
+          <p className="text-xs font-semibold text-emerald-700 md:text-sm">Paciente y signos vitales registrados</p>
         </div>
       )}
 
       {/* Patient section */}
-      <div className="bg-white rounded-2xl border border-neutral-100 p-4">
-        <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 mb-3">Identificación del paciente</p>
+      <div className="bg-white rounded-2xl border border-neutral-100 p-4 md:max-w-4xl md:rounded-2xl md:p-4">
+        <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 mb-2.5">Identificación del paciente</p>
         <PatientSection
           patient={patient}
           patientId={patientId}
@@ -295,11 +294,11 @@ export default function PatientVitalsTab({
       </div>
 
       {/* Vitals section */}
-      <div className={`bg-white rounded-2xl border p-4 transition-all ${patientDone ? 'border-neutral-100' : 'border-neutral-100 opacity-70'}`}>
+      <div className={`bg-white rounded-2xl border p-4 transition-all md:max-w-4xl md:rounded-2xl md:p-4 ${patientDone ? 'border-neutral-100' : 'border-neutral-100 opacity-70'}`}>
         <div className="flex items-center justify-between mb-3">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Signos vitales</p>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 md:text-xs md:text-neutral-500">Signos vitales</p>
           {!patientDone && (
-            <span className="text-[10px] text-neutral-400 italic">Registrar paciente primero</span>
+            <span className="text-[10px] text-neutral-400 italic md:text-xs">Registrar paciente primero</span>
           )}
         </div>
         {patientDone ? (
@@ -307,8 +306,8 @@ export default function PatientVitalsTab({
         ) : (
           <div className="grid grid-cols-3 gap-2 opacity-40 pointer-events-none select-none">
             {['TA', 'Glucemia', 'mRS'].map(l => (
-              <div key={l} className="rounded-xl bg-neutral-50 border border-neutral-100 px-3 py-4 text-center">
-                <p className="text-[9px] uppercase tracking-wider text-neutral-300 font-semibold">{l}</p>
+              <div key={l} className="rounded-xl bg-neutral-50 border border-neutral-100 px-3 py-4 text-center md:py-6">
+                <p className="text-[9px] uppercase tracking-wider text-neutral-300 font-semibold md:text-xs">{l}</p>
                 <p className="text-xl font-bold text-neutral-200 mt-1">—</p>
               </div>
             ))}

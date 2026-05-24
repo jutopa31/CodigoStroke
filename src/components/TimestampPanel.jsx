@@ -1,10 +1,10 @@
 import { Activity, Scan, Syringe, Radio } from 'lucide-react'
 
 const ITEMS = [
-  { key: 'codeStart',    label: 'Código activado',    Icon: Activity },
-  { key: 'ct',          label: 'TC solicitada',       Icon: Scan },
-  { key: 'thrombolytic', label: 'Trombolisis iniciada', Icon: Syringe },
-  { key: 'hemo',        label: 'Hemodinamia',         Icon: Radio },
+  { key: 'codeStart',    label: 'Código activado',      Icon: Activity },
+  { key: 'ct',           label: 'TC solicitada',         Icon: Scan },
+  { key: 'thrombolytic', label: 'Trombolisis iniciada',  Icon: Syringe },
+  { key: 'hemo',         label: 'Hemodinamia',           Icon: Radio },
 ]
 
 function fmt(date) {
@@ -38,9 +38,9 @@ export default function TimestampPanel({ codeStart, ct, thrombolytic, hemo, vari
   }
 
   return (
-    <div className="mt-3 rounded-2xl border border-neutral-100 bg-white overflow-hidden">
-      <div className="px-3 py-2.5 bg-neutral-50 border-b border-neutral-100">
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Tiempos registrados</p>
+    <div className="rounded-lg border border-neutral-200 bg-white overflow-hidden">
+      <div className="px-3 py-2 border-b border-neutral-100">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-neutral-400">Tiempos registrados</p>
       </div>
       <div className="p-2 space-y-1">
         {ITEMS.map(({ key, label, Icon }) => {
@@ -48,15 +48,15 @@ export default function TimestampPanel({ codeStart, ct, thrombolytic, hemo, vari
           return (
             <div
               key={key}
-              className={`flex items-center gap-2.5 rounded-xl px-3 py-2 transition-colors ${time ? 'bg-brand-50/50' : ''}`}
+              className={`flex items-center gap-2.5 rounded-md px-2.5 py-2 transition-colors ${time ? 'bg-neutral-50' : ''}`}
             >
-              <Icon size={13} className={`flex-shrink-0 ${time ? 'text-brand-500' : 'text-neutral-200'}`} strokeWidth={2} />
+              <Icon size={13} className={`flex-shrink-0 ${time ? 'text-neutral-700' : 'text-neutral-300'}`} strokeWidth={2} />
               <div className="flex-1 min-w-0">
-                <p className={`text-[10px] font-medium leading-none mb-0.5 ${time ? 'text-brand-500' : 'text-neutral-300'}`}>
+                <p className={`text-[10px] font-medium leading-none mb-0.5 ${time ? 'text-neutral-600' : 'text-neutral-300'}`}>
                   {label}
                 </p>
-                <p className={`text-xs font-mono font-semibold leading-none ${time ? 'text-brand-700' : 'text-neutral-300'}`}>
-                  {time ? fmt(time) : '—'}
+                <p className={`text-xs font-mono font-semibold leading-none ${time ? 'text-neutral-950' : 'text-neutral-300'}`}>
+                  {time ? fmt(time) : '-'}
                 </p>
               </div>
               {time && <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0" />}

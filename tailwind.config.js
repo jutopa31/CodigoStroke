@@ -4,6 +4,16 @@ export default {
   theme: {
     extend: {
       colors: {
+        neutral: {
+          300: '#A3A3A3',
+          400: '#707070',
+          500: '#525252',
+          600: '#404040',
+          700: '#2F2F2F',
+          800: '#1F1F1F',
+          900: '#171717',
+          950: '#0A0A0A',
+        },
         brand: {
           50:  '#EFF6FF',
           100: '#DBEAFE',
@@ -14,6 +24,15 @@ export default {
           600: '#1D4ED8',
           700: '#1E40AF',
           800: '#1E3A8A',
+        },
+        stroke: {
+          navy: '#132B58',
+          navyDeep: '#10264F',
+          line: '#29416D',
+          panel: '#3B4D73',
+          icon: '#244B99',
+          iconActive: '#5C7AEA',
+          textMuted: '#A8B6D6',
         },
         surface: {
           DEFAULT: '#FFFFFF',
