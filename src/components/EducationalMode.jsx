@@ -646,7 +646,7 @@ export default function EducationalMode({ onClose, initialSection = 'intro' }) {
 
       {/* Section tabs */}
       <div className="flex overflow-x-auto gap-1 px-3 py-2 border-b border-neutral-100 bg-neutral-50 shrink-0 scrollbar-hide">
-        {SECTIONS.map((section, idx) => (
+        {SECTIONS.map((section) => (
           <button
             key={section.id}
             type="button"

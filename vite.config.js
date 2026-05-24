@@ -16,7 +16,7 @@ export default defineConfig({
         name: 'Código Stroke',
         short_name: 'Stroke',
         description: 'Protocolo ACV isquémico agudo — AHA/ASA 2026',
-        theme_color: '#9b2c2c',
+        theme_color: '#1D4ED8',
         background_color: '#f9fafb',
         display: 'standalone',
         orientation: 'portrait',
