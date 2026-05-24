@@ -28,7 +28,7 @@ function getPhase(minutes) {
     bg: 'bg-blue-900',
     muted: 'text-blue-200',
     badge: 'bg-white/25 text-white',
-    timer: 'md:bg-blue-950 md:text-white',
+    timer: 'md:bg-stroke-panel md:text-white',
   }
   if (minutes >= 30) return {
     bg: 'bg-amber-500',
@@ -40,7 +40,7 @@ function getPhase(minutes) {
     bg: 'bg-brand-600',
     muted: 'text-brand-300',
     badge: 'bg-white/25 text-white',
-    timer: 'md:bg-neutral-950 md:text-white',
+    timer: 'md:bg-stroke-panel md:text-white',
   }
 }
 
@@ -82,12 +82,12 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
 
   return (
     <div
-      className={`fixed top-0 left-0 right-0 z-50 ${bg} transition-colors duration-500 md:border-b md:border-neutral-200 md:bg-white`}
+      className={`fixed top-0 left-0 right-0 z-50 ${bg} transition-colors duration-500 md:border-b md:border-stroke-line md:bg-stroke-navy`}
       style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
     >
-      <div className="flex items-center justify-between gap-3 px-3 py-2 md:h-14 md:px-6 md:py-0">
+      <div className="flex items-center justify-between gap-3 px-3 py-2 md:h-11 md:px-5 md:py-0">
         <div className="flex items-center gap-2.5 min-w-0 shrink md:gap-3">
-          <div className={`w-10 h-10 md:w-8 md:h-8 rounded-xl md:rounded-lg bg-white/20 flex items-center justify-center shrink-0 ${phase?.timer ?? 'md:bg-neutral-950 md:text-white'}`}>
+          <div className={`w-10 h-10 md:w-7 md:h-7 rounded-xl md:rounded-lg bg-white/20 flex items-center justify-center shrink-0 ${phase?.timer ?? 'md:bg-stroke-panel md:text-white'}`}>
             {startTime
               ? <Clock size={16} className="text-white" strokeWidth={2} />
               : <Activity size={16} className="text-white" strokeWidth={2} />
@@ -95,7 +95,7 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
           </div>
           {startTime ? (
             <div className="min-w-0">
-              <span className="block font-mono font-bold text-[1.35rem] leading-none md:text-xl text-white md:text-neutral-950 tracking-tight tabular-nums">
+              <span className="block font-mono font-bold text-[1.35rem] leading-none md:text-lg text-white tracking-tight tabular-nums">
                 {formatElapsed(elapsed)}
               </span>
               {primaryEvent && (
@@ -105,7 +105,7 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
               )}
             </div>
           ) : (
-            <span className="text-white md:text-neutral-950 font-semibold text-sm tracking-wide">Código Stroke</span>
+            <span className="text-white font-semibold text-sm tracking-wide">Código Stroke</span>
           )}
         </div>
 
@@ -116,7 +116,7 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
                 key={event.label}
                 label={event.label}
                 time={event.time}
-                badgeClass={`${phase.badge} md:bg-neutral-100 md:text-neutral-600`}
+                badgeClass={`${phase.badge} md:bg-white/10 md:text-stroke-textMuted`}
               />
             ))}
           </div>
@@ -124,7 +124,7 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
 
         <div className="flex items-center gap-2 shrink-0">
           {startTime && patient && (
-            <span className={`text-xs font-medium ${phase.muted} md:text-neutral-600 truncate max-w-[140px] hidden md:block`}>
+            <span className={`text-xs font-medium ${phase.muted} md:text-white truncate max-w-[140px] hidden md:block`}>
               {patient.name}
             </span>
           )}
@@ -132,7 +132,7 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
             <button
               type="button"
               onClick={onAuthClick}
-              className="w-11 h-11 md:w-8 md:h-8 rounded-xl md:rounded-lg border border-white/20 md:border-neutral-200 bg-white/10 md:bg-white flex items-center justify-center text-white md:text-neutral-600 hover:bg-white/20 md:hover:bg-neutral-50 transition-colors"
+              className="w-11 h-11 md:w-7 md:h-7 rounded-xl md:rounded-lg border border-white/20 md:border-white/10 bg-white/10 md:bg-white/10 flex items-center justify-center text-white md:text-stroke-textMuted hover:bg-white/20 md:hover:bg-white/15 transition-colors"
               title={authUser ? 'Tu cuenta' : 'Iniciar sesión'}
               aria-label={authUser ? 'Tu cuenta' : 'Iniciar sesión'}
             >
@@ -146,7 +146,7 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
             <button
               type="button"
               onClick={onEducationalOpen}
-              className="w-11 h-11 md:w-8 md:h-8 rounded-xl md:rounded-lg border border-white/20 md:border-neutral-200 bg-white/10 md:bg-white flex items-center justify-center text-white md:text-neutral-600 hover:bg-white/20 md:hover:bg-neutral-50 transition-colors"
+              className="w-11 h-11 md:w-7 md:h-7 rounded-xl md:rounded-lg border border-white/20 md:border-white/10 bg-white/10 md:bg-white/10 flex items-center justify-center text-white md:text-stroke-textMuted hover:bg-white/20 md:hover:bg-white/15 transition-colors"
               title="Referencia educativa del protocolo"
               aria-label="Abrir referencia educativa"
             >
@@ -157,7 +157,7 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
             <button
               type="button"
               onClick={onReset}
-              className="w-11 h-11 md:w-8 md:h-8 rounded-xl md:rounded-lg border border-white/20 md:border-neutral-200 bg-white/10 md:bg-white flex items-center justify-center text-white md:text-neutral-600 hover:bg-white/20 md:hover:bg-neutral-50 transition-colors"
+              className="w-11 h-11 md:w-7 md:h-7 rounded-xl md:rounded-lg border border-white/20 md:border-white/10 bg-white/10 md:bg-white/10 flex items-center justify-center text-white md:text-stroke-textMuted hover:bg-white/20 md:hover:bg-white/15 transition-colors"
               title="Reiniciar protocolo"
               aria-label="Reiniciar protocolo"
             >
@@ -181,9 +181,9 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
       )}
 
       {progressPct > 0 && (
-        <div className="h-0.5 bg-white/20 md:bg-neutral-100">
+        <div className="h-0.5 bg-white/20 md:bg-stroke-line">
           <div
-            className="h-full bg-white/60 md:bg-neutral-300 rounded-r-full transition-all duration-500"
+            className="h-full bg-white/60 md:bg-stroke-iconActive rounded-r-full transition-all duration-500"
             style={{ width: `${progressPct}%` }}
           />
         </div>

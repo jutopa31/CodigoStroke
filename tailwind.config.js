@@ -25,6 +25,15 @@ export default {
           700: '#1E40AF',
           800: '#1E3A8A',
         },
+        stroke: {
+          navy: '#132B58',
+          navyDeep: '#10264F',
+          line: '#29416D',
+          panel: '#3B4D73',
+          icon: '#244B99',
+          iconActive: '#5C7AEA',
+          textMuted: '#A8B6D6',
+        },
         surface: {
           DEFAULT: '#FFFFFF',
           muted: '#FAFAFA',

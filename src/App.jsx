@@ -681,8 +681,8 @@ export default function App() {
     && activeTab !== 'trombolisis'
 
   const headerOffsetClass = timerStart
-    ? 'pt-[calc(6.85rem+env(safe-area-inset-top,0px))] md:pt-[calc(3.5rem+env(safe-area-inset-top,0px))]'
-    : 'pt-[calc(3.75rem+env(safe-area-inset-top,0px))] md:pt-[calc(3.5rem+env(safe-area-inset-top,0px))]'
+    ? 'pt-[calc(6.85rem+env(safe-area-inset-top,0px))] md:pt-[calc(2.75rem+env(safe-area-inset-top,0px))]'
+    : 'pt-[calc(3.75rem+env(safe-area-inset-top,0px))] md:pt-[calc(2.75rem+env(safe-area-inset-top,0px))]'
 
   return (
     <div className="h-dvh flex flex-col overflow-hidden bg-neutral-50 md:bg-[#f6f6f4]">
@@ -707,7 +707,7 @@ export default function App() {
       <div className={`flex-1 flex flex-col overflow-hidden ${headerOffsetClass}`}>
 
         {/* TabBar — colored band */}
-        <div className="shrink-0 bg-brand-600 md:border-b md:border-neutral-200 md:bg-[#f6f6f4] md:px-6 md:py-3">
+        <div className="shrink-0 bg-brand-600 md:border-b md:border-stroke-line md:bg-stroke-navy md:px-5 md:py-1">
           <TabBar
             phase={phase}
             activeTab={activeTab}
@@ -717,12 +717,12 @@ export default function App() {
         </div>
 
         {/* Two-column layout: sidebar (desktop) + main content */}
-        <div className="flex-1 flex overflow-hidden md:px-6 md:pb-6">
+        <div className="flex-1 flex overflow-hidden md:px-4 md:pb-3">
 
           {/* Desktop sidebar */}
           {(patient || phase === 'pre') && (
-            <aside className="hidden md:flex md:flex-col md:gap-3 w-[280px] shrink-0 overflow-y-auto border-r border-neutral-200 pr-4 pt-4">
-              <div className="rounded-lg border border-neutral-200 bg-white p-4">
+            <aside className="hidden md:flex md:flex-col md:gap-2.5 w-[270px] shrink-0 overflow-y-auto border-r border-neutral-200 pr-3 pt-3">
+              <div className="rounded-lg border border-neutral-200 bg-white p-3">
                 {patient ? (
                   <>
                     <div className="flex items-start justify-between gap-2 mb-1">
@@ -739,7 +739,7 @@ export default function App() {
                 )}
 
                 {(latestNihss !== null || latestVitals || latestGlucose !== null) && (
-                  <div className="mt-4 pt-4 border-t border-neutral-100 grid grid-cols-3 gap-2">
+                  <div className="mt-3 pt-3 border-t border-neutral-100 grid grid-cols-3 gap-1.5">
                     {latestNihss !== null && (() => {
                       const sev = getNihssSeverity(latestNihss)
                       return (
@@ -766,7 +766,7 @@ export default function App() {
               </div>
 
               {timerStart && (
-                <div className="rounded-lg border border-neutral-200 bg-white p-3">
+                <div className="rounded-lg border border-neutral-200 bg-white p-2.5">
                   <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Registros rápidos</p>
                   <QuickAddFAB
                     variant="sidebar"
@@ -836,7 +836,7 @@ export default function App() {
           {/* Main content */}
           <div className="flex-1 flex flex-col overflow-hidden">
             <main className="flex-1 overflow-y-auto">
-              <div className="w-full max-w-4xl xl:max-w-6xl mx-auto px-0 py-3 pb-20 md:px-5 md:py-4 md:pb-8">
+              <div className="w-full max-w-5xl mx-auto px-0 py-3 pb-20 md:px-5 md:py-3 md:pb-5">
                 {renderTabContent()}
               </div>
             </main>
