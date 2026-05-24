@@ -838,18 +838,8 @@ export default function App() {
               <div className="w-full max-w-5xl mx-auto px-0 py-3 pb-20 md:px-5 md:py-3 md:pb-5">
                 {renderTabContent()}
               </div>
-            )}
+            </main>
           </div>
-        )}
-
-        {/* Main content */}
-        <div className="flex-1 overflow-hidden">
-          <main className="h-full overflow-y-auto">
-            <div className="max-w-3xl mx-auto px-0 py-3"
-              style={{ paddingBottom: contentPaddingBottom }}>
-              {renderTabContent()}
-            </div>
-          </main>
         </div>
 
         {/* ── Fixed bottom: DecisionButton (Phase 1) ── */}
