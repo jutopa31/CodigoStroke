@@ -309,6 +309,7 @@ export default function QuickAddFAB({
 
   const isSidebar = variant === 'sidebar'
   const isMobileToolbar = variant === 'mobile-toolbar'
+  const isCompactRow = variant === 'compact-row'
 
   const has4thBtn = onOutOfWindow || onReset
 
@@ -316,15 +317,21 @@ export default function QuickAddFAB({
     ? `grid w-full ${has4thBtn ? 'grid-cols-4' : 'grid-cols-3'} gap-2`
     : isSidebar
       ? `grid ${has4thBtn ? 'grid-cols-4' : 'grid-cols-3'} gap-2`
-      : 'flex flex-col gap-2'
+      : isCompactRow
+        ? 'flex items-center gap-1.5'
+        : 'flex flex-col gap-2'
   const buttonClass = isMobileToolbar || isSidebar
     ? 'relative flex min-h-[44px] min-w-0 flex-col items-center justify-center gap-0.5 rounded-xl border text-[10px] font-semibold active:scale-[0.98] transition-transform'
-    : 'relative w-10 h-10 rounded-xl border flex flex-col items-center justify-center gap-0.5 active:scale-95 transition-transform'
+    : isCompactRow
+      ? 'relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-[11px] font-semibold active:scale-[0.97] transition-transform'
+      : 'relative w-10 h-10 rounded-xl border flex flex-col items-center justify-center gap-0.5 active:scale-95 transition-transform'
   const resetClass = isMobileToolbar || isSidebar
     ? 'relative flex min-h-[44px] min-w-0 flex-col items-center justify-center gap-0.5 rounded-xl border border-neutral-200 bg-white text-neutral-500 hover:bg-neutral-50 text-[10px] font-semibold active:scale-[0.98] transition-transform'
-    : 'w-10 h-10 rounded-xl border border-neutral-200 bg-white text-neutral-500 hover:bg-neutral-50 flex flex-col items-center justify-center gap-0.5 active:scale-95 transition-transform'
-  const iconSize = 14
-  const labelClass = isMobileToolbar || isSidebar ? 'text-[10px] font-semibold leading-none' : 'text-[9px] font-semibold leading-none'
+    : isCompactRow
+      ? 'relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-neutral-200 bg-white text-neutral-500 hover:bg-neutral-50 text-[11px] font-semibold active:scale-[0.97] transition-transform'
+      : 'w-10 h-10 rounded-xl border border-neutral-200 bg-white text-neutral-500 hover:bg-neutral-50 flex flex-col items-center justify-center gap-0.5 active:scale-95 transition-transform'
+  const iconSize = isCompactRow ? 13 : 14
+  const labelClass = isMobileToolbar || isSidebar ? 'text-[10px] font-semibold leading-none' : isCompactRow ? 'text-[11px] font-semibold leading-none' : 'text-[9px] font-semibold leading-none'
 
   return (
     <>
@@ -345,11 +352,14 @@ export default function QuickAddFAB({
             )}
           </button>
         ))}
-        {onOutOfWindow && (isMobileToolbar || isSidebar) && (
+        {onOutOfWindow && (isMobileToolbar || isSidebar || isCompactRow) && (
           <button
             onClick={onOutOfWindow}
             title="Fuera de ventana"
-            className="relative flex min-h-[44px] min-w-0 flex-col items-center justify-center gap-0.5 rounded-xl border border-neutral-700 bg-neutral-800 text-white text-[10px] font-semibold active:scale-[0.98] transition-transform hover:bg-neutral-900"
+            className={isCompactRow
+              ? 'relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-neutral-700 bg-neutral-800 text-white text-[11px] font-semibold active:scale-[0.97] transition-transform hover:bg-neutral-900'
+              : 'relative flex min-h-[44px] min-w-0 flex-col items-center justify-center gap-0.5 rounded-xl border border-neutral-700 bg-neutral-800 text-white text-[10px] font-semibold active:scale-[0.98] transition-transform hover:bg-neutral-900'
+            }
           >
             <Clock size={iconSize} strokeWidth={2} />
             <span className={labelClass}>F. Ventana</span>

@@ -96,7 +96,7 @@ export default function TabBar({ phase, activeTab, onTabChange, completion = {} 
 
       {/* Scrollable tabs row */}
       <div
-        className="flex items-center gap-1 px-2 pb-2 overflow-x-auto [mask-image:linear-gradient(to_right,transparent_0,black_0.75rem,black_85%,transparent_100%)]"
+        className="flex items-center justify-center gap-1 px-2 pb-2 overflow-x-auto [mask-image:linear-gradient(to_right,transparent_0,black_0.75rem,black_85%,transparent_100%)]"
         style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}
       >
         {visibleTabs.map((tab) => (
