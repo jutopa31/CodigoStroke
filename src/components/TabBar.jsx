@@ -13,7 +13,7 @@ const PHASE1_TABS = [
 // ─── Phase 2: 4 tabs ────────────────────────────────────────────────────────
 const PHASE2_TABS = [
   { id: 'decision',      label: 'Decisión',   Icon: CheckCircle2 },
-  { id: 'trombolisis',   label: 'Trombol.',   Icon: Syringe },
+  { id: 'trombolisis',   label: 'Trombolisis', Icon: Syringe },
   { id: 'cuidados',      label: 'Cuidados',   Icon: Heart },
   { id: 'trombectomia',  label: 'Trombect.',  Icon: Zap },
 ]
@@ -53,12 +53,12 @@ function TabItem({ tab, active, completion, onClick }) {
       type="button"
       onClick={() => onClick(id)}
       aria-selected={active}
-      className={`flex flex-col items-center gap-1 px-2.5 py-2 rounded-xl transition-all shrink-0 ${
+      className={`flex min-w-[4.4rem] flex-col items-center gap-1.5 px-2.5 py-2.5 rounded-xl transition-all shrink-0 ${
         active ? 'bg-white/15' : 'hover:bg-white/8'
       }`}
     >
-      <div className={`relative w-8 h-8 rounded-xl flex items-center justify-center transition-all ${iconBg} ${ring}`}>
-        <Icon size={15} strokeWidth={2} />
+      <div className={`relative w-9 h-9 rounded-xl flex items-center justify-center transition-all ${iconBg} ${ring}`}>
+        <Icon size={16} strokeWidth={2} />
         {/* Green checkmark badge */}
         {completion === 'complete' && !active && (
           <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-emerald-500 rounded-full flex items-center justify-center shadow-sm">
@@ -68,7 +68,7 @@ function TabItem({ tab, active, completion, onClick }) {
           </span>
         )}
       </div>
-      <span className={`text-[9px] leading-none whitespace-nowrap ${labelColor}`}>{label}</span>
+      <span className={`text-[10px] leading-none whitespace-nowrap ${labelColor}`}>{label}</span>
     </button>
   )
 }
@@ -86,7 +86,7 @@ export default function TabBar({ phase, activeTab, onTabChange, completion = {} 
   const phaseColor = phase === 'pre' ? 'text-white/50' : 'text-emerald-200/70'
 
   return (
-    <div className="flex flex-col shrink-0">
+    <div className="relative flex flex-col shrink-0">
       {/* Phase label */}
       <div className="flex items-center gap-2 px-4 pt-2 pb-0.5">
         <div className="h-px flex-1 bg-white/15" />
@@ -96,7 +96,7 @@ export default function TabBar({ phase, activeTab, onTabChange, completion = {} 
 
       {/* Scrollable tabs row */}
       <div
-        className="flex items-center gap-0.5 px-2 pb-2 overflow-x-auto"
+        className="flex items-center gap-1 px-2 pb-2 overflow-x-auto [mask-image:linear-gradient(to_right,transparent_0,black_0.75rem,black_85%,transparent_100%)]"
         style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}
       >
         {visibleTabs.map((tab) => (

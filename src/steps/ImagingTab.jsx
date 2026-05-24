@@ -21,7 +21,7 @@ function timeSince(date) {
 
 // ── CT Section ───────────────────────────────────────────────────────────────
 
-function CTSection({ onConfirm, confirmed, initialCtRequestTime, onCtRequest }) {
+function CTSection({ onConfirm, initialCtRequestTime, onCtRequest }) {
   const [ctRequestTime, setCtRequestTime] = useState(initialCtRequestTime)
   const [bleeding, setBleeding] = useState(null)
   useInterval(1000)
@@ -94,7 +94,7 @@ function CTSection({ onConfirm, confirmed, initialCtRequestTime, onCtRequest }) 
 
 // ── MRI Section ──────────────────────────────────────────────────────────────
 
-function MRISection({ onConfirm, confirmed }) {
+function MRISection({ onConfirm }) {
   const [mriRequestTime, setMriRequestTime] = useState(null)
   const [mismatch, setMismatch] = useState(null)
   useInterval(1000)
@@ -180,18 +180,14 @@ export default function ImagingTab({
   isWakeUpStroke,
   initialCtRequestTime,
 }) {
-  const [mode, setMode] = useState(isWakeUpStroke === true ? 'mri' : 'ct')
-
-  // When Tiempo tab changes wake-up status, update the imaging mode accordingly
-  useEffect(() => {
-    setMode(isWakeUpStroke === true ? 'mri' : 'ct')
-  }, [isWakeUpStroke])
+  const [selectedMode, setSelectedMode] = useState(null)
 
   const ctConfirmed  = ctResult?.bleeding === true || ctResult?.bleeding === false
   const mriConfirmed = ctResult?.mismatch  === true || ctResult?.mismatch  === false
 
   // MRI toggle only appears when time window is uncertain (wake-up stroke)
   const showMriToggle = isWakeUpStroke === true
+  const mode = showMriToggle ? (selectedMode ?? 'mri') : 'ct'
 
   return (
     <div className="px-4 pb-4 space-y-3">
@@ -202,7 +198,7 @@ export default function ImagingTab({
             { id: 'ct',  label: 'TC de encéfalo' },
             { id: 'mri', label: 'RMN (Wake-up)' },
           ].map(({ id, label }) => (
-            <button key={id} type="button" onClick={() => setMode(id)}
+            <button key={id} type="button" onClick={() => setSelectedMode(id)}
               className={`flex-1 py-2.5 transition-all ${
                 mode === id ? 'bg-blue-600 text-white' : 'bg-white text-neutral-500 hover:bg-blue-50'
               }`}>
@@ -224,7 +220,6 @@ export default function ImagingTab({
         <StepCard step="" title="TAC de encéfalo" accent="blue">
           <CTSection
             onConfirm={onCtConfirm}
-            confirmed={ctConfirmed}
             initialCtRequestTime={initialCtRequestTime}
             onCtRequest={onCtRequest}
           />
@@ -247,7 +242,6 @@ export default function ImagingTab({
         <StepCard step="" title="RMN — ACV del despertar" accent="blue">
           <MRISection
             onConfirm={onMriConfirm}
-            confirmed={mriConfirmed}
           />
         </StepCard>
       )}

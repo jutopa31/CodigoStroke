@@ -16,6 +16,7 @@ function VitalAlert({ message }) {
   )
 }
 
+// eslint-disable-next-line no-unused-vars
 function VitalsSection({ onConfirm, confirmed, initialVitals }) {
   const [sys, setSys] = useState(initialVitals ? String(initialVitals.systolic) : '')
   const [dia, setDia] = useState(initialVitals ? String(initialVitals.diastolic) : '')

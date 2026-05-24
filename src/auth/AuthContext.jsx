@@ -1,7 +1,6 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
-
-const AuthContext = createContext(null)
+import AuthContext from './AuthContextValue'
 
 async function fetchRole(userId) {
   if (!supabase) return 'clinico'
@@ -16,13 +15,10 @@ async function fetchRole(userId) {
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [role, setRole] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(Boolean(supabase))
 
   useEffect(() => {
-    if (!supabase) {
-      setLoading(false)
-      return
-    }
+    if (!supabase) return
 
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       const u = session?.user ?? null
@@ -76,8 +72,4 @@ export function AuthProvider({ children }) {
       {children}
     </AuthContext.Provider>
   )
-}
-
-export function useAuth() {
-  return useContext(AuthContext)
 }
