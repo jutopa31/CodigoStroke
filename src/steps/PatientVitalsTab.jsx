@@ -3,12 +3,12 @@ import { User, CheckCircle2, AlertTriangle, CreditCard, Lock, BookOpen, ScanLine
 import DniQrScanner from '../components/DniQrScanner'
 
 const MRS_OPTIONS = [
-  { score: 0, label: 'Sin síntomas' },
-  { score: 1, label: 'Sin discapacidad' },
-  { score: 2, label: 'Leve' },
-  { score: 3, label: 'Moderada' },
-  { score: 4, label: 'Mod. severa' },
-  { score: 5, label: 'Severa' },
+  { score: 0, label: 'Sin síntomas',                  desc: 'Sin síntomas.' },
+  { score: 1, label: 'Sin discapacidad significativa', desc: 'A pesar de síntomas realiza actividades cotidianas.' },
+  { score: 2, label: 'Incapacidad leve',               desc: 'Incapaz de actividades previas; capaz de algunas sin asistencia.' },
+  { score: 3, label: 'Incapacidad moderada',           desc: 'Requiere alguna ayuda, pero camina sin ayuda.' },
+  { score: 4, label: 'Incapacidad mod. severa',        desc: 'Incapaz de caminar sin ayuda y de atender necesidades corporales sin ayuda.' },
+  { score: 5, label: 'Incapacidad severa',             desc: 'Confinado a cama, incontinente; requiere cuidado constante de enfermería.' },
 ]
 
 // ── Patient section ──────────────────────────────────────────────────────────
@@ -247,7 +247,10 @@ function VitalsSection({ vitals, onConfirm, draftVitals, onDraftChange }) {
           ))}
         </div>
         {mrs !== null && (
-          <p className="mt-0.5 text-xs text-brand-600 font-medium animate-fade-in">{MRS_OPTIONS[mrs].label}</p>
+          <div className="mt-1.5 px-2.5 py-1.5 bg-brand-50 rounded-lg border border-brand-100 animate-fade-in">
+            <p className="text-[11px] font-semibold text-brand-700 leading-tight">{MRS_OPTIONS[mrs].label}</p>
+            <p className="text-[10px] text-neutral-500 mt-0.5 leading-snug">{MRS_OPTIONS[mrs].desc}</p>
+          </div>
         )}
       </div>
 
