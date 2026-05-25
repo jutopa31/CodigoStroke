@@ -21,9 +21,9 @@ function timeSince(date) {
 
 // ── CT Section ───────────────────────────────────────────────────────────────
 
-function CTSection({ onConfirm, initialCtRequestTime, onCtRequest }) {
+function CTSection({ onConfirm, initialCtRequestTime, onCtRequest, initialBleeding }) {
   const [ctRequestTime, setCtRequestTime] = useState(initialCtRequestTime)
-  const [bleeding, setBleeding] = useState(null)
+  const [bleeding, setBleeding] = useState(initialBleeding ?? null)
   useInterval(1000)
 
   const elapsed = timeSince(ctRequestTime)
@@ -94,9 +94,9 @@ function CTSection({ onConfirm, initialCtRequestTime, onCtRequest }) {
 
 // ── MRI Section ──────────────────────────────────────────────────────────────
 
-function MRISection({ onConfirm }) {
-  const [mriRequestTime, setMriRequestTime] = useState(null)
-  const [mismatch, setMismatch] = useState(null)
+function MRISection({ onConfirm, initialMriRequestTime, initialMismatch }) {
+  const [mriRequestTime, setMriRequestTime] = useState(initialMriRequestTime ?? null)
+  const [mismatch, setMismatch] = useState(initialMismatch ?? null)
   useInterval(1000)
 
   const elapsed = timeSince(mriRequestTime)
@@ -215,12 +215,21 @@ export default function ImagingTab({
         </div>
       )}
 
+      {/* Banner: CT clear but MRI still pending in wake-up protocol */}
+      {showMriToggle && ctConfirmed && ctResult?.bleeding === false && !mriConfirmed && (
+        <div className="flex items-start gap-2 px-3 py-2.5 rounded-xl bg-amber-50 border border-amber-200 animate-fade-in">
+          <CheckCircle2 size={14} className="text-amber-600 shrink-0 mt-0.5" />
+          <p className="text-xs font-semibold text-amber-700">TAC sin hemorragia — ventana incierta requiere RMN para evaluar mismatch FLAIR-DWI</p>
+        </div>
+      )}
+
       {/* CT section — always shown unless wake-up mode is active on MRI tab */}
       {(!showMriToggle || mode === 'ct') && (
         <StepCard step="" title="TAC de encéfalo" accent="blue">
           <CTSection
             onConfirm={onCtConfirm}
             initialCtRequestTime={initialCtRequestTime}
+            initialBleeding={ctResult?.bleeding ?? null}
             onCtRequest={onCtRequest}
           />
           {ctResult?.bleeding === true && (
@@ -242,11 +251,13 @@ export default function ImagingTab({
         <StepCard step="" title="RMN — ACV del despertar" accent="blue">
           <MRISection
             onConfirm={onMriConfirm}
+            initialMriRequestTime={ctResult?.mriRequestTime ? new Date(ctResult.mriRequestTime) : null}
+            initialMismatch={ctResult?.mismatch ?? null}
           />
         </StepCard>
       )}
 
-      {(ctConfirmed || mriConfirmed) && (
+      {(ctConfirmed || mriConfirmed) && !(showMriToggle && ctConfirmed && ctResult?.bleeding === false && !mriConfirmed) && (
         <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-emerald-50 border border-emerald-200 animate-fade-in">
           <CheckCircle2 size={14} className="text-emerald-600 shrink-0" />
           <p className="text-xs font-semibold text-emerald-700">Imagen registrada</p>
