@@ -1,0 +1,119 @@
+# AGENTS.md
+
+This file provides guidance to Codex (Codex.ai/code) when working with code in this repository.
+
+## Package Manager
+
+**Always use `pnpm` — never `npm`.** Using npm causes Vercel/CI build failures.
+
+```bash
+pnpm install              # Install dependencies
+pnpm run dev              # Dev server → http://localhost:5173
+pnpm run build            # Production build → dist/
+pnpm run lint             # ESLint
+pnpm run test:unit        # Vitest unit tests
+pnpm run test:unit:watch  # Vitest watch mode
+pnpm test                 # Playwright E2E tests
+pnpm test -- --grep "pattern"  # Run filtered E2E tests
+```
+
+## Architecture Overview
+
+**Código Stroke** is a mobile-first React SPA (no router) that guides emergency physicians through an acute ischemic stroke (ACV isquémico) treatment protocol following AHA/ASA 2026 guidelines.
+
+**Stack:** React 19 + Vite 4 + Tailwind CSS 3 + vite-plugin-pwa. Data persists in localStorage (Supabase stub ready in `src/lib/supabase.js`).
+
+### Step-Based Clinical Flow
+
+The entire app state lives in `App.jsx` — no Context or Zustand. A single `step` integer drives which step is active. `advanceTo(n)` uses `Math.max` to ensure steps only move forward.
+
+```js
+const STEP = {
+  START: 0,
+  PATIENT: 1,
+  ALERT: 2,          // sends EmailJS alert + saves event
+  TIME: 3,
+  VITALS: 4,
+  NIHSS_SYMPTOMS: 5,
+  CT_RESULT: 6,
+  CONTRAINDICATIONS: 7,
+  DOSAGE: 8,
+  THROMBECTOMY: 9,
+  DONE: 10,
+}
+```
+
+**Clinical branching logic:**
+- `CTResultStep`: if hemorrhage → jump to DONE (no thrombolysis)
+- `ContraindicationsStep`: if any red (absolute) contraindication → skip DOSAGE, jump to THROMBECTOMY
+- `ContraindicationsStep`: if orange (relative) contraindications only → warn but allow DOSAGE
+
+### Step Component Pattern
+
+Every step in `src/steps/` follows the same contract:
+- Props: `onConfirm(data)`, `confirmed`, `<fieldData>`, `isCollapsed`
+- Derives a local `canContinue` boolean for form validation
+- Renders a collapsed summary when `confirmed && isCollapsed`
+- Calls `onConfirm(data)` on submit
+
+### Key Library Modules (`src/lib/`)
+
+- **calculations.js** — Pure functions for dose math and time windows:
+  - `calcTNK(kg)` → `{ total }` — `min(kg × 0.25, 25)` mg bolus
+  - `calcRtPA(kg)` → `{ total, bolo, infusion }` — `min(kg × 0.9, 90)` mg
+  - `getWindowStatus(minutes)` → `'iv' | 'ogv' | 'out'` (IV window = 270 min, OGV = 1440 min)
+
+- **storage.js** — localStorage wrapper; all functions are try-catch safe and designed for a future Supabase swap. `generatePatientId(name, dni)` produces readable IDs like "GJ678".
+
+- **emailService.js** — Wraps EmailJS; falls back to `console.info` if env vars are missing (useful in dev).
+
+### Key Components (`src/components/`)
+
+- **GlobalTimer** — Fixed countdown timer. Color phases: green (0–30 min) → yellow (30–60 min) → blue (>60 min). Shows clinical milestones at 25, 45, and 60 min.
+- **NihssModal** — 15-item guided NIHSS calculator. Item definitions and severity thresholds live in `src/content/nihss.js`.
+- **StepProgressProvider / StepProgressContext** — Drives sidebar step highlighting via `DISPLAY_TO_STEP` map.
+- **EducationalMode / EducationalOverlay** — Toggleable clinical rationale panels; toggled via info icons on each step.
+
+### Contraindications Data
+
+Red and orange contraindication lists are arrays of `{ id, label, description }` defined directly in `src/steps/ContraindicationsStep.jsx`. To add one, append to `RED_CONTRAS` or `ORANGE_CONTRAS`.
+
+## Testing
+
+**Unit tests** (Vitest) cover pure functions only — `calculations.test.js`, `storage.test.js`, `nihss.test.js`. No mocking needed.
+
+**E2E tests** (Playwright) in `tests/`:
+- Clears localStorage before each test
+- Starts dev server automatically (configured in `playwright.config.js`)
+- `app-smoke.spec.js` — basic navigation
+- `clinical-paths.spec.js` — full protocol paths (hemorrhage, contraindications, dosage)
+
+## Design System
+
+Custom Tailwind palette in `tailwind.config.js`:
+- Brand red: `#9b2c2c` (buttons, borders, logo)
+- Mobile-first; `user-scalable=no` is intentional (PWA requirement)
+- Touch targets ≥44px; safe-area CSS env vars used for notch devices
+
+Custom animations: `slide-down`, `slide-up`, `fade-in`, `pulse-subtle`, `scale-in`.
+
+## Environment Variables
+
+```bash
+# .env.local — all optional; missing vars fall back gracefully
+VITE_EMAILJS_SERVICE_ID=service_xxxxx
+VITE_EMAILJS_TEMPLATE_ID=template_xxxxx
+VITE_EMAILJS_PUBLIC_KEY=pk_xxxxx
+# VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY reserved for future use
+```
+
+## PWA
+
+Built with `vite-plugin-pwa` + Workbox. Precaches all static assets on first load → fully offline after that. Manifest locks portrait orientation and uses `standalone` display. Icons in `public/`.
+
+## Further Reading
+
+- `FLUJO_DISCUSION.md` — in-depth proposals for step-blocking UX and relative contraindication flow
+- `docs/ARCHITECTURE.md` — component structure detail
+- `docs/NEXT_STEPS.md` — clinical and tech roadmap
+- `docs/IMPLEMENTATION.md` — Vercel + EmailJS setup
