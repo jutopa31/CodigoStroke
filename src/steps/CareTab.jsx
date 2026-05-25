@@ -149,7 +149,7 @@ export default function CareTab({
   }
 
   return (
-    <div className="px-4 pb-4 space-y-4">
+    <div className="px-4 pb-4 space-y-3">
 
       {/* Serial NIHSS */}
       <StepCard step="" title="NIHSS seriado" accent="orange">
@@ -281,7 +281,7 @@ export default function CareTab({
         <button
           type="button"
           onClick={onContinue}
-          className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-semibold text-sm bg-brand-600 hover:bg-brand-700 text-white transition-all active:scale-[0.98]"
+          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-semibold text-sm bg-brand-600 hover:bg-brand-700 text-white transition-all active:scale-[0.98]"
         >
           Continuar → Trombectomía <ChevronRight size={16} />
         </button>

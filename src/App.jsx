@@ -6,6 +6,7 @@ import AlertModal from './components/AlertModal'
 import TabBar from './components/TabBar'
 import DecisionButton from './components/DecisionButton'
 import QuickAddFAB from './components/QuickAddFAB'
+import TimestampPanel from './components/TimestampPanel'
 import OutOfWindowModal from './components/OutOfWindowModal'
 import EducationalOverlay from './components/EducationalOverlay'
 import EducationalMode from './components/EducationalMode'
@@ -835,7 +836,7 @@ export default function App() {
           {/* Main content */}
           <div className="flex-1 flex flex-col overflow-hidden">
             <main className="flex-1 overflow-y-auto">
-              <div className="w-full max-w-5xl mx-auto px-0 py-3 pb-20 md:px-5 md:py-3 md:pb-5">
+              <div className="w-full max-w-5xl mx-auto px-0 py-2 pb-20 md:px-5 md:py-2 md:pb-4">
                 {renderTabContent()}
               </div>
             </main>

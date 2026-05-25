@@ -123,7 +123,7 @@ export default function CIRelativasTab({ initialState, onUpdate, onAnticoagChang
   }
 
   return (
-    <div className="px-4 pb-6 space-y-3">
+    <div className="px-4 pb-4 space-y-3">
       {/* Header */}
       <div className="flex items-start gap-3 px-4 py-3 rounded-2xl bg-amber-50 border border-amber-200">
         <AlertTriangle size={16} className="text-amber-600 shrink-0 mt-0.5" />

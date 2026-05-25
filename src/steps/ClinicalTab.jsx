@@ -364,7 +364,7 @@ export default function ClinicalTab({ onNihssConfirm, nihss, symptoms }) {
   const nihssConfirmed = nihss !== null
 
   return (
-    <div className="px-4 pb-4 space-y-4">
+    <div className="px-4 pb-3 space-y-3">
       {nihssConfirmed && (
         <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-emerald-50 border border-emerald-200 animate-fade-in">
           <CheckCircle2 size={14} className="text-emerald-600 shrink-0" />

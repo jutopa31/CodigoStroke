@@ -257,7 +257,7 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
           <button
             type="button" onClick={() => setView('post')}
             disabled={!validWeight || !thrombolyticStartTime}
-            className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-semibold text-sm transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed bg-brand-600 hover:bg-brand-700 text-white"
+            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-semibold text-sm transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed bg-brand-600 hover:bg-brand-700 text-white"
           >
             Continuar — post-trombolisis <ChevronRight size={16} />
           </button>
@@ -410,7 +410,7 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
           type="button"
           onClick={() => onConfirm({ drug, weight, dose, checklist: checked, thrombolyticStartTime: thrombolyticStartTime?.toISOString() })}
           disabled={!canContinue}
-          className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-semibold py-4 rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+          className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-semibold py-3 rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed"
         >
           Continuar → Cuidados <ChevronRight size={18} />
         </button>

@@ -291,7 +291,7 @@ export default function ThrombectomyStep({
           type="button"
           onClick={handleSubmit}
           disabled={!canContinue}
-          className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-600 py-4 font-semibold text-white transition-all hover:bg-brand-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-neutral-100 disabled:text-neutral-400"
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-600 py-3 font-semibold text-white transition-all hover:bg-brand-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-neutral-100 disabled:text-neutral-400"
         >
           Finalizar protocolo <ChevronRight size={18} />
         </button>

@@ -1,12 +1,12 @@
 import { CheckCircle2, XCircle, AlertTriangle, Moon, Clock, Syringe, Zap } from 'lucide-react'
 
 function DecisionIcon({ icon }) {
-  if (icon === 'check')   return <CheckCircle2 size={28} className="text-emerald-600" />
-  if (icon === 'error')   return <XCircle size={28} className="text-blue-900" />
-  if (icon === 'warning') return <AlertTriangle size={28} className="text-amber-600" />
-  if (icon === 'moon')    return <Moon size={28} className="text-indigo-600" />
-  if (icon === 'pending') return <Clock size={28} className="text-neutral-400" />
-  return <Clock size={28} className="text-neutral-400" />
+  if (icon === 'check')   return <CheckCircle2 size={22} className="text-emerald-600" />
+  if (icon === 'error')   return <XCircle size={22} className="text-blue-900" />
+  if (icon === 'warning') return <AlertTriangle size={22} className="text-amber-600" />
+  if (icon === 'moon')    return <Moon size={22} className="text-indigo-600" />
+  if (icon === 'pending') return <Clock size={22} className="text-neutral-400" />
+  return <Clock size={22} className="text-neutral-400" />
 }
 
 const iconBgMap = {
@@ -52,11 +52,11 @@ export default function DecisionTab({ result, onGoToThrombolysis, onGoToThrombec
     <div className="px-4 pb-4 animate-slide-down md:px-0">
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-start xl:gap-5">
         <div className="space-y-4">
-          <div className={`bg-white rounded-2xl border-2 md:rounded-lg md:border ${borderMap[icon] ?? 'border-neutral-200'} p-6 md:p-6 lg:p-8`}>
-            <div className={`w-14 h-14 md:w-11 md:h-11 ${iconBgMap[icon] ?? 'bg-neutral-100'} rounded-2xl md:rounded-lg flex items-center justify-center mx-auto md:mx-0 mb-4`}>
+          <div className={`bg-white rounded-2xl border-2 md:rounded-lg md:border ${borderMap[icon] ?? 'border-neutral-200'} p-4 md:p-4 lg:p-5`}>
+            <div className={`w-11 h-11 md:w-9 md:h-9 ${iconBgMap[icon] ?? 'bg-neutral-100'} rounded-xl md:rounded-lg flex items-center justify-center mx-auto md:mx-0 mb-2.5`}>
               <DecisionIcon icon={icon} />
             </div>
-            <h2 className="text-neutral-800 text-lg lg:text-xl font-bold text-center md:text-left mb-2">{title}</h2>
+            <h2 className="text-neutral-800 text-base lg:text-lg font-bold text-center md:text-left mb-1.5">{title}</h2>
             <p className="text-sm text-neutral-500 text-center md:text-left leading-relaxed max-w-2xl mx-auto md:mx-0">{body}</p>
           </div>
 
@@ -110,7 +110,7 @@ export default function DecisionTab({ result, onGoToThrombolysis, onGoToThrombec
           <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 px-1">Próximos pasos</p>
           {thrombolyze === true && (
             <button type="button" onClick={onGoToThrombolysis}
-              className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl md:rounded-lg bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] transition-all text-white">
+              className="w-full flex items-center gap-3 px-4 py-2.5 rounded-2xl md:rounded-lg bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] transition-all text-white">
               <Syringe size={18} />
               <div className="text-left">
                 <p className="text-sm font-bold">Ir a Trombolisis</p>
@@ -119,7 +119,7 @@ export default function DecisionTab({ result, onGoToThrombolysis, onGoToThrombec
             </button>
           )}
           <button type="button" onClick={onGoToThrombectomy}
-            className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl md:rounded-lg bg-blue-600 hover:bg-blue-700 active:scale-[0.98] transition-all text-white">
+            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-2xl md:rounded-lg bg-blue-600 hover:bg-blue-700 active:scale-[0.98] transition-all text-white">
             <Zap size={18} />
             <div className="text-left">
               <p className="text-sm font-bold">Ir a Trombectomía</p>

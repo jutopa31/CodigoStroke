@@ -64,9 +64,9 @@ export default function StepCard({
       {/* Minimal accent line */}
       <div className={`absolute left-0 top-4 bottom-4 w-0.5 rounded-full ${accentColors[accent]} opacity-60`} />
       
-      <div className="p-5 md:p-6">
+      <div className="p-4 md:p-5">
         {(step || title) && (
-          <div className="flex items-center gap-3 mb-4">
+          <div className="flex items-center gap-3 mb-2.5">
             {step && (
               <span className={`
                 hidden md:flex w-7 h-7 rounded-full text-white text-xs font-semibold 

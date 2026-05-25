@@ -80,7 +80,7 @@ function PatientSection({ patient, patientId, arrivalTime, onConfirm, onOpenEduc
             value={dni} onChange={(e) => setDni(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); nameRef.current?.focus() } }}
             autoFocus
-            className="w-full h-10 bg-neutral-50 border border-neutral-200 rounded-xl px-3 text-sm font-semibold focus:bg-white focus:ring-2 focus:ring-brand-100 focus:border-brand-300 placeholder-neutral-300 transition-all md:h-11 md:text-base"
+            className="w-full h-10 bg-neutral-50 border border-neutral-200 rounded-xl px-3 text-sm font-semibold focus:bg-white focus:ring-2 focus:ring-brand-100 focus:border-brand-300 placeholder-neutral-300 transition-all md:h-10"
           />
         </div>
         <div className="w-full md:w-[20rem]">
@@ -91,7 +91,7 @@ function PatientSection({ patient, patientId, arrivalTime, onConfirm, onOpenEduc
             ref={nameRef} type="text" placeholder="Nombre y apellido"
             value={name} onChange={(e) => setName(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); passRef.current?.focus() } }}
-            className="w-full h-10 bg-neutral-50 border border-neutral-200 rounded-xl px-3 text-sm focus:bg-white focus:ring-2 focus:ring-brand-100 focus:border-brand-300 placeholder-neutral-300 transition-all md:h-11 md:text-base"
+            className="w-full h-10 bg-neutral-50 border border-neutral-200 rounded-xl px-3 text-sm focus:bg-white focus:ring-2 focus:ring-brand-100 focus:border-brand-300 placeholder-neutral-300 transition-all md:h-10"
           />
         </div>
       </div>
@@ -99,10 +99,10 @@ function PatientSection({ patient, patientId, arrivalTime, onConfirm, onOpenEduc
         <input
           ref={passRef} type="password" placeholder="Contraseña de turno (opcional)"
           value={pass} onChange={(e) => setPass(e.target.value)}
-          className="h-10 w-full bg-neutral-50 border border-neutral-200 rounded-xl px-3 text-sm focus:bg-white focus:ring-2 focus:ring-brand-100 focus:border-brand-300 placeholder-neutral-300 transition-all md:h-11 md:w-[22rem] md:text-base"
+          className="h-10 w-full bg-neutral-50 border border-neutral-200 rounded-xl px-3 text-sm focus:bg-white focus:ring-2 focus:ring-brand-100 focus:border-brand-300 placeholder-neutral-300 transition-all md:h-10 md:w-[20rem]"
         />
         <button type="submit" disabled={!valid}
-          className="flex h-10 w-full items-center justify-center gap-2 rounded-xl px-5 text-sm font-semibold transition-all active:scale-[0.98] disabled:cursor-not-allowed md:h-11 md:w-auto md:min-w-[14rem] md:text-base
+          className="flex h-10 w-full items-center justify-center gap-2 rounded-xl px-5 text-sm font-semibold transition-all active:scale-[0.98] disabled:cursor-not-allowed md:h-10 md:w-auto md:min-w-[12rem]
             bg-brand-600 hover:bg-brand-700 text-white disabled:bg-neutral-100 disabled:text-neutral-400">
           <Lock size={14} /> Activar Código Stroke
         </button>
@@ -171,7 +171,7 @@ function VitalsSection({ vitals, onConfirm, draftVitals, onDraftChange }) {
   }
 
   function fieldCls(warn, filled) {
-    return `h-10 w-[7rem] rounded-xl border bg-neutral-50 px-2 text-center text-sm font-semibold focus:outline-none transition placeholder:text-neutral-300 md:h-12 md:w-[8rem] md:px-3 md:text-lg ${
+    return `h-10 w-[7rem] rounded-xl border bg-neutral-50 px-2 text-center text-sm font-semibold focus:outline-none transition placeholder:text-neutral-300 ${
       warn   ? 'border-red-300 bg-red-50/40 focus:ring-2 focus:ring-red-100' :
       filled ? 'border-blue-300 bg-blue-50/30 focus:ring-2 focus:ring-blue-100' :
                'border-neutral-200 focus:border-brand-300 focus:ring-2 focus:ring-brand-100'
@@ -272,7 +272,7 @@ export default function PatientVitalsTab({
   const vitalsDone  = vitals !== null
 
   return (
-      <div className="px-4 pb-6 space-y-4 md:px-0 md:space-y-3">
+      <div className="px-4 pb-4 space-y-3 md:px-0 md:space-y-2.5">
       {/* Completion banner */}
       {patientDone && vitalsDone && (
         <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-emerald-50 border border-emerald-200 animate-fade-in md:px-4 md:py-3">

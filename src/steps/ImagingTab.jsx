@@ -68,20 +68,20 @@ function CTSection({ onConfirm, initialCtRequestTime, onCtRequest }) {
       {!ctRequestTime ? (
         <div className="border-t border-blue-100 bg-white/60 p-3">
           <button type="button" onClick={handleCtRequest}
-            className="flex min-h-[54px] w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-sm font-bold text-white transition-all hover:bg-blue-700 active:scale-[0.98]">
+            className="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white transition-all hover:bg-blue-700 active:scale-[0.98]">
             <Scan size={17} strokeWidth={2.5} /> TAC solicitada
           </button>
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-2 border-t border-blue-100 bg-white/70 p-3 animate-fade-in">
           <button type="button" onClick={() => handleBleedingSelect(true)}
-            className={`flex min-h-[58px] items-center justify-center gap-2 rounded-xl border px-3 py-3 text-sm font-bold transition-all active:scale-[0.98] ${
+            className={`flex min-h-[46px] items-center justify-center gap-2 rounded-xl border px-3 py-3 text-sm font-bold transition-all active:scale-[0.98] ${
               bleeding === true ? 'border-blue-900 bg-blue-900 text-white' : 'border-blue-200 bg-white text-blue-900 hover:border-blue-300 hover:bg-blue-50'
             }`}>
             <Droplets size={17} strokeWidth={2.5} /> Sí sangre
           </button>
           <button type="button" onClick={() => handleBleedingSelect(false)}
-            className={`flex min-h-[58px] items-center justify-center gap-2 rounded-xl border px-3 py-3 text-sm font-bold transition-all active:scale-[0.98] ${
+            className={`flex min-h-[46px] items-center justify-center gap-2 rounded-xl border px-3 py-3 text-sm font-bold transition-all active:scale-[0.98] ${
               bleeding === false ? 'border-emerald-500 bg-emerald-600 text-white' : 'border-emerald-200 bg-white text-emerald-700 hover:border-emerald-300 hover:bg-emerald-50'
             }`}>
             <CheckCircle2 size={17} strokeWidth={2.5} /> No sangre
@@ -141,13 +141,13 @@ function MRISection({ onConfirm }) {
 
           <div className="grid grid-cols-2 gap-2">
             <button type="button" onClick={() => handleMismatch(false)}
-              className={`py-4 rounded-xl border font-bold text-base transition-all active:scale-[0.98] ${
+              className={`py-2.5 rounded-xl border font-bold text-sm transition-all active:scale-[0.98] ${
                 mismatch === false ? 'border-neutral-400 bg-neutral-700 text-white' : 'border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50'
               }`}>
               NO mismatch
             </button>
             <button type="button" onClick={() => handleMismatch(true)}
-              className={`py-4 rounded-xl border font-bold text-base transition-all active:scale-[0.98] ${
+              className={`py-2.5 rounded-xl border font-bold text-sm transition-all active:scale-[0.98] ${
                 mismatch === true ? 'border-emerald-500 bg-emerald-600 text-white' : 'border-emerald-200 bg-white text-emerald-700 hover:bg-emerald-50'
               }`}>
               SÍ mismatch
