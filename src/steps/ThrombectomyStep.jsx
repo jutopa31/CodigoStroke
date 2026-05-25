@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ChevronRight, ChevronDown, ChevronUp, Bell, Calculator, Clock, Brain, CheckCircle2, Activity } from 'lucide-react'
+import { ChevronRight, ChevronDown, ChevronUp, Bell, Calculator, Clock, Brain, CheckCircle2, Activity, AlertCircle, CheckCircle } from 'lucide-react'
 import StepCard from '../components/StepCard'
 import AspectModal from '../components/AspectModal'
 
@@ -46,6 +46,7 @@ export default function ThrombectomyStep({
   nihssScore,
   isWakeUpStroke = false,
   onConfirm,
+  confirmed = false,
   angioRequestTime = null,
   onAngioRequest,
   thrombectomyActivationTime = null,
@@ -59,6 +60,7 @@ export default function ThrombectomyStep({
     initialAspectScore !== null && initialAspectScore !== undefined ? String(initialAspectScore) : '10'
   )
   const [showAspectModal, setShowAspectModal] = useState(false)
+  const [showErrors, setShowErrors] = useState(false)
 
   const highNihss = nihssScore >= 6
   const angioLabel = isWakeUpStroke ? 'AngioRMN/TOF' : 'AngioTAC'
@@ -71,6 +73,11 @@ export default function ThrombectomyStep({
     aspectValid &&
     (!needsOGVAnswer || ogvFound !== null) &&
     (!needsThrombectomyTime || thrombectomyActivationTime)
+
+  const missingItems = []
+  if (angioRequested === null) missingItems.push(`Indicar si se solicitó ${angioLabel}`)
+  if (angioRequested === true && ogvFound === null) missingItems.push('Indicar resultado de OGV')
+  if (needsThrombectomyTime && !thrombectomyActivationTime) missingItems.push('Registrar hora de activación de trombectomía')
 
   const aspectColors = aspectValid ? getAspectColor(aspectNum) : null
 
@@ -99,7 +106,10 @@ export default function ThrombectomyStep({
   }
 
   function handleSubmit() {
-    if (!canContinue) return
+    if (!canContinue) {
+      setShowErrors(true)
+      return
+    }
     onConfirm({
       angioRequested,
       angioRequestTime: angioRequested ? angioRequestTime?.toISOString() : null,
@@ -287,14 +297,45 @@ export default function ThrombectomyStep({
 
       {/* Submit */}
       <div className="mt-3">
-        <button
-          type="button"
-          onClick={handleSubmit}
-          disabled={!canContinue}
-          className="flex w-full items-center justify-center gap-2 rounded-lg bg-brand-600 py-3 text-sm font-semibold text-white transition-all hover:bg-brand-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-neutral-100 disabled:text-neutral-400 md:w-auto md:px-5"
-        >
-          Finalizar protocolo <ChevronRight size={18} />
-        </button>
+        {confirmed ? (
+          <div className="flex items-center justify-center gap-2.5 rounded-lg border border-emerald-200 bg-emerald-50 py-4 animate-fade-in">
+            <CheckCircle size={20} className="text-emerald-600 shrink-0" />
+            <div>
+              <p className="text-sm font-semibold text-emerald-700">Protocolo finalizado</p>
+              <p className="text-xs text-emerald-600">Datos del caso guardados</p>
+            </div>
+          </div>
+        ) : (
+          <>
+            <button
+              type="button"
+              onClick={handleSubmit}
+              className={`flex w-full items-center justify-center gap-2 rounded-lg py-3 text-sm font-semibold transition-all active:scale-[0.98] md:w-auto md:px-5 ${
+                canContinue
+                  ? 'bg-brand-600 text-white hover:bg-brand-700'
+                  : 'bg-neutral-100 text-neutral-400 cursor-pointer'
+              }`}
+            >
+              Finalizar protocolo <ChevronRight size={18} />
+            </button>
+            {showErrors && missingItems.length > 0 && (
+              <div className="mt-2 rounded-lg border border-red-200 bg-red-50 p-3 animate-fade-in">
+                <div className="flex items-center gap-1.5 mb-1.5">
+                  <AlertCircle size={13} className="text-red-600 shrink-0" />
+                  <p className="text-xs font-semibold text-red-700">Completar antes de finalizar:</p>
+                </div>
+                <ul className="space-y-0.5">
+                  {missingItems.map((item) => (
+                    <li key={item} className="flex items-start gap-1.5 text-xs text-red-600">
+                      <span className="mt-0.5 shrink-0">•</span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </>
+        )}
       </div>
 
       {showAspectModal && (

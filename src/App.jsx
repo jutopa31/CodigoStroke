@@ -647,6 +647,7 @@ export default function App() {
             nihssScore={nihss?.nihssScore ?? 0}
             isWakeUpStroke={symptoms?.isWakeUpStroke ?? false}
             onConfirm={handleThrombectomyConfirm}
+            confirmed={!!thrombectomy}
             angioRequestTime={angioRequestTime}
             onAngioRequest={handleAngioRequest}
             thrombectomyActivationTime={thrombectomyActivationTime}
