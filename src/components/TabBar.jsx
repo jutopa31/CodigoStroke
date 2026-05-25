@@ -47,13 +47,13 @@ function TabItem({ tab, active, completion, onClick }) {
       onClick={() => onClick(id)}
       aria-selected={active}
       className={`flex min-w-[4.4rem] flex-col items-center gap-1.5 px-2.5 py-2.5 rounded-xl transition-all shrink-0
-        md:min-w-[4.75rem] md:flex-col md:gap-1 md:rounded-lg md:border md:px-2 md:py-1.5 ${
+        md:min-w-[4.5rem] md:flex-col md:gap-1 md:rounded-lg md:border md:px-2 md:py-1 ${
           active
             ? 'bg-white/15 md:border-white/10 md:bg-stroke-panel'
             : 'hover:bg-white/8 md:border-transparent md:hover:bg-white/5'
         }`}
     >
-      <div className={`relative w-9 h-9 rounded-xl flex items-center justify-center transition-all md:h-8 md:w-8 md:rounded-lg ${iconBg} ${ring}`}>
+      <div className={`relative w-9 h-9 rounded-xl flex items-center justify-center transition-all md:h-7 md:w-7 md:rounded-md ${iconBg} ${ring}`}>
         <Icon size={16} className="md:h-[15px] md:w-[15px]" strokeWidth={2} />
         {completion === 'complete' && !active && (
           <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-emerald-500 rounded-full flex items-center justify-center shadow-sm md:h-2 md:w-2 md:top-1 md:right-1">
