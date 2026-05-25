@@ -150,12 +150,12 @@ export default function TimeStep({ onConfirm, isCollapsed = false }) {
 
   return (
     <StepCard step="2" title={stepTitle} accent={timeTone}>
-      <div className={`rounded-xl border p-4 ${toneStyles.container}`}>
+      <div className={`rounded-xl border p-3 ${toneStyles.container}`}>
 
         {/* Header: label + input de hora editable + elapsed + pill
             NOTA layout: el pill usa min-w fijo para que su texto variable
             no desplace la hora al cambiar de ventana. */}
-        <div className="flex items-center gap-2 mb-3">
+        <div className="flex flex-wrap items-center gap-2 mb-2.5">
 
           {/* Izquierda: ícono + label + hora — siempre en una sola línea, sin wrap */}
           <label className={`text-[11px] font-semibold uppercase tracking-wider flex items-center gap-1.5 shrink-0 whitespace-nowrap ${toneStyles.label}`}>
@@ -217,12 +217,12 @@ export default function TimeStep({ onConfirm, isCollapsed = false }) {
         </div>
 
         {/* Botones de acción — antes del slider para no requerir scroll */}
-        <div className="flex items-center gap-2 mb-3">
+        <div className="flex flex-wrap items-center gap-2 mb-2.5">
           <button
             type="button"
             onClick={handleSubmit}
             disabled={!lastSeen}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl font-medium text-xs transition-all active:scale-[0.98] ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium text-xs transition-all active:scale-[0.98] ${
               confirmed
                 ? 'bg-emerald-50 border border-emerald-200 text-emerald-700'
                 : lastSeen
@@ -236,7 +236,7 @@ export default function TimeStep({ onConfirm, isCollapsed = false }) {
             type="button"
             aria-pressed={isIncierto}
             onClick={() => { setIsIncierto((v) => !v); setConfirmed(false) }}
-            className={`flex h-8 items-center gap-1.5 rounded-xl border px-3 text-[11px] font-medium transition-all active:scale-[0.98] ${
+            className={`flex h-8 items-center gap-1.5 rounded-lg border px-3 text-[11px] font-medium transition-all active:scale-[0.98] ${
               isIncierto
                 ? 'border-indigo-200 bg-indigo-50 text-indigo-700'
                 : 'border-neutral-200 bg-white text-neutral-400 hover:bg-neutral-50'
@@ -248,7 +248,7 @@ export default function TimeStep({ onConfirm, isCollapsed = false }) {
         </div>
 
         {/* Slider */}
-        <div className="relative pb-8">
+        <div className="relative pb-7">
           <input
             id="last-seen-slider"
             type="range"

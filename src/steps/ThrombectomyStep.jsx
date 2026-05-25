@@ -111,12 +111,12 @@ export default function ThrombectomyStep({
   }
 
   return (
-    <div className="px-4 pb-4">
+    <div className="px-4 pb-4 md:px-0">
       <StepCard step="8" title="OGV / Trombectomía" accent="blue">
 
         {/* NIHSS alert — compact 1-line */}
         {highNihss && (
-          <div className="flex items-center gap-2 px-3 py-2 mb-3 rounded-xl border border-blue-100 bg-blue-50">
+          <div className="flex items-center gap-2 px-3 py-1.5 mb-2 rounded-lg border border-blue-100 bg-blue-50">
             <Activity size={13} className="text-blue-700 shrink-0" />
             <p className="text-xs font-semibold text-blue-800">
               NIHSS {nihssScore} — evaluar OGV{isWakeUpStroke ? ' · ACV del despertar' : ''}
@@ -126,20 +126,20 @@ export default function ThrombectomyStep({
 
         {/* Row 1: Angiografía */}
         {angioRequested === null ? (
-          <div className="flex items-center justify-between gap-3 py-2.5">
+          <div className="flex items-center justify-between gap-3 py-2">
             <span className="text-sm font-medium text-neutral-700">{angioLabel}</span>
             <div className="flex gap-2 shrink-0">
               <button
                 type="button"
                 onClick={handleAngioNo}
-                className="px-3 py-2 text-xs font-semibold rounded-xl border border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50 active:scale-[0.98] transition-all"
+                className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50 active:scale-[0.98] transition-all"
               >
                 No
               </button>
               <button
                 type="button"
                 onClick={handleAngioYes}
-                className="px-3 py-2 text-xs font-semibold rounded-xl bg-brand-600 text-white hover:bg-brand-700 active:scale-[0.98] transition-all"
+                className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-brand-600 text-white hover:bg-brand-700 active:scale-[0.98] transition-all"
               >
                 Sí, solicitar
               </button>
@@ -161,7 +161,7 @@ export default function ThrombectomyStep({
         {angioRequested === true && (
           <div className="border-t border-neutral-100">
             {ogvFound === null ? (
-              <div className="flex items-center justify-between gap-3 py-2.5">
+              <div className="flex items-center justify-between gap-3 py-2">
                 <div className="flex items-baseline gap-1.5">
                   <span className="text-sm font-medium text-neutral-700">¿OGV?</span>
                   <span className="text-[10px] text-neutral-400">ICA · M1 · M2</span>
@@ -170,14 +170,14 @@ export default function ThrombectomyStep({
                   <button
                     type="button"
                     onClick={() => { setOgvFound(false); setNotified(false) }}
-                    className="px-3 py-2 text-xs font-semibold rounded-xl border border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50 active:scale-[0.98] transition-all"
+                    className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50 active:scale-[0.98] transition-all"
                   >
                     No OGV
                   </button>
                   <button
                     type="button"
                     onClick={() => setOgvFound(true)}
-                    className="px-3 py-2 text-xs font-semibold rounded-xl bg-blue-900 text-white hover:bg-blue-800 active:scale-[0.98] transition-all"
+                    className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-900 text-white hover:bg-blue-800 active:scale-[0.98] transition-all"
                   >
                     Sí OGV
                   </button>
@@ -194,7 +194,7 @@ export default function ThrombectomyStep({
         )}
 
         {/* Row 3: ASPECTS — siempre visible */}
-        <div className="border-t border-neutral-100 flex items-center justify-between gap-2 py-2.5">
+        <div className="border-t border-neutral-100 flex items-center justify-between gap-2 py-2">
           <span className="text-sm font-medium text-neutral-700">ASPECTS</span>
           <div className="flex items-center gap-2 shrink-0">
             <button
@@ -205,7 +205,7 @@ export default function ThrombectomyStep({
             >
               <ChevronDown size={18} strokeWidth={2.5} />
             </button>
-            <div className={`flex items-center gap-1.5 min-w-[64px] justify-center rounded-xl border px-2 py-1 ${aspectColors ? `${aspectColors.bg} ${aspectColors.border}` : 'bg-neutral-50 border-neutral-200'}`}>
+            <div className={`flex items-center gap-1.5 min-w-[64px] justify-center rounded-lg border px-2 py-1 ${aspectColors ? `${aspectColors.bg} ${aspectColors.border}` : 'bg-neutral-50 border-neutral-200'}`}>
               <span className={`text-lg font-bold tabular-nums leading-none ${aspectColors?.text ?? 'text-neutral-400'}`}>
                 {aspectValid ? aspectScore : '—'}
               </span>
@@ -236,7 +236,7 @@ export default function ThrombectomyStep({
 
         {/* ASPECTS ≤ 5 inline warning */}
         {aspectValid && aspectNum <= 5 && (
-          <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-blue-200 bg-blue-100 animate-fade-in">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-blue-200 bg-blue-100 animate-fade-in">
             <Brain size={12} className="text-blue-900 shrink-0" />
             <p className="text-xs font-semibold text-blue-900">ASPECTS ≤ 5 — cambios extensos en TC</p>
           </div>
@@ -244,11 +244,11 @@ export default function ThrombectomyStep({
 
         {/* Row 4: Acciones OGV — solo si ogvFound=Sí */}
         {ogvFound === true && (
-          <div className="border-t border-neutral-100 pt-2.5 grid grid-cols-2 gap-2 animate-fade-in">
+          <div className="border-t border-neutral-100 pt-2 grid grid-cols-2 gap-2 animate-fade-in">
             <button
               type="button"
               onClick={() => setNotified(true)}
-              className={`flex items-center justify-center gap-1.5 py-2.5 text-xs font-semibold rounded-xl transition-all active:scale-[0.98] ${
+              className={`flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg transition-all active:scale-[0.98] ${
                 notified
                   ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                   : 'bg-brand-600 text-white hover:bg-brand-700'
@@ -260,7 +260,7 @@ export default function ThrombectomyStep({
             <button
               type="button"
               onClick={handleThrombectomyActivation}
-              className={`flex items-center justify-center gap-1.5 py-2.5 text-xs font-semibold rounded-xl border transition-all active:scale-[0.98] ${
+              className={`flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg border transition-all active:scale-[0.98] ${
                 thrombectomyActivationTime
                   ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
                   : 'border-brand-200 bg-white text-brand-700 hover:bg-brand-50'
@@ -276,7 +276,7 @@ export default function ThrombectomyStep({
 
         {/* No OGV confirmation */}
         {ogvFound === false && (
-          <div className="border-t border-neutral-100 pt-2.5 animate-fade-in">
+          <div className="border-t border-neutral-100 pt-2 animate-fade-in">
             <p className="text-xs text-emerald-600 font-semibold text-center py-1">
               Sin OGV — no requiere trombectomía mecánica
             </p>
@@ -291,7 +291,7 @@ export default function ThrombectomyStep({
           type="button"
           onClick={handleSubmit}
           disabled={!canContinue}
-          className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-600 py-3 font-semibold text-white transition-all hover:bg-brand-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-neutral-100 disabled:text-neutral-400"
+          className="flex w-full items-center justify-center gap-2 rounded-lg bg-brand-600 py-3 text-sm font-semibold text-white transition-all hover:bg-brand-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-neutral-100 disabled:text-neutral-400 md:w-auto md:px-5"
         >
           Finalizar protocolo <ChevronRight size={18} />
         </button>

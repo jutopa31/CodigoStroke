@@ -56,9 +56,9 @@ export default function CTResultStep({ onConfirm, initialCtRequestTime = null, o
   }
 
   return (
-    <div className="px-4 pb-4 space-y-3">
+    <div className="px-4 pb-4 space-y-3 md:px-0">
       <StepCard step="5" title="TAC de encéfalo" accent="blue">
-        <div className={`overflow-hidden rounded-2xl border transition-all duration-200 ${
+        <div className={`overflow-hidden rounded-xl border transition-all duration-200 ${
           !tacConfirmed
             ? 'border-blue-200 bg-blue-50/70 shadow-minimal'
             : bleeding === true
@@ -67,8 +67,8 @@ export default function CTResultStep({ onConfirm, initialCtRequestTime = null, o
                 ? 'border-emerald-200 bg-emerald-50/80 shadow-card'
                 : 'border-blue-100 bg-white shadow-card'
         }`}>
-          <div className="flex items-start gap-3 px-4 py-4 sm:px-5">
-            <span className={`mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors ${
+          <div className="flex items-start gap-3 px-3 py-3">
+            <span className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors ${
               tacConfirmed ? 'bg-emerald-500 text-white' : 'bg-blue-600 text-white'
             }`}>
               {tacConfirmed ? <CheckCircle2 size={21} strokeWidth={2.4} /> : <Scan size={21} strokeWidth={2.4} />}
@@ -90,22 +90,22 @@ export default function CTResultStep({ onConfirm, initialCtRequestTime = null, o
           </div>
 
           {!tacConfirmed ? (
-            <div className="border-t border-blue-100 bg-white/60 p-3">
+            <div className="border-t border-blue-100 bg-white/60 p-2.5">
               <button
                 type="button"
                 onClick={handleCtRequest}
-                className="flex min-h-[54px] w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-sm font-bold text-white shadow-elevated transition-all hover:bg-blue-700 active:scale-[0.98]"
+                className="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-bold text-white transition-all hover:bg-blue-700 active:scale-[0.98]"
               >
                 <Scan size={17} strokeWidth={2.5} />
                 TAC solicitada
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-2 border-t border-blue-100 bg-white/70 p-3 animate-scale-in">
+            <div className="grid grid-cols-2 gap-2 border-t border-blue-100 bg-white/70 p-2.5 animate-scale-in">
               <button
                 type="button"
                 onClick={() => handleBleedingSelect(true)}
-                className={`flex min-h-[58px] items-center justify-center gap-2 rounded-xl border px-3 py-3 text-sm font-bold transition-all active:scale-[0.98] ${
+                className={`flex min-h-[46px] items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-sm font-bold transition-all active:scale-[0.98] ${
                   bleeding === true
                     ? 'border-blue-900 bg-blue-900 text-white shadow-elevated'
                     : 'border-blue-200 bg-white text-blue-900 hover:border-blue-300 hover:bg-blue-50'
@@ -117,7 +117,7 @@ export default function CTResultStep({ onConfirm, initialCtRequestTime = null, o
               <button
                 type="button"
                 onClick={() => handleBleedingSelect(false)}
-                className={`flex min-h-[58px] items-center justify-center gap-2 rounded-xl border px-3 py-3 text-sm font-bold transition-all active:scale-[0.98] ${
+                className={`flex min-h-[46px] items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-sm font-bold transition-all active:scale-[0.98] ${
                   bleeding === false
                     ? 'border-emerald-500 bg-emerald-600 text-white shadow-elevated'
                     : 'border-emerald-200 bg-white text-emerald-700 hover:border-emerald-300 hover:bg-emerald-50'
@@ -131,7 +131,7 @@ export default function CTResultStep({ onConfirm, initialCtRequestTime = null, o
         </div>
 
         {bleeding === true && (
-          <div className="mt-3 bg-blue-900/10 border-2 border-blue-800/50 rounded-xl px-4 py-3 animate-fade-in">
+          <div className="mt-3 bg-blue-900/10 border border-blue-800/50 rounded-lg px-3 py-2.5 animate-fade-in">
             <p className="text-sm font-bold text-blue-900 mb-1">Hemorragia intracraneal presente</p>
             <p className="text-xs text-blue-800 leading-relaxed">
               Contraindicacion absoluta para trombolisis IV. No administrar rtPA ni TNK.
@@ -139,7 +139,7 @@ export default function CTResultStep({ onConfirm, initialCtRequestTime = null, o
           </div>
         )}
         {bleeding === false && (
-          <div className="mt-3 bg-emerald-50 border-2 border-emerald-300 rounded-xl px-4 py-3 animate-fade-in">
+          <div className="mt-3 bg-emerald-50 border border-emerald-300 rounded-lg px-3 py-2.5 animate-fade-in">
             <p className="text-xs font-semibold text-emerald-700">
               TAC sin hemorragia: continuar evaluación para trombolisis.
             </p>

@@ -77,7 +77,7 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
   // ── VIEW 1: Dosis ──────────────────────────────────────────────────────────
   if (view === 'dose') {
     return (
-      <div className="px-4 pb-4">
+      <div className="px-4 pb-4 md:px-0">
         <StepCard step="7" title="Trombolítico — dosis" accent="green">
 
           {/* Progress dots */}
@@ -107,7 +107,7 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
               </button>
             </div>
           ) : (
-            <div className="flex rounded-xl overflow-hidden border border-neutral-200 mb-4 text-sm font-semibold">
+            <div className="flex rounded-lg overflow-hidden border border-neutral-200 mb-3 text-sm font-semibold">
               {[
                 { id: 'tnk',  label: 'TNK',  sub: 'Tenecteplase' },
                 { id: 'rtpa', label: 'rtPA', sub: 'Alteplase' },
@@ -116,7 +116,7 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
                   key={id}
                   type="button"
                   onClick={() => { setDrug(id); setDrugLocked(true) }}
-                  className={`flex-1 py-2.5 transition-all ${
+                  className={`flex-1 py-2 transition-all ${
                     drug === id
                       ? 'bg-emerald-600 text-white'
                       : 'bg-white text-neutral-500 hover:bg-emerald-50'
@@ -149,7 +149,7 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
           ) : (
             <>
               <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-500 mb-2">Peso (kg)</p>
-              <div className="grid grid-cols-[2.2rem_2.2rem_minmax(0,1fr)_2.2rem_2.2rem] items-center gap-1.5 mb-3">
+              <div className="grid max-w-md grid-cols-[2.2rem_2.2rem_8rem_2.2rem_2.2rem] items-center gap-1.5 mb-3">
                 {[-5, -1].map((d) => (
                   <button key={d} type="button" onClick={() => adjust(d)}
                     className="h-10 rounded-xl border border-neutral-200 text-neutral-600 font-semibold text-xs hover:bg-neutral-50 active:scale-95 transition-all">
@@ -161,7 +161,7 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
                   value={weightStr} onChange={(e) => setWeightStr(e.target.value)}
                   onKeyDown={(e) => { if (e.key === 'Enter' && validWeight) setWeightLocked(true) }}
                   autoFocus
-                  className="w-full min-w-0 border border-neutral-200 rounded-xl px-2 py-2.5 text-neutral-800 text-xl font-bold text-center focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent placeholder-neutral-300"
+                  className="w-full min-w-0 border border-neutral-200 rounded-xl px-2 py-2 text-neutral-800 text-lg font-bold text-center focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent placeholder-neutral-300"
                 />
                 {[1, 5].map((d) => (
                   <button key={d} type="button" onClick={() => adjust(d)}
@@ -189,7 +189,7 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
           )}
 
           {/* Dose result */}
-          <div className={`rounded-xl px-4 py-3 transition-all duration-200 ${
+          <div className={`rounded-xl px-3 py-2.5 transition-all duration-200 ${
             validWeight && dose
               ? 'bg-emerald-50 border-2 border-emerald-300'
               : 'bg-neutral-50 border-2 border-dashed border-neutral-200'
@@ -197,7 +197,7 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
             {validWeight && dose ? (
               drug === 'tnk' ? (
                 <div className="flex items-center gap-3">
-                  <span className="text-3xl font-mono font-bold text-emerald-800">{tnk.total} mg</span>
+                  <span className="text-2xl font-mono font-bold text-emerald-800">{tnk.total} mg</span>
                   <div>
                     <p className="text-xs font-semibold text-emerald-700">Tenecteplase</p>
                     <p className="text-xs text-emerald-600">bolo único IV</p>
@@ -257,7 +257,7 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
           <button
             type="button" onClick={() => setView('post')}
             disabled={!validWeight || !thrombolyticStartTime}
-            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-semibold text-sm transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed bg-brand-600 hover:bg-brand-700 text-white"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-600 py-3 text-sm font-semibold text-white transition-all hover:bg-brand-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40 md:w-auto md:px-5"
           >
             Continuar — post-trombolisis <ChevronRight size={16} />
           </button>
@@ -271,7 +271,7 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
 
   // ── VIEW 2: Post-trombolisis ───────────────────────────────────────────────
   return (
-    <div className="px-4 pb-4">
+    <div className="px-4 pb-4 md:px-0">
       <StepCard step="" title="Indicaciones post-trombolisis" accent="green">
 
         {/* Progress + back */}
@@ -299,7 +299,7 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
         </div>
 
         {/* Compact 2-col checklist grid */}
-        <div className="grid grid-cols-2 gap-1.5 mb-3">
+        <div className="grid grid-cols-2 gap-1.5 mb-3 lg:grid-cols-4">
           {POST_CHECKLIST.map((item) => {
             const done = !!checked[item.id]
             return (
@@ -307,7 +307,7 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
                 key={item.id}
                 type="button"
                 onClick={() => setChecked((c) => ({ ...c, [item.id]: !c[item.id] }))}
-                className={`flex flex-col items-start gap-1.5 px-3 py-2.5 rounded-xl border-2 text-left transition-all active:scale-[0.97] ${
+                className={`flex flex-col items-start gap-1.5 rounded-lg border px-3 py-2 text-left transition-all active:scale-[0.97] ${
                   done
                     ? 'bg-emerald-50 border-emerald-400 text-emerald-900'
                     : 'border-neutral-200 hover:border-emerald-200 hover:bg-emerald-50/40'
@@ -336,7 +336,7 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
               setChecked(allDone)
               onConfirm({ drug, weight, dose, checklist: allDone, thrombolyticStartTime: thrombolyticStartTime?.toISOString() })
             }}
-            className="flex flex-col items-start gap-1.5 px-3 py-2.5 rounded-xl border-2 border-blue-900 bg-blue-900 text-left transition-all active:scale-[0.97] hover:bg-blue-800"
+            className="flex flex-col items-start gap-1.5 rounded-lg border border-blue-900 bg-blue-900 px-3 py-2 text-left transition-all hover:bg-blue-800 active:scale-[0.97]"
           >
             <div className="flex items-center justify-between w-full">
               <CheckCircle2 size={14} className="text-blue-200" />
@@ -410,7 +410,7 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
           type="button"
           onClick={() => onConfirm({ drug, weight, dose, checklist: checked, thrombolyticStartTime: thrombolyticStartTime?.toISOString() })}
           disabled={!canContinue}
-          className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-semibold py-3 rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-600 py-3 text-sm font-semibold text-white transition-all hover:bg-brand-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 md:w-auto md:px-5"
         >
           Continuar → Cuidados <ChevronRight size={18} />
         </button>

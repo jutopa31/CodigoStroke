@@ -20,10 +20,10 @@ function ContraRow({ item, value, onChange }) {
   const isNo  = value === false
 
   return (
-    <div className={`rounded-xl border-2 transition-all ${
+    <div className={`rounded-lg border transition-all ${
       isYes ? 'bg-blue-900/8 border-blue-700/40' : isNo ? 'bg-slate-50 border-slate-200' : 'border-neutral-150 bg-white'
     }`}>
-      <div className="flex items-center gap-2 px-3 py-2.5">
+      <div className="flex items-center gap-2 px-3 py-1.5">
         {/* Label */}
         <p className={`flex-1 min-w-0 text-xs font-semibold leading-snug truncate ${isYes ? 'text-blue-900' : 'text-neutral-700'}`}>
           {item.short}
@@ -36,22 +36,22 @@ function ContraRow({ item, value, onChange }) {
         </button>
 
         {/* NO | SÍ toggle */}
-        <div className="flex shrink-0 rounded-lg overflow-hidden border border-neutral-200 text-[11px] font-bold">
+        <div className="flex shrink-0 rounded-md overflow-hidden border border-neutral-200 text-[11px] font-bold">
           <button type="button" onClick={() => onChange(false)}
-            className={`px-2.5 py-1.5 transition-all active:scale-95 ${isNo ? 'bg-slate-600 text-white' : 'bg-white text-neutral-400 hover:bg-neutral-50'}`}>
+            className={`px-2.5 py-1 transition-all active:scale-95 ${isNo ? 'bg-slate-600 text-white' : 'bg-white text-neutral-400 hover:bg-neutral-50'}`}>
             NO
           </button>
           <div className="w-px bg-neutral-200" />
           <button type="button" onClick={() => onChange(true)}
-            className={`px-2.5 py-1.5 transition-all active:scale-95 ${isYes ? 'bg-blue-900 text-white' : 'bg-white text-neutral-400 hover:bg-neutral-50'}`}>
+            className={`px-2.5 py-1 transition-all active:scale-95 ${isYes ? 'bg-blue-900 text-white' : 'bg-white text-neutral-400 hover:bg-neutral-50'}`}>
             SÍ
           </button>
         </div>
       </div>
 
       {expanded && (
-        <div className="px-3 pb-2.5 border-t border-neutral-100 animate-fade-in">
-          <div className="rounded-lg bg-blue-50 border border-blue-100 px-3 py-2 mt-1.5 text-xs text-blue-900">
+        <div className="px-3 pb-2 border-t border-neutral-100 animate-fade-in">
+          <div className="rounded-lg bg-blue-50 border border-blue-100 px-3 py-1.5 mt-1.5 text-xs text-blue-900">
             <p className="font-semibold">{item.label}</p>
             {item.sub && <p className="opacity-75 mt-0.5">{item.sub}</p>}
           </div>
@@ -89,9 +89,9 @@ export default function CIAbsolutasTab({ initialState, onUpdate }) {
   }
 
   return (
-    <div className="px-4 pb-4 space-y-3">
+    <div className="px-4 pb-6 space-y-2.5 md:px-0">
       {/* Header */}
-      <div className="flex items-start gap-3 px-4 py-3 rounded-2xl bg-blue-50 border border-blue-200">
+      <div className="flex items-start gap-3 px-3 py-2.5 rounded-xl bg-blue-50 border border-blue-200">
         <AlertTriangle size={16} className="text-blue-900 shrink-0 mt-0.5" />
         <div>
           <p className="text-xs font-bold text-blue-900">Contraindicaciones absolutas</p>
@@ -109,7 +109,7 @@ export default function CIAbsolutasTab({ initialState, onUpdate }) {
 
       {/* Mark all NO shortcut */}
       <button type="button" onClick={markAllNo}
-        className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 border-dashed border-neutral-200 text-neutral-500 text-xs font-semibold hover:border-emerald-300 hover:text-emerald-600 hover:bg-emerald-50/40 active:scale-[0.98] transition-all">
+        className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-neutral-200 py-2 text-xs font-semibold text-neutral-500 transition-all hover:border-emerald-300 hover:bg-emerald-50/40 hover:text-emerald-600 active:scale-[0.98] md:w-auto md:px-4">
         <ShieldCheck size={14} /> Ninguna presente — marcar las {RED_CONTRAS.length} como NO
       </button>
 
@@ -132,7 +132,7 @@ export default function CIAbsolutasTab({ initialState, onUpdate }) {
 
       {/* Alert banner when absolute CI found */}
       {hasAbsolute && (
-        <div className="px-4 py-3 rounded-2xl bg-blue-900/10 border-2 border-blue-800/50 animate-fade-in">
+        <div className="px-3 py-2.5 rounded-xl bg-blue-900/10 border border-blue-800/50 animate-fade-in">
           <p className="text-sm font-bold text-blue-900">Contraindicación absoluta presente</p>
           <p className="text-xs text-blue-800 mt-0.5 leading-snug">
             No indicar trombolisis IV. Evaluar trombectomía mecánica directa.
