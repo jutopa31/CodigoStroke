@@ -51,10 +51,17 @@ function getTabCompletion({ patient, vitals, symptoms, nihss, ctResult, contraAb
   const paciente = !!(patient?.name && vitals !== null)
   const tiempo   = !!(symptoms?.lastSeenNormal || symptoms?.isWakeUpStroke === true)
   const clinica  = !!(nihss !== null)
-  const imagenes = !!(
-    ctResult?.bleeding === true || ctResult?.bleeding === false ||
-    ctResult?.mismatch  === true || ctResult?.mismatch  === false
-  )
+
+  const isWakeUp = symptoms?.isWakeUpStroke === true
+  const ctDone   = ctResult?.bleeding === true || ctResult?.bleeding === false
+  const mriDone  = ctResult?.mismatch === true || ctResult?.mismatch === false
+  // Wake-up: hemorrhage alone ends evaluation; clear CT requires MRI to confirm eligibility
+  const imagenesDone    = isWakeUp
+    ? (ctResult?.bleeding === true || (ctResult?.bleeding === false && mriDone))
+    : ctDone
+  // Partial state: wake-up + CT clear but MRI still pending
+  const imagenesParcial = isWakeUp && ctResult?.bleeding === false && !mriDone
+
   const ci_abs = !!(contraAbsolutes?.allAnswered)
   const ci_rel = !!(contraRelatives?.allAnswered)
 
@@ -62,10 +69,10 @@ function getTabCompletion({ patient, vitals, symptoms, nihss, ctResult, contraAb
     paciente: paciente ? 'complete' : patient?.name || vitals ? 'partial' : 'empty',
     tiempo:   tiempo   ? 'complete' : 'empty',
     clinica:  clinica  ? 'complete' : 'empty',
-    imagenes: imagenes ? 'complete' : 'empty',
+    imagenes: imagenesDone ? 'complete' : imagenesParcial ? 'partial' : 'empty',
     ci_abs:   ci_abs   ? 'complete' : contraAbsolutes ? 'partial' : 'empty',
     ci_rel:   ci_rel   ? 'complete' : contraRelatives ? 'partial' : 'empty',
-    allComplete: paciente && tiempo && clinica && imagenes && ci_abs && ci_rel,
+    allComplete: paciente && tiempo && clinica && imagenesDone && ci_abs && ci_rel,
   }
 }
 
@@ -344,7 +351,7 @@ export default function App() {
   }
 
   function handleMriConfirm(data) {
-    setCtResult(data)
+    setCtResult((prev) => ({ ...prev, ...data }))
     advanceToNext('imagenes')
   }
 
