@@ -229,10 +229,10 @@ function NihssSection({ onConfirm, confirmed, initialNihss, initialSymptoms }) {
   return (
     <StepCard step="" title="Síntomas / NIHSS" accent="orange">
       {/* Sticky confirm at top — stays visible while scrolling through symptoms/NIHSS */}
-      <div className="sticky top-0 z-10 -mx-5 px-5 pb-2 mb-3 bg-white md:-mx-6 md:px-6">
+      <div className="sticky top-0 z-10 -mx-4 px-4 pb-2 mb-2 bg-white">
         <button
           type="button" onClick={handleConfirm} disabled={!canConfirm}
-          className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-semibold text-sm transition-all active:scale-[0.98] ${
+          className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all active:scale-[0.98] md:w-auto md:text-sm ${
             confirmed
               ? 'bg-emerald-50 border border-emerald-200 text-emerald-700'
               : canConfirm
@@ -250,14 +250,14 @@ function NihssSection({ onConfirm, confirmed, initialNihss, initialSymptoms }) {
       </div>
 
       {/* Symptoms */}
-      <div className="border-t border-neutral-100 pt-4 mb-4">
+      <div className="border-t border-neutral-100 pt-3 mb-3">
         <p className="text-xs font-bold uppercase tracking-wider text-neutral-500 mb-2">Síntomas</p>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-1.5">
           {SYMPTOMS.map((sym) => {
             const active = Boolean(selected[sym.id])
             return (
               <button key={sym.id} type="button" aria-pressed={active} onClick={() => toggleSymptom(sym.id)}
-                className={`flex items-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-medium transition-all active:scale-[0.98] ${
+                className={`flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-all active:scale-[0.98] ${
                   active ? 'border-amber-200 bg-amber-50 text-amber-700' : 'border-neutral-200 text-neutral-600 hover:border-amber-200 hover:bg-amber-50/50'
                 }`}>
                 <sym.Icon size={13} strokeWidth={2} />
@@ -271,12 +271,12 @@ function NihssSection({ onConfirm, confirmed, initialNihss, initialSymptoms }) {
 
       {/* NIHSS */}
       {hasSymptom && severity && (
-        <div className="border-t border-neutral-100 pt-4">
+        <div className="border-t border-neutral-100 pt-3">
           <p className="text-xs font-bold uppercase tracking-wider text-neutral-500 mb-2">NIHSS</p>
-          <div className={`flex items-center gap-3 rounded-xl border px-4 py-3 mb-3 ${severity.bg} ${severity.border}`}>
-            <span className={`text-2xl font-bold tabular-nums ${severity.color}`}>{total}</span>
+          <div className={`flex flex-wrap items-center gap-2 rounded-xl border px-3 py-2.5 mb-2.5 ${severity.bg} ${severity.border}`}>
+            <span className={`text-xl font-bold tabular-nums ${severity.color}`}>{total}</span>
             <span className={`font-medium text-sm flex-1 ${severity.color}`}>{severity.label}</span>
-            <div className="flex items-center gap-1.5 shrink-0">
+            <div className="flex flex-wrap items-center gap-1.5 shrink-0">
               {useFullScores && (
                 <button type="button" onClick={() => setUseFullScores(false)}
                   className="flex items-center gap-1 text-[10px] font-semibold rounded-lg px-2 py-1 bg-white/60 text-neutral-500 hover:bg-white/80 transition-all">
@@ -303,7 +303,7 @@ function NihssSection({ onConfirm, confirmed, initialNihss, initialSymptoms }) {
                 <sym.Icon size={11} className="text-amber-500 shrink-0" strokeWidth={2} />
                 <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-600">{sym.label}</p>
               </div>
-              <div className="rounded-xl bg-neutral-50 border border-neutral-100 px-3 py-1">
+              <div className="rounded-lg bg-neutral-50 border border-neutral-100 px-3 py-0.5">
                 {sym.nihssIds.map((id) => (
                   <ItemRow key={id} itemId={id} score={subscaleScores[id] ?? 0}
                     onChange={(itemId, val) => setSubscaleScores((prev) => ({ ...prev, [itemId]: val }))} />
@@ -364,7 +364,7 @@ export default function ClinicalTab({ onNihssConfirm, nihss, symptoms }) {
   const nihssConfirmed = nihss !== null
 
   return (
-    <div className="px-4 pb-4 space-y-4">
+      <div className="px-4 pb-4 space-y-3 md:px-0">
       {nihssConfirmed && (
         <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-emerald-50 border border-emerald-200 animate-fade-in">
           <CheckCircle2 size={14} className="text-emerald-600 shrink-0" />

@@ -62,7 +62,7 @@ function NihssRow({ reading }) {
     return { color: 'text-blue-900', bg: 'bg-blue-100', border: 'border-blue-300' }
   })()
   return (
-    <div className={`flex items-center justify-between px-3 py-2 rounded-xl border ${severity.bg} ${severity.border}`}>
+    <div className={`flex items-center justify-between rounded-lg border px-3 py-1.5 ${severity.bg} ${severity.border}`}>
       <div className="flex items-center gap-2">
         <Brain size={13} className={severity.color} />
         <span className="text-xs text-neutral-500">{fmtTime(reading.timestamp)}</span>
@@ -75,7 +75,7 @@ function NihssRow({ reading }) {
 function VitalsRow({ reading }) {
   const critical = reading.systolic > 180 || reading.diastolic > 105
   return (
-    <div className={`flex items-center justify-between px-3 py-2 rounded-xl border ${critical ? 'bg-blue-50 border-blue-200' : 'bg-neutral-50 border-neutral-200'}`}>
+    <div className={`flex items-center justify-between rounded-lg border px-3 py-1.5 ${critical ? 'bg-blue-50 border-blue-200' : 'bg-neutral-50 border-neutral-200'}`}>
       <div className="flex items-center gap-2">
         <Activity size={13} className={critical ? 'text-blue-900' : 'text-neutral-400'} />
         <span className="text-xs text-neutral-500">{fmtTime(reading.timestamp)}</span>
@@ -95,7 +95,7 @@ function InfoItem({ item, accent = 'red' }) {
     <button
       type="button"
       onClick={() => setOpen((v) => !v)}
-      className="w-full flex flex-col px-3 py-2.5 rounded-xl border border-neutral-200 bg-white hover:bg-neutral-50 text-left transition-all active:scale-[0.98]"
+      className="w-full flex flex-col rounded-lg border border-neutral-200 bg-white px-3 py-2 text-left transition-all hover:bg-neutral-50 active:scale-[0.98]"
     >
       <div className="flex items-center gap-3">
         <AlertTriangle size={13} className={`${accentColor} shrink-0`} />
@@ -149,11 +149,11 @@ export default function CareTab({
   }
 
   return (
-    <div className="px-4 pb-4 space-y-4">
+    <div className="px-4 pb-4 space-y-3 md:px-0">
 
       {/* Serial NIHSS */}
       <StepCard step="" title="NIHSS seriado" accent="orange">
-        <p className="text-xs text-neutral-500 mb-3">Registrar a los 15, 30, 60 min y a las 2h, 6h, 24h post-trombolisis.</p>
+        <p className="mb-2 text-xs text-neutral-500">Registrar a los 15, 30, 60 min y a las 2h, 6h, 24h post-trombolisis.</p>
 
         {nihssReadings.length > 0 && (
           <div className="space-y-1.5 mb-3">
@@ -241,8 +241,8 @@ export default function CareTab({
 
       {/* Alarm signs — informational, expandable */}
       <StepCard step="" title="Signos de alarma" accent="red">
-        <p className="text-xs text-neutral-500 mb-3">Tocá cada ítem para ver qué hacer si se presenta.</p>
-        <div className="space-y-2">
+        <p className="mb-2 text-xs text-neutral-500">Tocá cada ítem para ver qué hacer si se presenta.</p>
+        <div className="grid gap-1.5 md:grid-cols-2">
           {BP_ALERTS.map((item) => (
             <InfoItem key={item.id} item={item} accent="red" />
           ))}
@@ -251,8 +251,8 @@ export default function CareTab({
 
       {/* Adverse effects — informational, expandable */}
       <StepCard step="" title="Efectos adversos / Complicaciones" accent="red">
-        <p className="text-xs text-neutral-500 mb-3">Tocá cada ítem para ver el manejo correspondiente.</p>
-        <div className="space-y-2">
+        <p className="mb-2 text-xs text-neutral-500">Tocá cada ítem para ver el manejo correspondiente.</p>
+        <div className="grid gap-1.5 md:grid-cols-2">
           {ADVERSE_EFFECTS.map((item) => (
             <InfoItem key={item.id} item={item} accent={item.tone} />
           ))}
@@ -281,7 +281,7 @@ export default function CareTab({
         <button
           type="button"
           onClick={onContinue}
-          className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-semibold text-sm bg-brand-600 hover:bg-brand-700 text-white transition-all active:scale-[0.98]"
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-600 py-3 text-sm font-semibold text-white transition-all hover:bg-brand-700 active:scale-[0.98] md:w-auto md:px-5"
         >
           Continuar → Trombectomía <ChevronRight size={16} />
         </button>

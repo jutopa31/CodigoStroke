@@ -77,22 +77,22 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
 
           {/* Vitals row — horizontal pills */}
           {v && (
-            <div className="grid grid-cols-3 gap-2">
-              <div className={`rounded-xl px-3 py-2.5 ${v.systolic > 185 || v.diastolic > 110 ? 'bg-blue-900/10' : 'bg-neutral-50'}`}>
+            <div className="grid grid-cols-3 gap-1.5">
+              <div className={`rounded-lg px-2.5 py-2 ${v.systolic > 185 || v.diastolic > 110 ? 'bg-blue-900/10' : 'bg-neutral-50'}`}>
                 <p className="text-[9px] text-neutral-400 uppercase tracking-wider font-semibold mb-1">TA</p>
                 <p className={`text-base font-bold tabular-nums leading-none ${v.systolic > 185 || v.diastolic > 110 ? 'text-blue-900' : 'text-neutral-800'}`}>
                   {v.systolic}/{v.diastolic}
                 </p>
                 <p className="text-[9px] text-neutral-400 mt-0.5">mmHg</p>
               </div>
-              <div className={`rounded-xl px-3 py-2.5 ${v.glucose < 50 || v.glucose > 400 ? 'bg-blue-900/10' : 'bg-neutral-50'}`}>
+              <div className={`rounded-lg px-2.5 py-2 ${v.glucose < 50 || v.glucose > 400 ? 'bg-blue-900/10' : 'bg-neutral-50'}`}>
                 <p className="text-[9px] text-neutral-400 uppercase tracking-wider font-semibold mb-1">Glucemia</p>
                 <p className={`text-base font-bold tabular-nums leading-none ${v.glucose < 50 || v.glucose > 400 ? 'text-blue-900' : 'text-neutral-800'}`}>
                   {v.glucose}
                 </p>
                 <p className="text-[9px] text-neutral-400 mt-0.5">mg/dL</p>
               </div>
-              <div className="bg-neutral-50 rounded-xl px-3 py-2.5">
+              <div className="bg-neutral-50 rounded-lg px-2.5 py-2">
                 <p className="text-[9px] text-neutral-400 uppercase tracking-wider font-semibold mb-1">mRS basal</p>
                 <p className="text-base font-bold text-neutral-800 tabular-nums leading-none">
                   {v.modifiedRankinScale?.score ?? '—'}
@@ -135,11 +135,11 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
             </button>
           )}
         </div>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-3">
           {/* Identificación */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-[11px] font-medium text-neutral-500 uppercase tracking-wider flex items-center gap-1.5 mb-2">
+          <div className="flex flex-wrap gap-3">
+            <div className="w-full sm:w-[12rem]">
+              <label className="text-[10px] font-medium text-neutral-500 uppercase tracking-wider flex items-center gap-1.5 mb-1.5">
                 <CreditCard size={12} strokeWidth={2} /> DNI
               </label>
               <input
@@ -150,12 +150,12 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
                 onChange={(e) => setDni(e.target.value)}
                 onKeyDown={(event) => focusNext(event, nameRef)}
                 autoFocus
-                className="w-full bg-neutral-50 border border-neutral-200 rounded-xl px-4 py-3 text-neutral-800 text-base focus:bg-white focus:ring-2 focus:ring-brand-100 focus:border-brand-300 placeholder-neutral-300 transition-all"
+                className="h-10 w-full bg-neutral-50 border border-neutral-200 rounded-lg px-3 text-sm font-semibold text-neutral-800 focus:bg-white focus:ring-2 focus:ring-brand-100 focus:border-brand-300 placeholder-neutral-300 transition-all"
                 required
               />
             </div>
-            <div>
-              <label className="text-[11px] font-medium text-neutral-500 uppercase tracking-wider flex items-center gap-1.5 mb-2">
+            <div className="w-full sm:w-[18rem]">
+              <label className="text-[10px] font-medium text-neutral-500 uppercase tracking-wider flex items-center gap-1.5 mb-1.5">
                 <User size={12} strokeWidth={2} /> Nombre
               </label>
               <input
@@ -165,14 +165,14 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 onKeyDown={(event) => focusNext(event, passphraseRef)}
-                className="w-full bg-neutral-50 border border-neutral-200 rounded-xl px-4 py-3 text-neutral-800 text-base focus:bg-white focus:ring-2 focus:ring-brand-100 focus:border-brand-300 placeholder-neutral-300 transition-all"
+                className="h-10 w-full bg-neutral-50 border border-neutral-200 rounded-lg px-3 text-sm text-neutral-800 focus:bg-white focus:ring-2 focus:ring-brand-100 focus:border-brand-300 placeholder-neutral-300 transition-all"
                 required
               />
             </div>
           </div>
 
           <div>
-            <label className="text-[11px] font-medium text-neutral-500 uppercase tracking-wider flex items-center gap-1.5 mb-2">
+            <label className="text-[10px] font-medium text-neutral-500 uppercase tracking-wider flex items-center gap-1.5 mb-1.5">
               <Lock size={12} strokeWidth={2} /> Contraseña de turno
             </label>
             <input
@@ -181,14 +181,14 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
               placeholder="Frase de acceso (opcional)"
               value={passphrase}
               onChange={(e) => setPassphrase(e.target.value)}
-              className="w-full bg-neutral-50 border border-neutral-200 rounded-xl px-4 py-3 text-neutral-800 text-base focus:bg-white focus:ring-2 focus:ring-brand-100 focus:border-brand-300 placeholder-neutral-300 transition-all"
+              className="h-10 w-full max-w-[31rem] bg-neutral-50 border border-neutral-200 rounded-lg px-3 text-sm text-neutral-800 focus:bg-white focus:ring-2 focus:ring-brand-100 focus:border-brand-300 placeholder-neutral-300 transition-all"
             />
           </div>
 
           <button
             type="submit"
             disabled={!valid}
-            className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-[0.98] text-white font-semibold py-3.5 rounded-xl transition-all disabled:bg-neutral-100 disabled:text-neutral-400 disabled:cursor-not-allowed"
+            className="flex w-full max-w-[31rem] items-center justify-center gap-2 rounded-lg bg-brand-600 py-3 text-sm font-semibold text-white transition-all hover:bg-brand-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-neutral-100 disabled:text-neutral-400"
           >
             Confirmar y activar código <ChevronRight size={16} strokeWidth={2} />
           </button>
