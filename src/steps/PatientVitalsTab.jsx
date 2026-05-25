@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { User, CheckCircle2, AlertTriangle, CreditCard, Lock, BookOpen, ScanLine } from 'lucide-react'
+import { User, CheckCircle2, AlertTriangle, CreditCard, Lock, BookOpen, ScanLine, Heart, Activity, Droplets } from 'lucide-react'
 import DniQrScanner from '../components/DniQrScanner'
 
 const MRS_OPTIONS = [
@@ -119,8 +119,16 @@ function VitalsSection({ vitals, onConfirm, draftVitals, onDraftChange }) {
   const [dia,     setDia]     = useState(vitals ? String(vitals.diastolic) : (draftVitals?.dia ?? ''))
   const [glucose, setGlucose] = useState(vitals ? String(vitals.glucose)  : (draftVitals?.glucose ?? ''))
   const [mrs,     setMrs]     = useState(vitals?.modifiedRankinScale?.score ?? draftVitals?.mrs ?? null)
+  const sysRef     = useRef(null)
   const diaRef     = useRef(null)
   const glucoseRef = useRef(null)
+
+  useEffect(() => {
+    if (!vitals) {
+      const t = setTimeout(() => sysRef.current?.focus(), 80)
+      return () => clearTimeout(t)
+    }
+  }, [])
 
   useEffect(() => {
     if (!vitals && onDraftChange) {
@@ -170,67 +178,113 @@ function VitalsSection({ vitals, onConfirm, draftVitals, onDraftChange }) {
     )
   }
 
-  function fieldCls(warn, filled) {
-    return `h-10 w-[6.5rem] rounded-lg border bg-neutral-50 px-2 text-center text-sm font-semibold focus:outline-none transition placeholder:text-neutral-300 md:w-[7rem] md:text-base ${
-      warn   ? 'border-red-300 bg-red-50/40 focus:ring-2 focus:ring-red-100' :
-      filled ? 'border-blue-300 bg-blue-50/30 focus:ring-2 focus:ring-blue-100' :
-               'border-neutral-200 focus:border-brand-300 focus:ring-2 focus:ring-brand-100'
-    }`
-  }
+  const taInputCls = (warn, filled) =>
+    'flex-1 rounded-xl border py-2.5 text-xl font-bold text-center text-neutral-800 ' +
+    'focus:outline-none focus:ring-2 transition placeholder:text-neutral-300 ' +
+    (warn
+      ? 'border-red-300 bg-red-50/40 focus:border-red-400 focus:ring-red-100'
+      : filled
+        ? 'border-blue-300 bg-blue-50/30 focus:border-blue-400 focus:ring-blue-100'
+        : 'border-neutral-200 bg-white focus:border-blue-300 focus:ring-blue-100')
+
+  const glucInputCls =
+    'w-full rounded-xl border py-2.5 text-xl font-bold text-center text-neutral-800 pr-16 ' +
+    'focus:outline-none focus:ring-2 transition placeholder:text-neutral-300 ' +
+    (glucLow || glucHigh
+      ? 'border-red-300 bg-red-50/40 focus:border-red-400 focus:ring-red-100'
+      : glucose
+        ? 'border-violet-300 bg-violet-50/20 focus:border-violet-400 focus:ring-violet-100'
+        : 'border-neutral-200 bg-white focus:border-violet-300 focus:ring-violet-100')
 
   return (
-    <div className="space-y-2.5">
-      {/* Sticky confirm — always visible at top while filling fields */}
-      <div className="sticky top-0 z-10 bg-white pb-1 md:static">
-        <button type="button" onClick={handleConfirm} disabled={!valid}
-          className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all active:scale-[0.98] md:w-auto md:py-2.5 md:text-sm ${
-            valid ? 'bg-brand-600 hover:bg-brand-700 text-white' : 'bg-neutral-100 text-neutral-400 cursor-not-allowed'
-          }`}>
-          {valid ? <><CheckCircle2 size={14}/> Registrar signos vitales</> : 'Completar TA, glucemia y mRS'}
-        </button>
-      </div>
+    <div className="space-y-4">
 
-      {/* TA */}
-      <div className="flex flex-wrap items-end gap-2.5 md:gap-3">
-        <div className="shrink-0">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400 mb-1">TA Sistólica</p>
-          <input type="text" inputMode="numeric" maxLength={3} placeholder="120"
-            value={sys} onChange={(e) => setSys(e.target.value.replace(/\D/g, '').slice(0, 3))}
-            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); diaRef.current?.focus() } }}
-            className={fieldCls(taCrit, !!sys)} />
-        </div>
-        <span className="pb-2 text-xl font-bold text-neutral-300">/</span>
-        <div className="shrink-0">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400 mb-1">Diastólica</p>
-          <input ref={diaRef} type="text" inputMode="numeric" maxLength={3} placeholder="80"
-            value={dia} onChange={(e) => setDia(e.target.value.replace(/\D/g, '').slice(0, 3))}
-            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); glucoseRef.current?.focus() } }}
-            className={fieldCls(diaCrit, !!dia)} />
-        </div>
-        <div className="shrink-0">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400 mb-1">Glucemia</p>
-          <input ref={glucoseRef} type="text" inputMode="numeric" maxLength={3} placeholder="120"
-            value={glucose} onChange={(e) => setGlucose(e.target.value.replace(/\D/g, '').slice(0, 3))}
-            className={fieldCls(glucLow || glucHigh, !!glucose)} />
-        </div>
-      </div>
-
-      {/* Alerts */}
-      {(taCrit || diaCrit || glucLow || glucHigh) && (
-        <div className="flex items-start gap-2 rounded-xl border border-red-100 bg-red-50/60 px-3 py-2">
-          <AlertTriangle size={11} className="shrink-0 text-red-500 mt-0.5" />
-          <p className="text-xs text-red-600">
-            {taCrit && 'TA >185 mmHg. '}
-            {diaCrit && 'PAD >110 mmHg. '}
-            {glucLow && 'Hipoglucemia <50 mg/dL — corregir antes de trombolisis. '}
-            {glucHigh && 'Hiperglucemia >400 mg/dL. '}
-          </p>
-        </div>
-      )}
-
-      {/* mRS */}
+      {/* ── Tensión arterial ── */}
       <div>
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400 mb-1">
+        <div className="flex items-start gap-2 px-3 py-2.5 mb-3 rounded-xl bg-blue-50 border border-blue-200">
+          <Heart size={13} className="text-blue-700 shrink-0 mt-0.5" />
+          <div className="text-xs text-blue-800">
+            <p className="font-semibold">Tensión arterial</p>
+            <p className="mt-0.5 opacity-80">Meta pre-trombolisis: PAS ≤ 185 · PAD ≤ 110 mmHg</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <input
+            ref={sysRef}
+            type="text" inputMode="numeric" maxLength={3} placeholder="PAS"
+            value={sys}
+            onChange={(e) => setSys(e.target.value.replace(/\D/g, '').slice(0, 3))}
+            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); diaRef.current?.focus() } }}
+            className={taInputCls(taCrit, !!sys)}
+          />
+          <span className="text-neutral-300 font-bold text-xl select-none">/</span>
+          <input
+            ref={diaRef}
+            type="text" inputMode="numeric" maxLength={3} placeholder="PAD"
+            value={dia}
+            onChange={(e) => setDia(e.target.value.replace(/\D/g, '').slice(0, 3))}
+            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); glucoseRef.current?.focus() } }}
+            className={taInputCls(diaCrit, !!dia)}
+          />
+          <div className="flex items-center gap-1 shrink-0">
+            <Activity size={11} className="text-neutral-400" />
+            <span className="text-xs text-neutral-400 font-medium">mmHg</span>
+          </div>
+        </div>
+
+        {(taCrit || diaCrit) && (
+          <div className="flex items-start gap-2 mt-2 rounded-xl border border-red-100 bg-red-50/60 px-3 py-2">
+            <AlertTriangle size={11} className="shrink-0 text-red-500 mt-0.5" />
+            <p className="text-xs text-red-600">
+              {taCrit && 'TA sistólica >185 mmHg — ajustar antes de trombolisis. '}
+              {diaCrit && 'PAD >110 mmHg — ajustar antes de trombolisis.'}
+            </p>
+          </div>
+        )}
+      </div>
+
+      <div className="border-t border-neutral-100" />
+
+      {/* ── Glucemia ── */}
+      <div>
+        <div className="flex items-start gap-2 px-3 py-2.5 mb-3 rounded-xl bg-violet-50 border border-violet-200">
+          <Droplets size={13} className="text-violet-700 shrink-0 mt-0.5" />
+          <div className="text-xs text-violet-800">
+            <p className="font-semibold">Glucemia</p>
+            <p className="mt-0.5 opacity-80">Rango aceptable: 50 – 400 mg/dL</p>
+          </div>
+        </div>
+
+        <div className="relative">
+          <input
+            ref={glucoseRef}
+            type="text" inputMode="numeric" maxLength={3} placeholder="mg/dL"
+            value={glucose}
+            onChange={(e) => setGlucose(e.target.value.replace(/\D/g, '').slice(0, 3))}
+            className={glucInputCls}
+          />
+          <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-sm font-semibold text-neutral-400">
+            mg/dL
+          </span>
+        </div>
+
+        {(glucLow || glucHigh) && (
+          <div className="flex items-start gap-2 mt-2 rounded-xl border border-red-100 bg-red-50/60 px-3 py-2">
+            <AlertTriangle size={11} className="shrink-0 text-red-500 mt-0.5" />
+            <p className="text-xs text-red-600">
+              {glucLow  && 'Hipoglucemia <50 mg/dL — corregir antes de trombolisis. '}
+              {glucHigh && 'Hiperglucemia >400 mg/dL — controlar antes de proceder.'}
+            </p>
+          </div>
+        )}
+      </div>
+
+      <div className="border-t border-neutral-100" />
+
+      {/* ── mRS ── */}
+      <div>
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400 mb-2">
           mRS basal (funcionalidad previa)
         </p>
         <div className="grid grid-cols-6 gap-1 md:max-w-lg">
@@ -253,6 +307,14 @@ function VitalsSection({ vitals, onConfirm, draftVitals, onDraftChange }) {
           </div>
         )}
       </div>
+
+      {/* ── Botón confirmar al pie ── */}
+      <button type="button" onClick={handleConfirm} disabled={!valid}
+        className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-all active:scale-[0.98] ${
+          valid ? 'bg-brand-600 hover:bg-brand-700 text-white' : 'bg-neutral-100 text-neutral-400 cursor-not-allowed'
+        }`}>
+        {valid ? <><CheckCircle2 size={14}/> Registrar signos vitales</> : 'Completá TA, glucemia y mRS'}
+      </button>
 
     </div>
   )
