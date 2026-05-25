@@ -721,67 +721,69 @@ export default function App() {
 
           {/* Desktop sidebar */}
           {(patient || phase === 'pre') && (
-            <aside className="hidden md:flex md:flex-col md:gap-2.5 w-[270px] shrink-0 overflow-y-auto border-r border-neutral-200 pr-3 pt-3">
-              <div className="rounded-lg border border-neutral-200 bg-white p-3">
-                {patient ? (
-                  <>
-                    <div className="flex items-start justify-between gap-2 mb-1">
-                      <p className="font-semibold text-neutral-900 text-sm leading-snug">{patient.name}</p>
-                      {patientId && <p className="text-[10px] font-mono font-bold text-neutral-500 tracking-wider shrink-0">{patientId}</p>}
-                    </div>
-                    <p className="text-xs text-neutral-500">DNI {patient.dni}</p>
-                  </>
-                ) : (
-                  <>
-                    <p className="font-semibold text-neutral-900 text-sm leading-snug">Evaluación inicial</p>
-                    <p className="text-xs text-neutral-500">Cargar paciente y signos vitales</p>
-                  </>
-                )}
+            <aside className="hidden md:flex md:flex-col w-[270px] shrink-0 border-r border-neutral-200 pr-3 pt-3 pb-3">
 
-                {(latestNihss !== null || latestVitals || latestGlucose !== null) && (
-                  <div className="mt-3 pt-3 border-t border-neutral-100 grid grid-cols-3 gap-1.5">
-                    {latestNihss !== null && (() => {
-                      const sev = getNihssSeverity(latestNihss)
-                      return (
-                        <div className={`rounded-md px-2 py-2 text-center ${sev.bg}`}>
-                          <p className="text-[9px] text-neutral-400 uppercase tracking-wider font-semibold mb-0.5">NIHSS</p>
-                          <p className={`text-sm font-bold tabular-nums ${sev.color}`}>{latestNihss}</p>
+              {/* Scrollable section — patient info, vitals, timestamps */}
+              <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-2.5 pb-2">
+                <div className="rounded-lg border border-neutral-200 bg-white p-3">
+                  {patient ? (
+                    <>
+                      <div className="flex items-start justify-between gap-2 mb-1">
+                        <p className="font-semibold text-neutral-900 text-sm leading-snug">{patient.name}</p>
+                        {patientId && <p className="text-[10px] font-mono font-bold text-neutral-500 tracking-wider shrink-0">{patientId}</p>}
+                      </div>
+                      <p className="text-xs text-neutral-500">DNI {patient.dni}</p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="font-semibold text-neutral-900 text-sm leading-snug">Evaluación inicial</p>
+                      <p className="text-xs text-neutral-500">Cargar paciente y signos vitales</p>
+                    </>
+                  )}
+
+                  {(latestNihss !== null || latestVitals || latestGlucose !== null) && (
+                    <div className="mt-3 pt-3 border-t border-neutral-100 grid grid-cols-3 gap-1.5">
+                      {latestNihss !== null && (() => {
+                        const sev = getNihssSeverity(latestNihss)
+                        return (
+                          <div className={`rounded-md px-2 py-2 text-center ${sev.bg}`}>
+                            <p className="text-[9px] text-neutral-400 uppercase tracking-wider font-semibold mb-0.5">NIHSS</p>
+                            <p className={`text-sm font-bold tabular-nums ${sev.color}`}>{latestNihss}</p>
+                          </div>
+                        )
+                      })()}
+                      {latestVitals && (
+                        <div className={`rounded-md px-2 py-2 text-center ${latestVitals.systolic > 185 ? 'bg-blue-900/10' : 'bg-neutral-50'}`}>
+                          <p className="text-[9px] text-neutral-400 uppercase tracking-wider font-semibold mb-0.5">TA</p>
+                          <p className={`text-xs font-bold tabular-nums ${latestVitals.systolic > 185 ? 'text-blue-900' : 'text-blue-700'}`}>{latestVitals.systolic}/{latestVitals.diastolic}</p>
                         </div>
-                      )
-                    })()}
-                    {latestVitals && (
-                      <div className={`rounded-md px-2 py-2 text-center ${latestVitals.systolic > 185 ? 'bg-blue-900/10' : 'bg-neutral-50'}`}>
-                        <p className="text-[9px] text-neutral-400 uppercase tracking-wider font-semibold mb-0.5">TA</p>
-                        <p className={`text-xs font-bold tabular-nums ${latestVitals.systolic > 185 ? 'text-blue-900' : 'text-blue-700'}`}>{latestVitals.systolic}/{latestVitals.diastolic}</p>
-                      </div>
-                    )}
-                    {latestGlucose !== null && (
-                      <div className={`rounded-md px-2 py-2 text-center ${latestGlucose < 50 ? 'bg-blue-900/10' : latestGlucose > 400 ? 'bg-orange-50' : 'bg-neutral-50'}`}>
-                        <p className="text-[9px] text-neutral-400 uppercase tracking-wider font-semibold mb-0.5">GLC</p>
-                        <p className={`text-xs font-bold tabular-nums ${latestGlucose < 50 ? 'text-blue-900' : latestGlucose > 400 ? 'text-orange-600' : 'text-violet-700'}`}>{latestGlucose}</p>
-                      </div>
-                    )}
+                      )}
+                      {latestGlucose !== null && (
+                        <div className={`rounded-md px-2 py-2 text-center ${latestGlucose < 50 ? 'bg-blue-900/10' : latestGlucose > 400 ? 'bg-orange-50' : 'bg-neutral-50'}`}>
+                          <p className="text-[9px] text-neutral-400 uppercase tracking-wider font-semibold mb-0.5">GLC</p>
+                          <p className={`text-xs font-bold tabular-nums ${latestGlucose < 50 ? 'text-blue-900' : latestGlucose > 400 ? 'text-orange-600' : 'text-violet-700'}`}>{latestGlucose}</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {timerStart && (
+                  <div className="rounded-lg border border-neutral-200 bg-white p-2.5">
+                    <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Registros rápidos</p>
+                    <QuickAddFAB
+                      variant="sidebar"
+                      onAddNihss={handleAddNihss}
+                      onAddVitals={handleAddVitals}
+                      onAddGlucose={handleAddGlucose}
+                      onOutOfWindow={() => setShowOutOfWindow(true)}
+                      latestNihss={latestNihss}
+                      latestVitals={latestVitals}
+                      latestGlucose={latestGlucose}
+                    />
                   </div>
                 )}
-              </div>
 
-              {timerStart && (
-                <div className="rounded-lg border border-neutral-200 bg-white p-2.5">
-                  <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Registros rápidos</p>
-                  <QuickAddFAB
-                    variant="sidebar"
-                    onAddNihss={handleAddNihss}
-                    onAddVitals={handleAddVitals}
-                    onAddGlucose={handleAddGlucose}
-                    onOutOfWindow={() => setShowOutOfWindow(true)}
-                    latestNihss={latestNihss}
-                    latestVitals={latestVitals}
-                    latestGlucose={latestGlucose}
-                  />
-                </div>
-              )}
-
-              <div>
                 <TimestampPanel
                   variant="desktop"
                   codeStart={timerStart}
@@ -791,20 +793,23 @@ export default function App() {
                 />
               </div>
 
+              {/* Fixed bottom — action button always visible */}
               {phase === 'pre' && (
-                <div className="rounded-lg border border-neutral-200 bg-white p-3">
-                  <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Decisión</p>
-                  <DecisionButton
-                    allComplete={tabCompletion.allComplete}
-                    onClick={handleComputeDecision}
-                    executed={false}
-                  />
+                <div className="shrink-0 border-t border-neutral-100 pt-2">
+                  <div className="rounded-lg border border-neutral-200 bg-white p-3">
+                    <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Decisión</p>
+                    <DecisionButton
+                      allComplete={tabCompletion.allComplete}
+                      onClick={handleComputeDecision}
+                      executed={false}
+                    />
+                  </div>
                 </div>
               )}
 
               {/* Trombolisis shortcut (desktop sidebar, Phase 2) */}
               {showTrombolisisFAB && (
-                <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3">
+                <div className="shrink-0 border-t border-neutral-100 pt-2">
                   <button type="button" onClick={() => setActiveTab('trombolisis')}
                     className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition-all active:scale-[0.98]">
                     <Syringe size={13} /> Ir a Trombolisis
@@ -814,18 +819,18 @@ export default function App() {
 
               {/* Summary copy (Phase 2 only) */}
               {phase === 'post' && (
-                <div className="rounded-lg border border-neutral-200 bg-white p-3">
+                <div className="shrink-0 border-t border-neutral-100 pt-2 flex gap-1.5">
                   <button type="button" onClick={handleCopy}
-                    className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-medium border transition-all ${
+                    className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-medium border transition-all ${
                       copied ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50'
                     }`}>
-                    {copied ? <><Check size={13} /> Copiado</> : <><Copy size={13} /> Copiar resumen</>}
+                    {copied ? <><Check size={12} /> Copiado</> : <><Copy size={12} /> Copiar</>}
                   </button>
                   <button type="button" onClick={() => {
                     const url = `https://wa.me/?text=${encodeURIComponent(buildSummaryText())}`
                     window.open(url, '_blank')
                   }}
-                    className="w-full flex items-center justify-center gap-2 py-2.5 mt-1 rounded-lg text-xs font-medium border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-all">
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-medium border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-all">
                     WhatsApp
                   </button>
                 </div>
