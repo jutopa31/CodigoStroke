@@ -114,7 +114,7 @@ export default function CIAbsolutasTab({ initialState, onUpdate }) {
       </button>
 
       {/* List */}
-      <div className="grid gap-1.5 xl:grid-cols-2">
+      <div className="space-y-1.5">
         {RED_CONTRAS.map((item) => (
           <ContraRow key={item.id} item={item} value={answers[item.id] ?? null}
             onChange={(val) => set(item.id, val)} />
