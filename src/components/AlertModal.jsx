@@ -1,6 +1,15 @@
+import { useEffect } from 'react'
 import { AlertTriangle } from 'lucide-react'
 
 export default function AlertModal({ patient, onConfirm, onClose }) {
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') onClose()
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [onClose])
+
   return (
     <div
       className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-fade-in"
@@ -33,14 +42,15 @@ export default function AlertModal({ patient, onConfirm, onClose }) {
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-3 border border-neutral-200 rounded-xl text-neutral-600 font-medium text-sm hover:bg-neutral-50 active:scale-[0.98] transition-all"
+            className="flex-1 py-3 border border-neutral-200 rounded-xl text-neutral-600 font-medium text-sm hover:bg-neutral-50 active:scale-[0.98] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2"
           >
             Cancelar
           </button>
           <button
             type="button"
+            autoFocus
             onClick={onConfirm}
-            className="flex-[2] py-3 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-semibold text-sm active:scale-[0.98] transition-all"
+            className="flex-[2] py-3 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-semibold text-sm active:scale-[0.98] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2"
           >
             Sí, activar
           </button>
