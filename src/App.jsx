@@ -622,6 +622,7 @@ export default function App() {
               initialState={contraRelatives}
               onUpdate={handleContraRelUpdate}
               onAnticoagChange={handleAnticoagChange}
+              onCalculate={handleComputeDecision}
             />
           )
         default:
