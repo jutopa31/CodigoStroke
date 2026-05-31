@@ -762,15 +762,15 @@ export default function App() {
                         )
                       })()}
                       {latestVitals && (
-                        <div className={`rounded-md px-1.5 py-1.5 text-center ${latestVitals.systolic > 185 ? 'bg-blue-900/10' : 'bg-neutral-50'}`}>
+                        <div className={`rounded-md px-1.5 py-1.5 text-center ${latestVitals.systolic > 185 ? 'bg-status-critical/10' : 'bg-neutral-50'}`}>
                           <p className="text-[9px] text-neutral-400 uppercase tracking-wider font-semibold mb-0.5">TA</p>
-                          <p className={`text-xs font-bold tabular-nums ${latestVitals.systolic > 185 ? 'text-blue-900' : 'text-blue-700'}`}>{latestVitals.systolic}/{latestVitals.diastolic}</p>
+                          <p className={`text-xs font-bold tabular-nums ${latestVitals.systolic > 185 ? 'text-status-critical' : 'text-status-info'}`}>{latestVitals.systolic}/{latestVitals.diastolic}</p>
                         </div>
                       )}
                       {latestGlucose !== null && (
-                        <div className={`rounded-md px-1.5 py-1.5 text-center ${latestGlucose < 50 ? 'bg-blue-900/10' : latestGlucose > 400 ? 'bg-orange-50' : 'bg-neutral-50'}`}>
+                        <div className={`rounded-md px-1.5 py-1.5 text-center ${latestGlucose < 50 ? 'bg-status-critical/10' : latestGlucose > 400 ? 'bg-status-warning-muted' : 'bg-neutral-50'}`}>
                           <p className="text-[9px] text-neutral-400 uppercase tracking-wider font-semibold mb-0.5">GLC</p>
-                          <p className={`text-xs font-bold tabular-nums ${latestGlucose < 50 ? 'text-blue-900' : latestGlucose > 400 ? 'text-orange-600' : 'text-violet-700'}`}>{latestGlucose}</p>
+                          <p className={`text-xs font-bold tabular-nums ${latestGlucose < 50 ? 'text-status-critical' : latestGlucose > 400 ? 'text-status-warning' : 'text-status-glucose'}`}>{latestGlucose}</p>
                         </div>
                       )}
                     </div>
