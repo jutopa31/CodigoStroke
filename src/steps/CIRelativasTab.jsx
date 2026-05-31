@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ShieldCheck, Info, ChevronDown, CheckCircle2, AlertTriangle, ShieldAlert, ChevronRight, Brain } from 'lucide-react'
+import { ShieldCheck, Info, ChevronDown, CheckCircle2, AlertTriangle, ShieldAlert } from 'lucide-react'
 
 const ORANGE_CONTRAS = [
   { id: 'disability',            short: 'Discapacidad preexistente',    label: 'Discapacidad preexistente o fragilidad',                           sub: 'Riesgo/beneficio incierto. Determinar en forma individual.' },
@@ -76,7 +76,7 @@ function ContraRow({ item, value, onChange }) {
  * @param {(state) => void} onUpdate
  * @param {(anticoag) => void} onAnticoagChange — for symptoms.anticoagulation sync
  */
-export default function CIRelativasTab({ initialState, onUpdate, onAnticoagChange, onCalculate }) {
+export default function CIRelativasTab({ initialState, onUpdate, onAnticoagChange }) {
   const [answers,  setAnswers]  = useState(() => initialState?.answers  ?? {})
   const [anticoag, setAnticoag] = useState(() => initialState?.anticoag ?? { active: null, type: '' })
 
@@ -219,17 +219,6 @@ export default function CIRelativasTab({ initialState, onUpdate, onAnticoagChang
         </div>
       )}
 
-      {allAnswered && !hasRelative && onCalculate && (
-        <button
-          type="button"
-          onClick={onCalculate}
-          className="w-full flex items-center justify-center gap-2.5 py-3 rounded-xl border border-amber-300 bg-amber-50 text-sm font-bold text-amber-800 transition-all active:scale-[0.98] hover:bg-amber-100 animate-fade-in"
-        >
-          <Brain size={16} strokeWidth={2} />
-          Sin CI relativas — Calcular decisión
-          <ChevronRight size={15} strokeWidth={2.5} />
-        </button>
-      )}
     </div>
   )
 }
