@@ -21,6 +21,7 @@ import DecisionTab from './steps/DecisionTab'
 import DosageStep from './steps/DosageStep'
 import ThrombectomyStep from './steps/ThrombectomyStep'
 import CareTab from './steps/CareTab'
+import SummaryTab from './steps/SummaryTab'
 import { saveStrokeEvent, generatePatientId, saveSession, syncPendingEvents } from './lib/storage'
 import { getNihssSeverity } from './content/nihss'
 import { sendStrokeAlert } from './lib/emailService'
@@ -671,6 +672,29 @@ export default function App() {
             onAddNihss={handleAddNihss}
             onAddVitals={handleAddVitals}
             onContinue={() => setActiveTab('trombectomia')}
+          />
+        )
+      case 'resumen':
+        return (
+          <SummaryTab
+            patient={patient}
+            patientId={patientId}
+            patientArrivalTime={patientArrivalTime}
+            timerStart={timerStart}
+            ctRequestTime={ctRequestTime}
+            thrombolyticStartTime={thrombolyticStartTime}
+            angioRequestTime={angioRequestTime}
+            thrombectomyActivationTime={thrombectomyActivationTime}
+            symptoms={symptoms}
+            vitals={vitals}
+            nihss={nihss}
+            ctResult={ctResult}
+            decisionResult={decisionResult}
+            dosage={dosage}
+            thrombectomy={thrombectomy}
+            onCopy={handleCopy}
+            copied={copied}
+            onWhatsApp={() => window.open(`https://wa.me/?text=${encodeURIComponent(buildSummaryText())}`, '_blank')}
           />
         )
       default:

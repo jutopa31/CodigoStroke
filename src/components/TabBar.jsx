@@ -1,4 +1,4 @@
-import { User, Clock, Activity, Scan, ShieldAlert, Shield, CheckCircle2, Syringe, Zap, Heart } from 'lucide-react'
+import { User, Clock, Activity, Scan, ShieldAlert, Shield, CheckCircle2, Syringe, Zap, Heart, ClipboardList } from 'lucide-react'
 
 const PHASE1_TABS = [
   { id: 'paciente',  label: 'Paciente',   Icon: User },
@@ -14,6 +14,7 @@ const PHASE2_TABS = [
   { id: 'trombolisis',   label: 'Trombolisis', Icon: Syringe },
   { id: 'cuidados',      label: 'Cuidados',    Icon: Heart },
   { id: 'trombectomia',  label: 'Trombect.',   Icon: Zap },
+  { id: 'resumen',       label: 'Resumen',     Icon: ClipboardList },
 ]
 
 function TabItem({ tab, active, completion, onClick }) {
