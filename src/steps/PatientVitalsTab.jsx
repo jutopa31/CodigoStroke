@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { User, CheckCircle2, AlertTriangle, CreditCard, Lock, BookOpen, ScanLine, Heart, Activity, Droplets } from 'lucide-react'
+import { User, CheckCircle2, AlertTriangle, CreditCard, Lock, BookOpen, ScanLine, Heart, Activity, Droplets, Zap } from 'lucide-react'
 import DniQrScanner from '../components/DniQrScanner'
 
 const MRS_OPTIONS = [
@@ -56,57 +56,72 @@ function PatientSection({ patient, patientId, arrivalTime, onConfirm, onOpenEduc
   return (
     <>
     {showScanner && <DniQrScanner onScan={handleScan} onClose={() => setShowScanner(false)} />}
-    <form onSubmit={handleSubmit} className="space-y-2.5 md:space-y-3">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <button type="button" onClick={() => setShowScanner(true)}
-          className="flex items-center gap-1.5 text-xs font-medium text-brand-600 hover:text-brand-700 bg-brand-50 hover:bg-brand-100 px-2.5 py-1.5 rounded-lg transition-colors">
-          <ScanLine size={13} strokeWidth={2} />
-          Escanear QR del DNI
-        </button>
-        {onOpenEducational && (
-          <button type="button" onClick={onOpenEducational}
-            className="flex items-center gap-1 text-xs text-neutral-400 hover:text-amber-600 transition-colors">
-            <BookOpen size={12} strokeWidth={2} /> Modo educativo
-          </button>
-        )}
-      </div>
+    <form onSubmit={handleSubmit} className="space-y-3">
+      {/* QR scan shortcut */}
+      <button type="button" onClick={() => setShowScanner(true)}
+        className="flex items-center gap-1.5 text-xs font-medium text-brand-600 hover:text-brand-700 bg-brand-50 hover:bg-brand-100 px-2.5 py-1.5 rounded-lg transition-colors">
+        <ScanLine size={13} strokeWidth={2} />
+        Escanear QR del DNI
+      </button>
+
+      {/* Primary fields */}
       <div className="flex flex-wrap items-end gap-3">
         <div className="w-full sm:w-[12rem]">
-          <label className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400 flex items-center gap-1 mb-1 md:text-xs md:text-neutral-500 md:mb-1.5">
+          <label className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400 flex items-center gap-1 mb-1.5">
             <CreditCard size={10} /> DNI
           </label>
           <input
-            type="number" inputMode="numeric" placeholder="38999123"
+            type="number" inputMode="numeric" placeholder="Número de documento"
             value={dni} onChange={(e) => setDni(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); nameRef.current?.focus() } }}
             autoFocus
-            className="w-full h-10 bg-neutral-50 border border-neutral-200 rounded-lg px-3 text-sm font-semibold focus:bg-white focus:ring-2 focus:ring-brand-100 focus:border-brand-300 placeholder-neutral-300 transition-all"
+            className="w-full h-11 bg-neutral-50 border border-neutral-200 rounded-lg px-3 text-sm font-semibold focus:bg-white focus:ring-2 focus:ring-brand-100 focus:border-brand-300 placeholder-neutral-300 transition-all"
           />
         </div>
         <div className="w-full sm:w-[18rem]">
-          <label className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400 flex items-center gap-1 mb-1 md:text-xs md:text-neutral-500 md:mb-1.5">
+          <label className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400 flex items-center gap-1 mb-1.5">
             <User size={10} /> Nombre
           </label>
           <input
             ref={nameRef} type="text" placeholder="Nombre y apellido"
             value={name} onChange={(e) => setName(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); passRef.current?.focus() } }}
-            className="w-full h-10 bg-neutral-50 border border-neutral-200 rounded-lg px-3 text-sm focus:bg-white focus:ring-2 focus:ring-brand-100 focus:border-brand-300 placeholder-neutral-300 transition-all"
+            className="w-full h-11 bg-neutral-50 border border-neutral-200 rounded-lg px-3 text-sm focus:bg-white focus:ring-2 focus:ring-brand-100 focus:border-brand-300 placeholder-neutral-300 transition-all"
           />
         </div>
       </div>
-      <div className="flex flex-wrap items-center gap-3">
+
+      {/* Secondary: password (deprioritized) */}
+      <div>
+        <label className="text-[9px] font-medium uppercase tracking-wider text-neutral-300 flex items-center gap-1 mb-1">
+          <Lock size={9} /> Contraseña de turno <span className="normal-case font-normal">(opcional)</span>
+        </label>
         <input
-          ref={passRef} type="password" placeholder="Contraseña de turno (opcional)"
+          ref={passRef} type="password" placeholder="Frase de acceso"
           value={pass} onChange={(e) => setPass(e.target.value)}
-          className="h-10 w-full bg-neutral-50 border border-neutral-200 rounded-lg px-3 text-sm focus:bg-white focus:ring-2 focus:ring-brand-100 focus:border-brand-300 placeholder-neutral-300 transition-all sm:w-[18rem]"
+          className="h-9 w-full bg-neutral-50 border border-neutral-100 rounded-lg px-3 text-sm text-neutral-600 focus:bg-white focus:ring-2 focus:ring-brand-100 focus:border-brand-200 placeholder-neutral-300 transition-all sm:w-[18rem]"
         />
-        <button type="submit" disabled={!valid}
-          className="flex h-10 w-full items-center justify-center gap-2 rounded-lg px-4 text-sm font-semibold transition-all active:scale-[0.98] disabled:cursor-not-allowed sm:w-auto
-            bg-brand-600 hover:bg-brand-700 text-white disabled:bg-neutral-100 disabled:text-neutral-400">
-          <Lock size={14} /> Activar Código Stroke
-        </button>
       </div>
+
+      {/* Primary CTA — full-width, visually dominant */}
+      <button type="submit" disabled={!valid}
+        className={`flex w-full items-center justify-center gap-2.5 rounded-xl py-3.5 text-sm font-bold tracking-wide transition-all active:scale-[0.98] shadow-sm
+          ${valid
+            ? 'bg-brand-600 hover:bg-brand-700 text-white shadow-brand-200'
+            : 'bg-neutral-100 text-neutral-400 cursor-not-allowed shadow-none'}`}>
+        <Zap size={16} strokeWidth={2.5} />
+        Activar Código Stroke
+      </button>
+
+      {/* Modo educativo — subtle, below CTA */}
+      {onOpenEducational && (
+        <div className="flex justify-center pt-0.5">
+          <button type="button" onClick={onOpenEducational}
+            className="flex items-center gap-1 text-[11px] text-neutral-300 hover:text-amber-500 transition-colors">
+            <BookOpen size={11} strokeWidth={2} /> Modo educativo
+          </button>
+        </div>
+      )}
     </form>
     </>
   )
@@ -358,27 +373,23 @@ export default function PatientVitalsTab({
         />
       </div>
 
-      {/* Vitals section */}
-      <div className={`bg-white rounded-xl border p-3 transition-all md:max-w-3xl ${patientDone ? 'border-neutral-100' : 'border-neutral-100 opacity-70'}`}>
-        <div className="flex items-center justify-between mb-2.5">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 md:text-xs md:text-neutral-500">Signos vitales</p>
-          {!patientDone && (
-            <span className="text-[10px] text-neutral-400 italic md:text-xs">Registrar paciente primero</span>
-          )}
-        </div>
-        {patientDone ? (
+      {/* Vitals section — only shown after patient is registered */}
+      {patientDone ? (
+        <div className="bg-white rounded-xl border border-neutral-100 p-3 transition-all md:max-w-3xl animate-fade-in">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 mb-2.5 md:text-xs md:text-neutral-500">Signos vitales</p>
           <VitalsSection vitals={vitals} onConfirm={onVitalsConfirm} draftVitals={draftVitals} onDraftChange={onDraftVitalsChange} />
-        ) : (
-          <div className="grid grid-cols-3 gap-2 opacity-40 pointer-events-none select-none">
-            {['TA', 'Glucemia', 'mRS'].map(l => (
-              <div key={l} className="rounded-lg bg-neutral-50 border border-neutral-100 px-3 py-3 text-center">
-                <p className="text-[9px] uppercase tracking-wider text-neutral-300 font-semibold md:text-xs">{l}</p>
-                <p className="text-xl font-bold text-neutral-200 mt-1">—</p>
-              </div>
-            ))}
+        </div>
+      ) : (
+        <div className="bg-neutral-50 rounded-xl border border-dashed border-neutral-200 p-4 md:max-w-3xl">
+          <div className="flex items-center gap-3 text-neutral-400">
+            <Lock size={16} strokeWidth={1.5} className="shrink-0" />
+            <div>
+              <p className="text-xs font-semibold text-neutral-500">Signos vitales</p>
+              <p className="text-[11px] mt-0.5">Se habilita al activar el código stroke</p>
+            </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   )
 }
