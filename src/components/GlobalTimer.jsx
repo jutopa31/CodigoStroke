@@ -181,9 +181,14 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
       )}
 
       {progressPct > 0 && (
-        <div className="h-0.5 bg-white/20 md:bg-stroke-line">
+        <div className="h-1.5 bg-white/10 md:bg-stroke-line">
           <div
-            className="h-full bg-white/60 md:bg-stroke-iconActive rounded-r-full transition-all duration-500"
+            className={`h-full rounded-r-full transition-all duration-500 md:bg-stroke-iconActive ${
+              !phase ? 'bg-emerald-400' :
+              minutes < 30 ? 'bg-emerald-400' :
+              minutes < 60 ? 'bg-amber-400' :
+              'bg-blue-400'
+            }`}
             style={{ width: `${progressPct}%` }}
           />
         </div>
