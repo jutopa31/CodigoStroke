@@ -295,10 +295,11 @@ export default function ContraindicationsStep({ onConfirm, onAnticoagChange, isC
             Cualquier <strong className="text-blue-900">SÍ</strong> bloquea la trombolisis IV. Tocá ⓘ para detalles.
           </p>
 
+          {/* Batch action row — "mark all NO" shortcut */}
           <button
             type="button"
             onClick={markAllNoRed}
-            className="w-full flex items-center justify-center gap-2 mb-3 py-2.5 rounded-xl border-2 border-dashed border-gray-200 text-gray-500 text-xs font-semibold hover:border-emerald-300 hover:text-emerald-600 hover:bg-emerald-50/40 active:scale-[0.98] transition-all"
+            className="w-full flex items-center justify-center gap-2 mb-3 py-2.5 rounded-xl border border-emerald-200 bg-emerald-50/50 text-emerald-700 text-xs font-semibold transition-all hover:border-emerald-400 hover:bg-emerald-100/70 hover:shadow-sm active:scale-[0.98] active:bg-emerald-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
           >
             <ShieldCheck size={14} />
             Ninguna presente — marcar todas NO →
@@ -402,10 +403,11 @@ export default function ContraindicationsStep({ onConfirm, onAnticoagChange, isC
           Individualizar riesgo/beneficio. Tocá ⓘ para detalles.
         </p>
 
+        {/* Batch action row — "mark all NO" shortcut */}
         <button
           type="button"
           onClick={markAllNoOrange}
-          className="w-full flex items-center justify-center gap-2 mb-3 py-2.5 rounded-xl border-2 border-dashed border-gray-200 text-gray-500 text-xs font-semibold hover:border-emerald-300 hover:text-emerald-600 hover:bg-emerald-50/40 active:scale-[0.98] transition-all"
+          className="w-full flex items-center justify-center gap-2 mb-3 py-2.5 rounded-xl border border-emerald-200 bg-emerald-50/50 text-emerald-700 text-xs font-semibold transition-all hover:border-emerald-400 hover:bg-emerald-100/70 hover:shadow-sm active:scale-[0.98] active:bg-emerald-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
         >
           <ShieldCheck size={14} />
           Ninguna presente — marcar todas NO
