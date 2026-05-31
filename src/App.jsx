@@ -622,7 +622,6 @@ export default function App() {
               initialState={contraRelatives}
               onUpdate={handleContraRelUpdate}
               onAnticoagChange={handleAnticoagChange}
-              onCalculate={handleComputeDecision}
             />
           )
         default:
@@ -831,16 +830,6 @@ export default function App() {
                 )}
               </div>
 
-              {/* ── Decisión — siempre visible al fondo (Phase 1) ── */}
-              {phase === 'pre' && (
-                <div className="shrink-0 border-t border-neutral-200 pt-2 pb-2">
-                  <DecisionButton
-                    allComplete={tabCompletion.allComplete}
-                    onClick={handleComputeDecision}
-                    executed={false}
-                  />
-                </div>
-              )}
             </aside>
           )}
 
