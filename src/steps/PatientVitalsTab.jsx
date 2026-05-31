@@ -45,7 +45,7 @@ function PatientSection({ patient, patientId, arrivalTime, onConfirm, onOpenEduc
           <p className="text-xs text-neutral-500 mt-0.5">
             DNI {patient.dni}
             {arrivalTime && ` · ${arrivalTime.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}`}
-            {patientId && <span className="font-mono font-bold text-brand-600 ml-1.5">{patientId}</span>}
+            {patientId && <span className="ml-1.5"><span className="text-neutral-400 font-normal">ID </span><span className="font-mono font-bold text-brand-600">{patientId}</span></span>}
           </p>
         </div>
         <CheckCircle2 size={16} className="text-emerald-500 shrink-0" />

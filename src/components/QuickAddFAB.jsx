@@ -357,8 +357,8 @@ export default function QuickAddFAB({
             onClick={onOutOfWindow}
             title="Fuera de ventana"
             className={isCompactRow
-              ? 'relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-neutral-700 bg-neutral-800 text-white text-[11px] font-semibold active:scale-[0.97] transition-transform hover:bg-neutral-900'
-              : 'relative flex min-h-[44px] min-w-0 flex-col items-center justify-center gap-0.5 rounded-xl border border-neutral-700 bg-neutral-800 text-white text-[10px] font-semibold active:scale-[0.98] transition-transform hover:bg-neutral-900'
+              ? 'relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-amber-300 bg-amber-50 text-amber-700 text-[11px] font-semibold active:scale-[0.97] transition-transform hover:bg-amber-100'
+              : 'relative flex min-h-[44px] min-w-0 flex-col items-center justify-center gap-0.5 rounded-xl border border-amber-300 bg-amber-50 text-amber-700 text-[10px] font-semibold active:scale-[0.98] transition-transform hover:bg-amber-100'
             }
           >
             <Clock size={iconSize} strokeWidth={2} />

@@ -716,7 +716,7 @@ export default function App() {
       <div className={`flex-1 flex flex-col overflow-hidden ${headerOffsetClass}`}>
 
         {/* TabBar — colored band */}
-        <div className="shrink-0 bg-brand-600 md:border-b md:border-stroke-line md:bg-stroke-navy md:px-5 md:py-1">
+        <div className="shrink-0 bg-stroke-navy md:border-b md:border-stroke-line md:px-5 md:py-1">
           <TabBar
             phase={phase}
             activeTab={activeTab}
@@ -739,7 +739,7 @@ export default function App() {
                     <>
                       <div className="flex items-start justify-between gap-2 mb-0.5">
                         <p className="font-semibold text-neutral-900 text-sm leading-snug">{patient.name}</p>
-                        {patientId && <p className="text-[10px] font-mono font-bold text-neutral-500 tracking-wider shrink-0">{patientId}</p>}
+                        {patientId && <p className="text-[10px] font-mono font-bold text-neutral-500 tracking-wider shrink-0"><span className="font-sans font-normal text-neutral-400">ID </span>{patientId}</p>}
                       </div>
                       <p className="text-xs text-neutral-500">DNI {patient.dni}</p>
                     </>
