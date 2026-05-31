@@ -141,9 +141,9 @@ export default function CIRelativasTab({ initialState, onUpdate, onAnticoagChang
         )}
       </div>
 
-      {/* Mark all NO shortcut */}
+      {/* Batch action row — "mark all NO" shortcut */}
       <button type="button" onClick={markAllNo}
-        className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-neutral-200 py-2 text-xs font-semibold text-neutral-500 transition-all hover:border-emerald-300 hover:bg-emerald-50/40 hover:text-emerald-600 active:scale-[0.98] md:w-auto md:px-4">
+        className="flex w-full items-center justify-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50/50 py-2 text-xs font-semibold text-emerald-700 transition-all hover:border-emerald-400 hover:bg-emerald-100/70 hover:shadow-sm active:scale-[0.98] active:bg-emerald-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 md:w-auto md:px-4">
         <ShieldCheck size={14} /> Ninguna presente — marcar las {ORANGE_CONTRAS.length} como NO
       </button>
 
