@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
-import { CheckCircle2, Clock, Pencil } from 'lucide-react'
+import { AlertCircle, CheckCircle2, Clock, Moon, Pencil } from 'lucide-react'
 import StepCard, { CollapsedStep } from '../components/StepCard'
-import { StatusPill } from '../components/GuidedControls'
 import { getElapsedMinutes, formatElapsed, getWindowStatus, IV_WINDOW_MINUTES, OGV_WINDOW_MINUTES } from '../lib/calculations'
 
 const MAX_SLIDER_MINUTES = 1440
@@ -56,14 +55,44 @@ export default function TimeStep({ onConfirm, isCollapsed = false }) {
   const timeTone = isOutOfWindow ? 'red' : shouldEvaluateOgv ? 'orange' : 'blue'
   const timeStatusLabel = isOutOfWindow ? 'Fuera de ventana' : shouldEvaluateOgv ? 'Evaluar OGV' : 'Ventana IV activa'
 
-  // Etiqueta dinámica de candidatura — cambia en tiempo real según elapsed e isIncierto
-  // < 4.5h (ambos modos)              → Candidato a Trombolisis
-  // 4.5h–9h + isIncierto              → Candidato a Trombolisis (ventana extendida)
-  // ≥ 4.5h clásico | ≥ 9h incierto   → Evaluar OGV
-  const candidacyLabel = (() => {
-    const enVentanaIV       = elapsedMinutes < IV_WINDOW_MINUTES
-    const enVentanaIncierta = isIncierto && elapsedMinutes < INCIERTO_WINDOW_MINUTES
-    return (enVentanaIV || enVentanaIncierta) ? 'Candidato a Trombolisis' : 'Evaluar OGV'
+  // Candidacy logic: < 4.5h (both modes) → candidate; 4.5h–9h + isIncierto → candidate extended; else → eval OGV
+  const enVentanaIV = elapsedMinutes < IV_WINDOW_MINUTES
+  const enVentanaIncierta = isIncierto && elapsedMinutes < INCIERTO_WINDOW_MINUTES
+  const isCandidate = enVentanaIV || enVentanaIncierta
+
+  const candidacyBanner = (() => {
+    if (enVentanaIV) return {
+      label: 'Candidato a Trombolisis',
+      sublabel: 'Dentro de ventana IV (< 4.5 h)',
+      bg: 'bg-emerald-50 border-emerald-200',
+      text: 'text-emerald-800',
+      sub: 'text-emerald-600',
+      icon: <CheckCircle2 size={16} strokeWidth={2} className="text-emerald-600 shrink-0" />,
+    }
+    if (enVentanaIncierta) return {
+      label: 'Candidato a Trombolisis',
+      sublabel: 'Ventana extendida wake-up (< 9 h)',
+      bg: 'bg-emerald-50 border-emerald-200',
+      text: 'text-emerald-800',
+      sub: 'text-emerald-600',
+      icon: <CheckCircle2 size={16} strokeWidth={2} className="text-emerald-600 shrink-0" />,
+    }
+    if (windowStatus === 'ogv') return {
+      label: 'Evaluar OGV',
+      sublabel: 'Fuera de ventana IV — considerar trombectomía',
+      bg: 'bg-amber-50 border-amber-200',
+      text: 'text-amber-800',
+      sub: 'text-amber-600',
+      icon: <AlertCircle size={16} strokeWidth={2} className="text-amber-500 shrink-0" />,
+    }
+    return {
+      label: 'Fuera de ventana terapéutica',
+      sublabel: '> 24 h desde último visto asintomático',
+      bg: 'bg-red-50 border-red-200',
+      text: 'text-red-800',
+      sub: 'text-red-500',
+      icon: <AlertCircle size={16} strokeWidth={2} className="text-red-500 shrink-0" />,
+    }
   })()
 
   // Es hoy o fecha anterior
@@ -152,20 +181,18 @@ export default function TimeStep({ onConfirm, isCollapsed = false }) {
     <StepCard step="2" title={stepTitle} accent={timeTone}>
       <div className={`rounded-xl border p-3 ${toneStyles.container}`}>
 
-        {/* Header: label + input de hora editable + elapsed + pill
-            NOTA layout: el pill usa min-w fijo para que su texto variable
-            no desplace la hora al cambiar de ventana. */}
-        <div className="flex flex-wrap items-center gap-2 mb-2.5">
+        {/* Time entry row: label + editable time + elapsed */}
+        <div className="flex flex-wrap items-center gap-2 mb-3">
 
-          {/* Izquierda: ícono + label + hora — siempre en una sola línea, sin wrap */}
+          {/* Left: icon + label + time — no wrap */}
           <label className={`text-[11px] font-semibold uppercase tracking-wider flex items-center gap-1.5 shrink-0 whitespace-nowrap ${toneStyles.label}`}>
             <Clock size={12} strokeWidth={2} />
             {sliderLabel}
           </label>
 
-          {/* Bloque de hora editable — posición fija, no depende del ancho del pill */}
+          {/* Editable time block */}
           <div className="flex items-center gap-1 shrink-0">
-            {/* Fecha — solo si no es hoy */}
+            {/* Date — only when not today */}
             {!isToday && (
               <input
                 type="date"
@@ -175,7 +202,7 @@ export default function TimeStep({ onConfirm, isCollapsed = false }) {
               />
             )}
 
-            {/* Hora — siempre visible, editable */}
+            {/* Time — always visible and editable */}
             <div className="relative flex items-center group">
               <input
                 type="time"
@@ -196,90 +223,112 @@ export default function TimeStep({ onConfirm, isCollapsed = false }) {
             </div>
           </div>
 
-          {/* Separador flexible — empuja el bloque derecho al extremo */}
           <div className="flex-1" />
 
-          {/* Derecha: tiempo transcurrido + pill con ancho mínimo fijo
-              min-w-[9rem] ≥ ancho de "Candidato a Trombolisis" para evitar
-              que el pill empuje la hora al cambiar de texto */}
-          <div className="flex items-center gap-2 shrink-0">
-            {lastSeen && (
-              <span className={`text-sm font-bold tabular-nums ${toneStyles.elapsed}`}>
+          {/* Elapsed time with annotation */}
+          {lastSeen && (
+            <div className="flex flex-col items-end shrink-0">
+              <span className={`text-sm font-bold tabular-nums leading-none ${toneStyles.elapsed}`}>
                 {formatElapsed(elapsedMinutes)}
               </span>
-            )}
-            <div className="min-w-[9rem] flex justify-end">
-              <StatusPill complete={confirmed}>
-                {confirmed ? timeStatusLabel : candidacyLabel}
-              </StatusPill>
+              <span className="text-[9px] text-neutral-400 leading-none mt-0.5">desde síntomas</span>
             </div>
+          )}
+        </div>
+
+        {/* Candidacy status banner — the primary clinical output of this tab */}
+        <div className={`flex items-center gap-2.5 rounded-lg border px-3 py-2.5 mb-3 ${candidacyBanner.bg}`}>
+          {candidacyBanner.icon}
+          <div className="min-w-0">
+            <p className={`text-sm font-bold leading-none ${candidacyBanner.text}`}>{candidacyBanner.label}</p>
+            <p className={`text-[11px] leading-snug mt-0.5 ${candidacyBanner.sub}`}>{candidacyBanner.sublabel}</p>
           </div>
         </div>
 
-        {/* Botones de acción — antes del slider para no requerir scroll */}
-        <div className="flex flex-wrap items-center gap-2 mb-2.5">
+        {/* Action buttons */}
+        <div className="flex flex-wrap items-start gap-2 mb-3">
           <button
             type="button"
             onClick={handleSubmit}
             disabled={!lastSeen}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium text-xs transition-all active:scale-[0.98] ${
               confirmed
-                ? 'bg-emerald-50 border border-emerald-200 text-emerald-700'
+                ? 'bg-emerald-50 border border-emerald-200 text-emerald-700 cursor-default'
                 : lastSeen
                   ? 'bg-brand-600 hover:bg-brand-700 text-white'
                   : 'bg-neutral-100 text-neutral-400 cursor-not-allowed'
             }`}
           >
-            {confirmed ? <><CheckCircle2 size={12} strokeWidth={2} /> Registrado</> : 'Registrar tiempo'}
+            {confirmed
+              ? <><CheckCircle2 size={12} strokeWidth={2} /> Tiempo registrado</>
+              : 'Registrar tiempo'}
           </button>
+
+          {/* Incierto / Wake-up — distinct icon + sublabel so it doesn't read as an afterthought */}
           <button
             type="button"
             aria-pressed={isIncierto}
             onClick={() => { setIsIncierto((v) => !v); setConfirmed(false) }}
-            className={`flex h-8 items-center gap-1.5 rounded-lg border px-3 text-[11px] font-medium transition-all active:scale-[0.98] ${
+            className={`flex items-center gap-2 rounded-lg border px-3 py-1.5 text-[11px] font-medium transition-all active:scale-[0.98] ${
               isIncierto
                 ? 'border-indigo-200 bg-indigo-50 text-indigo-700'
-                : 'border-neutral-200 bg-white text-neutral-400 hover:bg-neutral-50'
+                : 'border-neutral-200 bg-white text-neutral-500 hover:bg-neutral-50'
             }`}
           >
-            <Clock size={11} strokeWidth={2} />
-            Incierto / Wake-up
+            <Moon size={12} strokeWidth={2} />
+            <span className="flex flex-col items-start leading-none gap-0.5">
+              <span>Incierto / Wake-up</span>
+              <span className={`text-[9px] font-normal ${isIncierto ? 'text-indigo-400' : 'text-neutral-400'}`}>Síntomas al despertar</span>
+            </span>
           </button>
         </div>
 
-        {/* Slider */}
-        <div className="relative pb-7">
-          <input
-            id="last-seen-slider"
-            type="range"
-            min="0"
-            max={MAX_SLIDER_MINUTES}
-            step="5"
-            value={offsetMinutes ?? Math.round(Math.min(elapsedMinutes, MAX_SLIDER_MINUTES))}
-            onChange={(e) => applyOffset(e.target.value)}
-            className={`h-2 w-full cursor-pointer rounded-full ${toneStyles.slider}`}
-            aria-label="Minutos desde ultima vez asintomático"
-          />
+        {/* Therapeutic window slider */}
+        <div>
+          <div className="flex items-baseline justify-between mb-1.5">
+            <span className={`text-[11px] font-semibold uppercase tracking-wider ${toneStyles.label}`}>
+              Ventana terapéutica
+            </span>
+            <span className="text-[9px] text-neutral-400">Arrastrá para ajustar el inicio estimado</span>
+          </div>
 
-          {/* Marcadores */}
-          <button
-            type="button"
-            onClick={() => applyOffset(IV_WINDOW_MINUTES)}
-            className="absolute top-6 flex -translate-x-1/2 flex-col items-center gap-1 transition hover:opacity-80 focus:outline-none"
-            style={{ left: IV_WINDOW_PERCENT }}
-          >
-            <span className="h-2 w-0.5 rounded-full bg-amber-400" />
-            <span className="text-[10px] font-semibold text-amber-600 bg-white px-1.5 py-0.5 rounded-md border border-amber-200">4.5h</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => applyOffset(OGV_WINDOW_MINUTES)}
-            className="absolute top-6 flex -translate-x-full flex-col items-end gap-1 transition hover:opacity-80 focus:outline-none"
-            style={{ left: OGV_WINDOW_PERCENT }}
-          >
-            <span className="h-2 w-0.5 rounded-full bg-blue-700" />
-            <span className="text-[10px] font-semibold text-blue-800 bg-white px-1.5 py-0.5 rounded-md border border-blue-200">24h</span>
-          </button>
+          <div className="relative pb-7">
+            {/* Taller slider hit area via py padding on a wrapper */}
+            <div className="py-2">
+              <input
+                id="last-seen-slider"
+                type="range"
+                min="0"
+                max={MAX_SLIDER_MINUTES}
+                step="5"
+                value={offsetMinutes ?? Math.round(Math.min(elapsedMinutes, MAX_SLIDER_MINUTES))}
+                onChange={(e) => applyOffset(e.target.value)}
+                className={`h-2 w-full cursor-pointer rounded-full ${toneStyles.slider}`}
+                style={{ touchAction: 'none' }}
+                aria-label="Minutos desde ultima vez asintomático"
+              />
+            </div>
+
+            {/* Markers */}
+            <button
+              type="button"
+              onClick={() => applyOffset(IV_WINDOW_MINUTES)}
+              className="absolute top-8 flex -translate-x-1/2 flex-col items-center gap-1 transition hover:opacity-80 focus:outline-none"
+              style={{ left: IV_WINDOW_PERCENT }}
+            >
+              <span className="h-2 w-0.5 rounded-full bg-amber-400" />
+              <span className="text-[10px] font-semibold text-amber-700 bg-white px-1.5 py-0.5 rounded-md border border-amber-200 shadow-sm">4.5h</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => applyOffset(OGV_WINDOW_MINUTES)}
+              className="absolute top-8 flex -translate-x-full flex-col items-end gap-1 transition hover:opacity-80 focus:outline-none"
+              style={{ left: OGV_WINDOW_PERCENT }}
+            >
+              <span className="h-2 w-0.5 rounded-full bg-blue-700" />
+              <span className="text-[10px] font-semibold text-blue-800 bg-white px-1.5 py-0.5 rounded-md border border-blue-200 shadow-sm">24h</span>
+            </button>
+          </div>
         </div>
 
       </div>
