@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
-import { Copy, Check, Syringe } from 'lucide-react'
+import { Copy, Check, Syringe, Brain, ChevronRight } from 'lucide-react'
 import GlobalTimer from './components/GlobalTimer'
 import AlertModal from './components/AlertModal'
 import TabBar from './components/TabBar'
@@ -846,23 +846,43 @@ export default function App() {
 
           {/* Main content */}
           <div className="flex-1 flex flex-col overflow-hidden">
+
+            {/* ── Full-width sticky CTA — appears in main content when all 6 tabs complete ── */}
+            {phase === 'pre' && tabCompletion.allComplete && (
+              <div className="shrink-0 px-3 py-2.5 bg-brand-700 shadow-lg animate-slide-down md:px-5 md:py-3 md:bg-white md:border-b md:border-neutral-200 md:shadow-sm">
+                <button
+                  type="button"
+                  onClick={handleComputeDecision}
+                  className="w-full flex items-center justify-center gap-2.5 py-3.5 rounded-xl font-bold text-sm
+                    bg-white text-brand-700 shadow-elevated transition-all active:scale-[0.98] hover:bg-white/95 animate-pulse-subtle
+                    md:py-3 md:rounded-lg md:bg-brand-700 md:text-white md:shadow-sm md:hover:bg-brand-800 md:animate-none"
+                >
+                  <Brain size={18} strokeWidth={2} />
+                  Calcular decisión de trombolisis
+                  <ChevronRight size={16} strokeWidth={2.5} />
+                </button>
+              </div>
+            )}
+
             <main className="flex-1 overflow-y-auto">
-              <div className="w-full max-w-5xl mx-auto px-0 py-3 pb-20 md:px-5 md:py-3 md:pb-5">
+              <div className={`w-full max-w-5xl mx-auto px-0 py-3 md:px-5 md:py-3 md:pb-5 ${
+                phase === 'pre' && !tabCompletion.allComplete ? 'pb-20' : 'pb-5'
+              }`}>
                 {renderTabContent()}
               </div>
             </main>
           </div>
         </div>
 
-        {/* ── Fixed bottom: DecisionButton (Phase 1) ── */}
-        {phase === 'pre' && (
+        {/* ── Fixed bottom: "Completá los 6 tabs" status bar (Phase 1, incomplete only) ── */}
+        {phase === 'pre' && !tabCompletion.allComplete && (
           <div
             className="fixed inset-x-0 bottom-0 z-50 bg-brand-700/95 backdrop-blur-sm border-t border-brand-500/30 px-4 py-3 md:hidden"
             style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}
           >
             <div className="max-w-3xl mx-auto">
               <DecisionButton
-                allComplete={tabCompletion.allComplete}
+                allComplete={false}
                 onClick={handleComputeDecision}
                 executed={false}
               />
