@@ -46,15 +46,16 @@ function TabItem({ tab, active, completion, onClick }) {
       type="button"
       onClick={() => onClick(id)}
       aria-selected={active}
-      className={`flex min-w-[4.4rem] flex-col items-center gap-1.5 px-2.5 py-2.5 rounded-xl transition-all shrink-0
-        md:min-w-[4.5rem] md:flex-col md:gap-1 md:rounded-lg md:border md:px-2 md:py-1 ${
+      className={`flex flex-col items-center justify-center gap-0.5
+        min-w-[3rem] h-12 px-2 rounded-xl transition-all shrink-0
+        md:min-w-[4.5rem] md:h-auto md:gap-1 md:rounded-lg md:border md:px-2 md:py-1 ${
           active
             ? 'bg-white/15 md:border-white/10 md:bg-stroke-panel'
             : 'hover:bg-white/8 md:border-transparent md:hover:bg-white/5'
         }`}
     >
-      <div className={`relative w-9 h-9 rounded-xl flex items-center justify-center transition-all md:h-7 md:w-7 md:rounded-md ${iconBg} ${ring}`}>
-        <Icon size={16} className="md:h-[15px] md:w-[15px]" strokeWidth={2} />
+      <div className={`relative w-8 h-8 rounded-xl flex items-center justify-center transition-all md:h-7 md:w-7 md:rounded-md ${iconBg} ${ring}`}>
+        <Icon size={15} className="md:h-[15px] md:w-[15px]" strokeWidth={2} />
         {completion === 'complete' && !active && (
           <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-emerald-500 rounded-full flex items-center justify-center shadow-sm md:h-2 md:w-2 md:top-1 md:right-1">
             <svg className="md:hidden" width="8" height="8" viewBox="0 0 8 8" fill="none">
@@ -63,7 +64,9 @@ function TabItem({ tab, active, completion, onClick }) {
           </span>
         )}
       </div>
-      <span className={`text-[10px] leading-none whitespace-nowrap md:text-[11px] md:leading-3 ${labelColor}`}>{label}</span>
+      <span className={`text-[10px] leading-none whitespace-nowrap md:text-[11px] md:leading-3
+        ${active ? 'block' : 'hidden'} md:block
+        ${labelColor}`}>{label}</span>
     </button>
   )
 }
@@ -80,7 +83,7 @@ export default function TabBar({ phase, activeTab, onTabChange, completion = {} 
 
   return (
     <div className="relative flex flex-col shrink-0 md:flex-row md:items-center md:justify-end md:gap-3">
-      <div className="flex items-center gap-2 px-4 pt-2 pb-0.5 md:flex-1 md:px-0 md:py-0">
+      <div className="flex items-center gap-2 px-4 pt-1 pb-0 md:flex-1 md:px-0 md:py-0">
         <div className="h-px flex-1 bg-white/15" />
         <span className={`text-[8px] font-bold tracking-[0.18em] uppercase md:text-[10px] md:tracking-[0.14em] md:text-stroke-textMuted ${phaseColor}`}>
           {phaseLabel}
@@ -89,7 +92,7 @@ export default function TabBar({ phase, activeTab, onTabChange, completion = {} 
       </div>
 
       <div
-        className="flex items-center gap-1 px-2 pb-2 overflow-x-auto [mask-image:linear-gradient(to_right,transparent_0,black_0.75rem,black_85%,transparent_100%)]
+        className="flex items-center gap-1 px-2 pb-1 overflow-x-auto [mask-image:linear-gradient(to_right,transparent_0,black_0.75rem,black_85%,transparent_100%)]
           md:gap-2 md:px-0 md:pb-0 md:[mask-image:none]"
         style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}
       >
