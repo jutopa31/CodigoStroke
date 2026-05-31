@@ -24,13 +24,13 @@ function TabItem({ tab, active, completion, onClick }) {
     : completion === 'complete'
       ? 'bg-emerald-100 text-emerald-700 md:bg-stroke-icon md:text-white'
       : completion === 'partial'
-        ? 'bg-amber-100 text-amber-600 md:bg-amber-500/90 md:text-white'
+        ? 'bg-status-warning-muted text-status-warning md:bg-status-warning-badge/90 md:text-white'
         : 'bg-white/10 text-white/40 md:bg-stroke-icon md:text-stroke-textMuted'
 
   const ring = completion === 'complete' && !active
     ? 'ring-2 ring-emerald-400 md:ring-0'
     : completion === 'partial' && !active
-      ? 'ring-2 ring-amber-400 md:ring-0'
+      ? 'ring-2 ring-status-warning-badge md:ring-0'
       : ''
 
   const labelColor = active
@@ -38,7 +38,7 @@ function TabItem({ tab, active, completion, onClick }) {
     : completion === 'complete'
       ? 'text-emerald-200 font-medium md:text-stroke-textMuted'
       : completion === 'partial'
-        ? 'text-amber-200 md:text-stroke-textMuted'
+        ? 'text-status-warning-muted md:text-stroke-textMuted'
         : 'text-white/40 md:text-stroke-textMuted'
 
   return (

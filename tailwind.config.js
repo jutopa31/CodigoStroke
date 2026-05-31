@@ -34,6 +34,36 @@ export default {
           iconActive: '#5C7AEA',
           textMuted: '#A8B6D6',
         },
+        // Semantic status tokens — use these instead of raw Tailwind color names
+        // to keep mobile/desktop and all contexts visually consistent.
+        status: {
+          // warning (amber) — caution: CI relativas, partial tab, BP/glucose alerts
+          warning: {
+            DEFAULT: '#D97706',  // amber-600
+            muted:   '#FFFBEB',  // amber-50
+            border:  '#FCD34D',  // amber-300
+            badge:   '#F59E0B',  // amber-500
+            strong:  '#92400E',  // amber-800
+          },
+          // info (blue) — clinical info: TA readings, general hints
+          info: {
+            DEFAULT: '#2563EB',  // blue-600
+            muted:   '#EFF6FF',  // blue-50
+            border:  '#BFDBFE',  // blue-200
+            badge:   '#3B82F6',  // blue-500
+          },
+          // critical (dark navy) — severe values: NIHSS ≥21, BP >185, absolute CIs
+          critical: {
+            DEFAULT: '#1E3A8A',  // blue-900
+          },
+          // glucose (violet) — dedicated channel for glycemia readings
+          glucose: {
+            DEFAULT: '#7C3AED',  // violet-600
+            muted:   '#F5F3FF',  // violet-50
+            border:  '#DDD6FE',  // violet-200
+            badge:   '#8B5CF6',  // violet-500
+          },
+        },
         surface: {
           DEFAULT: '#FFFFFF',
           muted: '#FAFAFA',

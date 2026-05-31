@@ -31,6 +31,19 @@
   --color-danger-muted: #EFF6FF;
   --color-info: #2563EB;
   --color-info-muted: #EFF6FF;
+
+  /* Semantic status tokens (mirror tailwind status.* palette)
+     Use these for inline styles; prefer Tailwind classes (text-status-*) elsewhere. */
+  --status-warning:         #D97706; /* amber-600  — caution: CI relativas, partial tabs */
+  --status-warning-muted:   #FFFBEB; /* amber-50 */
+  --status-warning-badge:   #F59E0B; /* amber-500 */
+  --status-info:            #2563EB; /* blue-600   — clinical info: TA readings */
+  --status-info-muted:      #EFF6FF; /* blue-50 */
+  --status-info-badge:      #3B82F6; /* blue-500 */
+  --status-critical:        #1E3A8A; /* blue-900   — severe: NIHSS ≥21, BP >185 */
+  --status-glucose:         #7C3AED; /* violet-600 — dedicated glycemia channel */
+  --status-glucose-muted:   #F5F3FF; /* violet-50 */
+  --status-glucose-badge:   #8B5CF6; /* violet-500 */
 }
 
 * {
