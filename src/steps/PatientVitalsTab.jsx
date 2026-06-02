@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { User, CheckCircle2, AlertTriangle, CreditCard, Lock, BookOpen, ScanLine, Heart, Activity, Droplets, Zap } from 'lucide-react'
+import { User, CheckCircle2, AlertTriangle, CreditCard, Lock, BookOpen, ScanLine, Heart, Droplets, Zap } from 'lucide-react'
 import DniQrScanner from '../components/DniQrScanner'
 
 const MRS_OPTIONS = [
@@ -172,30 +172,32 @@ function VitalsSection({ vitals, onConfirm, draftVitals, onDraftChange }) {
 
   if (vitals) {
     const v = vitals
+    const taWarn  = v.systolic > 185 || v.diastolic > 110
+    const glucWarn = v.glucose < 50 || v.glucose > 400
     return (
-      <div className="grid grid-cols-4 gap-2 md:gap-3">
-        {[
-          { label: 'TA',       value: `${v.systolic}/${v.diastolic}`, unit: 'mmHg', warn: v.systolic > 185 || v.diastolic > 110 },
-          { label: 'Glucemia', value: v.glucose,                       unit: 'mg/dL', warn: v.glucose < 50 || v.glucose > 400 },
-          { label: 'mRS',      value: v.modifiedRankinScale?.score ?? '—', unit: 'pts', warn: false },
-        ].map(({ label, value, unit, warn }) => (
-          <div key={label}
-            className={`rounded-xl px-2 py-2 col-span-${label === 'TA' ? 2 : 1} md:px-4 md:py-4 ${warn ? 'bg-blue-900/8 border border-blue-800/20' : 'bg-neutral-50 border border-neutral-100'}`}>
-            <p className="text-[9px] uppercase tracking-wider font-semibold text-neutral-400 mb-0.5 md:text-xs md:text-neutral-500">{label}</p>
-            <p className={`text-sm font-bold tabular-nums leading-none md:text-xl ${warn ? 'text-blue-900' : 'text-neutral-800'}`}>{value}</p>
-            <p className="text-[9px] text-neutral-400 mt-0.5 md:text-xs">{unit}</p>
-          </div>
-        ))}
-        <div className="col-span-1 rounded-xl px-2 py-2 bg-emerald-50 border border-emerald-100 flex items-center justify-center md:px-4 md:py-4">
-          <CheckCircle2 size={14} className="text-emerald-500" />
+      <div className="grid grid-cols-3 gap-2">
+        <div className={`col-span-1 rounded-xl px-3 py-2.5 ${taWarn ? 'bg-blue-50 border border-blue-200' : 'bg-neutral-50 border border-neutral-100'}`}>
+          <p className="text-[9px] uppercase tracking-wider font-semibold text-neutral-400 mb-0.5">TA</p>
+          <p className={`text-sm font-bold tabular-nums leading-none ${taWarn ? 'text-blue-900' : 'text-neutral-800'}`}>{v.systolic}/{v.diastolic}</p>
+          <p className="text-[9px] text-neutral-400 mt-0.5">mmHg</p>
+        </div>
+        <div className={`col-span-1 rounded-xl px-3 py-2.5 ${glucWarn ? 'bg-amber-50 border border-amber-200' : 'bg-neutral-50 border border-neutral-100'}`}>
+          <p className="text-[9px] uppercase tracking-wider font-semibold text-neutral-400 mb-0.5">Glucemia</p>
+          <p className={`text-sm font-bold tabular-nums leading-none ${glucWarn ? 'text-amber-700' : 'text-neutral-800'}`}>{v.glucose}</p>
+          <p className="text-[9px] text-neutral-400 mt-0.5">mg/dL</p>
+        </div>
+        <div className="col-span-1 rounded-xl px-3 py-2.5 bg-neutral-50 border border-neutral-100">
+          <p className="text-[9px] uppercase tracking-wider font-semibold text-neutral-400 mb-0.5">mRS basal</p>
+          <p className="text-sm font-bold tabular-nums leading-none text-neutral-800">{v.modifiedRankinScale?.score ?? '—'}</p>
+          <p className="text-[9px] text-neutral-400 mt-0.5 truncate">{v.modifiedRankinScale?.label ?? 'pts'}</p>
         </div>
       </div>
     )
   }
 
-  const taInputCls = (warn, filled) =>
-    'flex-1 rounded-xl border py-2.5 text-xl font-bold text-center text-neutral-800 ' +
-    'focus:outline-none focus:ring-2 transition placeholder:text-neutral-300 ' +
+  const numInputCls = (warn, filled) =>
+    'w-full rounded-xl border py-3 text-2xl font-bold text-center text-neutral-800 ' +
+    'focus:outline-none focus:ring-2 transition placeholder:text-neutral-200 ' +
     (warn
       ? 'border-red-300 bg-red-50/40 focus:border-red-400 focus:ring-red-100'
       : filled
@@ -203,56 +205,63 @@ function VitalsSection({ vitals, onConfirm, draftVitals, onDraftChange }) {
         : 'border-neutral-200 bg-white focus:border-blue-300 focus:ring-blue-100')
 
   const glucInputCls =
-    'w-full rounded-xl border py-2.5 text-xl font-bold text-center text-neutral-800 pr-16 ' +
-    'focus:outline-none focus:ring-2 transition placeholder:text-neutral-300 ' +
+    'w-full rounded-xl border py-3 text-2xl font-bold text-center text-neutral-800 pr-14 ' +
+    'focus:outline-none focus:ring-2 transition placeholder:text-neutral-200 ' +
     (glucLow || glucHigh
       ? 'border-red-300 bg-red-50/40 focus:border-red-400 focus:ring-red-100'
       : glucose
         ? 'border-violet-300 bg-violet-50/20 focus:border-violet-400 focus:ring-violet-100'
         : 'border-neutral-200 bg-white focus:border-violet-300 focus:ring-violet-100')
 
+  const missing = [!sys && 'PAS', !dia && 'PAD', !glucose && 'glucemia', mrs === null && 'mRS'].filter(Boolean)
+
   return (
     <div className="space-y-4">
 
       {/* ── Tensión arterial ── */}
       <div>
-        <div className="flex items-start gap-2 px-3 py-2.5 mb-3 rounded-xl bg-blue-50 border border-blue-200">
-          <Heart size={13} className="text-blue-700 shrink-0 mt-0.5" />
-          <div className="text-xs text-blue-800">
-            <p className="font-semibold">Tensión arterial</p>
-            <p className="mt-0.5 opacity-80">Meta pre-trombolisis: PAS ≤ 185 · PAD ≤ 110 mmHg</p>
+        <div className="flex items-center justify-between mb-2.5">
+          <div className="flex items-center gap-1.5">
+            <Heart size={12} className="text-blue-600" />
+            <p className="text-xs font-semibold text-neutral-700">Tensión arterial</p>
           </div>
+          <span className="text-[10px] font-medium text-neutral-400">mmHg · meta ≤185/110</span>
         </div>
 
-        <div className="flex items-center gap-2">
-          <input
-            ref={sysRef}
-            type="text" inputMode="numeric" maxLength={3} placeholder="PAS"
-            value={sys}
-            onChange={(e) => setSys(e.target.value.replace(/\D/g, '').slice(0, 3))}
-            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); diaRef.current?.focus() } }}
-            className={taInputCls(taCrit, !!sys)}
-          />
-          <span className="text-neutral-300 font-bold text-xl select-none">/</span>
-          <input
-            ref={diaRef}
-            type="text" inputMode="numeric" maxLength={3} placeholder="PAD"
-            value={dia}
-            onChange={(e) => setDia(e.target.value.replace(/\D/g, '').slice(0, 3))}
-            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); glucoseRef.current?.focus() } }}
-            className={taInputCls(diaCrit, !!dia)}
-          />
-          <div className="flex items-center gap-1 shrink-0">
-            <Activity size={11} className="text-neutral-400" />
-            <span className="text-xs text-neutral-400 font-medium">mmHg</span>
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <input
+              ref={sysRef}
+              type="text" inputMode="numeric" maxLength={3} placeholder="—"
+              value={sys}
+              onChange={(e) => setSys(e.target.value.replace(/\D/g, '').slice(0, 3))}
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); diaRef.current?.focus() } }}
+              className={numInputCls(taCrit, !!sys)}
+            />
+            <p className={`text-[10px] text-center mt-1 font-medium ${taCrit ? 'text-red-500' : 'text-neutral-400'}`}>
+              Sistólica
+            </p>
+          </div>
+          <div>
+            <input
+              ref={diaRef}
+              type="text" inputMode="numeric" maxLength={3} placeholder="—"
+              value={dia}
+              onChange={(e) => setDia(e.target.value.replace(/\D/g, '').slice(0, 3))}
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); glucoseRef.current?.focus() } }}
+              className={numInputCls(diaCrit, !!dia)}
+            />
+            <p className={`text-[10px] text-center mt-1 font-medium ${diaCrit ? 'text-red-500' : 'text-neutral-400'}`}>
+              Diastólica
+            </p>
           </div>
         </div>
 
         {(taCrit || diaCrit) && (
-          <div className="flex items-start gap-2 mt-2 rounded-xl border border-red-100 bg-red-50/60 px-3 py-2">
+          <div className="flex items-start gap-2 mt-2 rounded-lg border border-red-100 bg-red-50/60 px-3 py-2">
             <AlertTriangle size={11} className="shrink-0 text-red-500 mt-0.5" />
             <p className="text-xs text-red-600">
-              {taCrit && 'TA sistólica >185 mmHg — ajustar antes de trombolisis. '}
+              {taCrit && 'PAS >185 mmHg — ajustar antes de trombolisis. '}
               {diaCrit && 'PAD >110 mmHg — ajustar antes de trombolisis.'}
             </p>
           </div>
@@ -263,18 +272,18 @@ function VitalsSection({ vitals, onConfirm, draftVitals, onDraftChange }) {
 
       {/* ── Glucemia ── */}
       <div>
-        <div className="flex items-start gap-2 px-3 py-2.5 mb-3 rounded-xl bg-violet-50 border border-violet-200">
-          <Droplets size={13} className="text-violet-700 shrink-0 mt-0.5" />
-          <div className="text-xs text-violet-800">
-            <p className="font-semibold">Glucemia</p>
-            <p className="mt-0.5 opacity-80">Rango aceptable: 50 – 400 mg/dL</p>
+        <div className="flex items-center justify-between mb-2.5">
+          <div className="flex items-center gap-1.5">
+            <Droplets size={12} className="text-violet-600" />
+            <p className="text-xs font-semibold text-neutral-700">Glucemia</p>
           </div>
+          <span className="text-[10px] font-medium text-neutral-400">rango 50–400 mg/dL</span>
         </div>
 
         <div className="relative">
           <input
             ref={glucoseRef}
-            type="text" inputMode="numeric" maxLength={3} placeholder="mg/dL"
+            type="text" inputMode="numeric" maxLength={3} placeholder="—"
             value={glucose}
             onChange={(e) => setGlucose(e.target.value.replace(/\D/g, '').slice(0, 3))}
             className={glucInputCls}
@@ -285,7 +294,7 @@ function VitalsSection({ vitals, onConfirm, draftVitals, onDraftChange }) {
         </div>
 
         {(glucLow || glucHigh) && (
-          <div className="flex items-start gap-2 mt-2 rounded-xl border border-red-100 bg-red-50/60 px-3 py-2">
+          <div className="flex items-start gap-2 mt-2 rounded-lg border border-red-100 bg-red-50/60 px-3 py-2">
             <AlertTriangle size={11} className="shrink-0 text-red-500 mt-0.5" />
             <p className="text-xs text-red-600">
               {glucLow  && 'Hipoglucemia <50 mg/dL — corregir antes de trombolisis. '}
@@ -302,11 +311,11 @@ function VitalsSection({ vitals, onConfirm, draftVitals, onDraftChange }) {
         <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400 mb-2">
           mRS basal (funcionalidad previa)
         </p>
-        <div className="grid grid-cols-6 gap-1 md:max-w-lg">
+        <div className="grid grid-cols-6 gap-1">
           {MRS_OPTIONS.map((o) => (
             <button key={o.score} type="button" onClick={() => setMrs(o.score)}
               title={o.label}
-              className={`rounded-lg border py-1.5 text-sm font-bold transition-all active:scale-95 ${
+              className={`rounded-lg border py-2 text-sm font-bold transition-all active:scale-95 ${
                 mrs === o.score
                   ? 'border-brand-500 bg-brand-50 text-brand-700 ring-2 ring-brand-100'
                   : 'border-neutral-200 text-neutral-500 hover:border-brand-300 hover:bg-brand-50/40'
@@ -328,7 +337,7 @@ function VitalsSection({ vitals, onConfirm, draftVitals, onDraftChange }) {
         className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-all active:scale-[0.98] ${
           valid ? 'bg-brand-600 hover:bg-brand-700 text-white' : 'bg-neutral-100 text-neutral-400 cursor-not-allowed'
         }`}>
-        {valid ? <><CheckCircle2 size={14}/> Registrar signos vitales</> : 'Completá TA, glucemia y mRS'}
+        {valid ? <><CheckCircle2 size={14}/> Registrar signos vitales</> : `Completá: ${missing.join(' · ')}`}
       </button>
 
     </div>
