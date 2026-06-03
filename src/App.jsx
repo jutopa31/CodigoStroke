@@ -56,9 +56,9 @@ function getTabCompletion({ patient, vitals, symptoms, nihss, ctResult, contraAb
   const isWakeUp = symptoms?.isWakeUpStroke === true
   const ctDone   = ctResult?.bleeding === true || ctResult?.bleeding === false
   const mriDone  = ctResult?.mismatch === true || ctResult?.mismatch === false
-  // Wake-up: hemorrhage alone ends evaluation; clear CT requires MRI to confirm eligibility
+  // Wake-up: hemorrhage alone ends evaluation; confirmed mismatch (with or without prior CT) is sufficient
   const imagenesDone    = isWakeUp
-    ? (ctResult?.bleeding === true || (ctResult?.bleeding === false && mriDone))
+    ? (ctResult?.bleeding === true || mriDone)
     : ctDone
   // Partial state: wake-up + CT clear but MRI still pending
   const imagenesParcial = isWakeUp && ctResult?.bleeding === false && !mriDone
@@ -340,7 +340,7 @@ export default function App() {
   }
 
   function handleCtConfirm(data) {
-    setCtResult(data)
+    setCtResult((prev) => ({ ...prev, ...data }))
     setCtRequestTime(new Date(data.ctRequestTime))
     saveSession(patientId || '', {
       patientName: patient?.name, patientDNI: patient?.dni,
