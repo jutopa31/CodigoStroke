@@ -187,7 +187,7 @@ export default function ImagingTab({
 
   // MRI toggle only appears when time window is uncertain (wake-up stroke)
   const showMriToggle = isWakeUpStroke === true
-  const mode = showMriToggle ? (selectedMode ?? 'mri') : 'ct'
+  const mode = showMriToggle ? (selectedMode ?? 'ct') : 'ct'
 
   return (
     <div className="px-4 pb-4 space-y-3 md:px-0">
