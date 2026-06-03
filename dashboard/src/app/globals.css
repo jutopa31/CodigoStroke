@@ -1,0 +1,47 @@
+@import "tailwindcss";
+
+@theme {
+  /* ── CodigoStroke palette ─────────────────────────────── */
+  --color-stroke-navy: #132B58;
+  --color-stroke-navy-deep: #10264F;
+  --color-stroke-line: #29416D;
+  --color-stroke-panel: #3B4D73;
+  --color-stroke-icon: #244B99;
+  --color-stroke-icon-active: #5C7AEA;
+  --color-stroke-text-muted: #A8B6D6;
+
+  --color-status-warning: #D97706;
+  --color-status-warning-muted: #FFFBEB;
+  --color-status-warning-border: #FCD34D;
+  --color-status-warning-strong: #92400E;
+
+  --color-status-ok: #059669;
+  --color-status-ok-muted: #ECFDF5;
+  --color-status-ok-border: #6EE7B7;
+
+  --color-status-alert: #DC2626;
+  --color-status-alert-muted: #FEF2F2;
+  --color-status-alert-border: #FECACA;
+
+  --color-surface: #FFFFFF;
+  --color-surface-muted: #F0F2F5;
+
+  /* ── Typography ──────────────────────────────────────── */
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* ── Shadows ─────────────────────────────────────────── */
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04);
+  --shadow-elevated: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+:root {
+  --background: #F0F2F5;
+  --foreground: #132B58;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
