@@ -877,7 +877,7 @@ export default function App() {
               </div>
             )}
 
-            <main className="flex-1 overflow-y-auto">
+            <main className="flex-1 overflow-y-auto overflow-x-hidden">
               <div className={`w-full max-w-5xl mx-auto px-0 py-3 md:px-5 md:py-3 md:pb-5 ${
                 phase === 'pre' && !tabCompletion.allComplete ? 'pb-20' : 'pb-5'
               }`}>
