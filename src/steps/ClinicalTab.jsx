@@ -199,16 +199,7 @@ function NihssSection({ onConfirm, confirmed, initialNihss, initialSymptoms }) {
   const canConfirm = hasSymptom && otherValid && (!showDisablingBlock || hasDisabling !== null)
 
   function toggleSymptom(id) {
-    const sym = SYMPTOMS.find((s) => s.id === id)
-    const isNowOn = !selected[id]
-    setSelected((prev) => ({ ...prev, [id]: isNowOn }))
-    if (isNowOn && sym.nihssIds.length > 0) {
-      setSubscaleScores((prev) => {
-        const updated = { ...prev }
-        Object.entries(sym.defaults).forEach(([itemId, val]) => { if (val > 0 && !updated[itemId]) updated[itemId] = val })
-        return updated
-      })
-    }
+    setSelected((prev) => ({ ...prev, [id]: !prev[id] }))
   }
 
   function handleGuidedSave(scores) {
@@ -352,7 +343,7 @@ function NihssSection({ onConfirm, confirmed, initialNihss, initialSymptoms }) {
       )}
 
       {showGuidedModal && (
-        <NihssFullEditor scores={subscaleScores} onSave={handleGuidedSave} onClose={() => setShowGuidedModal(false)} />
+        <NihssFullEditor scores={{}} guided={true} onSave={handleGuidedSave} onClose={() => setShowGuidedModal(false)} />
       )}
     </StepCard>
   )

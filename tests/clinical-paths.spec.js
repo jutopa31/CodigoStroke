@@ -126,6 +126,52 @@ test.describe('Clinical pathway — time window classification', () => {
   })
 })
 
+test.describe('NIHSS wizard — pre-loading fix', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => {
+      window.localStorage.clear()
+      window.sessionStorage.clear()
+    })
+  })
+
+  test('tapping Consciencia chip does not pre-load NIHSS score', async ({ page }) => {
+    await startCase(page)
+    await page.getByRole('button', { name: 'Consciencia' }).click()
+    // Banner total should be 0, not pre-loaded 3
+    const nihssBanner = page.locator('[class*="rounded-xl"]').filter({ hasText: /NIHSS/ }).first()
+    await expect(nihssBanner).not.toBeVisible()
+    // The symptom is selected but no score banner appears (no symptoms have scores yet)
+    // Verify no pre-loaded 3 appears in the NIHSS section
+    await expect(page.getByText(/^3$/).first()).not.toBeVisible()
+  })
+
+  test('Guía wizard opens at item 1 with no pre-filled scores and saves', async ({ page }) => {
+    await startCase(page)
+    await page.getByRole('button', { name: 'Consciencia' }).click()
+    await page.getByRole('button', { name: /Guía/ }).click()
+
+    // Wizard modal is open — first item visible
+    await expect(page.getByText('Escala NIHSS completa')).toBeVisible()
+    await expect(page.getByText('Ítem 1 de 15')).toBeVisible()
+
+    // Select an option on item 1 — wizard auto-advances
+    await page.locator('button').filter({ hasText: /Alerta.*normal|Normal|0/ }).first().click()
+    await expect(page.getByText('Ítem 2 de 15')).toBeVisible()
+
+    // Skip through remaining items with Siguiente
+    for (let i = 2; i < 15; i++) {
+      await page.getByRole('button', { name: /Siguiente/ }).click()
+    }
+
+    // On last item, Guardar is visible
+    await expect(page.getByText('Ítem 15 de 15')).toBeVisible()
+    await page.getByRole('button', { name: /Guardar/ }).click()
+
+    // Modal closed — wizard completed
+    await expect(page.getByText('Escala NIHSS completa')).not.toBeVisible()
+  })
+})
+
 test.describe('Clinical pathway — session persistence', () => {
   test('patient ID badge persists across a page reload', async ({ page }) => {
     await startCase(page)
