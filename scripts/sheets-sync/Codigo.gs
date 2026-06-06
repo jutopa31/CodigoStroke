@@ -9,7 +9,7 @@
 //     and paste the URL as GOOGLE_SYNC_WEBHOOK_URL in dashboard/.env.local
 // ============================================================
 
-const SUPABASE_URL = 'https://uxapjrpeflffxiakridt.supabase.co'
+const SUPABASE_URL = 'PASTE_SUPABASE_URL_HERE' // e.g. https://xxxx.supabase.co
 const SUPABASE_SERVICE_KEY = 'PASTE_SERVICE_ROLE_KEY_HERE' // never commit this
 const SHEET_NAME = 'Hoja1'   // name of the tab to sync
 const SYNCED_COL = 26        // column Z (1-indexed) used as "already synced" marker

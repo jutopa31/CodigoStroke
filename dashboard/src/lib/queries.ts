@@ -171,6 +171,7 @@ export async function getRecentCases(
       "id, created_at, patient_alias, nihss_score, door_to_needle_min, drug_used, form_status, source, thrombolysis_given",
       { count: "exact" }
     )
+    .eq("form_status", "completed")
     .order("created_at", { ascending: false })
     .range(from, from + pageSize - 1);
 
