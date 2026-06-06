@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { CheckCircle2, AlertTriangle, ChevronDown, Calculator, RotateCcw } from 'lucide-react'
+import { CheckCircle2, AlertTriangle, RotateCcw, ChevronDown } from 'lucide-react'
 import { Dumbbell, MessageSquare, Eye, Scale, FileText, Brain } from 'lucide-react'
 import { getNihssSeverity, nihssItems } from '../content/nihss'
 import NihssFullEditor from '../components/NihssFullEditor'
@@ -124,18 +124,15 @@ function VitalsSection({ onConfirm, confirmed, initialVitals }) {
   )
 }
 
-// ── NIHSS / Symptoms section ────────────────────────────────────────────────
-
-const NIHSS_BY_ID = Object.fromEntries(nihssItems.map((i) => [i.id, i]))
-const NIHSS_ORDER = nihssItems.map((i) => i.id)
+// ── NIHSS / Symptoms section ─────────────────────────────────────────────────
 
 const SYMPTOMS = [
-  { id: 'consciousness', label: 'Consciencia', sub: 'Nivel de alerta', Icon: Brain,         flashPts: 3, nihssIds: ['1a','1b','1c'], defaults: {'1a':1,'1b':1,'1c':1} },
-  { id: 'weakness',      label: 'Debilidad',   sub: 'Unilateral',      Icon: Dumbbell,      flashPts: 3, nihssIds: ['4','5a','5b','6a','6b'], defaults: {'4':1,'5a':1,'5b':0,'6a':1,'6b':0} },
-  { id: 'speech',        label: 'Habla',       sub: 'Afasia/Disartria', Icon: MessageSquare, flashPts: 2, nihssIds: ['9','10'], defaults: {'9':1,'10':1} },
-  { id: 'vision',        label: 'Visión',      sub: 'Visual/Diplopia',  Icon: Eye,           flashPts: 2, nihssIds: ['2','3'], defaults: {'2':1,'3':1} },
-  { id: 'ataxia',        label: 'Ataxia',      sub: 'Inestabilidad',    Icon: Scale,         flashPts: 1, nihssIds: ['7'], defaults: {'7':1} },
-  { id: 'other',         label: 'Otro',        sub: 'Otro síntoma',     Icon: FileText,      flashPts: 0, nihssIds: [], defaults: {} },
+  { id: 'consciousness', label: 'Consciencia',  sub: 'Nivel de alerta',   Icon: Brain,         nihssIds: ['1a','1b','1c'] },
+  { id: 'weakness',      label: 'Debilidad',    sub: 'Unilateral',        Icon: Dumbbell,      nihssIds: ['4','5a','5b','6a','6b'] },
+  { id: 'speech',        label: 'Habla',        sub: 'Afasia/Disartria',  Icon: MessageSquare, nihssIds: ['9','10'] },
+  { id: 'vision',        label: 'Visión',       sub: 'Visual/Diplopia',   Icon: Eye,           nihssIds: ['2','3'] },
+  { id: 'ataxia',        label: 'Ataxia',       sub: 'Inestabilidad',     Icon: Scale,         nihssIds: ['7'] },
+  { id: 'other',         label: 'Otro',         sub: 'Otro síntoma',      Icon: FileText,      nihssIds: [] },
 ]
 
 const DISABLING_LIST = [
@@ -146,57 +143,27 @@ const DISABLING_LIST = [
   'Ataxia severa: imposibilidad de caminar sin asistencia',
 ]
 
-function ItemRow({ itemId, score, onChange }) {
-  const item = NIHSS_BY_ID[itemId]
-  if (!item) return null
-  const shortLabel = item.label.replace(/^\d+[abc]?\.\s*/i, '').replace('NC –', '').replace('Motor brazo –', 'Brazo').replace('Motor pierna –', 'Pierna').trim()
-  return (
-    <div className="py-2 border-b border-neutral-100 last:border-0">
-      <div className="flex items-start gap-2">
-        <div className="flex-1 min-w-0">
-          <span className="text-xs font-medium text-neutral-700 leading-snug block">{shortLabel}</span>
-          {item.prompt && <span className="text-[10px] italic text-neutral-400 leading-snug block mt-0.5">{item.prompt}</span>}
-        </div>
-        <div className="flex gap-1 shrink-0 mt-0.5">
-          {item.options.map((opt) => (
-            <button key={opt.score} type="button" title={opt.text} onClick={() => onChange(itemId, opt.score)}
-              className={`w-7 h-7 rounded-lg text-xs font-semibold transition-all active:scale-95 ${
-                score === opt.score ? 'bg-brand-600 text-white' : 'bg-neutral-100 text-neutral-500 hover:bg-neutral-200'
-              }`}>
-              {opt.score}
-            </button>
-          ))}
-        </div>
-      </div>
-    </div>
-  )
-}
-
 function NihssSection({ onConfirm, confirmed, initialNihss, initialSymptoms }) {
   const [selected, setSelected] = useState(() => initialSymptoms?.symptoms ?? {})
   const [subscaleScores, setSubscaleScores] = useState({})
   const [otherScore, setOtherScore] = useState('')
   const [hasDisabling, setHasDisabling] = useState(initialNihss?.hasDisablingSymptoms ?? null)
-  const [showSubscales, setShowSubscales] = useState(true)
-  const [showGuidedModal, setShowGuidedModal] = useState(false)
-  const [useFullScores, setUseFullScores] = useState(false)
+  const [showGuidedModal, setShowGuidedModal] = useState(() => !initialNihss)
+  const [useFullScores, setUseFullScores] = useState(!!initialNihss)
+  const [showAdjust, setShowAdjust] = useState(false)
   const [showDisablingList, setShowDisablingList] = useState(false)
 
-  const hasSymptom = Object.values(selected).some(Boolean)
-  const activeSymptoms = SYMPTOMS.filter((s) => selected[s.id])
-  const activeIds = [...new Set(activeSymptoms.filter((s) => s.id !== 'other').flatMap((s) => s.nihssIds))]
-    .sort((a, b) => NIHSS_ORDER.indexOf(a) - NIHSS_ORDER.indexOf(b))
-
-  const subscaleTotal = useFullScores
-    ? nihssItems.reduce((sum, item) => sum + (subscaleScores[item.id] ?? 0), 0)
-    : activeIds.reduce((sum, id) => sum + (subscaleScores[id] ?? 0), 0)
+  // Total: prefer freshly calculated from wizard scores, fall back to stored total
+  const calculatedTotal = nihssItems.reduce((sum, item) => sum + (subscaleScores[item.id] ?? 0), 0)
+  const nihssBase = (useFullScores && Object.keys(subscaleScores).length > 0)
+    ? calculatedTotal
+    : (initialNihss?.nihssScore ?? 0)
   const otherNum = selected['other'] ? parseInt(otherScore, 10) || 0 : 0
-  const total = subscaleTotal + otherNum
-  const severity = hasSymptom ? getNihssSeverity(total) : null
-  const showDisablingBlock = hasSymptom && total < 5
-  const onlyOther = activeSymptoms.length === 1 && selected['other']
-  const otherValid = !onlyOther || otherScore !== ''
-  const canConfirm = hasSymptom && otherValid && (!showDisablingBlock || hasDisabling !== null)
+  const total = nihssBase + otherNum
+  const severity = useFullScores ? getNihssSeverity(total) : null
+  const showDisablingBlock = useFullScores && total < 5
+  const otherValid = !selected['other'] || otherScore !== ''
+  const canConfirm = useFullScores && otherValid && (!showDisablingBlock || hasDisabling !== null)
 
   function toggleSymptom(id) {
     setSelected((prev) => ({ ...prev, [id]: !prev[id] }))
@@ -206,6 +173,19 @@ function NihssSection({ onConfirm, confirmed, initialNihss, initialSymptoms }) {
     setSubscaleScores(scores)
     setUseFullScores(true)
     setShowGuidedModal(false)
+    setShowAdjust(true)
+  }
+
+  function handleAdjustSave(scores) {
+    setSubscaleScores(scores)
+    setShowAdjust(false)
+  }
+
+  function handleReset() {
+    setSubscaleScores({})
+    setUseFullScores(false)
+    setShowAdjust(false)
+    setShowGuidedModal(true)
   }
 
   function handleConfirm() {
@@ -218,117 +198,108 @@ function NihssSection({ onConfirm, confirmed, initialNihss, initialSymptoms }) {
   }
 
   return (
-    <StepCard step="" title="Síntomas / NIHSS" accent="orange">
-      {/* Sticky confirm at top — stays visible while scrolling through symptoms/NIHSS */}
-      <div className="sticky top-0 z-10 -mx-4 px-4 pb-2 mb-2 bg-white">
-        <button
-          type="button" onClick={handleConfirm} disabled={!canConfirm}
-          className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all active:scale-[0.98] md:w-auto md:text-sm ${
-            confirmed
-              ? 'bg-emerald-50 border border-emerald-200 text-emerald-700'
-              : canConfirm
-                ? 'bg-brand-600 hover:bg-brand-700 text-white'
-                : 'bg-neutral-100 text-neutral-400 cursor-not-allowed'
-          }`}
-        >
-          {confirmed
-            ? <><CheckCircle2 size={15} /> NIHSS registrado</>
-            : !hasSymptom ? 'Seleccioná síntomas primero'
-            : showDisablingBlock && hasDisabling === null ? 'Responder si el déficit es discapacitante'
-            : 'Registrar evaluación clínica'
-          }
-        </button>
-      </div>
+    <StepCard step="" title="Evaluación neurológica" accent="orange">
 
-      {/* Symptoms */}
+      {/* ── NIHSS score banner (after wizard completes) ── */}
+      {useFullScores && severity && (
+        <div className={`rounded-xl border-2 px-4 py-3 mb-4 ${severity.bg} ${severity.border}`}>
+          <div className="flex items-center gap-3">
+            <div className="flex-1">
+              <p className="text-[10px] font-bold uppercase tracking-widest opacity-50 mb-0.5">NIHSS</p>
+              <div className="flex items-baseline gap-2">
+                <span className={`text-4xl font-bold tabular-nums leading-none ${severity.color}`}>{total}</span>
+                <span className={`text-sm font-semibold ${severity.color}`}>{severity.label}</span>
+              </div>
+            </div>
+            <div className="flex flex-col gap-1.5 items-end">
+              <button type="button" onClick={() => setShowAdjust((v) => !v)}
+                className="flex items-center gap-1.5 text-xs font-semibold rounded-lg px-3 py-1.5 bg-white/70 text-brand-700 hover:bg-white transition-all active:scale-95">
+                <ChevronDown size={13} className={showAdjust ? 'rotate-180 transition-transform duration-200' : 'transition-transform duration-200'} />
+                {showAdjust ? 'Cerrar' : 'Ajustar'}
+              </button>
+              <button type="button" onClick={handleReset}
+                className="flex items-center gap-1.5 text-xs font-semibold rounded-lg px-3 py-1.5 bg-white/50 text-neutral-500 hover:bg-white/70 transition-all active:scale-95">
+                <RotateCcw size={11} /> Reiniciar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Inline adjust view (auto-opens after wizard) ── */}
+      {showAdjust && (
+        <div className="mb-4 animate-fade-in">
+          <NihssFullEditor
+            scores={subscaleScores}
+            inline={true}
+            onSave={handleAdjustSave}
+            onClose={() => setShowAdjust(false)}
+          />
+        </div>
+      )}
+
+      {/* ── Pending state placeholder (before wizard) ── */}
+      {!useFullScores && (
+        <div className="flex items-center gap-3 rounded-xl border-2 border-dashed border-neutral-200 px-4 py-4 mb-4 bg-neutral-50/50">
+          <div className="flex-1">
+            <p className="text-sm font-semibold text-neutral-600">NIHSS pendiente</p>
+            <p className="text-xs text-neutral-400 mt-0.5">La escala se abre automáticamente</p>
+          </div>
+          <button type="button" onClick={() => setShowGuidedModal(true)}
+            className="text-xs font-semibold rounded-xl px-4 py-2.5 bg-brand-600 text-white hover:bg-brand-700 transition-all active:scale-95 shadow-sm">
+            Iniciar
+          </button>
+        </div>
+      )}
+
+      {/* ── Symptom chips — categorization only (no score hints) ── */}
       <div className="border-t border-neutral-100 pt-3 mb-3">
-        <p className="text-xs font-bold uppercase tracking-wider text-neutral-500 mb-2">Síntomas</p>
+        <p className="text-xs font-bold uppercase tracking-wider text-neutral-500 mb-2">Síntomas presentes</p>
         <div className="flex flex-wrap gap-1.5">
           {SYMPTOMS.map((sym) => {
             const active = Boolean(selected[sym.id])
             return (
               <button key={sym.id} type="button" aria-pressed={active} onClick={() => toggleSymptom(sym.id)}
-                className={`flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-all active:scale-[0.98] ${
-                  active ? 'border-amber-200 bg-amber-50 text-amber-700' : 'border-neutral-200 text-neutral-600 hover:border-amber-200 hover:bg-amber-50/50'
+                className={`flex items-center gap-1.5 rounded-lg border-2 px-3 py-1.5 text-xs font-semibold transition-all active:scale-[0.97] ${
+                  active
+                    ? 'border-amber-300 bg-amber-50 text-amber-700'
+                    : 'border-neutral-200 text-neutral-500 hover:border-amber-200 hover:bg-amber-50/40'
                 }`}>
                 <sym.Icon size={13} strokeWidth={2} />
                 {sym.label}
-                {sym.flashPts > 0 && <span className="text-[10px] font-semibold text-neutral-400">+{sym.flashPts}</span>}
               </button>
             )
           })}
         </div>
       </div>
 
-      {/* NIHSS */}
-      {hasSymptom && severity && (
-        <div className="border-t border-neutral-100 pt-3">
-          <p className="text-xs font-bold uppercase tracking-wider text-neutral-500 mb-2">NIHSS</p>
-          <div className={`flex flex-wrap items-center gap-2 rounded-xl border px-3 py-2.5 mb-2.5 ${severity.bg} ${severity.border}`}>
-            <span className={`text-xl font-bold tabular-nums ${severity.color}`}>{total}</span>
-            <span className={`font-medium text-sm flex-1 ${severity.color}`}>{severity.label}</span>
-            <div className="flex flex-wrap items-center gap-1.5 shrink-0">
-              {useFullScores && (
-                <button type="button" onClick={() => setUseFullScores(false)}
-                  className="flex items-center gap-1 text-[10px] font-semibold rounded-lg px-2 py-1 bg-white/60 text-neutral-500 hover:bg-white/80 transition-all">
-                  <RotateCcw size={10} /> Reset
-                </button>
-              )}
-              <button type="button" onClick={() => setShowGuidedModal(true)}
-                className="flex items-center gap-1 text-[10px] font-semibold rounded-lg px-2 py-1 bg-white/60 text-brand-600 hover:bg-white/80 transition-all">
-                <Calculator size={10} /> Guía
-              </button>
-              {activeIds.length > 0 && (
-                <button type="button" onClick={() => setShowSubscales((v) => !v)}
-                  className="flex items-center gap-1 text-[10px] font-semibold rounded-lg px-2 py-1 bg-white/50 text-neutral-500 hover:bg-white/70 transition-all">
-                  <ChevronDown size={11} className={showSubscales ? 'rotate-180 transition-transform' : 'transition-transform'} />
-                  {showSubscales ? 'Ocultar' : 'Ajustar'}
-                </button>
-              )}
-            </div>
-          </div>
-
-          {showSubscales && activeSymptoms.filter((s) => s.id !== 'other' && s.nihssIds.length > 0).map((sym) => (
-            <div key={sym.id} className="mb-3 animate-fade-in">
-              <div className="mb-1.5 flex items-center gap-1.5">
-                <sym.Icon size={11} className="text-amber-500 shrink-0" strokeWidth={2} />
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-600">{sym.label}</p>
-              </div>
-              <div className="rounded-lg bg-neutral-50 border border-neutral-100 px-3 py-0.5">
-                {sym.nihssIds.map((id) => (
-                  <ItemRow key={id} itemId={id} score={subscaleScores[id] ?? 0}
-                    onChange={(itemId, val) => setSubscaleScores((prev) => ({ ...prev, [itemId]: val }))} />
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
+      {/* ── "Otro" score input ── */}
       {selected['other'] && (
-        <div className="mb-3">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-500 mb-2">NIHSS adicionales</p>
+        <div className="mb-3 animate-fade-in">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-500 mb-2">Puntos adicionales (otro síntoma)</p>
           <input type="number" inputMode="numeric" min={0} max={42} placeholder="0" value={otherScore}
             onChange={(e) => setOtherScore(e.target.value)}
-            className="w-24 rounded-xl border border-neutral-200 bg-neutral-50 px-3 py-2.5 text-lg font-semibold text-center focus:outline-none focus:ring-2 focus:ring-amber-200 focus:border-amber-300 transition-all" />
+            className="w-24 rounded-xl border-2 border-neutral-200 bg-neutral-50 px-3 py-2.5 text-lg font-semibold text-center focus:outline-none focus:ring-2 focus:ring-amber-200 focus:border-amber-300 transition-all" />
         </div>
       )}
 
+      {/* ── Disabling deficit question ── */}
       {showDisablingBlock && (
         <div className="border-t border-amber-100 pt-4 mt-2">
           <p className="text-xs font-semibold text-amber-700 mb-2">¿El déficit es discapacitante?</p>
           <div className="grid grid-cols-2 gap-2 mb-2">
             <button type="button" onClick={() => setHasDisabling(false)}
-              className={`py-2.5 rounded-xl border font-medium text-sm transition-all active:scale-[0.98] ${
-                hasDisabling === false ? 'border-neutral-400 bg-neutral-100 text-neutral-800' : 'border-neutral-200 text-neutral-500 hover:border-neutral-300'
+              className={`py-2.5 rounded-xl border-2 font-semibold text-sm transition-all active:scale-[0.98] ${
+                hasDisabling === false ? 'border-neutral-400 bg-neutral-100 text-neutral-800' : 'border-neutral-200 text-neutral-400 hover:border-neutral-300'
               }`}>NO</button>
             <button type="button" onClick={() => setHasDisabling(true)}
-              className={`py-2.5 rounded-xl border font-medium text-sm transition-all active:scale-[0.98] ${
-                hasDisabling === true ? 'border-amber-300 bg-amber-50 text-amber-700' : 'border-neutral-200 text-neutral-500 hover:border-amber-200'
+              className={`py-2.5 rounded-xl border-2 font-semibold text-sm transition-all active:scale-[0.98] ${
+                hasDisabling === true ? 'border-amber-400 bg-amber-50 text-amber-700' : 'border-neutral-200 text-neutral-400 hover:border-amber-200'
               }`}>SÍ</button>
           </div>
-          <button type="button" onClick={() => setShowDisablingList((v) => !v)} className="text-xs text-blue-500 hover:text-blue-700 transition-colors">
-            {showDisablingList ? '▲ Ocultar ejemplos' : '▼ Ver ejemplos'}
+          <button type="button" onClick={() => setShowDisablingList((v) => !v)}
+            className="text-xs text-blue-500 hover:text-blue-700 transition-colors">
+            {showDisablingList ? '▲ Ocultar ejemplos' : '▼ Ver ejemplos de déficit discapacitante'}
           </button>
           {showDisablingList && (
             <ul className="mt-2 space-y-1">
@@ -342,20 +313,40 @@ function NihssSection({ onConfirm, confirmed, initialNihss, initialSymptoms }) {
         </div>
       )}
 
+      {/* ── Confirm button ── */}
+      <div className="pt-4 border-t border-neutral-100 mt-3">
+        <button type="button" onClick={handleConfirm} disabled={!canConfirm}
+          className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-all active:scale-[0.98] ${
+            confirmed
+              ? 'bg-emerald-50 border-2 border-emerald-200 text-emerald-700'
+              : canConfirm
+                ? 'bg-brand-600 hover:bg-brand-700 text-white shadow-sm'
+                : 'bg-neutral-100 text-neutral-400 cursor-not-allowed'
+          }`}>
+          {confirmed
+            ? <><CheckCircle2 size={15} /> NIHSS registrado</>
+            : !useFullScores ? 'Completá la escala NIHSS primero'
+            : showDisablingBlock && hasDisabling === null ? 'Indicar si el déficit es discapacitante'
+            : 'Confirmar evaluación clínica'
+          }
+        </button>
+      </div>
+
+      {/* ── Guided wizard modal ── */}
       {showGuidedModal && (
-        <NihssFullEditor scores={{}} guided={true} onSave={handleGuidedSave} onClose={() => setShowGuidedModal(false)} />
+        <NihssFullEditor guided={true} onSave={handleGuidedSave} onClose={() => setShowGuidedModal(false)} />
       )}
     </StepCard>
   )
 }
 
-// ── ClinicalTab (exported) — NIHSS + symptoms only ──────────────────────────
+// ── ClinicalTab (exported) ───────────────────────────────────────────────────
 
 export default function ClinicalTab({ onNihssConfirm, nihss, symptoms }) {
   const nihssConfirmed = nihss !== null
 
   return (
-      <div className="px-4 pb-4 space-y-3 md:px-0">
+    <div className="px-4 pb-4 space-y-3 md:px-0">
       {nihssConfirmed && (
         <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-emerald-50 border border-emerald-200 animate-fade-in">
           <CheckCircle2 size={14} className="text-emerald-600 shrink-0" />
