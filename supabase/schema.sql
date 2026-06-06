@@ -150,6 +150,16 @@ create policy "institutions: lectura autenticados"
   on institutions for select
   using (auth.role() = 'authenticated');
 
+-- ------------------------------------------------------------
+-- Extensión para integración con fuentes externas (Google Sheets)
+-- ------------------------------------------------------------
+alter table stroke_events
+  add column if not exists source text default 'app'
+    check (source in ('app', 'sheets_import')),
+  add column if not exists external_id text unique;
+
+create index if not exists idx_stroke_events_source on stroke_events (source);
+
 -- ============================================================
 -- Ejemplos de queries analíticas
 -- ============================================================
