@@ -78,14 +78,14 @@ export default {
         sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
       },
       fontSize: {
-        'xs': ['0.75rem', { lineHeight: '1rem', letterSpacing: '-0.01em' }],
-        'sm': ['0.875rem', { lineHeight: '1.25rem', letterSpacing: '-0.01em' }],
-        'base': ['1rem', { lineHeight: '1.5rem', letterSpacing: '-0.011em' }],
-        'lg': ['1.125rem', { lineHeight: '1.75rem', letterSpacing: '-0.014em' }],
-        'xl': ['1.25rem', { lineHeight: '1.75rem', letterSpacing: '-0.017em' }],
-        '2xl': ['1.5rem', { lineHeight: '2rem', letterSpacing: '-0.019em' }],
-        '3xl': ['1.875rem', { lineHeight: '2.25rem', letterSpacing: '-0.021em' }],
-        '4xl': ['2.25rem', { lineHeight: '2.5rem', letterSpacing: '-0.022em' }],
+        'xs':   ['0.875rem',  { lineHeight: '1.25rem',  letterSpacing: '-0.01em'  }],  // 14px (era 12)
+        'sm':   ['1rem',      { lineHeight: '1.5rem',   letterSpacing: '-0.01em'  }],  // 16px (era 14)
+        'base': ['1.125rem',  { lineHeight: '1.75rem',  letterSpacing: '-0.011em' }],  // 18px (era 16)
+        'lg':   ['1.25rem',   { lineHeight: '1.875rem', letterSpacing: '-0.014em' }],  // 20px (era 18)
+        'xl':   ['1.5rem',    { lineHeight: '2rem',     letterSpacing: '-0.017em' }],  // 24px (era 20)
+        '2xl':  ['1.75rem',   { lineHeight: '2.25rem',  letterSpacing: '-0.019em' }],  // 28px (era 24)
+        '3xl':  ['2rem',      { lineHeight: '2.5rem',   letterSpacing: '-0.021em' }],  // 32px (era 30)
+        '4xl':  ['2.5rem',    { lineHeight: '3rem',     letterSpacing: '-0.022em' }],  // 40px (era 36)
       },
       boxShadow: {
         'minimal': '0 1px 2px rgba(0,0,0,0.04)',

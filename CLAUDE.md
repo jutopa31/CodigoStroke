@@ -111,6 +111,13 @@ VITE_EMAILJS_PUBLIC_KEY=pk_xxxxx
 
 Built with `vite-plugin-pwa` + Workbox. Precaches all static assets on first load → fully offline after that. Manifest locks portrait orientation and uses `standalone` display. Icons in `public/`.
 
+## gstack
+
+Use the `/browse` skill from gstack for **all web browsing**. Never use `mcp__claude-in-chrome__*` tools.
+
+Available gstack skills:
+`/office-hours`, `/plan-ceo-review`, `/plan-eng-review`, `/plan-design-review`, `/design-consultation`, `/design-shotgun`, `/design-html`, `/review`, `/ship`, `/land-and-deploy`, `/canary`, `/benchmark`, `/browse`, `/connect-chrome`, `/qa`, `/qa-only`, `/design-review`, `/setup-browser-cookies`, `/setup-deploy`, `/setup-gbrain`, `/retro`, `/investigate`, `/document-release`, `/document-generate`, `/codex`, `/cso`, `/autoplan`, `/plan-devex-review`, `/devex-review`, `/careful`, `/freeze`, `/guard`, `/unfreeze`, `/gstack-upgrade`, `/learn`
+
 ## Further Reading
 
 - `FLUJO_DISCUSION.md` — in-depth proposals for step-blocking UX and relative contraindication flow
