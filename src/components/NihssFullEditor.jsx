@@ -334,7 +334,6 @@ function ScrollModal({ scores: initialScores, onSave, onClose }) {
 
   const total = nihssItems.reduce((s, i) => s + (scores[i.id] ?? 0), 0)
   const severity = getNihssSeverity(total)
-  const badgeClass = SEV_BADGE[severity.label] ?? 'bg-neutral-100 text-neutral-600 border-neutral-200'
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-3 bg-black/60 animate-fade-in">

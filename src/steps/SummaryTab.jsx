@@ -1,4 +1,4 @@
-import { Copy, Check, Share2, User, Clock, Activity, Scan, Syringe, Zap, ShieldAlert, CheckCircle2, XCircle, AlertTriangle } from 'lucide-react'
+import { Copy, Check, Share2, User, Clock, Activity, Scan, Syringe, ShieldAlert, CheckCircle2, XCircle, AlertTriangle } from 'lucide-react'
 
 const SYMPTOM_LABELS = {
   consciousness: 'Consciencia',
