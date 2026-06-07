@@ -26,6 +26,7 @@ export default {
           800: '#1E3A8A',
         },
         stroke: {
+          bg: '#0F1C38',       // DESIGN.md primary background (darker than navyDeep, for the dark-UI migration)
           navy: '#132B58',
           navyDeep: '#10264F',
           line: '#29416D',
@@ -52,9 +53,11 @@ export default {
             border:  '#BFDBFE',  // blue-200
             badge:   '#3B82F6',  // blue-500
           },
-          // critical (dark navy) — severe values: NIHSS ≥21, BP >185, absolute CIs
+          // critical (red) — severe values: NIHSS ≥21, BP >185, absolute CIs
+          // DESIGN.md: red, not navy — navy-on-navy fails contrast on the dark UI
           critical: {
-            DEFAULT: '#1E3A8A',  // blue-900
+            DEFAULT: '#EF4444',  // red-500
+            muted:   'rgba(239,68,68,0.12)',
           },
           // glucose (violet) — dedicated channel for glycemia readings
           glucose: {
@@ -75,7 +78,10 @@ export default {
         },
       },
       fontFamily: {
-        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        // DESIGN.md type system: DM Sans (UI/headers), Source Sans 3 (clinical body), Geist Mono (numbers/timer)
+        sans: ['DM Sans', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        body: ['Source Sans 3', '-apple-system', 'sans-serif'],
+        mono: ['Geist Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'],
       },
       fontSize: {
         'xs':   ['0.875rem',  { lineHeight: '1.25rem',  letterSpacing: '-0.01em'  }],  // 14px (era 12)

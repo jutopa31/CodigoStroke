@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=Source+Sans+3:wght@300;400;500;600&family=Geist+Mono:wght@400;500;600;700;800;900&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -40,7 +40,7 @@
   --status-info:            #2563EB; /* blue-600   — clinical info: TA readings */
   --status-info-muted:      #EFF6FF; /* blue-50 */
   --status-info-badge:      #3B82F6; /* blue-500 */
-  --status-critical:        #1E3A8A; /* blue-900   — severe: NIHSS ≥21, BP >185 */
+  --status-critical:        #EF4444; /* red-500    — severe: NIHSS ≥21, BP >185 (DESIGN.md: red on dark navy) */
   --status-glucose:         #7C3AED; /* violet-600 — dedicated glycemia channel */
   --status-glucose-muted:   #F5F3FF; /* violet-50 */
   --status-glucose-badge:   #8B5CF6; /* violet-500 */
@@ -60,7 +60,7 @@ html {
 body {
   margin: 0;
   background-color: var(--color-background);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow: hidden;
