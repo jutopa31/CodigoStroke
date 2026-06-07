@@ -1,7 +1,16 @@
 import { useEffect, useRef, useState } from 'react'
-import { Activity, AlertTriangle, ChevronRight, Droplets, Heart } from 'lucide-react'
+import { Activity, AlertTriangle, ChevronRight, Droplets, Heart, UserCheck } from 'lucide-react'
 import StepCard, { CollapsedStep } from '../components/StepCard'
 import { PrimaryAction } from '../components/GuidedControls'
+
+const MRS_OPTIONS = [
+  { score: 0, label: 'Sin síntomas',                   desc: 'Sin síntomas.' },
+  { score: 1, label: 'Sin discapacidad significativa',  desc: 'A pesar de síntomas realiza actividades cotidianas.' },
+  { score: 2, label: 'Incapacidad leve',                desc: 'Incapaz de actividades previas; capaz de algunas sin asistencia.' },
+  { score: 3, label: 'Incapacidad moderada',            desc: 'Requiere alguna ayuda, pero camina sin ayuda.' },
+  { score: 4, label: 'Incapacidad mod. severa',         desc: 'Incapaz de caminar sin ayuda y de atender necesidades corporales sin ayuda.' },
+  { score: 5, label: 'Incapacidad severa',              desc: 'Confinado a cama, incontinente; requiere cuidado constante de enfermería.' },
+]
 
 function VitalAlert({ message, color = 'red' }) {
   const styles = {
@@ -33,6 +42,7 @@ export default function VitalsStep({ onConfirm, isCollapsed = false }) {
   const [sys, setSys]         = useState('')
   const [dia, setDia]         = useState('')
   const [glucose, setGlucose] = useState('')
+  const [mrs, setMrs]         = useState(null)
   const [confirmed, setConfirmed] = useState(false)
 
   const sysRef     = useRef(null)
@@ -53,12 +63,17 @@ export default function VitalsStep({ onConfirm, isCollapsed = false }) {
   const glucLow       = glucose && glucNum < 50
   const glucHigh      = glucose && glucNum > 400
 
-  const valid = !!(sys && dia && glucose)
+  const valid = !!(sys && dia && glucose && mrs !== null)
 
   function handleConfirm() {
     if (!valid) return
     setConfirmed(true)
-    onConfirm({ systolic: sysNum, diastolic: diaNum, glucose: glucNum })
+    onConfirm({
+      systolic: sysNum,
+      diastolic: diaNum,
+      glucose: glucNum,
+      modifiedRankinScale: { score: mrs, label: MRS_OPTIONS[mrs].label },
+    })
   }
 
   function jumpOnEnter(e, ref) {
@@ -88,7 +103,7 @@ export default function VitalsStep({ onConfirm, isCollapsed = false }) {
   if (isCollapsed && confirmed) {
     return (
       <CollapsedStep title="Signos vitales">
-        TA {sys}/{dia} mmHg · Glucemia {glucose} mg/dL
+        TA {sys}/{dia} mmHg · Glucemia {glucose} mg/dL · mRS {mrs}
       </CollapsedStep>
     )
   }
@@ -153,7 +168,6 @@ export default function VitalsStep({ onConfirm, isCollapsed = false }) {
             )}
           </div>
 
-          {/* Separador */}
           <div className="border-t border-neutral-100" />
 
           {/* ── Glucemia ── */}
@@ -194,10 +208,56 @@ export default function VitalsStep({ onConfirm, isCollapsed = false }) {
             )}
           </div>
 
+          <div className="border-t border-neutral-100" />
+
+          {/* ── mRS basal ── */}
+          <div>
+            <InfoBanner
+              icon={UserCheck}
+              iconClass="text-brand-700"
+              bgClass="bg-brand-50"
+              borderClass="border-brand-200"
+              textClass="text-brand-800"
+              title="mRS basal (funcionalidad previa al ACV)"
+              subtitle="mRS ≥ 4 pre-stroke es contraindicación relativa para rtPA"
+            />
+
+            <div className="grid grid-cols-6 gap-1.5">
+              {MRS_OPTIONS.map((o) => (
+                <button
+                  key={o.score}
+                  type="button"
+                  onClick={() => setMrs(o.score)}
+                  title={o.label}
+                  className={`rounded-xl border py-2.5 text-lg font-bold transition-all active:scale-95 ${
+                    mrs === o.score
+                      ? 'border-brand-500 bg-brand-50 text-brand-700 ring-2 ring-brand-100'
+                      : 'border-neutral-200 text-neutral-500 hover:border-brand-300 hover:bg-brand-50/40'
+                  }`}
+                >
+                  {o.score}
+                </button>
+              ))}
+            </div>
+
+            {mrs !== null && (
+              <div className="mt-2 px-2.5 py-2 bg-brand-50 rounded-xl border border-brand-100 animate-fade-in">
+                <p className="text-[11px] font-semibold text-brand-700 leading-tight">{MRS_OPTIONS[mrs].label}</p>
+                <p className="text-[10px] text-neutral-500 mt-0.5 leading-snug">{MRS_OPTIONS[mrs].desc}</p>
+              </div>
+            )}
+
+            {mrs !== null && mrs >= 4 && (
+              <div className="mt-2">
+                <VitalAlert message={`mRS ${mrs} pre-stroke — discutir riesgo/beneficio de trombolisis con el equipo.`} color="orange" />
+              </div>
+            )}
+          </div>
+
         </div>
       </StepCard>
 
-      <PrimaryAction onClick={handleConfirm} valid={valid} disabledLabel="Completa TA y glucemia">
+      <PrimaryAction onClick={handleConfirm} valid={valid} disabledLabel="Completá TA, glucemia y mRS">
         Continuar <ChevronRight size={16} strokeWidth={2} />
       </PrimaryAction>
     </div>
