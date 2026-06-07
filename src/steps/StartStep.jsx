@@ -117,8 +117,9 @@ export default function StartStep({ onStart, onResume, onOpenEducational, authUs
         <button
           type="button"
           onClick={() => setShowManualResume((v) => !v)}
-          className="text-xs text-neutral-400 hover:text-neutral-600 transition-colors min-h-[44px] px-3 -my-3"
+          className="flex items-center gap-1.5 text-xs font-medium text-neutral-500 hover:text-brand-600 transition-colors min-h-[44px] px-3 -my-3"
         >
+          <RotateCcw size={13} strokeWidth={2} />
           {showManualResume ? 'Ocultar' : 'Retomar otro caso'}
         </button>
         <hr className="flex-1 border-neutral-100" />
