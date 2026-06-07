@@ -49,3 +49,21 @@ Items deferred during engineering review. Each has context enough to pick up col
 **Context:** The design doc proposed a `nihssConfirmed` boolean and a `~N pts (estimado)` banner for the intermediate state. This TODO tracks the "unscored" state, which is distinct from the "estimated" state. Current implementation: ClinicalTab.jsx around lines 272-298 (NIHSS banner section). `useFullScores` boolean can serve as the "confirmed" gate; absence of any `subscaleScores` + `useFullScores=false` is the "unscored" state.
 
 **Depends on:** Pre-loading removal (T2 in eng review tasks). Does not block the core bug fix.
+
+---
+
+## T-D1: "Retomar otro caso" looks like a passive divider (design, POLISH)
+
+**What:** On the start screen, the "Retomar otro caso" toggle is styled identically to a section divider (gray text between two `<hr>` lines), so its clickability is not obvious.
+
+**Why:** Discoverability — a user who wants to resume a prior case may not realize the text is a button.
+
+**Context:** `src/steps/StartStep.jsx:115-125`. Deferred from /design-review on `a11y/font-size-accessibility` (2026-06-07). Low risk; the divider-with-label pattern is recognizable, so left as-is.
+
+## T-D2: ~2344 pre-existing ESLint errors across the branch (chore)
+
+**What:** `pnpm run lint` fails with ~2344 errors in files unrelated to the a11y work (e.g. `SummaryTab.jsx` unused `Zap`, `TimeStep.jsx` unused `isCandidate`, plus a large bulk that looks like an ESLint config/rule mismatch).
+
+**Why:** Lint failures hide real regressions and block any lint-gated CI.
+
+**Context:** Surfaced (not caused) by /design-review on 2026-06-07. The 4 design fixes from that review lint clean.
