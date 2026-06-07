@@ -51,18 +51,18 @@ export default function StartStep({ onStart, onResume, onOpenEducational, authUs
   }
 
   return (
-    <div className="min-h-[100dvh] flex flex-col items-center justify-center px-6 bg-neutral-50">
+    <div className="min-h-[100dvh] flex flex-col items-center justify-center px-6 bg-stroke-bg">
       {/* Logo */}
       <div className="relative mb-10">
-        <div className="w-20 h-20 rounded-2xl bg-brand-600 flex items-center justify-center shadow-elevated">
+        <div className="w-20 h-20 rounded-2xl bg-stroke-iconActive flex items-center justify-center shadow-elevated">
           <Activity size={36} className="text-white" strokeWidth={2} />
         </div>
       </div>
 
-      <h1 className="text-3xl font-semibold text-neutral-800 text-center tracking-tight mb-2">
+      <h1 className="text-3xl font-semibold text-stroke-text text-center tracking-tight mb-2">
         Código Stroke
       </h1>
-      <p className="text-neutral-400 text-center text-sm mb-10 max-w-xs leading-relaxed">
+      <p className="text-stroke-textMuted text-center text-sm mb-10 max-w-xs leading-relaxed">
         Protocolo de atención para ACV isquémico en fase aguda — AHA/ASA 2026
       </p>
 
@@ -71,7 +71,7 @@ export default function StartStep({ onStart, onResume, onOpenEducational, authUs
         {['Ventana 4.5h', 'NIHSS', 'rtPA / TNK'].map((label) => (
           <span
             key={label}
-            className="text-xs bg-white text-neutral-500 px-3 py-1.5 rounded-lg border border-neutral-100"
+            className="text-xs bg-stroke-navy text-stroke-textMuted px-3 py-1.5 rounded-lg border border-stroke-line"
           >
             {label}
           </span>
@@ -82,30 +82,30 @@ export default function StartStep({ onStart, onResume, onOpenEducational, authUs
       {recentSession && (
         <button
           onClick={handleRecentResume}
-          className="w-full max-w-xs mb-4 rounded-2xl border border-amber-200 bg-amber-50/50 px-4 py-4 text-left transition-all hover:bg-amber-50 active:scale-[0.98]"
+          className="w-full max-w-xs mb-4 rounded-2xl border border-amber-500/30 bg-amber-500/10 px-4 py-4 text-left transition-all hover:bg-amber-500/15 active:scale-[0.98]"
         >
           <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center shrink-0">
-              <Clock size={18} className="text-amber-600" strokeWidth={2} />
+            <div className="w-10 h-10 rounded-xl bg-amber-500/15 flex items-center justify-center shrink-0">
+              <Clock size={18} className="text-amber-400" strokeWidth={2} />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[11px] font-semibold text-amber-600 uppercase tracking-wider">Caso activo</p>
-              <p className="text-sm font-semibold text-neutral-800 truncate mt-0.5">
+              <p className="text-[11px] font-semibold text-amber-400 uppercase tracking-wider">Caso activo</p>
+              <p className="text-sm font-semibold text-stroke-text truncate mt-0.5">
                 {recentSession.patientName || 'Paciente'}
               </p>
-              <p className="text-xs text-amber-500 mt-0.5">
+              <p className="text-xs text-amber-400/80 mt-0.5">
                 {recentSession.id} · hace {formatElapsed(now - recentSession.updated)}
               </p>
             </div>
-            <ChevronRight size={18} className="text-amber-400 shrink-0 mt-2.5" />
+            <ChevronRight size={18} className="text-amber-400/70 shrink-0 mt-2.5" />
           </div>
         </button>
       )}
 
-      {/* CTA */}
+      {/* CTA — large + bold so white-on-accent passes WCAG AA as large text (3.87 ≥ 3.0) */}
       <button
         onClick={onStart}
-        className="w-full max-w-xs flex items-center justify-center gap-3 bg-brand-600 hover:bg-brand-700 active:scale-[0.98] text-white font-semibold text-base py-4 px-8 rounded-2xl shadow-elevated transition-all duration-150"
+        className="w-full max-w-xs flex items-center justify-center gap-3 bg-stroke-iconActive hover:bg-[#4D6CD6] active:scale-[0.98] text-white font-bold text-lg py-4 px-8 rounded-2xl shadow-elevated transition-all duration-150"
       >
         <Zap size={20} strokeWidth={2} />
         Iniciar Código Stroke
@@ -113,16 +113,16 @@ export default function StartStep({ onStart, onResume, onOpenEducational, authUs
 
       {/* Separator */}
       <div className="flex items-center gap-3 w-full max-w-xs mt-8">
-        <hr className="flex-1 border-neutral-100" />
+        <hr className="flex-1 border-stroke-line" />
         <button
           type="button"
           onClick={() => setShowManualResume((v) => !v)}
-          className="flex items-center gap-1.5 text-xs font-medium text-neutral-500 hover:text-brand-600 transition-colors min-h-[44px] px-3 -my-3"
+          className="flex items-center gap-1.5 text-xs font-medium text-stroke-textMuted hover:text-stroke-iconActive transition-colors min-h-[44px] px-3 -my-3"
         >
           <RotateCcw size={13} strokeWidth={2} />
           {showManualResume ? 'Ocultar' : 'Retomar otro caso'}
         </button>
-        <hr className="flex-1 border-neutral-100" />
+        <hr className="flex-1 border-stroke-line" />
       </div>
 
       {/* Manual resume */}
@@ -138,25 +138,25 @@ export default function StartStep({ onStart, onResume, onOpenEducational, authUs
                 setResumeId(e.target.value.toUpperCase())
                 setError(false)
               }}
-              className="flex-1 min-w-0 bg-white border border-neutral-200 rounded-xl px-4 py-3 text-neutral-800 text-base font-mono tracking-widest focus:ring-2 focus:ring-brand-200 focus:border-brand-300 placeholder-neutral-300 uppercase transition-all"
+              className="flex-1 min-w-0 bg-stroke-navy border border-stroke-line rounded-xl px-4 py-3 text-stroke-text text-base font-mono tracking-widest focus:ring-2 focus:ring-stroke-iconActive/40 focus:border-stroke-iconActive placeholder-stroke-textMuted/50 uppercase transition-all"
             />
             <button
               onClick={handleResume}
               disabled={resumeId.length < 3}
-              className="border border-brand-600 text-brand-600 rounded-xl py-3 px-5 font-semibold text-sm flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-95 hover:bg-brand-50"
+              className="border border-stroke-iconActive text-stroke-iconActive rounded-xl py-3 px-5 font-semibold text-sm flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-95 hover:bg-stroke-iconActive/10"
             >
               <RotateCcw size={14} strokeWidth={2} />
               Reanudar
             </button>
           </div>
-          <p className="text-xs text-neutral-400 self-start">Ingresá el ID del caso anterior</p>
+          <p className="text-xs text-stroke-textMuted self-start">Ingresá el ID del caso anterior</p>
           {error && (
-            <p className="text-red-500 text-xs self-start animate-fade-in">Caso no encontrado</p>
+            <p className="text-status-critical text-xs self-start animate-fade-in">Caso no encontrado</p>
           )}
         </div>
       )}
 
-      <p className="mt-10 text-xs text-neutral-300 text-center">
+      <p className="mt-10 text-xs text-stroke-textMuted/70 text-center">
         Cada minuto importa · 1.9M neuronas/min
       </p>
 
@@ -166,7 +166,7 @@ export default function StartStep({ onStart, onResume, onOpenEducational, authUs
           <button
             type="button"
             onClick={onOpenEducational}
-            className="flex items-center gap-2 text-xs text-neutral-400 hover:text-amber-600 transition-colors min-h-[44px] px-3"
+            className="flex items-center gap-2 text-xs text-stroke-textMuted hover:text-amber-400 transition-colors min-h-[44px] px-3"
           >
             <BookOpen size={14} strokeWidth={2} />
             Modo educativo
@@ -176,7 +176,7 @@ export default function StartStep({ onStart, onResume, onOpenEducational, authUs
           <button
             type="button"
             onClick={onAuthClick}
-            className="flex items-center gap-2 text-xs text-neutral-400 hover:text-brand-600 transition-colors min-h-[44px] px-3"
+            className="flex items-center gap-2 text-xs text-stroke-textMuted hover:text-stroke-iconActive transition-colors min-h-[44px] px-3"
           >
             <User size={14} strokeWidth={2} />
             {authUser

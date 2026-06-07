@@ -27,6 +27,7 @@ export default {
         },
         stroke: {
           bg: '#0F1C38',       // DESIGN.md primary background (darker than navyDeep, for the dark-UI migration)
+          text: '#F0F4FF',     // DESIGN.md primary text on dark (15.3:1 on bg)
           navy: '#132B58',
           navyDeep: '#10264F',
           line: '#29416D',
