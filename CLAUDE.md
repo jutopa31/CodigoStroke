@@ -91,7 +91,7 @@ Red and orange contraindication lists are arrays of `{ id, label, description }`
 ## Design System
 
 Custom Tailwind palette in `tailwind.config.js`:
-- Brand red: `#9b2c2c` (buttons, borders, logo)
+- Brand blue: `#1D4ED8` (`brand-600`) — buttons, borders, active states. Full scale in `tailwind.config.js` (`brand-50` → `brand-800`, all blue). Header uses `stroke-navy: #132B58`.
 - Mobile-first; pinch-zoom is **enabled** (WCAG 1.4.4 — low-vision users must be able to zoom). Do not re-add `user-scalable=no`/`maximum-scale=1.0`; PWAs do not require it. Notch handled via `viewport-fit=cover` + safe-area CSS env vars
 - Touch targets ≥44px; safe-area CSS env vars used for notch devices
 
@@ -117,6 +117,21 @@ Use the `/browse` skill from gstack for **all web browsing**. Never use `mcp__cl
 
 Available gstack skills:
 `/office-hours`, `/plan-ceo-review`, `/plan-eng-review`, `/plan-design-review`, `/design-consultation`, `/design-shotgun`, `/design-html`, `/review`, `/ship`, `/land-and-deploy`, `/canary`, `/benchmark`, `/browse`, `/connect-chrome`, `/qa`, `/qa-only`, `/design-review`, `/setup-browser-cookies`, `/setup-deploy`, `/setup-gbrain`, `/retro`, `/investigate`, `/document-release`, `/document-generate`, `/codex`, `/cso`, `/autoplan`, `/plan-devex-review`, `/devex-review`, `/careful`, `/freeze`, `/guard`, `/unfreeze`, `/gstack-upgrade`, `/learn`
+
+## Design System
+
+Always read `DESIGN.md` before making any visual or UI decisions.
+All font choices, colors, spacing, and aesthetic direction are defined there.
+Do not deviate without explicit user approval.
+In QA mode, flag any code that doesn't match DESIGN.md.
+
+Key points:
+- Primary font: **DM Sans** (UI/headers) — replaces Inter
+- Body font: **Source Sans 3** (clinical descriptions)
+- Timer/numbers: **Geist Mono** (always tabular-nums)
+- Background: `#0F1C38` dark navy (not white)
+- Critical status: `#EF4444` red (not dark navy)
+- The timer is the most important UI element — must be large, amber, always visible
 
 ## Further Reading
 
