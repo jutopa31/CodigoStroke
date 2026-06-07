@@ -11,6 +11,7 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
   const [dni, setDni] = useState('')
   const [name, setName] = useState('')
   const [passphrase, setPassphrase] = useState('')
+  const [showPassphrase, setShowPassphrase] = useState(false)
   const [showScanner, setShowScanner] = useState(false)
   const nameRef = useRef(null)
   const passphraseRef = useRef(null)
@@ -108,21 +109,25 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
 
   if (confirmed) return null
 
+  const hasName = name.trim().length >= 2
+  const hasDni = dni.trim().length >= 7
+
   return (
     <div className="pb-4">
       {showScanner && (
         <DniQrScanner onScan={handleScan} onClose={() => setShowScanner(false)} />
       )}
-      <StepCard step="1" title="Datos del paciente" accent="red">
-        {/* Barra superior: modo educativo + escanear QR */}
+      <StepCard step="1" title="Datos del paciente" accent="blue">
+
+        {/* Header row: scan button + educational mode */}
         <div className="flex items-center justify-between mb-3">
           <button
             type="button"
             onClick={() => setShowScanner(true)}
-            className="flex items-center gap-1.5 text-xs font-medium text-brand-600 hover:text-brand-700 bg-brand-50 hover:bg-brand-100 px-2.5 py-1.5 rounded-lg transition-colors"
+            className="flex items-center gap-1.5 text-xs font-semibold text-brand-600 bg-brand-50 hover:bg-brand-100 border border-brand-200 px-2.5 py-1.5 rounded-lg transition-colors"
           >
             <ScanLine size={13} strokeWidth={2} />
-            Escanear código del DNI
+            Escanear DNI
           </button>
           {onOpenEducational && (
             <button
@@ -135,28 +140,61 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
             </button>
           )}
         </div>
+
+        {/* Live identity card preview */}
+        <div
+          className="rounded-2xl p-4 mb-3 relative overflow-hidden"
+          style={{ background: 'linear-gradient(135deg, #1D4ED8 0%, #1E3A8A 100%)' }}
+        >
+          {/* decorative circles */}
+          <div className="absolute -top-5 -right-5 w-24 h-24 rounded-full bg-white/5 pointer-events-none" />
+          <div className="absolute -bottom-8 -left-2 w-20 h-20 rounded-full bg-white/[0.04] pointer-events-none" />
+
+          <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-white/50 mb-2.5">
+            Código Stroke · Paciente
+          </p>
+          <p className={`text-[17px] font-black leading-tight ${hasName ? 'text-white' : 'text-white/25 font-normal italic text-sm'}`}>
+            {hasName ? name.trim() : 'Nombre del paciente'}
+          </p>
+          <div className="flex gap-4 mt-2">
+            <div>
+              <p className="text-[9px] text-white/40 uppercase tracking-[0.08em]">DNI</p>
+              <p className={`text-[13px] font-bold font-mono ${hasDni ? 'text-white' : 'text-white/20'}`}>
+                {hasDni ? dni.trim() : '——'}
+              </p>
+            </div>
+            <div>
+              <p className="text-[9px] text-white/40 uppercase tracking-[0.08em]">Llegada</p>
+              <p className="text-[13px] font-bold font-mono text-white/70">
+                {new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}
+              </p>
+            </div>
+          </div>
+        </div>
+
         <form onSubmit={handleSubmit} className="space-y-3">
-          {/* Identificación */}
-          <div className="flex flex-wrap gap-3">
-            <div className="w-full sm:w-[12rem]">
-              <label className="text-[10px] font-medium text-neutral-500 uppercase tracking-wider flex items-center gap-1.5 mb-1.5">
-                <CreditCard size={12} strokeWidth={2} /> DNI
+          {/* DNI + Nombre en dos columnas */}
+          <div className="grid grid-cols-[1fr_1.5fr] gap-2.5">
+            <div>
+              <label className="text-[10px] font-semibold text-neutral-400 uppercase tracking-wider flex items-center gap-1 mb-1.5">
+                <CreditCard size={11} strokeWidth={2} /> DNI
               </label>
               <input
-                type="number"
+                type="text"
                 inputMode="numeric"
-                placeholder="Número de documento"
+                pattern="[0-9]*"
+                placeholder="12345678"
                 value={dni}
                 onChange={(e) => setDni(e.target.value)}
                 onKeyDown={(event) => focusNext(event, nameRef)}
                 autoFocus
-                className="h-10 w-full bg-neutral-50 border border-neutral-200 rounded-lg px-3 text-sm font-semibold text-neutral-800 focus:bg-white focus:ring-2 focus:ring-brand-100 focus:border-brand-300 placeholder-neutral-300 transition-all"
+                className="h-[42px] w-full bg-neutral-50 border border-neutral-200 rounded-xl px-3 text-sm font-semibold text-neutral-800 focus:bg-white focus:ring-2 focus:ring-brand-100 focus:border-brand-400 placeholder-neutral-300 transition-all outline-none"
                 required
               />
             </div>
-            <div className="w-full sm:w-[18rem]">
-              <label className="text-[10px] font-medium text-neutral-500 uppercase tracking-wider flex items-center gap-1.5 mb-1.5">
-                <User size={12} strokeWidth={2} /> Nombre
+            <div>
+              <label className="text-[10px] font-semibold text-neutral-400 uppercase tracking-wider flex items-center gap-1 mb-1.5">
+                <User size={11} strokeWidth={2} /> Nombre
               </label>
               <input
                 ref={nameRef}
@@ -165,30 +203,43 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 onKeyDown={(event) => focusNext(event, passphraseRef)}
-                className="h-10 w-full bg-neutral-50 border border-neutral-200 rounded-lg px-3 text-sm text-neutral-800 focus:bg-white focus:ring-2 focus:ring-brand-100 focus:border-brand-300 placeholder-neutral-300 transition-all"
+                className="h-[42px] w-full bg-neutral-50 border border-neutral-200 rounded-xl px-3 text-sm text-neutral-800 focus:bg-white focus:ring-2 focus:ring-brand-100 focus:border-brand-400 placeholder-neutral-300 transition-all outline-none"
                 required
               />
             </div>
           </div>
 
+          {/* Passphrase — collapsed por defecto */}
           <div>
-            <label className="text-[10px] font-medium text-neutral-500 uppercase tracking-wider flex items-center gap-1.5 mb-1.5">
-              <Lock size={12} strokeWidth={2} /> Contraseña de turno
-            </label>
-            <input
-              ref={passphraseRef}
-              type="password"
-              placeholder="Frase de acceso (opcional)"
-              value={passphrase}
-              onChange={(e) => setPassphrase(e.target.value)}
-              className="h-10 w-full max-w-[31rem] bg-neutral-50 border border-neutral-200 rounded-lg px-3 text-sm text-neutral-800 focus:bg-white focus:ring-2 focus:ring-brand-100 focus:border-brand-300 placeholder-neutral-300 transition-all"
-            />
+            <button
+              type="button"
+              onClick={() => setShowPassphrase((v) => !v)}
+              className="flex items-center gap-1.5 text-[11px] text-neutral-400 hover:text-neutral-600 transition-colors"
+            >
+              <Lock size={11} strokeWidth={2} />
+              <span>{showPassphrase ? 'Ocultar contraseña de turno' : 'Agregar contraseña de turno (opcional)'}</span>
+              <ChevronRight
+                size={11}
+                strokeWidth={2}
+                className={`transition-transform ${showPassphrase ? 'rotate-90' : ''}`}
+              />
+            </button>
+            {showPassphrase && (
+              <input
+                ref={passphraseRef}
+                type="password"
+                placeholder="Frase de acceso"
+                value={passphrase}
+                onChange={(e) => setPassphrase(e.target.value)}
+                className="mt-2 h-10 w-full bg-neutral-50 border border-neutral-200 rounded-xl px-3 text-sm text-neutral-800 focus:bg-white focus:ring-2 focus:ring-brand-100 focus:border-brand-400 placeholder-neutral-300 transition-all outline-none"
+              />
+            )}
           </div>
 
           <button
             type="submit"
             disabled={!valid}
-            className="flex w-full max-w-[31rem] items-center justify-center gap-2 rounded-lg bg-brand-600 py-3 text-sm font-semibold text-white transition-all hover:bg-brand-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-neutral-100 disabled:text-neutral-400"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-600 py-3 text-sm font-semibold text-white transition-all hover:bg-brand-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-neutral-100 disabled:text-neutral-400"
           >
             Confirmar y activar código <ChevronRight size={16} strokeWidth={2} />
           </button>
