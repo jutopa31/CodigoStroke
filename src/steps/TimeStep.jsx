@@ -58,7 +58,6 @@ export default function TimeStep({ onConfirm, isCollapsed = false }) {
   // Candidacy logic: < 4.5h (both modes) → candidate; 4.5h–9h + isIncierto → candidate extended; else → eval OGV
   const enVentanaIV = elapsedMinutes < IV_WINDOW_MINUTES
   const enVentanaIncierta = isIncierto && elapsedMinutes < INCIERTO_WINDOW_MINUTES
-  const isCandidate = enVentanaIV || enVentanaIncierta
 
   const candidacyBanner = (() => {
     if (enVentanaIV) return {

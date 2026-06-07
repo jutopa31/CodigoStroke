@@ -92,7 +92,7 @@ Red and orange contraindication lists are arrays of `{ id, label, description }`
 
 Custom Tailwind palette in `tailwind.config.js`:
 - Brand red: `#9b2c2c` (buttons, borders, logo)
-- Mobile-first; `user-scalable=no` is intentional (PWA requirement)
+- Mobile-first; pinch-zoom is **enabled** (WCAG 1.4.4 — low-vision users must be able to zoom). Do not re-add `user-scalable=no`/`maximum-scale=1.0`; PWAs do not require it. Notch handled via `viewport-fit=cover` + safe-area CSS env vars
 - Touch targets ≥44px; safe-area CSS env vars used for notch devices
 
 Custom animations: `slide-down`, `slide-up`, `fade-in`, `pulse-subtle`, `scale-in`.
