@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { CheckCircle2, AlertTriangle, RotateCcw, ChevronDown, Brain } from 'lucide-react'
+import { CheckCircle2, AlertTriangle, RotateCcw, ChevronDown } from 'lucide-react'
 import { getNihssSeverity, nihssItems } from '../content/nihss'
 import NihssFullEditor from '../components/NihssFullEditor'
 import StepCard from '../components/StepCard'
@@ -133,11 +133,10 @@ const DISABLING_LIST = [
   'Ataxia severa: imposibilidad de caminar sin asistencia',
 ]
 
-// mode: null = entry, 'manual' = inline scroll, 'guided' = wizard modal, 'adjust' = compact adjust
 function NihssSection({ onConfirm, confirmed, initialNihss }) {
   const [subscaleScores, setSubscaleScores] = useState(initialNihss?.scores ?? {})
   const [useFullScores, setUseFullScores] = useState(!!initialNihss)
-  const [mode, setMode] = useState(null)
+  const [showAdjust, setShowAdjust] = useState(false)
   const [hasDisabling, setHasDisabling] = useState(initialNihss?.hasDisablingSymptoms ?? null)
   const [showDisablingList, setShowDisablingList] = useState(false)
 
@@ -149,18 +148,13 @@ function NihssSection({ onConfirm, confirmed, initialNihss }) {
   function handleSave(scores) {
     setSubscaleScores(scores)
     setUseFullScores(true)
-    setMode(null)
-  }
-
-  function handleAdjustSave(scores) {
-    setSubscaleScores(scores)
-    setMode(null)
+    setShowAdjust(false)
   }
 
   function handleReset() {
     setSubscaleScores({})
     setUseFullScores(false)
-    setMode(null)
+    setShowAdjust(false)
     setHasDisabling(null)
   }
 
@@ -188,10 +182,10 @@ function NihssSection({ onConfirm, confirmed, initialNihss }) {
               </div>
             </div>
             <div className="flex flex-col gap-1.5 items-end">
-              <button type="button" onClick={() => setMode((m) => m === 'adjust' ? null : 'adjust')}
+              <button type="button" onClick={() => setShowAdjust((v) => !v)}
                 className="flex items-center gap-1.5 text-xs font-semibold rounded-lg px-3 py-1.5 bg-white/70 text-brand-700 hover:bg-white transition-all active:scale-95">
-                <ChevronDown size={13} className={mode === 'adjust' ? 'rotate-180 transition-transform duration-200' : 'transition-transform duration-200'} />
-                {mode === 'adjust' ? 'Cerrar' : 'Ajustar'}
+                <ChevronDown size={13} className={showAdjust ? 'rotate-180 transition-transform duration-200' : 'transition-transform duration-200'} />
+                {showAdjust ? 'Cerrar' : 'Ajustar'}
               </button>
               <button type="button" onClick={handleReset}
                 className="flex items-center gap-1.5 text-xs font-semibold rounded-lg px-3 py-1.5 bg-white/50 text-neutral-500 hover:bg-white/70 transition-all active:scale-95">
@@ -203,56 +197,24 @@ function NihssSection({ onConfirm, confirmed, initialNihss }) {
       )}
 
       {/* ── Compact adjust view ── */}
-      {mode === 'adjust' && (
+      {showAdjust && (
         <div className="mb-4">
           <NihssFullEditor
             scores={subscaleScores}
             inline={true}
-            onSave={handleAdjustSave}
-            onClose={() => setMode(null)}
+            onSave={handleSave}
+            onClose={() => setShowAdjust(false)}
           />
         </div>
       )}
 
-      {/* ── Entry card — two buttons (before scoring) ── */}
-      {!useFullScores && mode === null && (
-        <div className="rounded-2xl border-2 border-dashed border-neutral-200 bg-neutral-50/40 px-4 py-5 mb-4">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center shrink-0">
-              <Brain size={20} className="text-amber-500" strokeWidth={1.5} />
-            </div>
-            <div>
-              <p className="text-sm font-bold text-neutral-700">Escala NIHSS</p>
-              <p className="text-xs text-neutral-400">15 ítems · máx 42 pts</p>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              type="button"
-              onClick={() => setMode('manual')}
-              className="py-3 rounded-xl border-2 border-neutral-200 bg-white text-neutral-700 font-semibold text-sm hover:border-brand-300 hover:bg-brand-50/40 active:scale-[0.98] transition-all"
-            >
-              Manual
-            </button>
-            <button
-              type="button"
-              onClick={() => setMode('guided')}
-              className="py-3 rounded-xl bg-brand-600 text-white font-bold text-sm hover:bg-brand-700 active:scale-[0.98] transition-all shadow-sm"
-            >
-              Guiado
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* ── Inline manual editor ── */}
-      {!useFullScores && mode === 'manual' && (
+      {/* ── Full inline editor — always shown before scoring ── */}
+      {!useFullScores && (
         <div className="mb-4">
           <NihssFullEditor
             scores={{}}
             inlineScroll={true}
             onSave={handleSave}
-            onClose={() => setMode(null)}
           />
         </div>
       )}
@@ -305,11 +267,6 @@ function NihssSection({ onConfirm, confirmed, initialNihss }) {
           }
         </button>
       </div>
-
-      {/* ── Guided wizard modal ── */}
-      {mode === 'guided' && (
-        <NihssFullEditor guided={true} onSave={handleSave} onClose={() => setMode(null)} />
-      )}
     </StepCard>
   )
 }
