@@ -26,7 +26,7 @@ function TabItem({ tab, active, completion, onClick }) {
       ? 'bg-emerald-100 text-emerald-700 md:bg-stroke-icon md:text-white'
       : completion === 'partial'
         ? 'bg-status-warning-muted text-status-warning md:bg-status-warning-badge/90 md:text-white'
-        : 'bg-white/10 text-white/40 md:bg-stroke-icon md:text-stroke-textMuted'
+        : 'bg-white/15 text-white/75 md:bg-stroke-icon md:text-stroke-textMuted'
 
   const ring = completion === 'complete' && !active
     ? 'ring-2 ring-emerald-400 md:ring-0'
@@ -40,7 +40,7 @@ function TabItem({ tab, active, completion, onClick }) {
       ? 'text-emerald-200 font-medium md:text-stroke-textMuted'
       : completion === 'partial'
         ? 'text-status-warning-muted md:text-stroke-textMuted'
-        : 'text-white/40 md:text-stroke-textMuted'
+        : 'text-white/75 md:text-stroke-textMuted'
 
   return (
     <button
