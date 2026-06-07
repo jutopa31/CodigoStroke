@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { User, CheckCircle2, AlertTriangle, CreditCard, Lock, BookOpen, ScanLine, Heart, Droplets, Zap } from 'lucide-react'
+import { User, CheckCircle2, AlertTriangle, CreditCard, Lock, BookOpen, ScanLine, Heart, Droplets, Zap, ChevronRight } from 'lucide-react'
 import DniQrScanner from '../components/DniQrScanner'
 
 const MRS_OPTIONS = [
@@ -14,13 +14,16 @@ const MRS_OPTIONS = [
 // ── Patient section ──────────────────────────────────────────────────────────
 
 function PatientSection({ patient, patientId, arrivalTime, onConfirm, onOpenEducational }) {
-  const [dni, setDni]           = useState('')
-  const [name, setName]         = useState('')
-  const [pass, setPass]         = useState('')
+  const [dni, setDni]               = useState('')
+  const [name, setName]             = useState('')
+  const [pass, setPass]             = useState('')
+  const [showPassphrase, setShowPassphrase] = useState(false)
   const [showScanner, setShowScanner] = useState(false)
-  const nameRef                 = useRef(null)
-  const passRef                 = useRef(null)
-  const valid                   = dni.trim().length >= 7 && name.trim().length >= 2
+  const nameRef = useRef(null)
+  const passRef = useRef(null)
+  const valid   = dni.trim().length >= 7 && name.trim().length >= 2
+  const hasName = name.trim().length >= 2
+  const hasDni  = dni.trim().length >= 7
 
   function handleScan({ name: scannedName, dni: scannedDni }) {
     setName(scannedName)
@@ -55,74 +58,102 @@ function PatientSection({ patient, patientId, arrivalTime, onConfirm, onOpenEduc
 
   return (
     <>
-    {showScanner && <DniQrScanner onScan={handleScan} onClose={() => setShowScanner(false)} />}
-    <form onSubmit={handleSubmit} className="space-y-3">
-      {/* QR scan shortcut */}
-      <button type="button" onClick={() => setShowScanner(true)}
-        className="flex items-center gap-1.5 text-xs font-medium text-brand-600 hover:text-brand-700 bg-brand-50 hover:bg-brand-100 px-2.5 py-1.5 rounded-lg transition-colors">
-        <ScanLine size={13} strokeWidth={2} />
-        Escanear QR del DNI
-      </button>
+      {showScanner && <DniQrScanner onScan={handleScan} onClose={() => setShowScanner(false)} />}
 
-      {/* Primary fields */}
-      <div className="flex flex-wrap items-end gap-3">
-        <div className="w-full sm:w-[12rem]">
-          <label className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400 flex items-center gap-1 mb-1.5">
-            <CreditCard size={10} /> DNI
-          </label>
-          <input
-            type="number" inputMode="numeric" placeholder="Número de documento"
-            value={dni} onChange={(e) => setDni(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); nameRef.current?.focus() } }}
-            autoFocus
-            className="w-full h-11 bg-neutral-50 border border-neutral-200 rounded-lg px-3 text-sm font-semibold focus:bg-white focus:ring-2 focus:ring-brand-100 focus:border-brand-300 placeholder-neutral-300 transition-all"
-          />
-        </div>
-        <div className="w-full sm:w-[18rem]">
-          <label className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400 flex items-center gap-1 mb-1.5">
-            <User size={10} /> Nombre
-          </label>
-          <input
-            ref={nameRef} type="text" placeholder="Nombre y apellido"
-            value={name} onChange={(e) => setName(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); passRef.current?.focus() } }}
-            className="w-full h-11 bg-neutral-50 border border-neutral-200 rounded-lg px-3 text-sm focus:bg-white focus:ring-2 focus:ring-brand-100 focus:border-brand-300 placeholder-neutral-300 transition-all"
-          />
-        </div>
-      </div>
-
-      {/* Secondary: password (deprioritized) */}
-      <div>
-        <label className="text-[9px] font-medium uppercase tracking-wider text-neutral-300 flex items-center gap-1 mb-1">
-          <Lock size={9} /> Contraseña de turno <span className="normal-case font-normal">(opcional)</span>
-        </label>
-        <input
-          ref={passRef} type="password" placeholder="Frase de acceso"
-          value={pass} onChange={(e) => setPass(e.target.value)}
-          className="h-9 w-full bg-neutral-50 border border-neutral-100 rounded-lg px-3 text-sm text-neutral-600 focus:bg-white focus:ring-2 focus:ring-brand-100 focus:border-brand-200 placeholder-neutral-300 transition-all sm:w-[18rem]"
-        />
-      </div>
-
-      {/* Primary CTA — full-width, visually dominant */}
-      <button type="submit" disabled={!valid}
-        className={`flex w-full items-center justify-center gap-2.5 rounded-xl py-3.5 text-sm font-bold tracking-wide transition-all active:scale-[0.98] shadow-sm
-          ${valid
-            ? 'bg-brand-600 hover:bg-brand-700 text-white shadow-brand-200'
-            : 'bg-neutral-100 text-neutral-400 cursor-not-allowed shadow-none'}`}>
-        <Zap size={16} strokeWidth={2.5} />
-        Activar Código Stroke
-      </button>
-
-      {/* Modo educativo — subtle, below CTA */}
-      {onOpenEducational && (
-        <div className="flex justify-center pt-0.5">
+      {/* Header: scan badge + educational mode */}
+      <div className="flex items-center justify-between mb-3">
+        <button type="button" onClick={() => setShowScanner(true)}
+          className="flex items-center gap-1.5 text-xs font-semibold text-brand-600 bg-brand-50 hover:bg-brand-100 border border-brand-200 px-2.5 py-1.5 rounded-lg transition-colors">
+          <ScanLine size={13} strokeWidth={2} />
+          Escanear DNI
+        </button>
+        {onOpenEducational && (
           <button type="button" onClick={onOpenEducational}
             className="flex items-center gap-1 text-[11px] text-neutral-300 hover:text-amber-500 transition-colors">
             <BookOpen size={11} strokeWidth={2} /> Modo educativo
           </button>
+        )}
+      </div>
+
+      {/* Live identity card preview */}
+      <div className="rounded-2xl p-4 mb-3 relative overflow-hidden"
+        style={{ background: 'linear-gradient(135deg, #1D4ED8 0%, #1E3A8A 100%)' }}>
+        <div className="absolute -top-5 -right-5 w-24 h-24 rounded-full bg-white/5 pointer-events-none" />
+        <div className="absolute -bottom-8 -left-2 w-20 h-20 rounded-full bg-white/[0.04] pointer-events-none" />
+        <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-white/50 mb-2.5">
+          Código Stroke · Paciente
+        </p>
+        <p className={`text-[17px] font-black leading-tight ${hasName ? 'text-white' : 'text-white/25 font-normal italic text-sm'}`}>
+          {hasName ? name.trim() : 'Nombre del paciente'}
+        </p>
+        <div className="flex gap-4 mt-2">
+          <div>
+            <p className="text-[9px] text-white/40 uppercase tracking-[0.08em]">DNI</p>
+            <p className={`text-[13px] font-bold font-mono ${hasDni ? 'text-white' : 'text-white/20'}`}>
+              {hasDni ? dni.trim() : '——'}
+            </p>
+          </div>
+          <div>
+            <p className="text-[9px] text-white/40 uppercase tracking-[0.08em]">Llegada</p>
+            <p className="text-[13px] font-bold font-mono text-white/70">
+              {new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}
+            </p>
+          </div>
         </div>
-      )}
-    </form>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-3">
+        {/* DNI + Nombre en dos columnas */}
+        <div className="grid grid-cols-[1fr_1.5fr] gap-2.5">
+          <div>
+            <label className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400 flex items-center gap-1 mb-1.5">
+              <CreditCard size={10} /> DNI
+            </label>
+            <input
+              type="text" inputMode="numeric" pattern="[0-9]*" placeholder="12345678"
+              value={dni} onChange={(e) => setDni(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); nameRef.current?.focus() } }}
+              autoFocus
+              className="h-[42px] w-full bg-neutral-50 border border-neutral-200 rounded-xl px-3 text-sm font-semibold text-neutral-800 focus:bg-white focus:ring-2 focus:ring-brand-100 focus:border-brand-400 placeholder-neutral-300 transition-all outline-none"
+            />
+          </div>
+          <div>
+            <label className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400 flex items-center gap-1 mb-1.5">
+              <User size={10} /> Nombre
+            </label>
+            <input
+              ref={nameRef} type="text" placeholder="Nombre y apellido"
+              value={name} onChange={(e) => setName(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); passRef.current?.focus() } }}
+              className="h-[42px] w-full bg-neutral-50 border border-neutral-200 rounded-xl px-3 text-sm text-neutral-800 focus:bg-white focus:ring-2 focus:ring-brand-100 focus:border-brand-400 placeholder-neutral-300 transition-all outline-none"
+            />
+          </div>
+        </div>
+
+        {/* Passphrase — colapsada por defecto */}
+        <div>
+          <button type="button" onClick={() => setShowPassphrase(v => !v)}
+            className="flex items-center gap-1.5 text-[11px] text-neutral-400 hover:text-neutral-600 transition-colors">
+            <Lock size={11} strokeWidth={2} />
+            <span>{showPassphrase ? 'Ocultar contraseña de turno' : 'Agregar contraseña de turno (opcional)'}</span>
+            <ChevronRight size={11} strokeWidth={2} className={`transition-transform ${showPassphrase ? 'rotate-90' : ''}`} />
+          </button>
+          {showPassphrase && (
+            <input
+              ref={passRef} type="password" placeholder="Frase de acceso"
+              value={pass} onChange={(e) => setPass(e.target.value)}
+              className="mt-2 h-10 w-full bg-neutral-50 border border-neutral-200 rounded-xl px-3 text-sm text-neutral-800 focus:bg-white focus:ring-2 focus:ring-brand-100 focus:border-brand-400 placeholder-neutral-300 transition-all outline-none"
+            />
+          )}
+        </div>
+
+        <button type="submit" disabled={!valid}
+          className={`flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold transition-all active:scale-[0.98]
+            ${valid ? 'bg-brand-600 hover:bg-brand-700 text-white' : 'bg-neutral-100 text-neutral-400 cursor-not-allowed'}`}>
+          <Zap size={15} strokeWidth={2.5} />
+          Activar Código Stroke
+        </button>
+      </form>
     </>
   )
 }
