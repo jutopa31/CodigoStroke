@@ -47,6 +47,8 @@ function TabItem({ tab, active, completion, onClick }) {
       type="button"
       onClick={() => onClick(id)}
       aria-selected={active}
+      aria-label={label}
+      title={label}
       className={`flex flex-col items-center justify-center gap-0.5
         min-w-[3rem] h-12 px-2 rounded-xl transition-all shrink-0
         md:min-w-[4.5rem] md:h-auto md:gap-1 md:rounded-lg md:border md:px-2 md:py-1 ${
@@ -65,8 +67,7 @@ function TabItem({ tab, active, completion, onClick }) {
           </span>
         )}
       </div>
-      <span className={`text-[10px] leading-none whitespace-nowrap md:text-[11px] md:leading-3
-        ${active ? 'block' : 'hidden'} md:block
+      <span className={`block text-[10px] leading-none whitespace-nowrap md:text-[11px] md:leading-3
         ${labelColor}`}>{label}</span>
     </button>
   )
