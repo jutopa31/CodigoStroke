@@ -223,7 +223,7 @@ export default function CareTab({
             />
             <span className="text-xs text-stroke-textMuted">mmHg</span>
             <button type="button" onClick={handleSaveVitals} disabled={!vitalsValid}
-              className="px-3 py-2 bg-blue-600 text-white rounded-xl font-bold text-sm disabled:opacity-40">
+              className="px-3 py-2 bg-stroke-iconActive text-stroke-bg rounded-xl font-bold text-sm disabled:opacity-40">
               ✓
             </button>
             <button type="button" onClick={() => { setShowVitalsInput(false); setVitalsEntry({ sys: '', dia: '' }) }}
@@ -281,7 +281,7 @@ export default function CareTab({
         <button
           type="button"
           onClick={onContinue}
-          className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-600 py-3 text-sm font-semibold text-white transition-all hover:bg-brand-700 active:scale-[0.98] md:w-auto md:px-5"
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-stroke-iconActive py-3 text-sm font-semibold text-stroke-bg transition-all hover:bg-[#4D6CD6] active:scale-[0.98] md:w-auto md:px-5"
         >
           Continuar → Trombectomía <ChevronRight size={16} />
         </button>

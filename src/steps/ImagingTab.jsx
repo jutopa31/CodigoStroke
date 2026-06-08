@@ -49,7 +49,7 @@ function CTSection({ onConfirm, initialCtRequestTime, onCtRequest, initialBleedi
       bleeding === true ? 'border-status-critical/30 bg-status-critical/10' : bleeding === false ? 'border-emerald-500/30 bg-emerald-500/10' : 'border-stroke-line bg-stroke-navy'
     }`}>
       <div className="flex items-start gap-3 px-3 py-3">
-        <span className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors ${ctRequestTime ? 'bg-emerald-500 text-white' : 'bg-stroke-iconActive text-stroke-bg'}`}>
+        <span className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors ${ctRequestTime ? 'bg-emerald-500 text-stroke-bg' : 'bg-stroke-iconActive text-stroke-bg'}`}>
           {ctRequestTime ? <CheckCircle2 size={17} strokeWidth={2.4} /> : <Scan size={17} strokeWidth={2.4} />}
         </span>
         <div className="min-w-0 flex-1">

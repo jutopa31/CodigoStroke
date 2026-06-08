@@ -89,7 +89,7 @@ export default function VitalsStep({ onConfirm, isCollapsed = false }) {
       ? 'border-red-300 bg-status-critical/10 focus:border-red-400 focus:ring-status-critical/30'
       : isFilled
         ? 'border-blue-300 bg-blue-500/10 focus:border-blue-400 focus:ring-blue-500/30'
-        : 'border-stroke-line bg-stroke-navy focus:border-blue-300 focus:ring-blue-500/30')
+        : 'border-stroke-line bg-stroke-navy focus:border-stroke-iconActive/50 focus:ring-blue-500/30')
 
   const glucInput =
     'w-full rounded-xl border py-2.5 text-xl font-bold text-center text-stroke-text pr-16 ' +

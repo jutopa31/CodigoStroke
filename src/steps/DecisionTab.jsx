@@ -119,7 +119,7 @@ export default function DecisionTab({ result, onGoToThrombolysis, onGoToThrombec
             </button>
           )}
           <button type="button" onClick={onGoToThrombectomy}
-            className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 active:scale-[0.98] transition-all text-white">
+            className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg bg-stroke-iconActive hover:bg-[#4D6CD6] active:scale-[0.98] transition-all text-stroke-bg">
             <Zap size={18} />
             <div className="text-left">
               <p className="text-sm font-bold">Ir a Trombectomía</p>

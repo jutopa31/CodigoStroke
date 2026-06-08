@@ -21,7 +21,7 @@ function TabItem({ tab, active, completion, onClick }) {
   const { id, label, Icon } = tab
 
   const iconBg = active
-    ? 'bg-stroke-bg text-white md:bg-stroke-iconActive md:text-white'
+    ? 'bg-stroke-bg text-stroke-bg md:bg-stroke-iconActive md:text-stroke-bg'
     : completion === 'complete'
       ? 'bg-emerald-500/15 text-emerald-700 md:bg-stroke-icon md:text-white'
       : completion === 'partial'

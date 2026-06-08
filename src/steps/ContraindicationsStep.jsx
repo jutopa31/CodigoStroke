@@ -286,7 +286,7 @@ export default function ContraindicationsStep({ onConfirm, onAnticoagChange, isC
             type="button"
             onClick={() => setView('orange')}
             disabled={!allRedAnswered || !anticoagAnswered}
-            className="w-full flex items-center justify-center gap-2 mb-3 py-3 rounded-xl font-semibold text-sm transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed bg-brand-600 hover:bg-brand-700 text-white"
+            className="w-full flex items-center justify-center gap-2 mb-3 py-3 rounded-xl font-semibold text-sm transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed bg-stroke-iconActive hover:bg-[#4D6CD6] text-stroke-bg"
           >
             Continuar — relativas <ChevronRight size={16} />
           </button>
@@ -359,7 +359,7 @@ export default function ContraindicationsStep({ onConfirm, onAnticoagChange, isC
             <button
               type="button"
               onClick={() => setShowRelativeWarning(true)}
-              className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-semibold py-3 rounded-xl transition-all text-sm"
+              className="w-full flex items-center justify-center gap-2 bg-stroke-iconActive hover:bg-[#4D6CD6] active:scale-95 text-stroke-bg font-semibold py-3 rounded-xl transition-all text-sm"
             >
               Continuar <ChevronRight size={16} />
             </button>
@@ -367,7 +367,7 @@ export default function ContraindicationsStep({ onConfirm, onAnticoagChange, isC
             <button
               type="button"
               onClick={() => confirm(hasRed)}
-              className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-semibold py-3 rounded-xl transition-all text-sm"
+              className="w-full flex items-center justify-center gap-2 bg-stroke-iconActive hover:bg-[#4D6CD6] active:scale-95 text-stroke-bg font-semibold py-3 rounded-xl transition-all text-sm"
             >
               {hasRed ? 'Registrar — Evaluar OGV' : 'Registrar y continuar'} <ChevronRight size={16} />
             </button>

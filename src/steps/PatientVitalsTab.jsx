@@ -149,7 +149,7 @@ function PatientSection({ patient, patientId, arrivalTime, onConfirm, onOpenEduc
 
         <button type="submit" disabled={!valid}
           className={`flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold transition-all active:scale-[0.98]
-            ${valid ? 'bg-brand-600 hover:bg-brand-700 text-white' : 'bg-stroke-panel text-stroke-textMuted cursor-not-allowed'}`}>
+            ${valid ? 'bg-stroke-iconActive hover:bg-[#4D6CD6] text-stroke-bg' : 'bg-stroke-panel text-stroke-textMuted cursor-not-allowed'}`}>
           <Zap size={15} strokeWidth={2.5} />
           Activar Código Stroke
         </button>
@@ -233,7 +233,7 @@ function VitalsSection({ vitals, onConfirm, draftVitals, onDraftChange }) {
       ? 'border-red-300 bg-status-critical/10 focus:border-red-400 focus:ring-status-critical/30'
       : filled
         ? 'border-blue-300 bg-blue-500/10 focus:border-blue-400 focus:ring-blue-500/30'
-        : 'border-stroke-line bg-stroke-navy focus:border-blue-300 focus:ring-blue-500/30')
+        : 'border-stroke-line bg-stroke-navy focus:border-stroke-iconActive/50 focus:ring-blue-500/30')
 
   const glucInputCls =
     'w-full rounded-xl border py-3 text-2xl font-bold text-center text-stroke-text pr-14 ' +
@@ -366,7 +366,7 @@ function VitalsSection({ vitals, onConfirm, draftVitals, onDraftChange }) {
       {/* ── Botón confirmar al pie ── */}
       <button type="button" onClick={handleConfirm} disabled={!valid}
         className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-all active:scale-[0.98] ${
-          valid ? 'bg-brand-600 hover:bg-brand-700 text-white' : 'bg-stroke-panel text-stroke-textMuted cursor-not-allowed'
+          valid ? 'bg-stroke-iconActive hover:bg-[#4D6CD6] text-stroke-bg' : 'bg-stroke-panel text-stroke-textMuted cursor-not-allowed'
         }`}>
         {valid ? <><CheckCircle2 size={14}/> Registrar signos vitales</> : `Completá: ${missing.join(' · ')}`}
       </button>

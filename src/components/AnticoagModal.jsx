@@ -27,13 +27,13 @@ export default function AnticoagModal({ isOpen, onConfirm }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
       <div className="w-full max-w-md bg-stroke-navy rounded-2xl shadow-modal overflow-hidden animate-scale-in">
         {/* Header */}
-        <div className="bg-brand-600 px-5 py-4">
+        <div className="bg-stroke-iconActive px-5 py-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-stroke-bg flex items-center justify-center shrink-0">
               <ShieldAlert size={18} className="text-white" strokeWidth={2} />
             </div>
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-brand-200">Evaluación</p>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-stroke-iconActive">Evaluación</p>
               <h2 className="text-white font-semibold text-base leading-tight">Anticoagulación</h2>
             </div>
           </div>

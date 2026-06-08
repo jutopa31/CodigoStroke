@@ -102,7 +102,7 @@ export default function EducationalOverlay({ onClose }) {
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-4 border-b border-blue-500/30 bg-blue-500/10 shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-blue-700 flex items-center justify-center shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-stroke-iconActive flex items-center justify-center shrink-0">
             <BookOpen size={17} className="text-white" strokeWidth={2} />
           </div>
           <div>
@@ -215,7 +215,7 @@ export default function EducationalOverlay({ onClose }) {
             <div className="space-y-2">
               {POST_CHECKLIST.map((item, i) => (
                 <div key={i} className="flex items-start gap-2.5 rounded-xl border border-stroke-line bg-stroke-bg px-3 py-2.5">
-                  <span className="mt-0.5 w-5 h-5 rounded-md bg-blue-700 flex items-center justify-center text-white text-[10px] font-bold shrink-0">
+                  <span className="mt-0.5 w-5 h-5 rounded-md bg-stroke-iconActive flex items-center justify-center text-stroke-bg text-[10px] font-bold shrink-0">
                     {i + 1}
                   </span>
                   <p className="text-xs leading-relaxed">{item}</p>

@@ -149,7 +149,7 @@ export default function ThrombectomyStep({
               <button
                 type="button"
                 onClick={handleAngioYes}
-                className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-brand-600 text-white hover:bg-brand-700 active:scale-[0.98] transition-all"
+                className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-stroke-iconActive text-stroke-bg hover:bg-[#4D6CD6] active:scale-[0.98] transition-all"
               >
                 Sí, solicitar
               </button>
@@ -187,7 +187,7 @@ export default function ThrombectomyStep({
                   <button
                     type="button"
                     onClick={() => setOgvFound(true)}
-                    className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-900 text-white hover:bg-blue-800 active:scale-[0.98] transition-all"
+                    className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-900 text-white hover:bg-[#4D6CD6] active:scale-[0.98] transition-all"
                   >
                     Sí OGV
                   </button>
@@ -261,7 +261,7 @@ export default function ThrombectomyStep({
               className={`flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg transition-all active:scale-[0.98] ${
                 notified
                   ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/30'
-                  : 'bg-brand-600 text-white hover:bg-brand-700'
+                  : 'bg-stroke-iconActive text-stroke-bg hover:bg-[#4D6CD6]'
               }`}
             >
               <Bell size={13} />
@@ -312,7 +312,7 @@ export default function ThrombectomyStep({
               onClick={handleSubmit}
               className={`flex w-full items-center justify-center gap-2 rounded-lg py-3 text-sm font-semibold transition-all active:scale-[0.98] md:w-auto md:px-5 ${
                 canContinue
-                  ? 'bg-brand-600 text-white hover:bg-brand-700'
+                  ? 'bg-stroke-iconActive text-stroke-bg hover:bg-[#4D6CD6]'
                   : 'bg-stroke-panel text-stroke-textMuted cursor-pointer'
               }`}
             >

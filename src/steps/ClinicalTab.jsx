@@ -38,7 +38,7 @@ function VitalsSection({ onConfirm, confirmed, initialVitals }) {
         ? 'border-red-300 bg-status-critical/10 focus:border-red-400 focus:ring-2 focus:ring-status-critical/30'
         : filled
           ? 'border-blue-300 bg-blue-500/10 focus:border-blue-400 focus:ring-2 focus:ring-blue-500/30'
-          : 'border-stroke-line focus:border-blue-300 focus:ring-2 focus:ring-blue-500/30'
+          : 'border-stroke-line focus:border-stroke-iconActive/50 focus:ring-2 focus:ring-blue-500/30'
     }`
   }
 
@@ -110,7 +110,7 @@ function VitalsSection({ onConfirm, confirmed, initialVitals }) {
           confirmed
             ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-300'
             : valid
-              ? 'bg-brand-600 hover:bg-brand-700 text-white'
+              ? 'bg-stroke-iconActive hover:bg-[#4D6CD6] text-stroke-bg'
               : 'bg-stroke-panel text-stroke-textMuted cursor-not-allowed'
         }`}
       >
@@ -256,7 +256,7 @@ function NihssSection({ onConfirm, confirmed, initialNihss }) {
             confirmed
               ? 'bg-emerald-500/10 border-2 border-emerald-500/30 text-emerald-300'
               : canConfirm
-                ? 'bg-brand-600 hover:bg-brand-700 text-white shadow-sm'
+                ? 'bg-stroke-iconActive hover:bg-[#4D6CD6] text-stroke-bg shadow-sm'
                 : 'bg-stroke-panel text-stroke-textMuted cursor-not-allowed'
           }`}>
           {confirmed

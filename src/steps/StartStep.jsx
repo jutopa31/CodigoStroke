@@ -105,7 +105,7 @@ export default function StartStep({ onStart, onResume, onOpenEducational, authUs
       {/* CTA — large + bold so white-on-accent passes WCAG AA as large text (3.87 ≥ 3.0) */}
       <button
         onClick={onStart}
-        className="w-full max-w-xs flex items-center justify-center gap-3 bg-stroke-iconActive hover:bg-[#4D6CD6] active:scale-[0.98] text-white font-bold text-lg py-4 px-8 rounded-2xl shadow-elevated transition-all duration-150"
+        className="w-full max-w-xs flex items-center justify-center gap-3 bg-stroke-iconActive hover:bg-[#4D6CD6] active:scale-[0.98] text-stroke-bg font-bold text-lg py-4 px-8 rounded-2xl shadow-elevated transition-all duration-150"
       >
         <Zap size={20} strokeWidth={2} />
         Iniciar Código Stroke

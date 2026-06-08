@@ -99,7 +99,7 @@ function IntroSection() {
           'Glucemia entre 50 y 400 mg/dL',
         ].map((item, i) => (
           <div key={i} className="flex items-start gap-3 rounded-xl bg-stroke-navy border border-stroke-line px-4 py-3">
-            <span className="w-5 h-5 rounded-md bg-blue-700 flex items-center justify-center text-white text-[10px] font-bold shrink-0 mt-0.5">{i + 1}</span>
+            <span className="w-5 h-5 rounded-md bg-stroke-iconActive flex items-center justify-center text-stroke-bg text-[10px] font-bold shrink-0 mt-0.5">{i + 1}</span>
             <p className="text-sm text-stroke-text leading-relaxed">{item}</p>
           </div>
         ))}
@@ -281,7 +281,7 @@ function NihssSection() {
                     onClick={() => setScores(prev => ({ ...prev, [item.id]: opt.score }))}
                     className={`w-full flex items-center gap-3 rounded-xl border px-3 py-2.5 text-left transition-all active:scale-[0.98] ${
                       selected === opt.score
-                        ? 'bg-blue-700 border-blue-700 text-white'
+                        ? 'bg-stroke-iconActive border-blue-700 text-stroke-bg'
                         : 'bg-stroke-bg border-stroke-line text-stroke-text hover:bg-blue-500/10 hover:border-blue-500/30'
                     }`}
                   >
@@ -504,7 +504,7 @@ function DosisSection() {
             <p className="text-xs text-stroke-iconActive mt-0.5">0.25 mg/kg IV — máximo 25 mg</p>
           </div>
           {tnkDose && (
-            <span className="shrink-0 text-2xl font-bold text-brand-300 tabular-nums">{tnkDose.toFixed(1)} mg</span>
+            <span className="shrink-0 text-2xl font-bold text-stroke-iconActive tabular-nums">{tnkDose.toFixed(1)} mg</span>
           )}
         </div>
         <div className="pt-2 border-t border-stroke-iconActive/40">
@@ -530,7 +530,7 @@ function DosisSection() {
             'Evaluar trombectomía mecánica si hay oclusión de gran vaso (AngioTAC)',
           ].map((item, i) => (
             <div key={i} className="flex items-start gap-2.5 rounded-xl border border-stroke-line bg-stroke-bg px-3 py-2.5">
-              <span className="mt-0.5 w-5 h-5 rounded-md bg-blue-700 flex items-center justify-center text-white text-[10px] font-bold shrink-0">{i + 1}</span>
+              <span className="mt-0.5 w-5 h-5 rounded-md bg-stroke-iconActive flex items-center justify-center text-stroke-bg text-[10px] font-bold shrink-0">{i + 1}</span>
               <p className="text-xs leading-relaxed text-stroke-text">{item}</p>
             </div>
           ))}

@@ -48,7 +48,7 @@ export default function StepTimeline({ currentStep, completedSteps = [], onStepC
                       ${isCompleted
                         ? 'bg-emerald-500/100 text-white'
                         : isActive
-                          ? 'bg-brand-600 text-white shadow-minimal'
+                          ? 'bg-stroke-iconActive text-stroke-bg shadow-minimal'
                           : isUnlocked
                             ? 'bg-stroke-panel text-stroke-textMuted group-hover:bg-stroke-panel group-hover:text-stroke-textMuted'
                             : 'bg-stroke-panel text-stroke-textMuted'

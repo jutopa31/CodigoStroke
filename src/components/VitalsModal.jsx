@@ -70,7 +70,7 @@ export default function VitalsModal({ isOpen, onConfirm }) {
         ? 'border-red-300 bg-status-critical/10 focus:border-red-400 focus:ring-2 focus:ring-status-critical/30'
         : filled
           ? 'border-blue-300 bg-blue-500/10 focus:border-blue-400 focus:ring-2 focus:ring-blue-500/30'
-          : 'border-stroke-line focus:border-blue-300 focus:ring-2 focus:ring-blue-500/30'
+          : 'border-stroke-line focus:border-stroke-iconActive/50 focus:ring-2 focus:ring-blue-500/30'
     }`
 
   return (
@@ -80,13 +80,13 @@ export default function VitalsModal({ isOpen, onConfirm }) {
     >
       <div className="w-full max-w-md max-h-[calc(var(--visual-viewport-height,100svh)-4.5rem)] overflow-y-auto bg-stroke-navy rounded-2xl shadow-modal animate-scale-in sm:max-h-[calc(100svh-2rem)]">
         {/* Header */}
-        <div className="bg-brand-600 px-5 py-4">
+        <div className="bg-stroke-iconActive px-5 py-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-stroke-bg flex items-center justify-center shrink-0">
               <Activity size={18} className="text-white" strokeWidth={2} />
             </div>
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-brand-200">Evaluación inicial</p>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-stroke-iconActive">Evaluación inicial</p>
               <h2 className="text-white font-semibold text-base leading-tight">Signos vitales</h2>
             </div>
           </div>
@@ -167,7 +167,7 @@ export default function VitalsModal({ isOpen, onConfirm }) {
             type="button"
             onClick={handleConfirm}
             disabled={!valid}
-            className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-semibold text-sm transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed bg-brand-600 hover:bg-brand-700 text-white"
+            className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-semibold text-sm transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed bg-stroke-iconActive hover:bg-[#4D6CD6] text-stroke-bg"
           >
             Iniciar protocolo <ChevronRight size={16} strokeWidth={2} />
           </button>

@@ -72,7 +72,7 @@ function ModalShell({ title, onClose, onConfirm, confirmLabel = 'Registrar', con
           <button
             onClick={onConfirm}
             disabled={confirmDisabled}
-            className="flex-1 py-2.5 bg-brand-600 text-white rounded-xl font-semibold text-sm hover:bg-brand-700 active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+            className="flex-1 py-2.5 bg-stroke-iconActive text-stroke-bg rounded-xl font-semibold text-sm hover:bg-[#4D6CD6] active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {confirmLabel}
           </button>
@@ -121,7 +121,7 @@ function NihssQuickModal({ onClose, onConfirm }) {
         value={value}
         onChange={(e) => setValue(e.target.value)}
         autoFocus
-        className="w-full border border-stroke-line rounded-xl px-4 py-3 text-2xl font-semibold text-center text-stroke-text focus:outline-none focus:ring-2 focus:ring-brand-200 focus:border-stroke-iconActive/40 transition"
+        className="w-full border border-stroke-line rounded-xl px-4 py-3 text-2xl font-semibold text-center text-stroke-text focus:outline-none focus:ring-2 focus:ring-stroke-iconActive/40 focus:border-stroke-iconActive/40 transition"
       />
 
       {severity && (
@@ -183,7 +183,7 @@ function VitalsQuickModal({ onClose, onConfirm }) {
             value={systolic}
             onChange={(e) => setSystolic(e.target.value)}
             autoFocus
-            className="w-full border border-stroke-line rounded-xl px-3 py-3 text-xl font-semibold text-center text-stroke-text focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-300 transition"
+            className="w-full border border-stroke-line rounded-xl px-3 py-3 text-xl font-semibold text-center text-stroke-text focus:outline-none focus:ring-2 focus:ring-stroke-iconActive/40 focus:border-stroke-iconActive/50 transition"
           />
         </div>
 
@@ -198,7 +198,7 @@ function VitalsQuickModal({ onClose, onConfirm }) {
             placeholder="80"
             value={diastolic}
             onChange={(e) => setDiastolic(e.target.value)}
-            className="w-full border border-stroke-line rounded-xl px-3 py-3 text-xl font-semibold text-center text-stroke-text focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-300 transition"
+            className="w-full border border-stroke-line rounded-xl px-3 py-3 text-xl font-semibold text-center text-stroke-text focus:outline-none focus:ring-2 focus:ring-stroke-iconActive/40 focus:border-stroke-iconActive/50 transition"
           />
         </div>
       </div>

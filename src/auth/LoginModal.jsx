@@ -8,7 +8,7 @@ function getInitials(user) {
 }
 
 const inputClass =
-  'w-full bg-stroke-navy border border-stroke-line rounded-xl px-4 py-3 text-stroke-text text-sm focus:ring-2 focus:ring-brand-200 focus:border-stroke-iconActive/40 placeholder-stroke-textMuted/50 transition-all outline-none'
+  'w-full bg-stroke-navy border border-stroke-line rounded-xl px-4 py-3 text-stroke-text text-sm focus:ring-2 focus:ring-stroke-iconActive/40 focus:border-stroke-iconActive/40 placeholder-stroke-textMuted/50 transition-all outline-none'
 
 const Overlay = ({ onClose, children }) => (
   <div
@@ -114,7 +114,7 @@ export default function LoginModal({ onClose }) {
       <Overlay onClose={onClose}>
         <ModalHeader title="Tu cuenta" onClose={onClose} />
         <div className="px-5 py-6 flex flex-col items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-brand-600 flex items-center justify-center">
+          <div className="w-14 h-14 rounded-2xl bg-stroke-iconActive flex items-center justify-center">
             <span className="text-white font-bold text-lg">{getInitials(user)}</span>
           </div>
           <div className="text-center">
@@ -163,7 +163,7 @@ export default function LoginModal({ onClose }) {
           <button
             type="button"
             onClick={onClose}
-            className="mt-2 px-6 py-2.5 rounded-xl bg-brand-600 text-white text-sm font-medium hover:bg-brand-700 active:scale-[0.98] transition-all"
+            className="mt-2 px-6 py-2.5 rounded-xl bg-stroke-iconActive text-stroke-bg text-sm font-medium hover:bg-[#4D6CD6] active:scale-[0.98] transition-all"
           >
             Entendido
           </button>
@@ -216,7 +216,7 @@ export default function LoginModal({ onClose }) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-semibold text-sm active:scale-[0.98] disabled:opacity-60 transition-all flex items-center justify-center gap-2 mt-1"
+            className="w-full py-3 bg-stroke-iconActive hover:bg-[#4D6CD6] text-stroke-bg rounded-xl font-semibold text-sm active:scale-[0.98] disabled:opacity-60 transition-all flex items-center justify-center gap-2 mt-1"
           >
             {loading && <Loader2 size={15} className="animate-spin" />}
             Crear cuenta
@@ -282,7 +282,7 @@ export default function LoginModal({ onClose }) {
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-semibold text-sm active:scale-[0.98] disabled:opacity-60 transition-all flex items-center justify-center gap-2 mt-1"
+          className="w-full py-3 bg-stroke-iconActive hover:bg-[#4D6CD6] text-stroke-bg rounded-xl font-semibold text-sm active:scale-[0.98] disabled:opacity-60 transition-all flex items-center justify-center gap-2 mt-1"
         >
           {loading && <Loader2 size={15} className="animate-spin" />}
           {mode === 'admin' ? 'Enviar link de acceso' : 'Ingresar'}

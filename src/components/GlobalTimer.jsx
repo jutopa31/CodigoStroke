@@ -24,21 +24,22 @@ function fmtClock(ts) {
 }
 
 function getPhase(minutes) {
+  // Unified navy chrome — urgency lives in the timer pill (escalates to amber/red) + progress bar
   if (minutes >= 60) return {
-    bg: 'bg-blue-900',
-    muted: 'text-blue-200',
+    bg: 'bg-stroke-navy',
+    muted: 'text-stroke-textMuted',
     badge: 'bg-stroke-bg text-white',
-    timer: 'md:bg-stroke-panel md:text-white',
+    timer: 'md:bg-status-critical md:text-white',
   }
   if (minutes >= 30) return {
-    bg: 'bg-brand-700',
-    muted: 'text-brand-200',
+    bg: 'bg-stroke-navy',
+    muted: 'text-stroke-textMuted',
     badge: 'bg-stroke-bg text-white',
     timer: 'md:bg-amber-500 md:text-white',
   }
   return {
-    bg: 'bg-brand-600',
-    muted: 'text-brand-300',
+    bg: 'bg-stroke-navy',
+    muted: 'text-stroke-textMuted',
     badge: 'bg-stroke-bg text-white',
     timer: 'md:bg-stroke-panel md:text-white',
   }
@@ -76,7 +77,7 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
 
   const minutes = elapsed / 60
   const phase = startTime ? getPhase(minutes) : null
-  const bg = phase ? phase.bg : 'bg-brand-600'
+  const bg = phase ? phase.bg : 'bg-stroke-navy'
   const eventBadges = getEventBadges(startTime, timestamps)
   const primaryEvent = eventBadges[eventBadges.length - 1]
 
@@ -187,7 +188,7 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
               !phase ? 'bg-emerald-400' :
               minutes < 30 ? 'bg-emerald-400' :
               minutes < 60 ? 'bg-amber-400' :
-              'bg-blue-400'
+              'bg-red-400'
             }`}
             style={{ width: `${progressPct}%` }}
           />
