@@ -50,7 +50,7 @@ export default function AlertModal({ patient, onConfirm, onClose }) {
             type="button"
             autoFocus
             onClick={onConfirm}
-            className="flex-[2] py-3 bg-stroke-iconActive hover:bg-[#4D6CD6] text-stroke-bg rounded-xl font-semibold text-sm active:scale-[0.98] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2"
+            className="flex-[2] py-3 bg-stroke-iconActive hover:bg-[#4D6CD6] text-stroke-bg rounded-xl font-semibold text-sm active:scale-[0.98] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-stroke-iconActive focus-visible:ring-offset-2"
           >
             Sí, activar
           </button>

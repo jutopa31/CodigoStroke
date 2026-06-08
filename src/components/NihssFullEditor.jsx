@@ -88,7 +88,7 @@ function GuidedWizard({ onSave, onClose }) {
                   onClick={() => select(opt.score)}
                   className={`w-full text-left px-4 py-3 rounded-xl border-2 text-sm transition-all duration-150 active:scale-[0.99] ${
                     active
-                      ? 'border-brand-600 bg-stroke-iconActive text-stroke-bg shadow-sm'
+                      ? 'border-stroke-iconActive bg-stroke-iconActive text-stroke-bg shadow-sm'
                       : 'border-stroke-line bg-stroke-navy text-stroke-text hover:border-stroke-iconActive/40 hover:bg-stroke-iconActive/10'
                   }`}
                 >
@@ -205,7 +205,7 @@ function InlineScroll({ scores: initialScores, onSave, onClose }) {
                       onClick={() => setScores((prev) => ({ ...prev, [item.id]: opt.score }))}
                       className={`w-full text-left px-3 py-2.5 rounded-xl border-2 text-sm flex items-center gap-3 transition-all active:scale-[0.99] ${
                         active
-                          ? 'border-brand-600 bg-stroke-iconActive text-stroke-bg'
+                          ? 'border-stroke-iconActive bg-stroke-iconActive text-stroke-bg'
                           : 'border-stroke-line text-stroke-text hover:border-stroke-iconActive/40 hover:bg-stroke-iconActive/10'
                       }`}
                     >
@@ -377,7 +377,7 @@ function ScrollModal({ scores: initialScores, onSave, onClose }) {
                         onClick={() => setScores((prev) => ({ ...prev, [item.id]: opt.score }))}
                         className={`w-full text-left px-3 py-2.5 rounded-xl border-2 text-sm flex items-center gap-3 transition-all active:scale-[0.99] ${
                           active
-                            ? 'border-brand-600 bg-stroke-iconActive text-stroke-bg'
+                            ? 'border-stroke-iconActive bg-stroke-iconActive text-stroke-bg'
                             : 'border-stroke-line text-stroke-text hover:border-stroke-iconActive/40 hover:bg-stroke-iconActive/10'
                         }`}
                       >

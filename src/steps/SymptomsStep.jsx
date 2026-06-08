@@ -522,7 +522,7 @@ export default function SymptomsStep({ onConfirm }) {
                   step="5"
                   value={offsetMinutes}
                   onChange={(event) => applyOffset(event.target.value)}
-                  className="h-2 w-full cursor-pointer accent-brand-600"
+                  className="h-2 w-full cursor-pointer accent-[#5C7AEA]"
                   aria-label="Minutos desde ultima vez asintomatico"
                 />
                 <button

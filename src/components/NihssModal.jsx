@@ -65,7 +65,7 @@ export default function NihssModal({ onLoad, onClose }) {
                   onClick={() => select(opt.score)}
                   className={`w-full text-left px-4 py-3 rounded-xl border text-sm transition-all ${
                     selected
-                      ? 'bg-stroke-iconActive border-brand-600 text-stroke-bg font-medium'
+                      ? 'bg-stroke-iconActive border-stroke-iconActive text-stroke-bg font-medium'
                       : 'border-stroke-line text-stroke-text hover:border-stroke-iconActive/40 hover:bg-stroke-iconActive/10 active:scale-98'
                   }`}
                 >
