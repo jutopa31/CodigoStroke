@@ -45,8 +45,8 @@ function CTSection({ onConfirm, initialCtRequestTime, onCtRequest, initialBleedi
   }
 
   return (
-    <div className={`overflow-hidden rounded-xl border transition-all duration-200 ${
-      bleeding === true ? 'border-status-critical/30 bg-status-critical/10' : bleeding === false ? 'border-emerald-500/30 bg-emerald-500/10' : 'border-stroke-line bg-stroke-navy'
+    <div className={`overflow-hidden rounded-xl transition-colors duration-200 ${
+      bleeding === true ? 'bg-status-critical/10' : bleeding === false ? 'bg-emerald-500/10' : ''
     }`}>
       <div className="flex items-start gap-3 px-3 py-3">
         <span className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors ${ctRequestTime ? 'bg-emerald-500 text-stroke-bg' : 'bg-stroke-iconActive text-stroke-bg'}`}>
@@ -113,7 +113,7 @@ function MRISection({ onConfirm, initialMriRequestTime, initialMismatch }) {
   }
 
   return (
-    <div className="rounded-xl border border-indigo-500/30 bg-indigo-500/10 overflow-hidden">
+    <div className="rounded-xl bg-indigo-500/10 overflow-hidden">
       <div className="flex items-center gap-2 px-4 py-3 bg-indigo-500/15">
         <Moon size={14} className="text-indigo-300 shrink-0" />
         <span className="text-xs font-semibold text-indigo-300">Protocolo WAKE-UP — evaluar mismatch FLAIR-DWI</span>

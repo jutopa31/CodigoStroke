@@ -58,14 +58,14 @@ export default function CTResultStep({ onConfirm, initialCtRequestTime = null, o
   return (
     <div className="px-4 pb-4 space-y-3 md:px-0">
       <StepCard step="5" title="TAC de encéfalo" accent="blue">
-        <div className={`overflow-hidden rounded-xl border transition-all duration-200 ${
+        <div className={`overflow-hidden rounded-xl transition-colors duration-200 ${
           !tacConfirmed
-            ? 'border-blue-500/30 bg-blue-500/10 shadow-minimal'
+            ? ''
             : bleeding === true
-              ? 'border-blue-800/40 bg-blue-900/8 shadow-card'
+              ? 'bg-status-critical/10'
               : bleeding === false
-                ? 'border-emerald-500/30 bg-emerald-500/10 shadow-card'
-                : 'border-blue-500/30 bg-stroke-navy shadow-card'
+                ? 'bg-emerald-500/10'
+                : ''
         }`}>
           <div className="flex items-start gap-3 px-3 py-3">
             <span className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors ${
