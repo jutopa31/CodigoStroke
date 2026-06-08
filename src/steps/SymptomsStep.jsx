@@ -548,7 +548,7 @@ export default function SymptomsStep({ onConfirm }) {
                   <span className="rounded-full border border-status-critical/30 bg-stroke-navy px-2 py-0.5 shadow-sm">24 h</span>
                 </button>
               </div>
-              <div className="rounded-lg border border-white/70 bg-stroke-navy px-3 py-2 text-right shadow-sm">
+              <div className="rounded-lg border border-stroke-line bg-stroke-navy px-3 py-2 text-right shadow-sm">
                 <p className="text-lg font-bold leading-tight text-stroke-text">{formatElapsed(elapsedMinutes)}</p>
                 <p className="text-[11px] font-semibold uppercase tracking-wider text-stroke-textMuted">{formatClock(lastSeen)}</p>
               </div>

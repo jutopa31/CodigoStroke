@@ -53,7 +53,7 @@ function TabItem({ tab, active, completion, onClick }) {
         min-w-[3rem] h-12 px-2 rounded-xl transition-all shrink-0
         md:min-w-[4.5rem] md:h-auto md:gap-1 md:rounded-lg md:border md:px-2 md:py-1 ${
           active
-            ? 'bg-stroke-bg md:border-white/10 md:bg-stroke-panel'
+            ? 'bg-stroke-bg md:border-stroke-line md:bg-stroke-panel'
             : 'hover:bg-stroke-bg md:border-transparent md:hover:bg-stroke-bg'
         }`}
     >

@@ -77,8 +77,8 @@ function PatientSection({ patient, patientId, arrivalTime, onConfirm, onOpenEduc
 
       {/* Live identity card preview */}
       <div className="rounded-2xl p-4 mb-3 relative overflow-hidden"
-        style={{ background: 'linear-gradient(135deg, #1D4ED8 0%, #1E3A8A 100%)' }}>
-        <div className="absolute -top-5 -right-5 w-24 h-24 rounded-full bg-stroke-bg pointer-events-none" />
+        style={{ background: 'linear-gradient(135deg, #244B99 0%, #132B58 100%)' }}>
+        <div className="absolute -top-5 -right-5 w-24 h-24 rounded-full bg-white/[0.06] pointer-events-none" />
         <div className="absolute -bottom-8 -left-2 w-20 h-20 rounded-full bg-white/[0.04] pointer-events-none" />
         <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-white/50 mb-2.5">
           Código Stroke · Paciente

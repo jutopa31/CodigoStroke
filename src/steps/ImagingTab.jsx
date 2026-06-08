@@ -46,14 +46,14 @@ function CTSection({ onConfirm, initialCtRequestTime, onCtRequest, initialBleedi
 
   return (
     <div className={`overflow-hidden rounded-xl border transition-all duration-200 ${
-      !ctRequestTime ? 'border-blue-500/30 bg-blue-500/10' : bleeding === true ? 'border-blue-800/40 bg-blue-900/8' : bleeding === false ? 'border-emerald-500/30 bg-emerald-500/10' : 'border-blue-500/30 bg-stroke-navy'
+      bleeding === true ? 'border-status-critical/30 bg-status-critical/10' : bleeding === false ? 'border-emerald-500/30 bg-emerald-500/10' : 'border-stroke-line bg-stroke-navy'
     }`}>
       <div className="flex items-start gap-3 px-3 py-3">
-        <span className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors ${ctRequestTime ? 'bg-emerald-500/100 text-white' : 'bg-blue-600 text-white'}`}>
+        <span className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors ${ctRequestTime ? 'bg-emerald-500 text-white' : 'bg-stroke-iconActive text-stroke-bg'}`}>
           {ctRequestTime ? <CheckCircle2 size={17} strokeWidth={2.4} /> : <Scan size={17} strokeWidth={2.4} />}
         </span>
         <div className="min-w-0 flex-1">
-          <p className={`text-sm font-bold leading-tight ${ctRequestTime ? 'text-emerald-300' : 'text-blue-300'}`}>
+          <p className={`text-sm font-bold leading-tight ${ctRequestTime ? 'text-emerald-300' : 'text-stroke-text'}`}>
             {ctRequestTime ? 'TAC solicitada' : 'TAC de encéfalo'}
           </p>
           {ctRequestTime && (
@@ -66,17 +66,17 @@ function CTSection({ onConfirm, initialCtRequestTime, onCtRequest, initialBleedi
       </div>
 
       {!ctRequestTime ? (
-        <div className="border-t border-blue-500/30 bg-stroke-bg p-2.5">
+        <div className="border-t border-stroke-line bg-stroke-bg p-2.5">
           <button type="button" onClick={handleCtRequest}
-            className="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-bold text-white transition-all hover:bg-blue-700 active:scale-[0.98]">
+            className="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg bg-stroke-iconActive text-stroke-bg px-4 py-2.5 text-sm font-bold transition-all hover:bg-[#4D6CD6] active:scale-[0.98]">
             <Scan size={17} strokeWidth={2.5} /> TAC solicitada
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-2 border-t border-blue-500/30 bg-stroke-bg p-2.5 animate-fade-in">
+        <div className="grid grid-cols-2 gap-2 border-t border-stroke-line bg-stroke-bg p-2.5 animate-fade-in">
           <button type="button" onClick={() => handleBleedingSelect(true)}
             className={`flex min-h-[44px] items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-sm font-bold transition-all active:scale-[0.98] ${
-              bleeding === true ? 'border-blue-900 bg-blue-900 text-white' : 'border-blue-500/30 bg-stroke-navy text-blue-300 hover:border-blue-300 hover:bg-blue-500/10'
+              bleeding === true ? 'border-status-critical bg-status-critical text-white' : 'border-stroke-line bg-stroke-navy text-stroke-textMuted hover:border-status-critical/50 hover:bg-status-critical/10'
             }`}>
             <Droplets size={17} strokeWidth={2.5} /> Sí sangre
           </button>
@@ -200,7 +200,7 @@ export default function ImagingTab({
           ].map(({ id, label }) => (
             <button key={id} type="button" onClick={() => setSelectedMode(id)}
               className={`flex-1 py-2.5 transition-all ${
-                mode === id ? 'bg-blue-600 text-white' : 'bg-stroke-navy text-stroke-textMuted hover:bg-blue-500/10'
+                mode === id ? 'bg-stroke-iconActive text-stroke-bg font-semibold' : 'bg-stroke-navy text-stroke-textMuted hover:bg-stroke-iconActive/10'
               }`}>
               {label}
               {id === 'ct' && ctConfirmed  && <span className="ml-1.5 inline-block w-2 h-2 rounded-full bg-emerald-400" />}
@@ -209,9 +209,9 @@ export default function ImagingTab({
           ))}
         </div>
       ) : (
-        <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-blue-500/10 border border-blue-500/30">
-          <Scan size={13} className="text-blue-500 shrink-0" />
-          <p className="text-xs text-blue-300 font-medium">Ventana terapéutica conocida — solo TC de encéfalo</p>
+        <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-stroke-navy border border-stroke-line">
+          <Scan size={13} className="text-stroke-iconActive shrink-0" />
+          <p className="text-xs text-stroke-textMuted font-medium">Ventana terapéutica conocida — solo TC de encéfalo</p>
         </div>
       )}
 
@@ -233,9 +233,9 @@ export default function ImagingTab({
             onCtRequest={onCtRequest}
           />
           {ctResult?.bleeding === true && (
-          <div className="mt-3 bg-blue-900/10 border border-blue-800/50 rounded-lg px-3 py-2.5 animate-fade-in">
-              <p className="text-sm font-bold text-blue-300 mb-1">Hemorragia intracraneal presente</p>
-              <p className="text-xs text-blue-300 leading-relaxed">Contraindicación absoluta para trombolisis IV.</p>
+          <div className="mt-3 bg-status-critical/10 border border-status-critical/40 rounded-lg px-3 py-2.5 animate-fade-in">
+              <p className="text-sm font-bold text-red-300 mb-1">Hemorragia intracraneal presente</p>
+              <p className="text-xs text-red-300 leading-relaxed">Contraindicación absoluta para trombolisis IV.</p>
             </div>
           )}
           {ctResult?.bleeding === false && (

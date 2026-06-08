@@ -132,7 +132,7 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
             <button
               type="button"
               onClick={onAuthClick}
-              className="w-11 h-11 md:w-7 md:h-7 rounded-xl md:rounded-lg border border-white/20 md:border-white/10 bg-stroke-bg md:bg-stroke-bg flex items-center justify-center text-white md:text-stroke-textMuted hover:bg-stroke-bg md:hover:bg-stroke-bg transition-colors"
+              className="w-11 h-11 md:w-7 md:h-7 rounded-xl md:rounded-lg border border-stroke-line md:border-stroke-line bg-stroke-bg md:bg-stroke-bg flex items-center justify-center text-white md:text-stroke-textMuted hover:bg-stroke-bg md:hover:bg-stroke-bg transition-colors"
               title={authUser ? 'Tu cuenta' : 'Iniciar sesión'}
               aria-label={authUser ? 'Tu cuenta' : 'Iniciar sesión'}
             >
@@ -146,7 +146,7 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
             <button
               type="button"
               onClick={onEducationalOpen}
-              className="w-11 h-11 md:w-7 md:h-7 rounded-xl md:rounded-lg border border-white/20 md:border-white/10 bg-stroke-bg md:bg-stroke-bg flex items-center justify-center text-white md:text-stroke-textMuted hover:bg-stroke-bg md:hover:bg-stroke-bg transition-colors"
+              className="w-11 h-11 md:w-7 md:h-7 rounded-xl md:rounded-lg border border-stroke-line md:border-stroke-line bg-stroke-bg md:bg-stroke-bg flex items-center justify-center text-white md:text-stroke-textMuted hover:bg-stroke-bg md:hover:bg-stroke-bg transition-colors"
               title="Referencia educativa del protocolo"
               aria-label="Abrir referencia educativa"
             >
@@ -157,7 +157,7 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
             <button
               type="button"
               onClick={onReset}
-              className="w-11 h-11 md:w-7 md:h-7 rounded-xl md:rounded-lg border border-white/20 md:border-white/10 bg-stroke-bg md:bg-stroke-bg flex items-center justify-center text-white md:text-stroke-textMuted hover:bg-stroke-bg md:hover:bg-stroke-bg transition-colors"
+              className="w-11 h-11 md:w-7 md:h-7 rounded-xl md:rounded-lg border border-stroke-line md:border-stroke-line bg-stroke-bg md:bg-stroke-bg flex items-center justify-center text-white md:text-stroke-textMuted hover:bg-stroke-bg md:hover:bg-stroke-bg transition-colors"
               title="Reiniciar protocolo"
               aria-label="Reiniciar protocolo"
             >
@@ -168,7 +168,7 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
       </div>
 
       {startTime && eventBadges.length > 1 && (
-        <div className="md:hidden border-t border-white/10 px-3 pb-2">
+        <div className="md:hidden border-t border-stroke-line px-3 pb-2">
           <div
             className="flex gap-1.5 overflow-x-auto pt-2 pr-8 [mask-image:linear-gradient(to_right,black_0%,black_86%,transparent_100%)]"
             style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}

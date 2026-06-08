@@ -20,7 +20,7 @@ export default function DecisionButton({ allComplete, onClick, executed }) {
     </button>
   ) : (
     <div className="w-full flex items-center justify-center gap-2 py-3 rounded-xl
-      bg-stroke-bg border border-white/20 text-white/40 text-sm font-medium cursor-not-allowed select-none
+      bg-stroke-bg border border-stroke-line text-white/40 text-sm font-medium cursor-not-allowed select-none
       md:rounded-lg md:border-stroke-line md:bg-stroke-bg md:py-3 md:text-stroke-textMuted">
       <CheckCircle2 size={15} strokeWidth={2} />
       Completá los 6 tabs para calcular

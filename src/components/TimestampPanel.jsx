@@ -25,7 +25,7 @@ export default function TimestampPanel({ codeStart, ct, thrombolytic, hemo, vari
           return (
             <div
               key={key}
-              className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-stroke-bg border border-white/20 whitespace-nowrap flex-shrink-0"
+              className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-stroke-bg border border-stroke-line whitespace-nowrap flex-shrink-0"
             >
               <Icon size={10} className="text-brand-200" strokeWidth={2} />
               <span className="text-[10px] font-medium text-brand-100">{label}</span>
