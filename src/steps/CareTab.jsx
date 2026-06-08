@@ -56,16 +56,16 @@ const ADVERSE_EFFECTS = [
 function NihssRow({ reading }) {
   const severity = (() => {
     const s = reading.score
-    if (s === 0) return { color: 'text-emerald-700', bg: 'bg-emerald-50', border: 'border-emerald-200' }
-    if (s <= 4)  return { color: 'text-blue-700', bg: 'bg-blue-50', border: 'border-blue-200' }
-    if (s <= 15) return { color: 'text-amber-700', bg: 'bg-amber-50', border: 'border-amber-200' }
-    return { color: 'text-blue-900', bg: 'bg-blue-100', border: 'border-blue-300' }
+    if (s === 0) return { color: 'text-emerald-300', bg: 'bg-emerald-500/10', border: 'border-emerald-500/30' }
+    if (s <= 4)  return { color: 'text-blue-300', bg: 'bg-blue-500/10', border: 'border-blue-500/30' }
+    if (s <= 15) return { color: 'text-amber-300', bg: 'bg-amber-500/10', border: 'border-amber-500/30' }
+    return { color: 'text-blue-300', bg: 'bg-blue-500/15', border: 'border-blue-300' }
   })()
   return (
     <div className={`flex items-center justify-between rounded-lg border px-3 py-1.5 ${severity.bg} ${severity.border}`}>
       <div className="flex items-center gap-2">
         <Brain size={13} className={severity.color} />
-        <span className="text-xs text-neutral-500">{fmtTime(reading.timestamp)}</span>
+        <span className="text-xs text-stroke-textMuted">{fmtTime(reading.timestamp)}</span>
       </div>
       <span className={`text-sm font-bold tabular-nums ${severity.color}`}>{reading.score}</span>
     </div>
@@ -75,13 +75,13 @@ function NihssRow({ reading }) {
 function VitalsRow({ reading }) {
   const critical = reading.systolic > 180 || reading.diastolic > 105
   return (
-    <div className={`flex items-center justify-between rounded-lg border px-3 py-1.5 ${critical ? 'bg-blue-50 border-blue-200' : 'bg-neutral-50 border-neutral-200'}`}>
+    <div className={`flex items-center justify-between rounded-lg border px-3 py-1.5 ${critical ? 'bg-blue-500/10 border-blue-500/30' : 'bg-stroke-bg border-stroke-line'}`}>
       <div className="flex items-center gap-2">
-        <Activity size={13} className={critical ? 'text-blue-900' : 'text-neutral-400'} />
-        <span className="text-xs text-neutral-500">{fmtTime(reading.timestamp)}</span>
-        {critical && <span className="text-[10px] font-bold text-blue-900 bg-blue-100 px-1.5 py-0.5 rounded">ALTO</span>}
+        <Activity size={13} className={critical ? 'text-blue-300' : 'text-stroke-textMuted'} />
+        <span className="text-xs text-stroke-textMuted">{fmtTime(reading.timestamp)}</span>
+        {critical && <span className="text-[10px] font-bold text-blue-300 bg-blue-500/15 px-1.5 py-0.5 rounded">ALTO</span>}
       </div>
-      <span className={`text-sm font-bold tabular-nums ${critical ? 'text-blue-900' : 'text-neutral-700'}`}>
+      <span className={`text-sm font-bold tabular-nums ${critical ? 'text-blue-300' : 'text-stroke-text'}`}>
         {reading.systolic}/{reading.diastolic}
       </span>
     </div>
@@ -95,21 +95,21 @@ function InfoItem({ item, accent = 'red' }) {
     <button
       type="button"
       onClick={() => setOpen((v) => !v)}
-      className="w-full flex flex-col rounded-lg border border-neutral-200 bg-white px-3 py-2 text-left transition-all hover:bg-neutral-50 active:scale-[0.98]"
+      className="w-full flex flex-col rounded-lg border border-stroke-line bg-stroke-navy px-3 py-2 text-left transition-all hover:bg-stroke-bg active:scale-[0.98]"
     >
       <div className="flex items-center gap-3">
         <AlertTriangle size={13} className={`${accentColor} shrink-0`} />
         <div className="flex-1 min-w-0">
-          <p className="text-xs font-semibold text-neutral-700">{item.label}</p>
-          <p className="text-[10px] text-neutral-400 mt-0.5">{item.sub}</p>
+          <p className="text-xs font-semibold text-stroke-text">{item.label}</p>
+          <p className="text-[10px] text-stroke-textMuted mt-0.5">{item.sub}</p>
         </div>
         <ChevronDown
           size={13}
-          className={`text-neutral-400 shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+          className={`text-stroke-textMuted shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
         />
       </div>
       {open && (
-        <p className="mt-2 pt-2 border-t border-neutral-100 text-xs text-neutral-600 leading-relaxed animate-fade-in text-left">
+        <p className="mt-2 pt-2 border-t border-stroke-line text-xs text-stroke-textMuted leading-relaxed animate-fade-in text-left">
           {item.info}
         </p>
       )}
@@ -153,7 +153,7 @@ export default function CareTab({
 
       {/* Serial NIHSS */}
       <StepCard step="" title="NIHSS seriado" accent="orange">
-        <p className="mb-2 text-xs text-neutral-500">Registrar a los 15, 30, 60 min y a las 2h, 6h, 24h post-trombolisis.</p>
+        <p className="mb-2 text-xs text-stroke-textMuted">Registrar a los 15, 30, 60 min y a las 2h, 6h, 24h post-trombolisis.</p>
 
         {nihssReadings.length > 0 && (
           <div className="space-y-1.5 mb-3">
@@ -169,20 +169,20 @@ export default function CareTab({
               onChange={(e) => setNihssEntry(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter' && nihssValid) handleSaveNihss() }}
               autoFocus
-              className="flex-1 border border-amber-300 rounded-xl px-3 py-2 text-neutral-800 text-base font-bold text-center focus:outline-none focus:ring-2 focus:ring-amber-400"
+              className="flex-1 border border-amber-300 rounded-xl px-3 py-2 text-stroke-text text-base font-bold text-center focus:outline-none focus:ring-2 focus:ring-amber-400"
             />
             <button type="button" onClick={handleSaveNihss} disabled={!nihssValid}
-              className="px-4 py-2 bg-amber-500 text-white rounded-xl font-bold text-sm disabled:opacity-40">
+              className="px-4 py-2 bg-amber-500/100 text-white rounded-xl font-bold text-sm disabled:opacity-40">
               ✓
             </button>
             <button type="button" onClick={() => { setShowNihssInput(false); setNihssEntry('') }}
-              className="px-3 py-2 border border-neutral-200 rounded-xl text-neutral-500 text-sm">
+              className="px-3 py-2 border border-stroke-line rounded-xl text-stroke-textMuted text-sm">
               ✕
             </button>
           </div>
         ) : (
           <button type="button" onClick={() => setShowNihssInput(true)}
-            className="flex items-center gap-2 text-sm font-semibold text-amber-600 hover:text-amber-700 transition-colors">
+            className="flex items-center gap-2 text-sm font-semibold text-amber-400 hover:text-amber-300 transition-colors">
             <Plus size={14} /><Brain size={14} /> Registrar NIHSS
           </button>
         )}
@@ -190,12 +190,12 @@ export default function CareTab({
 
       {/* BP monitoring */}
       <StepCard step="" title="Control de presión arterial" accent="blue">
-        <div className="flex items-start gap-2 px-3 py-2.5 mb-3 rounded-xl bg-blue-50 border border-blue-200">
-          <Activity size={13} className="text-blue-700 shrink-0 mt-0.5" />
-          <div className="text-xs text-blue-800">
+        <div className="flex items-start gap-2 px-3 py-2.5 mb-3 rounded-xl bg-blue-500/10 border border-blue-500/30">
+          <Activity size={13} className="text-blue-300 shrink-0 mt-0.5" />
+          <div className="text-xs text-blue-300">
             <p className="font-semibold">Metas post-trombolisis</p>
             <p>PAS &lt; 180 mmHg · PAD &lt; 105 mmHg</p>
-            <p className="text-blue-600 mt-0.5">Medir c/15 min × 2h, luego c/30 min × 6h</p>
+            <p className="text-blue-400 mt-0.5">Medir c/15 min × 2h, luego c/30 min × 6h</p>
           </div>
         </div>
 
@@ -213,7 +213,7 @@ export default function CareTab({
               onChange={(e) => setVitalsEntry((v) => ({ ...v, sys: e.target.value }))}
               className="w-20 border border-blue-300 rounded-xl px-2 py-2 text-base font-bold text-center focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
-            <span className="text-neutral-400 font-bold">/</span>
+            <span className="text-stroke-textMuted font-bold">/</span>
             <input
               type="number" inputMode="numeric" placeholder="PAD" min={30} max={200}
               value={vitalsEntry.dia}
@@ -221,19 +221,19 @@ export default function CareTab({
               onKeyDown={(e) => { if (e.key === 'Enter' && vitalsValid) handleSaveVitals() }}
               className="w-20 border border-blue-300 rounded-xl px-2 py-2 text-base font-bold text-center focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
-            <span className="text-xs text-neutral-400">mmHg</span>
+            <span className="text-xs text-stroke-textMuted">mmHg</span>
             <button type="button" onClick={handleSaveVitals} disabled={!vitalsValid}
-              className="px-3 py-2 bg-blue-600 text-white rounded-xl font-bold text-sm disabled:opacity-40">
+              className="px-3 py-2 bg-stroke-iconActive text-stroke-bg rounded-xl font-bold text-sm disabled:opacity-40">
               ✓
             </button>
             <button type="button" onClick={() => { setShowVitalsInput(false); setVitalsEntry({ sys: '', dia: '' }) }}
-              className="px-3 py-2 border border-neutral-200 rounded-xl text-neutral-500 text-sm">
+              className="px-3 py-2 border border-stroke-line rounded-xl text-stroke-textMuted text-sm">
               ✕
             </button>
           </div>
         ) : (
           <button type="button" onClick={() => setShowVitalsInput(true)}
-            className="flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors">
+            className="flex items-center gap-2 text-sm font-semibold text-blue-400 hover:text-blue-300 transition-colors">
             <Plus size={14} /><Activity size={14} /> Registrar TA
           </button>
         )}
@@ -241,7 +241,7 @@ export default function CareTab({
 
       {/* Alarm signs — informational, expandable */}
       <StepCard step="" title="Signos de alarma" accent="red">
-        <p className="mb-2 text-xs text-neutral-500">Tocá cada ítem para ver qué hacer si se presenta.</p>
+        <p className="mb-2 text-xs text-stroke-textMuted">Tocá cada ítem para ver qué hacer si se presenta.</p>
         <div className="grid gap-1.5 md:grid-cols-2">
           {BP_ALERTS.map((item) => (
             <InfoItem key={item.id} item={item} accent="red" />
@@ -251,7 +251,7 @@ export default function CareTab({
 
       {/* Adverse effects — informational, expandable */}
       <StepCard step="" title="Efectos adversos / Complicaciones" accent="red">
-        <p className="mb-2 text-xs text-neutral-500">Tocá cada ítem para ver el manejo correspondiente.</p>
+        <p className="mb-2 text-xs text-stroke-textMuted">Tocá cada ítem para ver el manejo correspondiente.</p>
         <div className="grid gap-1.5 md:grid-cols-2">
           {ADVERSE_EFFECTS.map((item) => (
             <InfoItem key={item.id} item={item} accent={item.tone} />
@@ -266,12 +266,12 @@ export default function CareTab({
           onChange={(e) => setNotes(e.target.value)}
           placeholder="Notas clínicas, interconsultas, evolución..."
           rows={4}
-          className="w-full rounded-xl border border-neutral-200 bg-neutral-50 px-3 py-2.5 text-sm text-neutral-700 resize-none focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-300 placeholder-neutral-300 transition-all"
+          className="w-full rounded-xl border border-stroke-line bg-stroke-bg px-3 py-2.5 text-sm text-stroke-text resize-none focus:outline-none focus:ring-2 focus:ring-stroke-iconActive/30 focus:border-stroke-iconActive/40 placeholder-stroke-textMuted/50 transition-all"
         />
         {notes && (
           <div className="flex items-center gap-2 mt-2">
-            <Heart size={11} className="text-neutral-400" />
-            <span className="text-[10px] text-neutral-400">{notes.length} caracteres</span>
+            <Heart size={11} className="text-stroke-textMuted" />
+            <span className="text-[10px] text-stroke-textMuted">{notes.length} caracteres</span>
           </div>
         )}
       </StepCard>
@@ -281,7 +281,7 @@ export default function CareTab({
         <button
           type="button"
           onClick={onContinue}
-          className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-600 py-3 text-sm font-semibold text-white transition-all hover:bg-brand-700 active:scale-[0.98] md:w-auto md:px-5"
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-stroke-iconActive py-3 text-sm font-semibold text-stroke-bg transition-all hover:bg-[#4D6CD6] active:scale-[0.98] md:w-auto md:px-5"
         >
           Continuar → Trombectomía <ChevronRight size={16} />
         </button>

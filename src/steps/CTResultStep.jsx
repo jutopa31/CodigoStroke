@@ -60,27 +60,27 @@ export default function CTResultStep({ onConfirm, initialCtRequestTime = null, o
       <StepCard step="5" title="TAC de encéfalo" accent="blue">
         <div className={`overflow-hidden rounded-xl border transition-all duration-200 ${
           !tacConfirmed
-            ? 'border-blue-200 bg-blue-50/70 shadow-minimal'
+            ? 'border-blue-500/30 bg-blue-500/10 shadow-minimal'
             : bleeding === true
               ? 'border-blue-800/40 bg-blue-900/8 shadow-card'
               : bleeding === false
-                ? 'border-emerald-200 bg-emerald-50/80 shadow-card'
-                : 'border-blue-100 bg-white shadow-card'
+                ? 'border-emerald-500/30 bg-emerald-500/10 shadow-card'
+                : 'border-blue-500/30 bg-stroke-navy shadow-card'
         }`}>
           <div className="flex items-start gap-3 px-3 py-3">
             <span className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors ${
-              tacConfirmed ? 'bg-emerald-500 text-white' : 'bg-blue-600 text-white'
+              tacConfirmed ? 'bg-emerald-500/100 text-stroke-bg' : 'bg-stroke-iconActive text-stroke-bg'
             }`}>
               {tacConfirmed ? <CheckCircle2 size={21} strokeWidth={2.4} /> : <Scan size={21} strokeWidth={2.4} />}
             </span>
 
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                <p className={`text-sm font-bold leading-tight ${tacConfirmed ? 'text-emerald-800' : 'text-blue-800'}`}>
+                <p className={`text-sm font-bold leading-tight ${tacConfirmed ? 'text-emerald-300' : 'text-blue-300'}`}>
                   {tacConfirmed ? 'TAC solicitada' : 'TAC de encéfalo'}
                 </p>
                 {tacConfirmed && (
-                  <span className="inline-flex items-center gap-1 rounded-md bg-white/75 px-2 py-1 text-[11px] font-semibold text-emerald-700 ring-1 ring-emerald-100">
+                  <span className="inline-flex items-center gap-1 rounded-md bg-stroke-bg px-2 py-1 text-[11px] font-semibold text-emerald-300 ring-1 ring-emerald-500/30">
                     <Clock size={11} />
                     <span className="tabular-nums">{elapsed}</span>
                   </span>
@@ -90,25 +90,25 @@ export default function CTResultStep({ onConfirm, initialCtRequestTime = null, o
           </div>
 
           {!tacConfirmed ? (
-            <div className="border-t border-blue-100 bg-white/60 p-2.5">
+            <div className="border-t border-blue-500/30 bg-stroke-bg p-2.5">
               <button
                 type="button"
                 onClick={handleCtRequest}
-                className="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-bold text-white transition-all hover:bg-blue-700 active:scale-[0.98]"
+                className="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg bg-stroke-iconActive px-4 py-2.5 text-sm font-bold text-stroke-bg transition-all hover:bg-[#4D6CD6] active:scale-[0.98]"
               >
                 <Scan size={17} strokeWidth={2.5} />
                 TAC solicitada
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-2 border-t border-blue-100 bg-white/70 p-2.5 animate-scale-in">
+            <div className="grid grid-cols-2 gap-2 border-t border-blue-500/30 bg-stroke-bg p-2.5 animate-scale-in">
               <button
                 type="button"
                 onClick={() => handleBleedingSelect(true)}
                 className={`flex min-h-[46px] items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-sm font-bold transition-all active:scale-[0.98] ${
                   bleeding === true
                     ? 'border-blue-900 bg-blue-900 text-white shadow-elevated'
-                    : 'border-blue-200 bg-white text-blue-900 hover:border-blue-300 hover:bg-blue-50'
+                    : 'border-blue-500/30 bg-stroke-navy text-blue-300 hover:border-blue-300 hover:bg-blue-500/10'
                 }`}
               >
                 <Droplets size={17} strokeWidth={2.5} />
@@ -120,7 +120,7 @@ export default function CTResultStep({ onConfirm, initialCtRequestTime = null, o
                 className={`flex min-h-[46px] items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-sm font-bold transition-all active:scale-[0.98] ${
                   bleeding === false
                     ? 'border-emerald-500 bg-emerald-600 text-white shadow-elevated'
-                    : 'border-emerald-200 bg-white text-emerald-700 hover:border-emerald-300 hover:bg-emerald-50'
+                    : 'border-emerald-500/30 bg-stroke-navy text-emerald-300 hover:border-emerald-300 hover:bg-emerald-500/10'
                 }`}
               >
                 <CheckCircle2 size={17} strokeWidth={2.5} />
@@ -132,18 +132,18 @@ export default function CTResultStep({ onConfirm, initialCtRequestTime = null, o
 
         {bleeding === true && (
           <div className="mt-3 bg-blue-900/10 border border-blue-800/50 rounded-lg px-3 py-2.5 animate-fade-in">
-            <p className="text-sm font-bold text-blue-900 mb-1">Hemorragia intracraneal presente</p>
-            <p className="text-xs text-blue-800 leading-relaxed">
+            <p className="text-sm font-bold text-blue-300 mb-1">Hemorragia intracraneal presente</p>
+            <p className="text-xs text-blue-300 leading-relaxed">
               Contraindicacion absoluta para trombolisis IV. No administrar rtPA ni TNK.
             </p>
           </div>
         )}
         {bleeding === false && (
-          <div className="mt-3 bg-emerald-50 border border-emerald-300 rounded-lg px-3 py-2.5 animate-fade-in">
-            <p className="text-xs font-semibold text-emerald-700">
+          <div className="mt-3 bg-emerald-500/10 border border-emerald-300 rounded-lg px-3 py-2.5 animate-fade-in">
+            <p className="text-xs font-semibold text-emerald-300">
               TAC sin hemorragia: continuar evaluación para trombolisis.
             </p>
-            <p className="text-xs text-emerald-600 mt-1">
+            <p className="text-xs text-emerald-400 mt-1">
               El puntaje ASPECTS se evaluará en el paso de trombectomía mecánica.
             </p>
           </div>

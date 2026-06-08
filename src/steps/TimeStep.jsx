@@ -61,41 +61,41 @@ export default function TimeStep({ onConfirm, isCollapsed = false }) {
     if (enVentanaIV) return {
       label: 'Candidato a Trombolisis',
       sublabel: 'Dentro de ventana IV (< 4.5 h)',
-      bg: 'bg-emerald-50',
-      border: 'border-emerald-200',
+      bg: 'bg-emerald-500/10',
+      border: 'border-emerald-500/30',
       leftAccent: 'border-l-2 border-emerald-400',
-      text: 'text-emerald-800',
-      sub: 'text-emerald-600',
+      text: 'text-emerald-300',
+      sub: 'text-emerald-400',
       icon: <CheckCircle2 size={14} strokeWidth={2} className="text-emerald-500 shrink-0 mt-0.5" />,
     }
     if (enVentanaIncierta) return {
       label: 'Candidato a Trombolisis',
       sublabel: 'Ventana extendida wake-up (< 9 h)',
-      bg: 'bg-emerald-50',
-      border: 'border-emerald-200',
+      bg: 'bg-emerald-500/10',
+      border: 'border-emerald-500/30',
       leftAccent: 'border-l-2 border-emerald-400',
-      text: 'text-emerald-800',
-      sub: 'text-emerald-600',
+      text: 'text-emerald-300',
+      sub: 'text-emerald-400',
       icon: <CheckCircle2 size={14} strokeWidth={2} className="text-emerald-500 shrink-0 mt-0.5" />,
     }
     if (windowStatus === 'ogv') return {
       label: 'Evaluar OGV',
       sublabel: 'Fuera de ventana IV — considerar trombectomía',
-      bg: 'bg-amber-50',
-      border: 'border-amber-200',
+      bg: 'bg-amber-500/10',
+      border: 'border-amber-500/30',
       leftAccent: 'border-l-2 border-amber-400',
-      text: 'text-amber-800',
-      sub: 'text-amber-600',
+      text: 'text-amber-300',
+      sub: 'text-amber-400',
       icon: <AlertCircle size={14} strokeWidth={2} className="text-amber-500 shrink-0 mt-0.5" />,
     }
     return {
       label: 'Fuera de ventana terapéutica',
       sublabel: '> 24 h desde último visto asintomático',
-      bg: 'bg-red-50',
-      border: 'border-red-200',
-      leftAccent: 'border-l-2 border-red-400',
-      text: 'text-red-800',
-      sub: 'text-red-500',
+      bg: 'bg-status-critical/10',
+      border: 'border-status-critical/30',
+      leftAccent: 'border-l-2 border-status-critical',
+      text: 'text-red-300',
+      sub: 'text-red-400',
       icon: <AlertCircle size={14} strokeWidth={2} className="text-red-500 shrink-0 mt-0.5" />,
     }
   })()
@@ -164,11 +164,11 @@ export default function TimeStep({ onConfirm, isCollapsed = false }) {
 
   return (
     <StepCard step="2" title={stepTitle} accent={isCandidate ? 'green' : windowStatus === 'ogv' ? 'orange' : 'red'}>
-      <div className={`rounded-xl border border-neutral-100 bg-white overflow-hidden ${cardBorderAccent}`}>
+      <div className={`rounded-xl border border-stroke-line bg-stroke-navy overflow-hidden ${cardBorderAccent}`}>
 
         {/* Top row: label + time input + wake toggle */}
-        <div className="flex flex-wrap items-center gap-2 px-3 pt-3 pb-2.5 border-b border-neutral-50">
-          <label className="text-[10px] font-semibold uppercase tracking-wider flex items-center gap-1.5 text-neutral-400 shrink-0">
+        <div className="flex flex-wrap items-center gap-2 px-3 pt-3 pb-2.5 border-b border-stroke-line/50">
+          <label className="text-[10px] font-semibold uppercase tracking-wider flex items-center gap-1.5 text-stroke-textMuted shrink-0">
             <Clock size={11} strokeWidth={2} />
             {sliderLabel}
           </label>
@@ -178,7 +178,8 @@ export default function TimeStep({ onConfirm, isCollapsed = false }) {
               type="date"
               value={lastSeenDate}
               onChange={(e) => handleDateInput(e.target.value)}
-              className="text-[10px] font-medium rounded border border-neutral-200 bg-white px-1.5 py-0.5 text-neutral-700 focus:outline-none focus:ring-1 focus:ring-neutral-300 cursor-pointer"
+              className="text-[10px] font-medium rounded border border-stroke-line bg-stroke-bg px-1.5 py-0.5 text-stroke-text focus:outline-none focus:ring-1 focus:ring-stroke-iconActive cursor-pointer"
+              style={{ colorScheme: 'dark' }}
             />
           )}
 
@@ -189,15 +190,15 @@ export default function TimeStep({ onConfirm, isCollapsed = false }) {
               onChange={(e) => handleTimeInput(e.target.value)}
               onFocus={() => setEditingTime(true)}
               onBlur={() => setEditingTime(false)}
-              className={`text-sm font-bold tabular-nums rounded-lg border bg-white px-2 py-0.5 text-neutral-800 focus:outline-none focus:ring-1 focus:ring-neutral-300 cursor-pointer transition-all ${
-                editingTime ? 'border-neutral-400 ring-1 shadow-sm' : 'border-neutral-200 hover:border-neutral-300'
+              className={`text-sm font-bold tabular-nums rounded-lg border bg-stroke-bg px-2 py-0.5 text-stroke-text focus:outline-none focus:ring-1 focus:ring-stroke-iconActive cursor-pointer transition-all ${
+                editingTime ? 'border-stroke-iconActive ring-1 shadow-sm' : 'border-stroke-line hover:border-stroke-iconActive/60'
               }`}
-              style={{ colorScheme: 'light' }}
+              style={{ colorScheme: 'dark' }}
             />
             <Pencil
               size={9}
               strokeWidth={2}
-              className={`absolute -right-3 text-neutral-400 transition-opacity ${editingTime ? 'opacity-0' : 'opacity-40 group-hover:opacity-70'}`}
+              className={`absolute -right-3 text-stroke-textMuted transition-opacity ${editingTime ? 'opacity-0' : 'opacity-40 group-hover:opacity-70'}`}
             />
           </div>
 
@@ -207,32 +208,32 @@ export default function TimeStep({ onConfirm, isCollapsed = false }) {
             onClick={() => { setIsIncierto((v) => !v); setConfirmed(false) }}
             className={`ml-auto flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[10px] font-semibold transition-all active:scale-[0.98] ${
               isIncierto
-                ? 'border-indigo-200 bg-indigo-50 text-indigo-700'
-                : 'border-neutral-200 bg-white text-neutral-400 hover:bg-neutral-50'
+                ? 'border-indigo-400/40 bg-indigo-500/15 text-indigo-300'
+                : 'border-stroke-line bg-stroke-bg text-stroke-textMuted hover:bg-stroke-panel/40'
             }`}
           >
             <Moon size={11} strokeWidth={2} />
             <span className="flex flex-col items-start leading-none gap-0.5">
               <span>Incierto / Wake-up</span>
-              <span className={`text-[9px] font-normal ${isIncierto ? 'text-indigo-400' : 'text-neutral-300'}`}>Síntomas al despertar</span>
+              <span className={`text-[9px] font-normal ${isIncierto ? 'text-indigo-300/80' : 'text-stroke-textMuted/70'}`}>Síntomas al despertar</span>
             </span>
           </button>
         </div>
 
         {/* Two-column body */}
-        <div className="grid grid-cols-2 divide-x divide-neutral-50">
+        <div className="grid grid-cols-2 divide-x divide-stroke-line/50">
 
           {/* Left: elapsed time + window bar */}
           <div className="px-3 py-3">
-            <div className="font-mono text-[2.4rem] font-black text-neutral-900 leading-none tracking-tight tabular-nums">
+            <div className="font-mono text-[2.4rem] font-black text-stroke-text leading-none tracking-tight tabular-nums">
               {formatElapsed(elapsedMinutes)}
             </div>
-            <div className="text-[9px] text-neutral-400 mt-1 uppercase tracking-wider font-semibold">
+            <div className="text-[9px] text-stroke-textMuted mt-1 uppercase tracking-wider font-semibold">
               desde síntomas
             </div>
 
             <div className="mt-4">
-              <div className="text-[9px] font-semibold uppercase tracking-wider text-neutral-400 mb-2">
+              <div className="text-[9px] font-semibold uppercase tracking-wider text-stroke-textMuted mb-2">
                 Ventana terapéutica
               </div>
 
@@ -268,7 +269,7 @@ export default function TimeStep({ onConfirm, isCollapsed = false }) {
                   style={{ left: `${IV_WINDOW_PCT}%` }}
                 >
                   <span className="h-1.5 w-px bg-amber-300" />
-                  <span className="text-[9px] font-bold text-amber-600 bg-amber-50 border border-amber-200 rounded px-1 leading-none py-0.5">4.5h</span>
+                  <span className="text-[9px] font-bold text-amber-300 bg-amber-500/15 border border-amber-500/30 rounded px-1 leading-none py-0.5">4.5h</span>
                 </button>
                 <button
                   type="button"
@@ -277,7 +278,7 @@ export default function TimeStep({ onConfirm, isCollapsed = false }) {
                   style={{ left: '100%' }}
                 >
                   <span className="h-1.5 w-px bg-blue-300" />
-                  <span className="text-[9px] font-bold text-blue-600 bg-blue-50 border border-blue-200 rounded px-1 leading-none py-0.5">24h</span>
+                  <span className="text-[9px] font-bold text-blue-300 bg-blue-500/15 border border-blue-500/30 rounded px-1 leading-none py-0.5">24h</span>
                 </button>
               </div>
             </div>
@@ -285,7 +286,7 @@ export default function TimeStep({ onConfirm, isCollapsed = false }) {
 
           {/* Right: clinical decision */}
           <div className="px-3 py-3">
-            <div className="text-[9px] font-semibold uppercase tracking-wider text-neutral-400 mb-2">
+            <div className="text-[9px] font-semibold uppercase tracking-wider text-stroke-textMuted mb-2">
               Decisión clínica
             </div>
             <div className={`rounded-lg border px-2.5 py-2.5 ${candidacyBanner.leftAccent} ${candidacyBanner.bg} ${candidacyBanner.border}`}>
@@ -301,17 +302,17 @@ export default function TimeStep({ onConfirm, isCollapsed = false }) {
         </div>
 
         {/* Action button */}
-        <div className="px-3 pb-3 pt-1 border-t border-neutral-50">
+        <div className="px-3 pb-3 pt-1 border-t border-stroke-line/50">
           <button
             type="button"
             onClick={handleSubmit}
             disabled={!lastSeen}
-            className={`w-full flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg font-semibold text-sm transition-all active:scale-[0.98] ${
+            className={`w-full flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg font-bold text-sm transition-all active:scale-[0.98] ${
               confirmed
-                ? 'bg-emerald-50 border border-emerald-200 text-emerald-700 cursor-default'
+                ? 'bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 cursor-default'
                 : lastSeen
-                  ? 'bg-neutral-900 hover:bg-neutral-800 text-white'
-                  : 'bg-neutral-100 text-neutral-400 cursor-not-allowed'
+                  ? 'bg-stroke-iconActive hover:bg-[#4D6CD6] text-stroke-bg'
+                  : 'bg-stroke-panel/40 text-stroke-textMuted/60 cursor-not-allowed'
             }`}
           >
             {confirmed

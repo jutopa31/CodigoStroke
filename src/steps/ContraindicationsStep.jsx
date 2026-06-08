@@ -48,14 +48,14 @@ function ContraRow({ item, value, onChange, color, expanded, onToggleExpand }) {
   const isYes = value === true
   const isNo  = value === false
   const rowBg = isYes
-    ? color === 'red' ? 'bg-blue-900/10 border-blue-800/40' : 'bg-amber-50 border-amber-300'
-    : isNo ? 'bg-slate-50 border-slate-200' : 'border-gray-100'
+    ? color === 'red' ? 'bg-blue-900/10 border-blue-800/40' : 'bg-amber-500/10 border-amber-300'
+    : isNo ? 'bg-stroke-bg border-stroke-line' : 'border-gray-100'
 
   return (
     <div className={`rounded-xl border-2 transition-all ${rowBg}`}>
       <div className="flex items-center gap-2 px-3 py-2">
         <p className={`text-xs font-semibold leading-snug flex-1 min-w-0 ${
-          isYes ? (color === 'red' ? 'text-blue-900' : 'text-amber-800') : 'text-gray-700'
+          isYes ? (color === 'red' ? 'text-blue-300' : 'text-amber-300') : 'text-stroke-text'
         }`}>
           {item.short}
         </p>
@@ -65,31 +65,31 @@ function ContraRow({ item, value, onChange, color, expanded, onToggleExpand }) {
           onClick={onToggleExpand}
           className={`shrink-0 p-0.5 rounded-full transition-colors ${
             expanded
-              ? (color === 'red' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-500')
-              : 'text-gray-300 hover:text-gray-500'
+              ? (color === 'red' ? 'bg-blue-500/15 text-blue-300' : 'bg-amber-500/15 text-amber-500')
+              : 'text-stroke-textMuted hover:text-stroke-textMuted'
           }`}
         >
           {expanded ? <ChevronDown size={12} /> : <Info size={12} />}
         </button>
 
-        <div className="flex shrink-0 rounded-lg overflow-hidden border border-neutral-200 text-[11px] font-bold">
+        <div className="flex shrink-0 rounded-lg overflow-hidden border border-stroke-line text-[11px] font-bold">
           <button
             type="button"
             onClick={() => onChange(false)}
             className={`px-2.5 py-1.5 transition-all active:scale-95 ${
-              isNo ? 'bg-slate-600 text-white' : 'bg-white text-neutral-400 hover:bg-neutral-50'
+              isNo ? 'bg-slate-600 text-white' : 'bg-stroke-navy text-stroke-textMuted hover:bg-stroke-bg'
             }`}
           >
             NO
           </button>
-          <div className="w-px bg-neutral-200 shrink-0" />
+          <div className="w-px bg-stroke-panel shrink-0" />
           <button
             type="button"
             onClick={() => onChange(true)}
             className={`px-2.5 py-1.5 transition-all active:scale-95 ${
               isYes
-                ? color === 'red' ? 'bg-blue-900 text-white' : 'bg-amber-500 text-white'
-                : 'bg-white text-neutral-400 hover:bg-neutral-50'
+                ? color === 'red' ? 'bg-blue-900 text-white' : 'bg-amber-500/100 text-white'
+                : 'bg-stroke-navy text-stroke-textMuted hover:bg-stroke-bg'
             }`}
           >
             SÍ
@@ -99,10 +99,10 @@ function ContraRow({ item, value, onChange, color, expanded, onToggleExpand }) {
 
       {expanded && (
         <div className={`px-3 pb-2.5 animate-fade-in ${
-          color === 'red' ? 'border-t border-blue-100' : 'border-t border-amber-100'
+          color === 'red' ? 'border-t border-blue-500/30' : 'border-t border-amber-500/30'
         }`}>
           <div className={`rounded-lg px-3 py-2 mt-1 text-xs leading-snug ${
-            color === 'red' ? 'bg-blue-50 text-blue-900' : 'bg-amber-50 text-amber-700'
+            color === 'red' ? 'bg-blue-500/10 text-blue-300' : 'bg-amber-500/10 text-amber-300'
           }`}>
             <p className="font-semibold">{item.label}</p>
             {item.sub && <p className="opacity-75 mt-0.5">{item.sub}</p>}
@@ -205,29 +205,29 @@ export default function ContraindicationsStep({ onConfirm, onAnticoagChange, isC
         <StepCard step="6" title="Contraindicaciones absolutas" accent="blue">
 
           {/* ── Anticoagulación — arriba, separada ───────────────────────── */}
-          <div className="mb-4 pb-4 border-b-2 border-dashed border-neutral-200">
+          <div className="mb-4 pb-4 border-b-2 border-dashed border-stroke-line">
             <div className="flex items-center gap-2 mb-2.5">
-              <ShieldAlert size={14} className="text-brand-600 shrink-0" />
-              <p className="text-xs font-bold text-neutral-600 uppercase tracking-wide">Anticoagulación</p>
+              <ShieldAlert size={14} className="text-stroke-iconActive shrink-0" />
+              <p className="text-xs font-bold text-stroke-textMuted uppercase tracking-wide">Anticoagulación</p>
             </div>
-            <p className="text-xs text-neutral-600 mb-2.5">¿El paciente recibe anticoagulación?</p>
+            <p className="text-xs text-stroke-textMuted mb-2.5">¿El paciente recibe anticoagulación?</p>
 
-            <div className="flex shrink-0 rounded-lg overflow-hidden border border-neutral-200 text-[11px] font-bold w-fit mb-2.5">
+            <div className="flex shrink-0 rounded-lg overflow-hidden border border-stroke-line text-[11px] font-bold w-fit mb-2.5">
               <button
                 type="button"
                 onClick={() => handleAnticoagAnswer(false)}
                 className={`px-4 py-2 transition-all active:scale-95 ${
-                  anticoag.active === false ? 'bg-slate-600 text-white' : 'bg-white text-neutral-400 hover:bg-neutral-50'
+                  anticoag.active === false ? 'bg-slate-600 text-white' : 'bg-stroke-navy text-stroke-textMuted hover:bg-stroke-bg'
                 }`}
               >
                 NO
               </button>
-              <div className="w-px bg-neutral-200 shrink-0" />
+              <div className="w-px bg-stroke-panel shrink-0" />
               <button
                 type="button"
                 onClick={() => handleAnticoagAnswer(true)}
                 className={`px-4 py-2 transition-all active:scale-95 ${
-                  anticoag.active === true ? 'bg-amber-500 text-white' : 'bg-white text-neutral-400 hover:bg-neutral-50'
+                  anticoag.active === true ? 'bg-amber-500/100 text-white' : 'bg-stroke-navy text-stroke-textMuted hover:bg-stroke-bg'
                 }`}
               >
                 SÍ
@@ -236,7 +236,7 @@ export default function ContraindicationsStep({ onConfirm, onAnticoagChange, isC
 
             {anticoag.active === true && (
               <div className="space-y-2 animate-fade-in">
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-500">Tipo — toca para confirmar</p>
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-stroke-textMuted">Tipo — toca para confirmar</p>
                 <div className="grid grid-cols-3 gap-2">
                   {ANTICOAG_TYPES.map(({ id, label }) => (
                     <button
@@ -245,8 +245,8 @@ export default function ContraindicationsStep({ onConfirm, onAnticoagChange, isC
                       onClick={() => handleAnticoagType(id)}
                       className={`flex items-center justify-center rounded-xl border py-2.5 text-xs font-semibold transition-all active:scale-[0.97] ${
                         anticoag.type === id
-                          ? 'border-amber-400 bg-amber-100 text-amber-800'
-                          : 'border-amber-200 bg-amber-50/60 text-amber-800 hover:bg-amber-100'
+                          ? 'border-amber-400 bg-amber-500/15 text-amber-300'
+                          : 'border-amber-500/30 bg-amber-500/10 text-amber-300 hover:bg-amber-500/15'
                       }`}
                     >
                       {label}
@@ -254,9 +254,9 @@ export default function ContraindicationsStep({ onConfirm, onAnticoagChange, isC
                   ))}
                 </div>
                 {anticoag.type && (
-                  <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5 flex items-start gap-2 animate-fade-in">
-                    <AlertTriangle size={13} className="shrink-0 mt-0.5 text-amber-600" />
-                    <p className="text-xs text-amber-700 leading-snug">
+                  <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-2.5 flex items-start gap-2 animate-fade-in">
+                    <AlertTriangle size={13} className="shrink-0 mt-0.5 text-amber-400" />
+                    <p className="text-xs text-amber-300 leading-snug">
                       Contraindicación relativa. Esperar laboratorio según droga.
                     </p>
                   </div>
@@ -265,8 +265,8 @@ export default function ContraindicationsStep({ onConfirm, onAnticoagChange, isC
             )}
 
             {anticoag.active === false && (
-              <div className="rounded-xl border border-emerald-100 bg-emerald-50/60 px-3 py-2 animate-fade-in">
-                <p className="text-xs text-emerald-600">Sin anticoagulación activa.</p>
+              <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 animate-fade-in">
+                <p className="text-xs text-emerald-400">Sin anticoagulación activa.</p>
               </div>
             )}
           </div>
@@ -276,9 +276,9 @@ export default function ContraindicationsStep({ onConfirm, onAnticoagChange, isC
           <div className="flex items-center gap-2 mb-3">
             <div className="flex gap-1.5">
               <div className="h-1.5 w-8 rounded-full bg-blue-900" />
-              <div className="h-1.5 w-8 rounded-full bg-neutral-200" />
+              <div className="h-1.5 w-8 rounded-full bg-stroke-panel" />
             </div>
-            <span className="text-[10px] text-neutral-400 font-medium">1 de 2</span>
+            <span className="text-[10px] text-stroke-textMuted font-medium">1 de 2</span>
           </div>
 
           {/* Continuar button — top so no scroll needed */}
@@ -286,20 +286,20 @@ export default function ContraindicationsStep({ onConfirm, onAnticoagChange, isC
             type="button"
             onClick={() => setView('orange')}
             disabled={!allRedAnswered || !anticoagAnswered}
-            className="w-full flex items-center justify-center gap-2 mb-3 py-3 rounded-xl font-semibold text-sm transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed bg-brand-600 hover:bg-brand-700 text-white"
+            className="w-full flex items-center justify-center gap-2 mb-3 py-3 rounded-xl font-semibold text-sm transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed bg-stroke-iconActive hover:bg-[#4D6CD6] text-stroke-bg"
           >
             Continuar — relativas <ChevronRight size={16} />
           </button>
 
-          <p className="text-xs text-neutral-500 mb-3">
-            Cualquier <strong className="text-blue-900">SÍ</strong> bloquea la trombolisis IV. Tocá ⓘ para detalles.
+          <p className="text-xs text-stroke-textMuted mb-3">
+            Cualquier <strong className="text-blue-300">SÍ</strong> bloquea la trombolisis IV. Tocá ⓘ para detalles.
           </p>
 
           {/* Batch action row — "mark all NO" shortcut */}
           <button
             type="button"
             onClick={markAllNoRed}
-            className="w-full flex items-center justify-center gap-2 mb-3 py-2.5 rounded-xl border border-emerald-200 bg-emerald-50/50 text-emerald-700 text-xs font-semibold transition-all hover:border-emerald-400 hover:bg-emerald-100/70 hover:shadow-sm active:scale-[0.98] active:bg-emerald-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+            className="w-full flex items-center justify-center gap-2 mb-3 py-2.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 text-xs font-semibold transition-all hover:border-emerald-400 hover:bg-emerald-500/15 hover:shadow-sm active:scale-[0.98] active:bg-emerald-500/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
           >
             <ShieldCheck size={14} />
             Ninguna presente — marcar todas NO →
@@ -321,8 +321,8 @@ export default function ContraindicationsStep({ onConfirm, onAnticoagChange, isC
 
           {hasRed && (
             <div className="mt-3 bg-blue-900/10 border-2 border-blue-800/50 rounded-xl px-4 py-3 animate-fade-in">
-              <p className="text-sm font-bold text-blue-900">Contraindicación absoluta presente</p>
-              <p className="text-xs text-blue-800 mt-1">No indicar trombolisis IV con rtPA ni TNK.</p>
+              <p className="text-sm font-bold text-blue-300">Contraindicación absoluta presente</p>
+              <p className="text-xs text-blue-300 mt-1">No indicar trombolisis IV con rtPA ni TNK.</p>
             </div>
           )}
         </StepCard>
@@ -339,15 +339,15 @@ export default function ContraindicationsStep({ onConfirm, onAnticoagChange, isC
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <div className="flex gap-1.5">
-              <div className="h-1.5 w-8 rounded-full bg-neutral-200" />
+              <div className="h-1.5 w-8 rounded-full bg-stroke-panel" />
               <div className="h-1.5 w-8 rounded-full bg-amber-400" />
             </div>
-            <span className="text-[10px] text-neutral-400 font-medium">2 de 2</span>
+            <span className="text-[10px] text-stroke-textMuted font-medium">2 de 2</span>
           </div>
           <button
             type="button"
             onClick={() => setView('red')}
-            className="text-[10px] text-brand-500 font-semibold hover:underline"
+            className="text-[10px] text-stroke-iconActive font-semibold hover:underline"
           >
             ← Absolutas
           </button>
@@ -359,7 +359,7 @@ export default function ContraindicationsStep({ onConfirm, onAnticoagChange, isC
             <button
               type="button"
               onClick={() => setShowRelativeWarning(true)}
-              className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-semibold py-3 rounded-xl transition-all text-sm"
+              className="w-full flex items-center justify-center gap-2 bg-stroke-iconActive hover:bg-[#4D6CD6] active:scale-95 text-stroke-bg font-semibold py-3 rounded-xl transition-all text-sm"
             >
               Continuar <ChevronRight size={16} />
             </button>
@@ -367,7 +367,7 @@ export default function ContraindicationsStep({ onConfirm, onAnticoagChange, isC
             <button
               type="button"
               onClick={() => confirm(hasRed)}
-              className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-semibold py-3 rounded-xl transition-all text-sm"
+              className="w-full flex items-center justify-center gap-2 bg-stroke-iconActive hover:bg-[#4D6CD6] active:scale-95 text-stroke-bg font-semibold py-3 rounded-xl transition-all text-sm"
             >
               {hasRed ? 'Registrar — Evaluar OGV' : 'Registrar y continuar'} <ChevronRight size={16} />
             </button>
@@ -375,7 +375,7 @@ export default function ContraindicationsStep({ onConfirm, onAnticoagChange, isC
             <button
               type="button"
               disabled
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm bg-neutral-100 text-neutral-400 cursor-not-allowed"
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm bg-stroke-panel text-stroke-textMuted cursor-not-allowed"
             >
               Responde todas las contraindicaciones relativas
             </button>
@@ -384,9 +384,9 @@ export default function ContraindicationsStep({ onConfirm, onAnticoagChange, isC
 
         {/* Anticoag summary chip */}
         {anticoag.active === true && anticoag.type && (
-          <div className="flex items-center gap-2 mb-3 px-3 py-2 rounded-xl bg-amber-50 border border-amber-200">
-            <ShieldAlert size={13} className="text-amber-600 shrink-0" />
-            <p className="text-xs font-semibold text-amber-700">
+          <div className="flex items-center gap-2 mb-3 px-3 py-2 rounded-xl bg-amber-500/10 border border-amber-500/30">
+            <ShieldAlert size={13} className="text-amber-400 shrink-0" />
+            <p className="text-xs font-semibold text-amber-300">
               Anticoagulación activa: {ANTICOAG_TYPES.find(t => t.id === anticoag.type)?.label ?? anticoag.type}
             </p>
           </div>
@@ -394,12 +394,12 @@ export default function ContraindicationsStep({ onConfirm, onAnticoagChange, isC
 
         {hasRed && (
           <div className="flex items-center gap-2 mb-3 px-3 py-2 rounded-xl bg-blue-900/10 border border-blue-800/30">
-            <AlertTriangle size={13} className="text-blue-900 shrink-0" />
-            <p className="text-xs font-semibold text-blue-900">Contraindicación absoluta ya registrada</p>
+            <AlertTriangle size={13} className="text-blue-300 shrink-0" />
+            <p className="text-xs font-semibold text-blue-300">Contraindicación absoluta ya registrada</p>
           </div>
         )}
 
-        <p className="text-xs text-neutral-500 mb-3">
+        <p className="text-xs text-stroke-textMuted mb-3">
           Individualizar riesgo/beneficio. Tocá ⓘ para detalles.
         </p>
 
@@ -407,7 +407,7 @@ export default function ContraindicationsStep({ onConfirm, onAnticoagChange, isC
         <button
           type="button"
           onClick={markAllNoOrange}
-          className="w-full flex items-center justify-center gap-2 mb-3 py-2.5 rounded-xl border border-emerald-200 bg-emerald-50/50 text-emerald-700 text-xs font-semibold transition-all hover:border-emerald-400 hover:bg-emerald-100/70 hover:shadow-sm active:scale-[0.98] active:bg-emerald-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+          className="w-full flex items-center justify-center gap-2 mb-3 py-2.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 text-xs font-semibold transition-all hover:border-emerald-400 hover:bg-emerald-500/15 hover:shadow-sm active:scale-[0.98] active:bg-emerald-500/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
         >
           <ShieldCheck size={14} />
           Ninguna presente — marcar todas NO
@@ -428,9 +428,9 @@ export default function ContraindicationsStep({ onConfirm, onAnticoagChange, isC
         </div>
 
         {hasOrange && !hasRed && (
-          <div className="mt-3 bg-amber-50 border-2 border-amber-300 rounded-xl px-4 py-3 animate-fade-in">
-            <p className="text-sm font-bold text-amber-700">Contraindicación relativa presente</p>
-            <p className="text-xs text-amber-600 mt-1">Valorar riesgo/beneficio. Interconsulta antes de proceder.</p>
+          <div className="mt-3 bg-amber-500/10 border-2 border-amber-300 rounded-xl px-4 py-3 animate-fade-in">
+            <p className="text-sm font-bold text-amber-300">Contraindicación relativa presente</p>
+            <p className="text-xs text-amber-400 mt-1">Valorar riesgo/beneficio. Interconsulta antes de proceder.</p>
           </div>
         )}
       </StepCard>
@@ -443,23 +443,23 @@ export default function ContraindicationsStep({ onConfirm, onAnticoagChange, isC
         onClick={() => setShowRelativeWarning(false)}
       >
         <div
-          className="w-full max-w-sm rounded-t-3xl bg-white shadow-modal animate-slide-up sm:rounded-2xl"
+          className="w-full max-w-sm rounded-t-3xl bg-stroke-navy shadow-modal animate-slide-up sm:rounded-2xl"
           onClick={e => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="flex items-start justify-between border-b border-amber-100 bg-amber-50 px-5 py-4 rounded-t-3xl sm:rounded-t-2xl">
+          <div className="flex items-start justify-between border-b border-amber-500/30 bg-amber-500/10 px-5 py-4 rounded-t-3xl sm:rounded-t-2xl">
             <div className="flex items-start gap-3">
-              <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-100">
-                <AlertTriangle size={16} className="text-amber-600" />
+              <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-500/15">
+                <AlertTriangle size={16} className="text-amber-400" />
               </div>
               <div>
-                <h2 className="text-sm font-bold text-amber-800">Contraindicación relativa</h2>
-                <p className="mt-0.5 text-xs text-amber-600">Confirmar interconsulta antes de continuar</p>
+                <h2 className="text-sm font-bold text-amber-300">Contraindicación relativa</h2>
+                <p className="mt-0.5 text-xs text-amber-400">Confirmar interconsulta antes de continuar</p>
               </div>
             </div>
             <button
               onClick={() => setShowRelativeWarning(false)}
-              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-amber-400 hover:bg-amber-100"
+              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-amber-400 hover:bg-amber-500/15"
             >
               <X size={15} />
             </button>
@@ -467,33 +467,33 @@ export default function ContraindicationsStep({ onConfirm, onAnticoagChange, isC
 
           {/* Active contraindications list */}
           <div className="px-5 py-4 space-y-2">
-            <p className="text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-3">
+            <p className="text-xs font-semibold uppercase tracking-wider text-stroke-textMuted mb-3">
               Contraindicaciones presentes
             </p>
             {anticoag.active === true && anticoag.type && (
-              <div className="flex items-center gap-2 rounded-xl bg-amber-50 border border-amber-200 px-3 py-2">
-                <ShieldAlert size={13} className="text-amber-600 shrink-0" />
-                <p className="text-xs font-medium text-amber-800">
+              <div className="flex items-center gap-2 rounded-xl bg-amber-500/10 border border-amber-500/30 px-3 py-2">
+                <ShieldAlert size={13} className="text-amber-400 shrink-0" />
+                <p className="text-xs font-medium text-amber-300">
                   Anticoagulación activa: {ANTICOAG_TYPES.find(t => t.id === anticoag.type)?.label ?? anticoag.type}
                 </p>
               </div>
             )}
             {ORANGE_CONTRAS.filter(c => orangeAnswers[c.id] === true).map(c => (
-              <div key={c.id} className="flex items-center gap-2 rounded-xl bg-amber-50 border border-amber-200 px-3 py-2">
-                <AlertTriangle size={13} className="text-amber-600 shrink-0" />
-                <p className="text-xs font-medium text-amber-800">{c.label}</p>
+              <div key={c.id} className="flex items-center gap-2 rounded-xl bg-amber-500/10 border border-amber-500/30 px-3 py-2">
+                <AlertTriangle size={13} className="text-amber-400 shrink-0" />
+                <p className="text-xs font-medium text-amber-300">{c.label}</p>
               </div>
             ))}
-            <p className="pt-2 text-xs text-neutral-500 leading-relaxed">
+            <p className="pt-2 text-xs text-stroke-textMuted leading-relaxed">
               Se recomienda realizar una interconsulta con el especialista correspondiente y valorar riesgo/beneficio individual antes de proceder con la trombolisis.
             </p>
           </div>
 
           {/* Actions */}
-          <div className="border-t border-neutral-100 px-5 pb-6 pt-4 space-y-2">
+          <div className="border-t border-stroke-line px-5 pb-6 pt-4 space-y-2">
             <button
               onClick={() => { setShowRelativeWarning(false); confirm(false) }}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-amber-500 px-4 py-3 text-sm font-semibold text-white transition-all hover:bg-amber-600 active:scale-[0.98]"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-amber-500/100 px-4 py-3 text-sm font-semibold text-white transition-all hover:bg-amber-600 active:scale-[0.98]"
             >
               Trombolisis <ChevronRight size={16} />
             </button>
@@ -505,7 +505,7 @@ export default function ContraindicationsStep({ onConfirm, onAnticoagChange, isC
             </button>
             <button
               onClick={() => setShowRelativeWarning(false)}
-              className="flex w-full items-center justify-center gap-2 rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm font-semibold text-neutral-700 transition-all hover:bg-neutral-50 active:scale-[0.98]"
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-stroke-line bg-stroke-navy px-4 py-3 text-sm font-semibold text-stroke-text transition-all hover:bg-stroke-bg active:scale-[0.98]"
             >
               Atrás
             </button>

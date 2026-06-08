@@ -117,16 +117,16 @@ function AnticoagulationModal({ onClose, onConfirm }) {
 
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/55 p-4 backdrop-blur-sm animate-fade-in">
-      <div className="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl animate-slide-up">
+      <div className="w-full max-w-md overflow-hidden rounded-2xl bg-stroke-navy shadow-2xl animate-slide-up">
         <div className="flex items-start justify-between gap-4 border-b border-slate-100 px-5 py-4">
           <div>
-            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-brand-600">Alerta antes de avanzar</p>
-            <h3 className="mt-1 text-xl font-bold text-slate-900">Anticoagulacion</h3>
+            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-stroke-iconActive">Alerta antes de avanzar</p>
+            <h3 className="mt-1 text-xl font-bold text-stroke-text">Anticoagulacion</h3>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition hover:bg-slate-50"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-stroke-line text-stroke-textMuted transition hover:bg-stroke-bg"
             aria-label="Cerrar"
           >
             <X size={16} />
@@ -134,7 +134,7 @@ function AnticoagulationModal({ onClose, onConfirm }) {
         </div>
 
         <div className="px-5 py-5">
-          <p className="text-sm font-semibold text-slate-800">El paciente recibe anticoagulacion?</p>
+          <p className="text-sm font-semibold text-stroke-text">El paciente recibe anticoagulacion?</p>
           <div className="mt-3 grid grid-cols-2 gap-2">
             {[
               { label: 'No', value: false },
@@ -153,9 +153,9 @@ function AnticoagulationModal({ onClose, onConfirm }) {
                   className={`flex min-h-[48px] items-center justify-center gap-2 rounded-lg border-2 text-sm font-bold transition-all active:scale-[0.99] ${
                     selected
                       ? option.value
-                        ? 'border-red-500 bg-red-50 text-red-800 ring-2 ring-red-100'
-                        : 'border-emerald-500 bg-emerald-50 text-emerald-800 ring-2 ring-emerald-100'
-                      : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                        ? 'border-red-500 bg-status-critical/10 text-red-300 ring-2 ring-status-critical/30'
+                        : 'border-emerald-500 bg-emerald-500/10 text-emerald-300 ring-2 ring-emerald-500/30'
+                      : 'border-stroke-line bg-stroke-navy text-stroke-text hover:bg-stroke-bg'
                   }`}
                 >
                   <SelectionCheck active={selected} tone={option.value ? 'red' : 'green'} />
@@ -167,7 +167,7 @@ function AnticoagulationModal({ onClose, onConfirm }) {
 
           {needsType && (
             <div className="mt-4 animate-fade-in">
-              <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Cual usa?</p>
+              <p className="text-xs font-bold uppercase tracking-wider text-stroke-textMuted">Cual usa?</p>
               <div className="mt-2 grid grid-cols-2 gap-2">
                 {ANTICOAG_TYPES.map((option) => {
                   const selected = type === option.id
@@ -179,8 +179,8 @@ function AnticoagulationModal({ onClose, onConfirm }) {
                       onClick={() => setType(option.id)}
                       className={`rounded-lg border-2 px-3 py-3 text-sm font-bold transition-all active:scale-[0.99] ${
                         selected
-                          ? 'border-red-500 bg-red-50 text-red-800 ring-2 ring-red-100'
-                          : 'border-slate-200 bg-white text-slate-700 hover:border-red-200 hover:bg-red-50/40'
+                          ? 'border-red-500 bg-status-critical/10 text-red-300 ring-2 ring-status-critical/30'
+                          : 'border-stroke-line bg-stroke-navy text-stroke-text hover:border-status-critical/30 hover:bg-status-critical/10'
                       }`}
                     >
                       {option.label}
@@ -189,7 +189,7 @@ function AnticoagulationModal({ onClose, onConfirm }) {
                 })}
               </div>
 
-              <div className="mt-3 rounded-lg border-2 border-red-200 bg-red-50 px-3 py-3 text-red-800">
+              <div className="mt-3 rounded-lg border-2 border-status-critical/30 bg-status-critical/10 px-3 py-3 text-red-300">
                 <div className="flex gap-2">
                   <ShieldAlert size={17} className="mt-0.5 shrink-0" />
                   <p className="text-sm font-medium leading-snug">
@@ -205,7 +205,7 @@ function AnticoagulationModal({ onClose, onConfirm }) {
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 rounded-lg border-2 border-slate-200 px-4 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 active:scale-[0.99]"
+            className="flex-1 rounded-lg border-2 border-stroke-line px-4 py-3 text-sm font-semibold text-stroke-textMuted transition hover:bg-stroke-bg active:scale-[0.99]"
           >
             Revisar
           </button>
@@ -213,7 +213,7 @@ function AnticoagulationModal({ onClose, onConfirm }) {
             type="button"
             onClick={submit}
             disabled={!canContinue}
-            className="flex-[1.6] rounded-lg bg-brand-600 px-4 py-3 text-sm font-bold text-white transition hover:bg-brand-700 active:scale-[0.99] disabled:bg-slate-200 disabled:text-slate-500"
+            className="flex-[1.6] rounded-lg bg-stroke-iconActive px-4 py-3 text-sm font-bold text-stroke-bg transition hover:bg-[#4D6CD6] active:scale-[0.99] disabled:bg-stroke-panel disabled:text-stroke-textMuted"
           >
             Continuar
           </button>
@@ -256,15 +256,15 @@ function NihssCompactPanel({ score, onScoreChange, hasDisabling, onDisablingChan
   }
 
   return (
-    <div className="rounded-lg border border-orange-100 bg-white px-3 py-3">
+    <div className="rounded-lg border border-orange-100 bg-stroke-navy px-3 py-3">
       <div className="mb-2 flex items-center justify-between gap-2">
-        <label htmlFor="nihss-score" className="text-xs font-bold uppercase tracking-wider text-orange-800">
+        <label htmlFor="nihss-score" className="text-xs font-bold uppercase tracking-wider text-amber-300">
           NIHSS
         </label>
         <button
           type="button"
           onClick={() => setShowModal(true)}
-          className="flex h-8 w-8 items-center justify-center rounded-full border border-orange-200 bg-orange-50 text-orange-700 transition hover:bg-orange-100"
+          className="flex h-8 w-8 items-center justify-center rounded-full border border-amber-500/30 bg-amber-500/15 text-amber-300 transition hover:bg-amber-500/15"
           aria-label="Abrir calculadora NIHSS"
           title="Calculadora NIHSS"
         >
@@ -283,14 +283,14 @@ function NihssCompactPanel({ score, onScoreChange, hasDisabling, onDisablingChan
           value={score}
           onChange={(event) => handleScoreChange(event.target.value)}
           onKeyDown={handleScoreKeyDown}
-          className={`h-12 w-24 rounded-lg border-2 bg-slate-50 text-center text-xl font-bold outline-none transition ${
+          className={`h-12 w-24 rounded-lg border-2 bg-stroke-bg text-center text-xl font-bold outline-none transition ${
             valid
-              ? 'border-orange-400 text-orange-900 ring-2 ring-orange-100 focus:border-orange-500'
-              : 'border-slate-200 text-slate-900 focus:border-orange-400 focus:ring-2 focus:ring-orange-100'
+              ? 'border-orange-400 text-amber-300 ring-2 ring-amber-500/30 focus:border-orange-500'
+              : 'border-stroke-line text-stroke-text focus:border-orange-400 focus:ring-2 focus:ring-amber-500/30'
           }`}
         />
         <div className="min-w-0 flex-1">
-          <p className={`truncate text-sm font-bold ${severity ? severity.color : 'text-slate-700'}`}>
+          <p className={`truncate text-sm font-bold ${severity ? severity.color : 'text-stroke-text'}`}>
             {severity ? severity.label : 'Pendiente'}
           </p>
         </div>
@@ -313,9 +313,9 @@ function NihssCompactPanel({ score, onScoreChange, hasDisabling, onDisablingChan
                 className={`rounded-lg border px-2 py-2 text-xs font-bold transition ${
                   active
                     ? option.value
-                      ? 'border-orange-400 bg-orange-50 text-orange-800'
-                      : 'border-slate-300 bg-slate-50 text-slate-700'
-                    : 'border-slate-200 bg-white text-slate-500 hover:bg-slate-50'
+                      ? 'border-orange-400 bg-amber-500/15 text-amber-300'
+                      : 'border-slate-300 bg-stroke-bg text-stroke-text'
+                    : 'border-stroke-line bg-stroke-navy text-stroke-textMuted hover:bg-stroke-bg'
                 }`}
               >
                 {option.label}
@@ -442,8 +442,8 @@ export default function SymptomsStep({ onConfirm }) {
   return (
     <div className="px-4 pb-4 space-y-2.5">
       <StepCard step="2" title="Sintomas /// NIHSS" accent="orange">
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-orange-100 bg-orange-50/60 px-3 py-2">
-          <p className="text-sm font-bold text-orange-900">Selecciona sintomas y carga NIHSS</p>
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-orange-100 bg-amber-500/15 px-3 py-2">
+          <p className="text-sm font-bold text-amber-300">Selecciona sintomas y carga NIHSS</p>
           <StatusPill complete={hasSymptom}>
             {hasSymptom ? `${selectedCount} seleccionado${selectedCount === 1 ? '' : 's'}` : 'Pendiente'}
           </StatusPill>
@@ -463,16 +463,16 @@ export default function SymptomsStep({ onConfirm }) {
                   aria-label={`${opt.label}: ${opt.sub}`}
                   className={`group relative flex min-h-[58px] flex-col items-center justify-center gap-1 rounded-lg border px-2 py-2 transition-all ${
                     active
-                      ? 'border-orange-400 bg-orange-50 text-orange-700 shadow-sm ring-2 ring-orange-100'
-                      : 'border-gray-200 bg-white text-gray-500 hover:border-orange-300 hover:bg-orange-50/40'
+                      ? 'border-orange-400 bg-amber-500/15 text-amber-300 shadow-sm ring-2 ring-amber-500/30'
+                      : 'border-stroke-line bg-stroke-navy text-stroke-textMuted hover:border-amber-500/40 hover:bg-amber-500/15'
                   }`}
                 >
                   <opt.Icon size={20} />
                   <span className="max-w-full truncate text-[10px] font-bold leading-none">
                     {opt.label.split(' ')[0]}
                   </span>
-                  <span className="pointer-events-none absolute left-1/2 top-full z-20 mt-2 hidden w-52 -translate-x-1/2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-left text-xs font-medium leading-snug text-slate-700 shadow-xl group-hover:block group-focus-visible:block">
-                    <strong className="block text-slate-900">{opt.label}</strong>
+                  <span className="pointer-events-none absolute left-1/2 top-full z-20 mt-2 hidden w-52 -translate-x-1/2 rounded-lg border border-stroke-line bg-stroke-navy px-3 py-2 text-left text-xs font-medium leading-snug text-stroke-text shadow-xl group-hover:block group-focus-visible:block">
+                    <strong className="block text-stroke-text">{opt.label}</strong>
                     {opt.sub}
                   </span>
                 </button>
@@ -498,14 +498,14 @@ export default function SymptomsStep({ onConfirm }) {
         <div>
           <section className={`rounded-lg border px-3 py-3 ${
             timeTone === 'red'
-              ? 'border-red-200 bg-red-50/70'
+              ? 'border-status-critical/30 bg-status-critical/10'
               : timeTone === 'orange'
-              ? 'border-orange-200 bg-orange-50/70'
-              : 'border-blue-100 bg-blue-50/60'
+              ? 'border-amber-500/30 bg-amber-500/15'
+              : 'border-blue-500/30 bg-blue-500/10'
           }`}>
             <div className="flex flex-wrap items-center justify-between gap-2">
               <label htmlFor="last-seen-slider" className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 ${
-                timeTone === 'red' ? 'text-red-800' : timeTone === 'orange' ? 'text-orange-800' : 'text-blue-800'
+                timeTone === 'red' ? 'text-red-300' : timeTone === 'orange' ? 'text-amber-300' : 'text-blue-300'
               }`}>
                 <Clock size={13} /> Ultima vez asintomatico
               </label>
@@ -522,35 +522,35 @@ export default function SymptomsStep({ onConfirm }) {
                   step="5"
                   value={offsetMinutes}
                   onChange={(event) => applyOffset(event.target.value)}
-                  className="h-2 w-full cursor-pointer accent-brand-600"
+                  className="h-2 w-full cursor-pointer accent-[#5C7AEA]"
                   aria-label="Minutos desde ultima vez asintomatico"
                 />
                 <button
                   type="button"
                   onClick={() => applyOffset(IV_WINDOW_MINUTES)}
-                  className="absolute top-5 flex -translate-x-1/2 flex-col items-center gap-1 text-[11px] font-bold text-orange-700 transition hover:text-orange-800 focus:outline-none"
+                  className="absolute top-5 flex -translate-x-1/2 flex-col items-center gap-1 text-[11px] font-bold text-amber-300 transition hover:text-amber-300 focus:outline-none"
                   style={{ left: IV_WINDOW_PERCENT }}
                   aria-label="Marcar 4.5 horas"
                   title="Marcar 4.5 horas"
                 >
-                  <span className="h-3 w-0.5 rounded-full bg-orange-500" />
-                  <span className="rounded-full border border-orange-200 bg-white px-2 py-0.5 shadow-sm">4.5 h</span>
+                  <span className="h-3 w-0.5 rounded-full bg-amber-500/150" />
+                  <span className="rounded-full border border-amber-500/30 bg-stroke-navy px-2 py-0.5 shadow-sm">4.5 h</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => applyOffset(OGV_WINDOW_MINUTES)}
-                  className="absolute top-5 flex -translate-x-full flex-col items-end gap-1 text-[11px] font-bold text-red-700 transition hover:text-red-800 focus:outline-none"
+                  className="absolute top-5 flex -translate-x-full flex-col items-end gap-1 text-[11px] font-bold text-red-300 transition hover:text-red-300 focus:outline-none"
                   style={{ left: OGV_WINDOW_PERCENT }}
                   aria-label="Marcar 24 horas"
                   title="Marcar 24 horas"
                 >
-                  <span className="h-3 w-0.5 rounded-full bg-red-500" />
-                  <span className="rounded-full border border-red-200 bg-white px-2 py-0.5 shadow-sm">24 h</span>
+                  <span className="h-3 w-0.5 rounded-full bg-status-critical/100" />
+                  <span className="rounded-full border border-status-critical/30 bg-stroke-navy px-2 py-0.5 shadow-sm">24 h</span>
                 </button>
               </div>
-              <div className="rounded-lg border border-white/70 bg-white px-3 py-2 text-right shadow-sm">
-                <p className="text-lg font-bold leading-tight text-slate-900">{formatElapsed(elapsedMinutes)}</p>
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">{formatClock(lastSeen)}</p>
+              <div className="rounded-lg border border-stroke-line bg-stroke-navy px-3 py-2 text-right shadow-sm">
+                <p className="text-lg font-bold leading-tight text-stroke-text">{formatElapsed(elapsedMinutes)}</p>
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-stroke-textMuted">{formatClock(lastSeen)}</p>
               </div>
             </div>
 
@@ -563,8 +563,8 @@ export default function SymptomsStep({ onConfirm }) {
                 onClick={handleInciertoClick}
                 className={`flex h-9 w-9 items-center justify-center rounded-full border transition ${
                   isIncierto
-                    ? 'border-indigo-300 bg-indigo-50 text-indigo-700'
-                    : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                    ? 'border-indigo-300 bg-indigo-500/10 text-indigo-300'
+                    : 'border-stroke-line bg-stroke-navy text-stroke-textMuted hover:bg-stroke-bg'
                 }`}
               >
                 <Clock size={15} />
@@ -578,13 +578,13 @@ export default function SymptomsStep({ onConfirm }) {
         ref={continueButtonRef}
         onClick={handleSubmit}
         disabled={!valid}
-        className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-semibold py-3.5 rounded-lg transition-all disabled:bg-gray-200 disabled:text-gray-500 disabled:opacity-100 disabled:cursor-not-allowed"
+        className="w-full flex items-center justify-center gap-2 bg-stroke-iconActive hover:bg-[#4D6CD6] active:scale-95 text-stroke-bg font-semibold py-3.5 rounded-lg transition-all disabled:bg-stroke-panel disabled:text-stroke-textMuted disabled:opacity-100 disabled:cursor-not-allowed"
       >
         {valid ? 'Continuar' : 'Completa lo pendiente para continuar'} <ChevronRight size={18} />
       </button>
 
       {!valid && (
-        <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+        <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-300">
           <div className="flex items-start gap-2">
             <AlertCircle size={16} className="mt-0.5 shrink-0" />
             <p>Falta: {missingItems.join(', ')}.</p>

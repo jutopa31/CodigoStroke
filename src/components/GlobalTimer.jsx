@@ -24,22 +24,23 @@ function fmtClock(ts) {
 }
 
 function getPhase(minutes) {
+  // Unified navy chrome — urgency lives in the timer pill (escalates to amber/red) + progress bar
   if (minutes >= 60) return {
-    bg: 'bg-blue-900',
-    muted: 'text-blue-200',
-    badge: 'bg-white/25 text-white',
-    timer: 'md:bg-stroke-panel md:text-white',
+    bg: 'bg-stroke-navy',
+    muted: 'text-stroke-textMuted',
+    badge: 'bg-stroke-bg text-white',
+    timer: 'md:bg-status-critical md:text-white',
   }
   if (minutes >= 30) return {
-    bg: 'bg-brand-700',
-    muted: 'text-brand-200',
-    badge: 'bg-white/25 text-white',
+    bg: 'bg-stroke-navy',
+    muted: 'text-stroke-textMuted',
+    badge: 'bg-stroke-bg text-white',
     timer: 'md:bg-amber-500 md:text-white',
   }
   return {
-    bg: 'bg-brand-600',
-    muted: 'text-brand-300',
-    badge: 'bg-white/25 text-white',
+    bg: 'bg-stroke-navy',
+    muted: 'text-stroke-textMuted',
+    badge: 'bg-stroke-bg text-white',
     timer: 'md:bg-stroke-panel md:text-white',
   }
 }
@@ -76,7 +77,7 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
 
   const minutes = elapsed / 60
   const phase = startTime ? getPhase(minutes) : null
-  const bg = phase ? phase.bg : 'bg-brand-600'
+  const bg = phase ? phase.bg : 'bg-stroke-navy'
   const eventBadges = getEventBadges(startTime, timestamps)
   const primaryEvent = eventBadges[eventBadges.length - 1]
 
@@ -87,7 +88,7 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
     >
       <div className="flex items-center justify-between gap-3 px-3 py-2 md:h-11 md:px-5 md:py-0">
         <div className="flex items-center gap-2.5 min-w-0 shrink md:gap-3">
-          <div className={`w-10 h-10 md:w-7 md:h-7 rounded-xl md:rounded-lg bg-white/20 flex items-center justify-center shrink-0 ${phase?.timer ?? 'md:bg-stroke-panel md:text-white'}`}>
+          <div className={`w-10 h-10 md:w-7 md:h-7 rounded-xl md:rounded-lg bg-stroke-bg flex items-center justify-center shrink-0 ${phase?.timer ?? 'md:bg-stroke-panel md:text-white'}`}>
             {startTime
               ? <Clock size={16} className="text-white" strokeWidth={2} />
               : <Activity size={16} className="text-white" strokeWidth={2} />
@@ -116,7 +117,7 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
                 key={event.label}
                 label={event.label}
                 time={event.time}
-                badgeClass={`${phase.badge} md:bg-white/10 md:text-stroke-textMuted`}
+                badgeClass={`${phase.badge} md:bg-stroke-bg md:text-stroke-textMuted`}
               />
             ))}
           </div>
@@ -132,7 +133,7 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
             <button
               type="button"
               onClick={onAuthClick}
-              className="w-11 h-11 md:w-7 md:h-7 rounded-xl md:rounded-lg border border-white/20 md:border-white/10 bg-white/10 md:bg-white/10 flex items-center justify-center text-white md:text-stroke-textMuted hover:bg-white/20 md:hover:bg-white/15 transition-colors"
+              className="w-11 h-11 md:w-7 md:h-7 rounded-xl md:rounded-lg border border-stroke-line md:border-stroke-line bg-stroke-bg md:bg-stroke-bg flex items-center justify-center text-white md:text-stroke-textMuted hover:bg-stroke-bg md:hover:bg-stroke-bg transition-colors"
               title={authUser ? 'Tu cuenta' : 'Iniciar sesión'}
               aria-label={authUser ? 'Tu cuenta' : 'Iniciar sesión'}
             >
@@ -146,7 +147,7 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
             <button
               type="button"
               onClick={onEducationalOpen}
-              className="w-11 h-11 md:w-7 md:h-7 rounded-xl md:rounded-lg border border-white/20 md:border-white/10 bg-white/10 md:bg-white/10 flex items-center justify-center text-white md:text-stroke-textMuted hover:bg-white/20 md:hover:bg-white/15 transition-colors"
+              className="w-11 h-11 md:w-7 md:h-7 rounded-xl md:rounded-lg border border-stroke-line md:border-stroke-line bg-stroke-bg md:bg-stroke-bg flex items-center justify-center text-white md:text-stroke-textMuted hover:bg-stroke-bg md:hover:bg-stroke-bg transition-colors"
               title="Referencia educativa del protocolo"
               aria-label="Abrir referencia educativa"
             >
@@ -157,7 +158,7 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
             <button
               type="button"
               onClick={onReset}
-              className="w-11 h-11 md:w-7 md:h-7 rounded-xl md:rounded-lg border border-white/20 md:border-white/10 bg-white/10 md:bg-white/10 flex items-center justify-center text-white md:text-stroke-textMuted hover:bg-white/20 md:hover:bg-white/15 transition-colors"
+              className="w-11 h-11 md:w-7 md:h-7 rounded-xl md:rounded-lg border border-stroke-line md:border-stroke-line bg-stroke-bg md:bg-stroke-bg flex items-center justify-center text-white md:text-stroke-textMuted hover:bg-stroke-bg md:hover:bg-stroke-bg transition-colors"
               title="Reiniciar protocolo"
               aria-label="Reiniciar protocolo"
             >
@@ -168,7 +169,7 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
       </div>
 
       {startTime && eventBadges.length > 1 && (
-        <div className="md:hidden border-t border-white/10 px-3 pb-2">
+        <div className="md:hidden border-t border-stroke-line px-3 pb-2">
           <div
             className="flex gap-1.5 overflow-x-auto pt-2 pr-8 [mask-image:linear-gradient(to_right,black_0%,black_86%,transparent_100%)]"
             style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}
@@ -181,13 +182,13 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
       )}
 
       {progressPct > 0 && (
-        <div className="h-1.5 bg-white/10 md:bg-stroke-line">
+        <div className="h-1.5 bg-stroke-bg md:bg-stroke-line">
           <div
             className={`h-full rounded-r-full transition-all duration-500 md:bg-stroke-iconActive ${
               !phase ? 'bg-emerald-400' :
               minutes < 30 ? 'bg-emerald-400' :
               minutes < 60 ? 'bg-amber-400' :
-              'bg-blue-400'
+              'bg-red-400'
             }`}
             style={{ width: `${progressPct}%` }}
           />

@@ -31,9 +31,9 @@ export default function MRIResultStep({ onConfirm }) {
   return (
     <div className="px-4 pb-4 space-y-3 md:px-0">
       <StepCard step="5" title="RMN de encefalo - ACV del despertar" accent="blue">
-        <div className="flex items-center gap-2 mb-3 bg-indigo-50 border border-indigo-200 rounded-lg px-3 py-2">
-          <Moon size={14} className="text-indigo-600 shrink-0" />
-          <span className="text-xs text-indigo-700 font-medium">Protocolo WAKE-UP activo: evaluar mismatch</span>
+        <div className="flex items-center gap-2 mb-3 bg-indigo-500/10 border border-indigo-500/30 rounded-lg px-3 py-2">
+          <Moon size={14} className="text-indigo-300 shrink-0" />
+          <span className="text-xs text-indigo-300 font-medium">Protocolo WAKE-UP activo: evaluar mismatch</span>
         </div>
 
         {!mriRequestTime && (
@@ -57,17 +57,17 @@ export default function MRIResultStep({ onConfirm }) {
 
         {mriRequestTime && (
           <>
-            <div className="flex items-center gap-2 mb-3 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2">
+            <div className="flex items-center gap-2 mb-3 bg-blue-500/10 border border-blue-500/30 rounded-lg px-3 py-2">
               <Clock size={14} className="text-blue-500 shrink-0" />
-              <span className="text-xs text-blue-700 font-medium">RMN solicitada hace {elapsed}</span>
+              <span className="text-xs text-blue-300 font-medium">RMN solicitada hace {elapsed}</span>
             </div>
 
-            <div className="mb-3 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2.5">
-              <p className="text-xs font-semibold text-gray-600 mb-1.5">Criterio de mismatch FLAIR-DWI</p>
-              <div className="space-y-1 text-xs text-gray-500">
+            <div className="mb-3 bg-stroke-bg border border-stroke-line rounded-lg px-3 py-2.5">
+              <p className="text-xs font-semibold text-stroke-textMuted mb-1.5">Criterio de mismatch FLAIR-DWI</p>
+              <div className="space-y-1 text-xs text-stroke-textMuted">
                 <p>DWI positivo: restriccion de difusion presente</p>
                 <p>FLAIR negativo o sutil: sin cambios establecidos</p>
-                <p className="text-gray-400 mt-1.5">Mismatch = lesion aguda potencialmente elegible.</p>
+                <p className="text-stroke-textMuted mt-1.5">Mismatch = lesion aguda potencialmente elegible.</p>
               </div>
             </div>
 
@@ -98,17 +98,17 @@ export default function MRIResultStep({ onConfirm }) {
             </div>
 
             {mismatch === true && (
-              <div className="mt-3 bg-emerald-50 border border-emerald-300 rounded-lg px-3 py-2.5 animate-fade-in">
-                <p className="text-sm font-bold text-emerald-700 mb-1">Mismatch presente: elegible segun protocolo</p>
-                <p className="text-xs text-emerald-600 leading-relaxed">
+              <div className="mt-3 bg-emerald-500/10 border border-emerald-300 rounded-lg px-3 py-2.5 animate-fade-in">
+                <p className="text-sm font-bold text-emerald-300 mb-1">Mismatch presente: elegible segun protocolo</p>
+                <p className="text-xs text-emerald-400 leading-relaxed">
                   Continuar evaluacion de contraindicaciones.
                 </p>
               </div>
             )}
             {mismatch === false && (
-              <div className="mt-3 bg-amber-50 border border-amber-300 rounded-lg px-3 py-2.5 animate-fade-in">
-                <p className="text-sm font-bold text-amber-700 mb-1">Sin mismatch: trombolisis IV no indicada</p>
-                <p className="text-xs text-amber-600 leading-relaxed">
+              <div className="mt-3 bg-amber-500/10 border border-amber-300 rounded-lg px-3 py-2.5 animate-fade-in">
+                <p className="text-sm font-bold text-amber-300 mb-1">Sin mismatch: trombolisis IV no indicada</p>
+                <p className="text-xs text-amber-400 leading-relaxed">
                   Evaluar trombectomia mecanica si corresponde.
                 </p>
               </div>

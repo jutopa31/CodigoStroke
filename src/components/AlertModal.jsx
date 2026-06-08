@@ -16,12 +16,12 @@ export default function AlertModal({ patient, onConfirm, onClose }) {
       onClick={onClose}
     >
       <div
-        className="bg-white w-full max-w-sm rounded-2xl shadow-modal overflow-hidden animate-scale-in"
+        className="bg-stroke-navy w-full max-w-sm rounded-2xl shadow-modal overflow-hidden animate-scale-in"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="bg-brand-600 px-5 py-4 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+        <div className="bg-stroke-iconActive px-5 py-4 flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-stroke-bg flex items-center justify-center shrink-0">
             <AlertTriangle size={20} className="text-white" strokeWidth={2} />
           </div>
           <div>
@@ -32,7 +32,7 @@ export default function AlertModal({ patient, onConfirm, onClose }) {
 
         {/* Body */}
         <div className="px-5 py-5">
-          <p className="text-sm text-neutral-600 leading-relaxed">
+          <p className="text-sm text-stroke-textMuted leading-relaxed">
             Se registrará el evento y el cronómetro iniciará en este momento.
           </p>
         </div>
@@ -42,7 +42,7 @@ export default function AlertModal({ patient, onConfirm, onClose }) {
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-3 border border-neutral-200 rounded-xl text-neutral-600 font-medium text-sm hover:bg-neutral-50 active:scale-[0.98] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2"
+            className="flex-1 py-3 border border-stroke-line rounded-xl text-stroke-textMuted font-medium text-sm hover:bg-stroke-bg active:scale-[0.98] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2"
           >
             Cancelar
           </button>
@@ -50,7 +50,7 @@ export default function AlertModal({ patient, onConfirm, onClose }) {
             type="button"
             autoFocus
             onClick={onConfirm}
-            className="flex-[2] py-3 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-semibold text-sm active:scale-[0.98] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2"
+            className="flex-[2] py-3 bg-stroke-iconActive hover:bg-[#4D6CD6] text-stroke-bg rounded-xl font-semibold text-sm active:scale-[0.98] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-stroke-iconActive focus-visible:ring-offset-2"
           >
             Sí, activar
           </button>

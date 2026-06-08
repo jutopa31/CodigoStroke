@@ -76,16 +76,16 @@ export default function NihssStep({ onConfirm }) {
             onChange={(e) => setScore(e.target.value)}
             onKeyDown={handleScoreKeyDown}
             autoFocus
-            className={`flex-1 rounded-xl border-2 px-4 py-3.5 text-gray-800 text-base font-semibold focus:outline-none focus:ring-2 placeholder-gray-300 ${
+            className={`flex-1 rounded-xl border-2 px-4 py-3.5 text-stroke-text text-base font-semibold focus:outline-none focus:ring-2 placeholder-stroke-textMuted/50 ${
               valid
-                ? 'border-orange-500 bg-orange-50/40 ring-2 ring-orange-100 focus:ring-orange-400'
-                : 'border-gray-200 focus:ring-orange-400'
+                ? 'border-orange-500 bg-amber-500/15 ring-2 ring-amber-500/30 focus:ring-orange-400'
+                : 'border-stroke-line focus:ring-orange-400'
             }`}
           />
           <button
             type="button"
             onClick={() => setShowModal(true)}
-            className="flex items-center gap-2 px-4 py-3.5 border-2 border-orange-300 text-orange-700 bg-orange-50 hover:bg-orange-100 rounded-xl font-semibold text-sm transition-colors whitespace-nowrap"
+            className="flex items-center gap-2 px-4 py-3.5 border-2 border-amber-500/40 text-amber-300 bg-amber-500/15 hover:bg-amber-500/15 rounded-xl font-semibold text-sm transition-colors whitespace-nowrap"
           >
             <Calculator size={16} /> Calcular
           </button>
@@ -139,7 +139,7 @@ export default function NihssStep({ onConfirm }) {
           <button
             type="button"
             onClick={() => setShowList((v) => !v)}
-            className="flex items-center gap-1.5 text-xs text-blue-500 hover:text-blue-700 transition-colors"
+            className="flex items-center gap-1.5 text-xs text-blue-500 hover:text-blue-300 transition-colors"
           >
             {showList ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
             {showList ? 'Ocultar ejemplos' : 'Ver ejemplos de sintomas discapacitantes'}
@@ -148,7 +148,7 @@ export default function NihssStep({ onConfirm }) {
           {showList && (
             <ul className="mt-2 space-y-1.5 animate-fade-in">
               {DISABLING_SYMPTOMS_LIST.map((s) => (
-                <li key={s} className="flex items-start gap-2 text-xs text-gray-600">
+                <li key={s} className="flex items-start gap-2 text-xs text-stroke-textMuted">
                   <span className="text-orange-400 mt-0.5 shrink-0">-</span>
                   {s}
                 </li>
@@ -157,8 +157,8 @@ export default function NihssStep({ onConfirm }) {
           )}
 
           {hasDisabling === true && (
-            <div className="mt-3 bg-amber-50 border-2 border-amber-300 rounded-xl px-4 py-3 animate-fade-in">
-              <p className="text-xs font-semibold text-amber-700">
+            <div className="mt-3 bg-amber-500/10 border-2 border-amber-300 rounded-xl px-4 py-3 animate-fade-in">
+              <p className="text-xs font-semibold text-amber-300">
                 Deficit discapacitante: valorar trombolisis independientemente del puntaje NIHSS.
               </p>
             </div>

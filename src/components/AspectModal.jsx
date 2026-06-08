@@ -30,9 +30,9 @@ const REGIONS = [
 ]
 
 function getScoreColor(score) {
-  if (score >= 8) return 'text-emerald-600'
-  if (score >= 6) return 'text-amber-600'
-  return 'text-red-600'
+  if (score >= 8) return 'text-emerald-400'
+  if (score >= 6) return 'text-amber-400'
+  return 'text-red-400'
 }
 
 function getScoreLabel(score) {
@@ -53,7 +53,7 @@ export default function AspectModal({ onLoad, onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 px-2 pb-2 sm:p-4 animate-fade-in">
-      <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
+      <div className="bg-stroke-navy w-full max-w-md rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
         {/* Header */}
         <div className="bg-indigo-600 px-5 py-4 flex items-center justify-between shrink-0">
           <div>
@@ -69,10 +69,10 @@ export default function AspectModal({ onLoad, onClose }) {
         <div className="px-5 pt-4 pb-3 border-b border-gray-100 shrink-0">
           <div className="flex items-baseline gap-3">
             <span className={`text-5xl font-bold font-mono ${getScoreColor(score)}`}>{score}</span>
-            <span className="text-gray-400 text-sm">/10</span>
+            <span className="text-stroke-textMuted text-sm">/10</span>
           </div>
           <p className={`text-xs font-semibold mt-1 ${getScoreColor(score)}`}>{getScoreLabel(score)}</p>
-          <p className="text-xs text-gray-400 mt-1">
+          <p className="text-xs text-stroke-textMuted mt-1">
             Marcá las regiones con cambios isquémicos precoces (hipodensidad, pérdida de diferenciación)
           </p>
         </div>
@@ -81,7 +81,7 @@ export default function AspectModal({ onLoad, onClose }) {
         <div className="overflow-y-auto flex-1 px-5 py-3 space-y-4">
           {REGIONS.map(({ group, items }) => (
             <div key={group}>
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">{group}</p>
+              <p className="text-xs font-semibold text-stroke-textMuted uppercase tracking-wider mb-2">{group}</p>
               <div className="space-y-2">
                 {items.map(({ id, label }) => (
                   <button
@@ -89,12 +89,12 @@ export default function AspectModal({ onLoad, onClose }) {
                     onClick={() => toggle(id)}
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border transition-all text-left ${
                       affected[id]
-                        ? 'bg-red-50 border-red-300 text-red-800'
-                        : 'border-gray-200 text-gray-700 hover:border-indigo-300 hover:bg-indigo-50/40'
+                        ? 'bg-status-critical/10 border-red-300 text-red-300'
+                        : 'border-stroke-line text-stroke-text hover:border-indigo-300 hover:bg-indigo-500/10'
                     }`}
                   >
                     <div className={`w-5 h-5 rounded-full border-2 shrink-0 flex items-center justify-center transition-colors ${
-                      affected[id] ? 'bg-red-500 border-red-500' : 'border-gray-300'
+                      affected[id] ? 'bg-status-critical/100 border-red-500' : 'border-stroke-line'
                     }`}>
                       {affected[id] && (
                         <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">

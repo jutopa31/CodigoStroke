@@ -4,9 +4,9 @@ import { Activity, ChevronRight, AlertTriangle } from 'lucide-react'
 
 function VitalAlert({ message }) {
   return (
-    <div className="flex items-start gap-2 rounded-xl border border-red-100 bg-red-50/50 px-3 py-2">
-      <AlertTriangle size={12} className="mt-0.5 shrink-0 text-red-500" strokeWidth={2} />
-      <p className="text-xs leading-relaxed text-red-600">{message}</p>
+    <div className="flex items-start gap-2 rounded-xl border border-status-critical/30 bg-status-critical/10 px-3 py-2">
+      <AlertTriangle size={12} className="mt-0.5 shrink-0 text-red-400" strokeWidth={2} />
+      <p className="text-xs leading-relaxed text-red-400">{message}</p>
     </div>
   )
 }
@@ -65,12 +65,12 @@ export default function VitalsModal({ isOpen, onConfirm }) {
   }
 
   const fieldClass = (critical, filled) =>
-    `h-11 w-20 rounded-xl border bg-neutral-50 px-2 text-center text-base font-semibold text-neutral-800 outline-none transition placeholder:text-neutral-300 ${
+    `h-11 w-20 rounded-xl border bg-stroke-bg px-2 text-center text-base font-semibold text-stroke-text outline-none transition placeholder:text-stroke-textMuted ${
       critical
-        ? 'border-red-300 bg-red-50/50 focus:border-red-400 focus:ring-2 focus:ring-red-100'
+        ? 'border-red-300 bg-status-critical/10 focus:border-red-400 focus:ring-2 focus:ring-status-critical/30'
         : filled
-          ? 'border-blue-300 bg-blue-50/30 focus:border-blue-400 focus:ring-2 focus:ring-blue-100'
-          : 'border-neutral-200 focus:border-blue-300 focus:ring-2 focus:ring-blue-100'
+          ? 'border-blue-300 bg-blue-500/10 focus:border-blue-400 focus:ring-2 focus:ring-blue-500/30'
+          : 'border-stroke-line focus:border-stroke-iconActive/50 focus:ring-2 focus:ring-blue-500/30'
     }`
 
   return (
@@ -78,15 +78,15 @@ export default function VitalsModal({ isOpen, onConfirm }) {
       className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/40 px-4 pb-4 pt-[max(3.75rem,env(safe-area-inset-top,0px))] backdrop-blur-sm sm:items-center sm:py-4"
       style={visualViewportHeight ? { '--visual-viewport-height': `${visualViewportHeight}px` } : undefined}
     >
-      <div className="w-full max-w-md max-h-[calc(var(--visual-viewport-height,100svh)-4.5rem)] overflow-y-auto bg-white rounded-2xl shadow-modal animate-scale-in sm:max-h-[calc(100svh-2rem)]">
+      <div className="w-full max-w-md max-h-[calc(var(--visual-viewport-height,100svh)-4.5rem)] overflow-y-auto bg-stroke-navy rounded-2xl shadow-modal animate-scale-in sm:max-h-[calc(100svh-2rem)]">
         {/* Header */}
-        <div className="bg-brand-600 px-5 py-4">
+        <div className="bg-stroke-iconActive px-5 py-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-stroke-bg flex items-center justify-center shrink-0">
               <Activity size={18} className="text-white" strokeWidth={2} />
             </div>
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-brand-200">Evaluación inicial</p>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-stroke-iconActive">Evaluación inicial</p>
               <h2 className="text-white font-semibold text-base leading-tight">Signos vitales</h2>
             </div>
           </div>
@@ -97,8 +97,8 @@ export default function VitalsModal({ isOpen, onConfirm }) {
           <div className="space-y-2.5">
             {/* TAS */}
             <label className="flex items-center justify-between gap-3">
-              <span className="text-sm font-medium text-neutral-600 flex-1">
-                TA sistólica <span className="text-xs text-neutral-400">mmHg</span>
+              <span className="text-sm font-medium text-stroke-textMuted flex-1">
+                TA sistólica <span className="text-xs text-stroke-textMuted">mmHg</span>
               </span>
               <input
                 type="text"
@@ -115,8 +115,8 @@ export default function VitalsModal({ isOpen, onConfirm }) {
 
             {/* TAD */}
             <label className="flex items-center justify-between gap-3">
-              <span className="text-sm font-medium text-neutral-600 flex-1">
-                TA diastólica <span className="text-xs text-neutral-400">mmHg</span>
+              <span className="text-sm font-medium text-stroke-textMuted flex-1">
+                TA diastólica <span className="text-xs text-stroke-textMuted">mmHg</span>
               </span>
               <input
                 ref={diaRef}
@@ -133,8 +133,8 @@ export default function VitalsModal({ isOpen, onConfirm }) {
 
             {/* Glucemia */}
             <label className="flex items-center justify-between gap-3">
-              <span className="text-sm font-medium text-neutral-600 flex-1">
-                Glucemia <span className="text-xs text-neutral-400">mg/dL</span>
+              <span className="text-sm font-medium text-stroke-textMuted flex-1">
+                Glucemia <span className="text-xs text-stroke-textMuted">mg/dL</span>
               </span>
               <input
                 ref={glucoseRef}
@@ -167,7 +167,7 @@ export default function VitalsModal({ isOpen, onConfirm }) {
             type="button"
             onClick={handleConfirm}
             disabled={!valid}
-            className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-semibold text-sm transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed bg-brand-600 hover:bg-brand-700 text-white"
+            className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-semibold text-sm transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed bg-stroke-iconActive hover:bg-[#4D6CD6] text-stroke-bg"
           >
             Iniciar protocolo <ChevronRight size={16} strokeWidth={2} />
           </button>

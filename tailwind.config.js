@@ -27,6 +27,7 @@ export default {
         },
         stroke: {
           bg: '#0F1C38',       // DESIGN.md primary background (darker than navyDeep, for the dark-UI migration)
+          text: '#F0F4FF',     // DESIGN.md primary text on dark (15.3:1 on bg)
           navy: '#132B58',
           navyDeep: '#10264F',
           line: '#29416D',
@@ -38,32 +39,32 @@ export default {
         // Semantic status tokens — use these instead of raw Tailwind color names
         // to keep mobile/desktop and all contexts visually consistent.
         status: {
-          // warning (amber) — caution: CI relativas, partial tab, BP/glucose alerts
+          // warning (amber) — dark-UI: light text, translucent border/muted
           warning: {
-            DEFAULT: '#D97706',  // amber-600
-            muted:   '#FFFBEB',  // amber-50
-            border:  '#FCD34D',  // amber-300
+            DEFAULT: '#FBBF24',  // amber-400 (readable on navy)
+            muted:   'rgba(245,158,11,0.12)',
+            border:  'rgba(245,158,11,0.35)',
             badge:   '#F59E0B',  // amber-500
-            strong:  '#92400E',  // amber-800
+            strong:  '#FCD34D',  // amber-300
           },
           // info (blue) — clinical info: TA readings, general hints
           info: {
-            DEFAULT: '#2563EB',  // blue-600
-            muted:   '#EFF6FF',  // blue-50
-            border:  '#BFDBFE',  // blue-200
+            DEFAULT: '#93C5FD',  // blue-300 (readable on navy)
+            muted:   'rgba(59,130,246,0.12)',
+            border:  'rgba(96,165,250,0.35)',
             badge:   '#3B82F6',  // blue-500
           },
           // critical (red) — severe values: NIHSS ≥21, BP >185, absolute CIs
-          // DESIGN.md: red, not navy — navy-on-navy fails contrast on the dark UI
           critical: {
             DEFAULT: '#EF4444',  // red-500
             muted:   'rgba(239,68,68,0.12)',
+            border:  'rgba(239,68,68,0.35)',
           },
           // glucose (violet) — dedicated channel for glycemia readings
           glucose: {
-            DEFAULT: '#7C3AED',  // violet-600
-            muted:   '#F5F3FF',  // violet-50
-            border:  '#DDD6FE',  // violet-200
+            DEFAULT: '#C4B5FD',  // violet-300 (readable on navy)
+            muted:   'rgba(139,92,246,0.12)',
+            border:  'rgba(139,92,246,0.35)',
             badge:   '#8B5CF6',  // violet-500
           },
         },

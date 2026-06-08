@@ -3,14 +3,14 @@ import useStepProgress from './useStepProgress'
 
 export function CollapsedStep({ title, children }) {
   return (
-    <div className="relative bg-white rounded-xl border border-neutral-100 px-4 py-3 flex items-center gap-3 animate-fade-in">
+    <div className="relative bg-stroke-navy rounded-xl border border-stroke-line px-4 py-3 flex items-center gap-3 animate-fade-in">
       <span className="w-6 h-6 rounded-lg bg-emerald-500 flex items-center justify-center shrink-0">
         <CheckCircle2 size={12} className="text-white" strokeWidth={2.5} />
       </span>
       <div className="flex-1 min-w-0 flex items-baseline flex-wrap gap-x-1.5">
-        {title && <span className="text-xs font-semibold text-neutral-500">{title}</span>}
+        {title && <span className="text-xs font-semibold text-stroke-text">{title}</span>}
         {children && (
-          <span className="text-xs text-neutral-400 truncate">{children}</span>
+          <span className="text-xs text-stroke-textMuted truncate">{children}</span>
         )}
       </div>
     </div>
@@ -29,19 +29,28 @@ export default function StepCard({
   const { currentStep, completedSteps, onStepClick, resolveStepValue } = useStepProgress()
   
   const accentColors = {
-    red: 'bg-brand-600',
+    red: 'bg-stroke-iconActive',
     blue: 'bg-blue-500',
     orange: 'bg-amber-500',
     green: 'bg-emerald-500',
-    gray: 'bg-neutral-400',
+    gray: 'bg-stroke-line',
   }
 
   const dotColors = {
-    red: 'bg-brand-600',
+    red: 'bg-stroke-iconActive',
     blue: 'bg-blue-500',
     orange: 'bg-amber-500',
     green: 'bg-emerald-500',
-    gray: 'bg-neutral-400',
+    gray: 'bg-stroke-line',
+  }
+
+  // Brighter, full-opacity colors for the left accent line so green/amber read distinctly on dark navy
+  const lineColors = {
+    red: 'bg-stroke-iconActive',
+    blue: 'bg-blue-400',
+    orange: 'bg-amber-400',
+    green: 'bg-emerald-400',
+    gray: 'bg-stroke-line',
   }
 
   const hasStepDot = Boolean(step)
@@ -53,16 +62,16 @@ export default function StepCard({
 
   const card = (
     <div className={`
-      relative bg-white rounded-xl border transition-all duration-200
-      ${isActive 
-        ? 'border-brand-200 shadow-elevated' 
-        : isCompleted 
-          ? 'border-emerald-100' 
-          : 'border-neutral-100'
+      relative bg-stroke-navy rounded-xl border transition-all duration-200
+      ${isActive
+        ? 'border-stroke-iconActive/50 shadow-elevated'
+        : isCompleted
+          ? 'border-emerald-500/30'
+          : 'border-stroke-line'
       }
     `}>
-      {/* Minimal accent line */}
-      <div className={`absolute left-0 top-3 bottom-3 w-0.5 rounded-full ${accentColors[accent]} opacity-60`} />
+      {/* Accent line — full opacity + brighter so green/amber read distinctly on dark navy */}
+      <div className={`absolute left-0 top-3 bottom-3 w-1 rounded-full ${lineColors[accent]}`} />
       
       <div className="p-4 md:p-4">
         {(step || title) && (
@@ -77,7 +86,7 @@ export default function StepCard({
               </span>
             )}
             {title && (
-              <h2 className="text-neutral-800 text-[15px] font-semibold tracking-tight">{title}</h2>
+              <h2 className="text-stroke-text text-[15px] font-semibold tracking-tight">{title}</h2>
             )}
           </div>
         )}
@@ -103,14 +112,14 @@ export default function StepCard({
                   ? 'bg-emerald-500 text-white'
                   : isActive
                     ? `${dotColors[accent]} text-white shadow-elevated`
-                    : 'border border-neutral-200 bg-white text-neutral-400'
+                    : 'border border-stroke-line bg-stroke-navy text-stroke-textMuted'
               }`
             : `left-0 top-[20px] h-3 w-3 ${
                 isCompleted
                   ? 'bg-emerald-500'
                   : isActive
                     ? dotColors[accent]
-                    : 'border border-neutral-200 bg-white'
+                    : 'border border-stroke-line bg-stroke-navy'
               }`
           }
         `}

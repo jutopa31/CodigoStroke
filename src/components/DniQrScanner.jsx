@@ -131,16 +131,16 @@ export default function DniQrScanner({ onScan, onClose }) {
         if (event.target === event.currentTarget) onClose()
       }}
     >
-      <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-100">
+      <div className="bg-stroke-navy rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-stroke-line">
           <div className="flex items-center gap-2">
-            <ImageUp size={16} className="text-brand-600" />
-            <span className="font-semibold text-sm text-neutral-800">Leer DNI desde foto</span>
+            <ImageUp size={16} className="text-stroke-iconActive" />
+            <span className="font-semibold text-sm text-stroke-text">Leer DNI desde foto</span>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="text-neutral-400 hover:text-neutral-600 transition-colors p-1 rounded-lg hover:bg-neutral-100"
+            className="text-stroke-textMuted hover:text-stroke-textMuted transition-colors p-1 rounded-lg hover:bg-stroke-panel"
             aria-label="Cerrar escáner"
           >
             <X size={18} />
@@ -163,22 +163,22 @@ export default function DniQrScanner({ onScan, onClose }) {
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={isScanning}
-            className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-[0.98] text-white font-semibold py-3.5 rounded-xl transition-all disabled:bg-neutral-100 disabled:text-neutral-400 disabled:cursor-wait"
+            className="w-full flex items-center justify-center gap-2 bg-stroke-iconActive hover:bg-[#4D6CD6] active:scale-[0.98] text-stroke-bg font-semibold py-3.5 rounded-xl transition-all disabled:bg-stroke-panel disabled:text-stroke-textMuted disabled:cursor-wait"
           >
             {isScanning ? <Loader2 size={16} className="animate-spin" /> : <Camera size={16} />}
             {isScanning ? 'Leyendo código...' : 'Sacar foto del DNI'}
           </button>
 
           {error ? (
-            <div className="flex items-start gap-2 bg-red-50 border border-red-100 rounded-xl px-3 py-2.5">
-              <AlertCircle size={14} className="text-red-500 mt-0.5 shrink-0" />
-              <p className="text-xs text-red-600 leading-snug">{error}</p>
+            <div className="flex items-start gap-2 bg-status-critical/10 border border-status-critical/30 rounded-xl px-3 py-2.5">
+              <AlertCircle size={14} className="text-red-400 mt-0.5 shrink-0" />
+              <p className="text-xs text-red-400 leading-snug">{error}</p>
             </div>
           ) : (
-            <p className="text-xs text-neutral-400 text-center">
+            <p className="text-xs text-stroke-textMuted text-center">
               Sacá una foto del <strong>frente completo</strong> del DNI
               <br />
-              <span className="text-neutral-300">Puede estar horizontal o vertical; intento rotarlo automáticamente</span>
+              <span className="text-stroke-textMuted">Puede estar horizontal o vertical; intento rotarlo automáticamente</span>
             </p>
           )}
         </div>
