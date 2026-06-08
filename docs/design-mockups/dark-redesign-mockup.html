@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CodigoStroke — Design System Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Source+Sans+3:wght@300;400;500;600&family=Geist+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0F1C38;
+    --surface: #132B58;
+    --panel: #1E3356;
+    --line: #29416D;
+    --accent: #5C7AEA;
+    --accent-dim: #3D57B8;
+    --text: #F0F4FF;
+    --text-muted: #A8B6D6;
+    --text-dim: #7089B8;
+    --warning: #D97706;
+    --warning-muted: rgba(217,119,6,0.12);
+    --warning-border: #FCD34D;
+    --glucose: #7C3AED;
+    --glucose-muted: rgba(124,58,237,0.12);
+    --glucose-border: #A78BFA;
+    --critical: #EF4444;
+    --critical-muted: rgba(239,68,68,0.12);
+    --success: #10B981;
+    --success-muted: rgba(16,185,129,0.10);
+    --font-ui: 'DM Sans', -apple-system, sans-serif;
+    --font-body: 'Source Sans 3', -apple-system, sans-serif;
+    --font-mono: 'Geist Mono', 'JetBrains Mono', monospace;
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --radius-xl: 20px;
+    --shadow-card: 0 1px 4px rgba(0,0,0,0.25);
+    --shadow-elevated: 0 4px 16px rgba(0,0,0,0.35);
+    --shadow-modal: 0 16px 48px rgba(0,0,0,0.5);
+  }
+
+  [data-theme="light"] {
+    --bg: #F5F7FF;
+    --surface: #FFFFFF;
+    --panel: #EEF1FA;
+    --line: #D0D7EE;
+    --accent: #244B99;
+    --accent-dim: #1A3770;
+    --text: #0F1C38;
+    --text-muted: #4A5C7A;
+    --text-dim: #7A8CA8;
+    --shadow-card: 0 1px 3px rgba(0,0,0,0.08);
+    --shadow-elevated: 0 4px 12px rgba(0,0,0,0.10);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ─── LAYOUT ─── */
+  .preview-wrapper {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 32px 24px 80px;
+  }
+
+  /* ─── HEADER ─── */
+  .preview-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 56px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--line);
+  }
+  .preview-header h1 {
+    font-family: var(--font-ui);
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+  .preview-header p {
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+  .theme-toggle {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    color: var(--text-muted);
+    font-family: var(--font-ui);
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .theme-toggle:hover { color: var(--text); border-color: var(--accent); }
+
+  /* ─── SECTION ─── */
+  .section {
+    margin-bottom: 56px;
+  }
+  .section-label {
+    font-family: var(--font-ui);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 20px;
+  }
+  .section-title {
+    font-family: var(--font-ui);
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.018em;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .section-sub {
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+    line-height: 1.5;
+  }
+
+  /* ─── TYPOGRAPHY SPECIMENS ─── */
+  .type-row {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: 24px 28px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: baseline;
+    gap: 24px;
+  }
+  .type-meta {
+    min-width: 120px;
+    flex-shrink: 0;
+  }
+  .type-meta .type-name {
+    font-family: var(--font-ui);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    display: block;
+    margin-bottom: 2px;
+  }
+  .type-meta .type-use {
+    font-family: var(--font-body);
+    font-size: 0.7rem;
+    color: var(--text-dim);
+  }
+  .type-sample { flex: 1; }
+  .sample-dm { font-family: var(--font-ui); font-size: 1.75rem; font-weight: 700; letter-spacing: -0.022em; color: var(--text); }
+  .sample-ss3 { font-family: var(--font-body); font-size: 1.1rem; font-weight: 400; color: var(--text-muted); line-height: 1.6; }
+  .sample-mono { font-family: var(--font-mono); font-size: 2rem; font-weight: 600; color: var(--warning); letter-spacing: 0.02em; }
+  .sample-mono-sm { font-family: var(--font-mono); font-size: 0.875rem; font-weight: 400; color: var(--text-muted); }
+
+  /* ─── COLOR PALETTE ─── */
+  .palette-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+    margin-top: 16px;
+  }
+  .swatch {
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+  }
+  .swatch-color {
+    height: 64px;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    padding: 8px;
+  }
+  .swatch-info {
+    background: var(--surface);
+    padding: 10px 12px;
+    border-top: 1px solid var(--line);
+  }
+  .swatch-name {
+    font-family: var(--font-ui);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text);
+    display: block;
+  }
+  .swatch-hex {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+  }
+
+  /* ─── STATUS BADGES ─── */
+  .badges-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 16px;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 100px;
+    font-family: var(--font-ui);
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: 1px solid transparent;
+  }
+  .badge-dot { width: 7px; height: 7px; border-radius: 50%; }
+  .badge-warning { background: var(--warning-muted); color: var(--warning); border-color: var(--warning-border); }
+  .badge-critical { background: var(--critical-muted); color: var(--critical); border-color: rgba(239,68,68,0.3); }
+  .badge-glucose { background: var(--glucose-muted); color: var(--glucose); border-color: var(--glucose-border); }
+  .badge-success { background: var(--success-muted); color: var(--success); border-color: rgba(16,185,129,0.3); }
+  .badge-info { background: rgba(92,122,234,0.1); color: var(--accent); border-color: rgba(92,122,234,0.3); }
+
+  /* ─── BUTTONS ─── */
+  .buttons-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 16px;
+    align-items: center;
+  }
+  .btn {
+    font-family: var(--font-ui);
+    font-weight: 600;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.15s;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn-lg { padding: 14px 28px; font-size: 1rem; }
+  .btn-md { padding: 10px 20px; font-size: 0.9rem; }
+  .btn-sm { padding: 7px 14px; font-size: 0.8rem; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: #4D6CD6; }
+  .btn-secondary { background: var(--panel); color: var(--text); border: 1px solid var(--line); }
+  .btn-secondary:hover { border-color: var(--accent); }
+  .btn-ghost { background: transparent; color: var(--text-muted); border: 1px solid var(--line); }
+  .btn-ghost:hover { color: var(--text); }
+  .btn-danger { background: var(--critical-muted); color: var(--critical); border: 1px solid rgba(239,68,68,0.25); }
+  .btn-danger:hover { background: rgba(239,68,68,0.18); }
+
+  /* ─── MOCKUP: PHONE ─── */
+  .mockup-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    align-items: start;
+  }
+  @media (max-width: 700px) {
+    .mockup-section { grid-template-columns: 1fr; }
+  }
+
+  .phone-frame {
+    background: #080F1E;
+    border-radius: 36px;
+    padding: 12px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06) inset;
+    max-width: 320px;
+    margin: 0 auto;
+  }
+  .phone-screen {
+    background: var(--bg);
+    border-radius: 26px;
+    overflow: hidden;
+    min-height: 580px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Status bar */
+  .status-bar {
+    padding: 12px 20px 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+  }
+
+  /* App header */
+  .app-header {
+    padding: 8px 20px 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  .app-header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .app-title {
+    font-family: var(--font-ui);
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+  .step-badge {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: var(--accent);
+    background: rgba(92,122,234,0.1);
+    padding: 3px 8px;
+    border-radius: 100px;
+    border: 1px solid rgba(92,122,234,0.25);
+  }
+
+  /* Timer — the hero element */
+  .timer-display {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .timer-value {
+    font-family: var(--font-mono);
+    font-size: 2.2rem;
+    font-weight: 600;
+    color: var(--warning);
+    letter-spacing: 0.04em;
+    line-height: 1;
+  }
+  .timer-label {
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+  .timer-pulse {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    background: var(--warning);
+    border-radius: 50%;
+    margin-left: 4px;
+    animation: pulse 1.4s ease-in-out infinite;
+    flex-shrink: 0;
+    align-self: center;
+    margin-bottom: 4px;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.75); }
+  }
+
+  /* Progress bar */
+  .progress-bar {
+    margin-top: 12px;
+    background: var(--panel);
+    border-radius: 4px;
+    height: 4px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    width: 40%;
+    background: var(--accent);
+    border-radius: 4px;
+    transition: width 0.4s cubic-bezier(0.16,1,0.3,1);
+  }
+  .progress-steps {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 6px;
+  }
+  .progress-step-dot {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .psd-done { background: var(--accent); color: #fff; }
+  .psd-active { background: rgba(92,122,234,0.2); color: var(--accent); border: 2px solid var(--accent); }
+  .psd-pending { background: var(--panel); color: var(--text-dim); }
+
+  /* Step content */
+  .step-content {
+    flex: 1;
+    padding: 16px 20px;
+    overflow-y: auto;
+  }
+  .step-header {
+    font-family: var(--font-ui);
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .step-sub {
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+
+  /* Warning banner */
+  .alert-banner {
+    padding: 10px 14px;
+    border-radius: var(--radius-md);
+    margin-bottom: 14px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    border-left: 3px solid transparent;
+    font-family: var(--font-body);
+    font-size: 0.78rem;
+    line-height: 1.45;
+  }
+  .alert-warning { background: var(--warning-muted); border-color: var(--warning); color: var(--warning); }
+  .alert-warning span { color: var(--text-muted); }
+  .alert-icon { flex-shrink: 0; font-size: 0.9rem; margin-top: 1px; }
+
+  /* NIHSS item */
+  .nihss-item {
+    background: var(--panel);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    border: 1px solid var(--line);
+  }
+  .nihss-label {
+    font-family: var(--font-ui);
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .nihss-score {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .nihss-options {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+  }
+  .nihss-opt {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    padding: 6px 4px;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .nihss-opt.selected {
+    background: rgba(92,122,234,0.15);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .nihss-desc {
+    font-family: var(--font-body);
+    font-size: 0.68rem;
+    color: var(--text-dim);
+    text-align: center;
+    margin-top: 3px;
+  }
+
+  /* CTA */
+  .step-cta {
+    padding: 16px 20px;
+    border-top: 1px solid var(--line);
+    background: var(--surface);
+  }
+  .cta-btn {
+    width: 100%;
+    padding: 14px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-lg);
+    font-family: var(--font-ui);
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.15s;
+  }
+  .cta-btn:hover { background: #4D6CD6; }
+  .cta-btn::after { content: '→'; font-weight: 400; }
+
+  /* ─── SECOND MOCKUP: AUTH SCREEN ─── */
+  .auth-screen { background: var(--bg); }
+  .auth-content {
+    padding: 40px 20px 20px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: space-between;
+  }
+  .auth-logo {
+    font-family: var(--font-ui);
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--text);
+  }
+  .auth-logo span { color: var(--accent); }
+  .auth-tagline {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+  .auth-timer-hero {
+    text-align: center;
+    padding: 32px 0;
+  }
+  .auth-timer-big {
+    font-family: var(--font-mono);
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: var(--warning);
+    letter-spacing: 0.04em;
+    display: block;
+    line-height: 1;
+  }
+  .auth-timer-sub {
+    font-family: var(--font-body);
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    margin-top: 8px;
+    display: block;
+  }
+  .auth-btn {
+    width: 100%;
+    padding: 16px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-xl);
+    font-family: var(--font-ui);
+    font-size: 1.05rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-bottom: 10px;
+  }
+  .auth-btn-ghost {
+    width: 100%;
+    padding: 12px;
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-xl);
+    font-family: var(--font-ui);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  /* ─── COMPONENT GRID ─── */
+  .component-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 16px;
+    margin-top: 16px;
+  }
+  .component-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+  }
+  .component-label {
+    font-family: var(--font-ui);
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    margin-bottom: 14px;
+  }
+
+  /* Form elements */
+  .form-field { margin-bottom: 14px; }
+  .form-label {
+    font-family: var(--font-ui);
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    display: block;
+    margin-bottom: 6px;
+  }
+  .form-input {
+    width: 100%;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .form-input:focus { border-color: var(--accent); }
+
+  /* Stat cards */
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .stat-label {
+    font-family: var(--font-ui);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+  .stat-value {
+    font-family: var(--font-mono);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+  .stat-badge {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 100px;
+  }
+  .stat-badge-normal { background: var(--success-muted); color: var(--success); }
+  .stat-badge-warn { background: var(--warning-muted); color: var(--warning); }
+  .stat-badge-crit { background: var(--critical-muted); color: var(--critical); }
+
+  /* ─── DIVIDER ─── */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--line);
+    margin: 48px 0;
+  }
+</style>
+</head>
+<body>
+<div class="preview-wrapper">
+
+  <!-- HEADER -->
+  <div class="preview-header">
+    <div>
+      <h1>CodigoStroke — Design System</h1>
+      <p>Clinical Command Interface · Urgency without panic · Preview v1</p>
+    </div>
+    <button class="theme-toggle" onclick="document.documentElement.setAttribute('data-theme', document.documentElement.getAttribute('data-theme') === 'light' ? '' : 'light')">
+      Toggle Light / Dark
+    </button>
+  </div>
+
+  <!-- TYPOGRAPHY -->
+  <div class="section">
+    <div class="section-label">Typography</div>
+    <div class="section-title">Type System</div>
+    <div class="section-sub">Three fonts, each with a specific clinical role. DM Sans carries the UI weight. Source Sans 3 handles clinical prose. Geist Mono is reserved for anything that must be read instantly under pressure.</div>
+
+    <div class="type-row">
+      <div class="type-meta">
+        <span class="type-name">DM Sans</span>
+        <span class="type-use">UI / Headers / Steps</span>
+      </div>
+      <div class="type-sample">
+        <div class="sample-dm">Código Stroke</div>
+        <div style="font-family: var(--font-ui); font-size: 1rem; color: var(--text-muted); margin-top: 6px; font-weight: 400;">Paso 2 de 5 — Evaluación NIHSS</div>
+      </div>
+    </div>
+
+    <div class="type-row">
+      <div class="type-meta">
+        <span class="type-name">Source Sans 3</span>
+        <span class="type-use">Body / Clinical descriptions</span>
+      </div>
+      <div class="type-sample">
+        <div class="sample-ss3">La tPA IV está contraindicada si la glucemia es &lt;50 o &gt;400 mg/dL. Corregir antes de administrar y reevaluar la ventana terapéutica. Documentar en formulario ACV-02.</div>
+      </div>
+    </div>
+
+    <div class="type-row">
+      <div class="type-meta">
+        <span class="type-name">Geist Mono</span>
+        <span class="type-use">Timer / Scores / Numbers</span>
+      </div>
+      <div class="type-sample">
+        <div class="sample-mono">00:14:37</div>
+        <div class="sample-mono-sm" style="margin-top: 8px;">NIHSS: 14 · PAS: 182 mmHg · Glucemia: 98 mg/dL</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- COLOR PALETTE -->
+  <div class="section">
+    <div class="section-label">Colors</div>
+    <div class="section-title">Palette</div>
+    <div class="section-sub">Navy for backgrounds and surfaces. Accent blue for actions. Each status color is a dedicated clinical channel — not decoration.</div>
+
+    <div class="palette-grid">
+      <div class="swatch">
+        <div class="swatch-color" style="background: #0F1C38;">
+          <span style="font-family: var(--font-mono); font-size: 0.6rem; color: rgba(255,255,255,0.4);">bg</span>
+        </div>
+        <div class="swatch-info">
+          <span class="swatch-name">Background</span>
+          <span class="swatch-hex">#0F1C38</span>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background: #132B58;">
+          <span style="font-family: var(--font-mono); font-size: 0.6rem; color: rgba(255,255,255,0.4);">surface</span>
+        </div>
+        <div class="swatch-info">
+          <span class="swatch-name">Surface</span>
+          <span class="swatch-hex">#132B58</span>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background: #1E3356;">
+          <span style="font-family: var(--font-mono); font-size: 0.6rem; color: rgba(255,255,255,0.4);">panel</span>
+        </div>
+        <div class="swatch-info">
+          <span class="swatch-name">Panel</span>
+          <span class="swatch-hex">#1E3356</span>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background: #5C7AEA;">
+          <span style="font-family: var(--font-mono); font-size: 0.6rem; color: rgba(255,255,255,0.6);">accent</span>
+        </div>
+        <div class="swatch-info">
+          <span class="swatch-name">Accent / CTA</span>
+          <span class="swatch-hex">#5C7AEA</span>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background: #D97706;">
+          <span style="font-family: var(--font-mono); font-size: 0.6rem; color: rgba(255,255,255,0.6);">warn</span>
+        </div>
+        <div class="swatch-info">
+          <span class="swatch-name">Warning</span>
+          <span class="swatch-hex">#D97706</span>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background: #EF4444;">
+          <span style="font-family: var(--font-mono); font-size: 0.6rem; color: rgba(255,255,255,0.6);">crit</span>
+        </div>
+        <div class="swatch-info">
+          <span class="swatch-name">Critical</span>
+          <span class="swatch-hex">#EF4444</span>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background: #7C3AED;">
+          <span style="font-family: var(--font-mono); font-size: 0.6rem; color: rgba(255,255,255,0.6);">gluc</span>
+        </div>
+        <div class="swatch-info">
+          <span class="swatch-name">Glucose</span>
+          <span class="swatch-hex">#7C3AED</span>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background: #10B981;">
+          <span style="font-family: var(--font-mono); font-size: 0.6rem; color: rgba(255,255,255,0.6);">ok</span>
+        </div>
+        <div class="swatch-info">
+          <span class="swatch-name">Success</span>
+          <span class="swatch-hex">#10B981</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Badges -->
+    <div style="margin-top: 24px;">
+      <div class="section-sub">Status badges — each maps to a clinical channel</div>
+      <div class="badges-row">
+        <span class="badge badge-warning"><span class="badge-dot" style="background: var(--warning);"></span>CI Relativa</span>
+        <span class="badge badge-critical"><span class="badge-dot" style="background: var(--critical);"></span>Contraindicación</span>
+        <span class="badge badge-glucose"><span class="badge-dot" style="background: var(--glucose);"></span>Glucemia</span>
+        <span class="badge badge-success"><span class="badge-dot" style="background: var(--success);"></span>Dentro de rango</span>
+        <span class="badge badge-info"><span class="badge-dot" style="background: var(--accent);"></span>Información</span>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- BUTTONS -->
+  <div class="section">
+    <div class="section-label">Components</div>
+    <div class="section-title">Buttons</div>
+    <div class="section-sub">One primary action per step. Secondary and ghost for navigation and dismissals.</div>
+    <div class="buttons-row">
+      <button class="btn btn-primary btn-lg">Siguiente paso</button>
+      <button class="btn btn-secondary btn-md">Volver</button>
+      <button class="btn btn-ghost btn-md">Ver NIHSS completo</button>
+      <button class="btn btn-danger btn-md">Contraindicado</button>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- MOCKUPS -->
+  <div class="section">
+    <div class="section-label">Screen Mockups</div>
+    <div class="section-title">Realistic App Screens</div>
+    <div class="section-sub">The design system applied to actual CodigoStroke flows. Left: active step screen with NIHSS input. Right: landing / inicio de código.</div>
+
+    <div class="mockup-section">
+      <!-- STEP SCREEN -->
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <div class="status-bar">
+            <span>20:34</span>
+            <span>●●● 5G 🔋</span>
+          </div>
+          <div class="app-header">
+            <div class="app-header-top">
+              <span class="app-title">Código Stroke</span>
+              <span class="step-badge">PASO 2/5</span>
+            </div>
+            <div class="timer-display">
+              <span class="timer-value">00:14:37</span>
+              <div class="timer-pulse"></div>
+              <span class="timer-label">desde inicio</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill"></div>
+            </div>
+            <div class="progress-steps">
+              <div class="progress-step-dot psd-done">1</div>
+              <div class="progress-step-dot psd-active">2</div>
+              <div class="progress-step-dot psd-pending">3</div>
+              <div class="progress-step-dot psd-pending">4</div>
+              <div class="progress-step-dot psd-pending">5</div>
+            </div>
+          </div>
+
+          <div class="step-content">
+            <div class="step-header">Evaluación NIHSS</div>
+            <div class="step-sub">Puntaje neurológico al ingreso. Registrar dentro de los primeros 15 min.</div>
+
+            <div class="alert-banner alert-warning">
+              <span class="alert-icon">⚠</span>
+              <span><strong>TA 188/104 mmHg</strong> — <span>sobre umbral para tPA. Registrar y reevaluar post-labetalol.</span></span>
+            </div>
+
+            <div class="nihss-item">
+              <div class="nihss-label">
+                1a. Nivel de conciencia
+                <span class="nihss-score">0</span>
+              </div>
+              <div class="nihss-options">
+                <div>
+                  <div class="nihss-opt selected">0</div>
+                  <div class="nihss-desc">Alerta</div>
+                </div>
+                <div>
+                  <div class="nihss-opt">1</div>
+                  <div class="nihss-desc">Somnol.</div>
+                </div>
+                <div>
+                  <div class="nihss-opt">2</div>
+                  <div class="nihss-desc">Estupor</div>
+                </div>
+                <div>
+                  <div class="nihss-opt">3</div>
+                  <div class="nihss-desc">Coma</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="nihss-item">
+              <div class="nihss-label">
+                4. Paresia facial
+                <span class="nihss-score" style="color: var(--warning);">2</span>
+              </div>
+              <div class="nihss-options">
+                <div>
+                  <div class="nihss-opt">0</div>
+                  <div class="nihss-desc">Normal</div>
+                </div>
+                <div>
+                  <div class="nihss-opt">1</div>
+                  <div class="nihss-desc">Mínima</div>
+                </div>
+                <div>
+                  <div class="nihss-opt selected" style="background: rgba(217,119,6,0.15); border-color: var(--warning); color: var(--warning);">2</div>
+                  <div class="nihss-desc">Parcial</div>
+                </div>
+                <div>
+                  <div class="nihss-opt">3</div>
+                  <div class="nihss-desc">Completa</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="step-cta">
+            <button class="cta-btn">Confirmar NIHSS · 14 pts</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- LANDING / HOME -->
+      <div class="phone-frame">
+        <div class="phone-screen auth-screen">
+          <div class="status-bar">
+            <span>20:34</span>
+            <span>●●● 5G 🔋</span>
+          </div>
+          <div class="auth-content">
+            <div>
+              <div class="auth-logo">Código<span>Stroke</span></div>
+              <div class="auth-tagline">Protocolo ACV Isquémico · AHA/ASA 2026</div>
+            </div>
+
+            <div class="auth-timer-hero">
+              <span class="auth-timer-big">4:30:00</span>
+              <span class="auth-timer-sub">ventana terapéutica disponible</span>
+            </div>
+
+            <div>
+              <div class="stat-card">
+                <div>
+                  <div class="stat-label">Último evento</div>
+                  <div class="stat-value" style="font-size: 0.875rem; font-family: var(--font-body);">Hoy 18:42 · M73 · NIHSS 14</div>
+                </div>
+                <div class="stat-badge stat-badge-warn">tPA</div>
+              </div>
+              <button class="auth-btn">Iniciar Código Stroke</button>
+              <button class="auth-btn-ghost">Ver historial de eventos</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- COMPONENT SPECIMENS -->
+  <div class="section">
+    <div class="section-label">UI Components</div>
+    <div class="section-title">Forms, Stats, Inputs</div>
+
+    <div class="component-grid">
+      <div class="component-card">
+        <div class="component-label">Form inputs</div>
+        <div class="form-field">
+          <label class="form-label">Glucemia al ingreso (mg/dL)</label>
+          <input class="form-input" type="number" placeholder="98" value="98">
+        </div>
+        <div class="form-field">
+          <label class="form-label">Presión arterial sistólica</label>
+          <input class="form-input" type="number" placeholder="188">
+        </div>
+      </div>
+
+      <div class="component-card">
+        <div class="component-label">Vital stats</div>
+        <div class="stat-card">
+          <div>
+            <div class="stat-label">NIHSS</div>
+            <div class="stat-value">14</div>
+          </div>
+          <div class="stat-badge stat-badge-warn">Moderado</div>
+        </div>
+        <div class="stat-card">
+          <div>
+            <div class="stat-label">Glucemia</div>
+            <div class="stat-value">98 <span style="font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-body);">mg/dL</span></div>
+          </div>
+          <div class="stat-badge stat-badge-normal">Normal</div>
+        </div>
+        <div class="stat-card">
+          <div>
+            <div class="stat-label">TA Sistólica</div>
+            <div class="stat-value">188 <span style="font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-body);">mmHg</span></div>
+          </div>
+          <div class="stat-badge stat-badge-warn">Alta</div>
+        </div>
+      </div>
+
+      <div class="component-card">
+        <div class="component-label">Alerts</div>
+        <div class="alert-banner alert-warning" style="margin-bottom: 10px;">
+          <span class="alert-icon">⚠</span>
+          <span><strong>CI Relativa</strong> — <span style="color: var(--text-muted);">revisar criterios antes de proceder.</span></span>
+        </div>
+        <div class="alert-banner" style="background: var(--critical-muted); border-color: var(--critical); color: var(--critical); margin-bottom: 10px;">
+          <span class="alert-icon">✕</span>
+          <span><strong>Contraindicado</strong> — <span style="color: var(--text-muted);">no administrar tPA.</span></span>
+        </div>
+        <div class="alert-banner" style="background: var(--glucose-muted); border-color: var(--glucose-border); color: var(--glucose);">
+          <span class="alert-icon">⬡</span>
+          <span><strong>Glucemia crítica</strong> — <span style="color: var(--text-muted);">corregir antes de la ventana.</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <div style="text-align: center; padding: 16px 0 32px;">
+    <p style="font-family: var(--font-body); font-size: 0.8rem; color: var(--text-dim);">CodigoStroke Design System v1 · /design-consultation</p>
+  </div>
+
+</div>
+</body>
+</html>

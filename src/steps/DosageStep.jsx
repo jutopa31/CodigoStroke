@@ -118,7 +118,7 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
                   onClick={() => { setDrug(id); setDrugLocked(true) }}
                   className={`flex-1 py-2 transition-all ${
                     drug === id
-                      ? 'bg-emerald-600 text-white'
+                      ? 'bg-emerald-700 text-white'
                       : 'bg-stroke-navy text-stroke-textMuted hover:bg-emerald-500/10'
                   }`}
                 >
@@ -178,7 +178,7 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
                     onClick={() => { setWeightStr(String(w)); setWeightLocked(true) }}
                     className={`px-2.5 py-1 rounded-full text-xs font-bold border-2 transition-all ${
                       weightStr === String(w)
-                        ? 'bg-emerald-600 border-emerald-600 text-white'
+                        ? 'bg-emerald-700 border-emerald-600 text-white'
                         : 'border-stroke-line text-stroke-textMuted hover:border-emerald-300 hover:bg-emerald-500/10'
                     }`}>
                     {w} kg
@@ -244,7 +244,7 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
                 className={`shrink-0 px-3 py-2 rounded-xl text-xs font-bold transition-all active:scale-95 ${
                   thrombolyticStartTime
                     ? 'border border-emerald-300 bg-stroke-navy text-emerald-300 hover:bg-emerald-500/15'
-                    : 'bg-emerald-600 text-white hover:bg-emerald-700'
+                    : 'bg-emerald-700 text-white hover:bg-emerald-800'
                 }`}
               >
                 {thrombolyticStartTime ? 'Actualizar' : 'Registrar inicio'}
@@ -386,7 +386,7 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
                   Guía
                 </button>
                 <button type="button" onClick={() => handleSaveNihss()} disabled={!nihssValid}
-                  className="px-3 py-2 bg-emerald-600 text-white rounded-xl font-bold text-sm disabled:opacity-40">
+                  className="px-3 py-2 bg-emerald-700 text-white rounded-xl font-bold text-sm disabled:opacity-40">
                   ✓
                 </button>
                 <button type="button" onClick={() => { setShowNihssInput(false); setNihssEntry('') }}

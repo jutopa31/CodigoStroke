@@ -100,13 +100,6 @@ export default function TimeStep({ onConfirm, isCollapsed = false }) {
     }
   })()
 
-  // Left border accent color tracks window state
-  const cardBorderAccent = isCandidate
-    ? 'border-l-[3px] border-l-emerald-400'
-    : windowStatus === 'ogv'
-      ? 'border-l-[3px] border-l-amber-400'
-      : 'border-l-[3px] border-l-red-400'
-
   const dotColor = isCandidate ? '#10b981' : windowStatus === 'ogv' ? '#f59e0b' : '#ef4444'
   const dotPct = Math.min((elapsedMinutes / MAX_SLIDER_MINUTES) * 100, 100)
 
@@ -164,7 +157,7 @@ export default function TimeStep({ onConfirm, isCollapsed = false }) {
 
   return (
     <StepCard step="2" title={stepTitle} accent={isCandidate ? 'green' : windowStatus === 'ogv' ? 'orange' : 'red'}>
-      <div className={`rounded-xl border border-stroke-line bg-stroke-navy overflow-hidden ${cardBorderAccent}`}>
+      <div className="rounded-xl overflow-hidden -m-1">
 
         {/* Top row: label + time input + wake toggle */}
         <div className="flex flex-wrap items-center gap-2 px-3 pt-3 pb-2.5 border-b border-stroke-line/50">
@@ -225,7 +218,7 @@ export default function TimeStep({ onConfirm, isCollapsed = false }) {
 
           {/* Left: elapsed time + window bar */}
           <div className="px-3 py-3">
-            <div className="font-mono text-[2.4rem] font-black text-stroke-text leading-none tracking-tight tabular-nums">
+            <div className="font-mono text-[2.4rem] font-black text-status-warning leading-none tracking-tight tabular-nums">
               {formatElapsed(elapsedMinutes)}
             </div>
             <div className="text-[9px] text-stroke-textMuted mt-1 uppercase tracking-wider font-semibold">

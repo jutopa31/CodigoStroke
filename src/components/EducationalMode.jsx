@@ -422,7 +422,7 @@ function ContrasSection() {
               onClick={() => toggle(`orange-${i}`)}
               className="w-full flex items-start gap-3 px-4 py-3.5 text-left hover:bg-amber-500/10 transition-colors"
             >
-              <span className="shrink-0 w-5 h-5 rounded-md bg-amber-500/100 flex items-center justify-center text-white text-[10px] font-bold mt-0.5">{i + 1}</span>
+              <span className="shrink-0 w-5 h-5 rounded-md bg-amber-500 flex items-center justify-center text-stroke-bg text-[10px] font-bold mt-0.5">{i + 1}</span>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-amber-300 leading-snug">{item.label}</p>
                 {item.sub && <p className="text-xs text-amber-400 mt-0.5">{item.sub}</p>}
@@ -653,7 +653,7 @@ export default function EducationalMode({ onClose, initialSection = 'intro' }) {
             onClick={() => setActiveSection(section.id)}
             className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap ${
               activeSection === section.id
-                ? 'bg-amber-500/100 text-white shadow-sm'
+                ? 'bg-amber-500 text-stroke-bg shadow-sm'
                 : 'text-stroke-textMuted hover:bg-stroke-panel hover:text-stroke-text'
             }`}
           >
@@ -690,7 +690,7 @@ export default function EducationalMode({ onClose, initialSection = 'intro' }) {
               type="button"
               onClick={goNext}
               disabled={currentIdx === SECTIONS.length - 1}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500/100 text-white text-sm font-semibold hover:bg-amber-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500 text-stroke-bg text-sm font-semibold hover:bg-amber-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
             >
               {currentIdx < SECTIONS.length - 1 ? SECTIONS[currentIdx + 1].label : 'Fin'}
               <ChevronRight size={15} />

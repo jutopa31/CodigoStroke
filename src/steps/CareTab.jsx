@@ -172,7 +172,7 @@ export default function CareTab({
               className="flex-1 border border-amber-300 rounded-xl px-3 py-2 text-stroke-text text-base font-bold text-center focus:outline-none focus:ring-2 focus:ring-amber-400"
             />
             <button type="button" onClick={handleSaveNihss} disabled={!nihssValid}
-              className="px-4 py-2 bg-amber-500/100 text-white rounded-xl font-bold text-sm disabled:opacity-40">
+              className="px-4 py-2 bg-amber-500 text-stroke-bg rounded-xl font-bold text-sm disabled:opacity-40">
               ✓
             </button>
             <button type="button" onClick={() => { setShowNihssInput(false); setNihssEntry('') }}

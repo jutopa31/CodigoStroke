@@ -110,11 +110,11 @@ export default function DecisionTab({ result, onGoToThrombolysis, onGoToThrombec
           <p className="text-[10px] font-bold uppercase tracking-wider text-stroke-textMuted px-1">Próximos pasos</p>
           {thrombolyze === true && (
             <button type="button" onClick={onGoToThrombolysis}
-              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] transition-all text-white">
+              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 active:scale-[0.98] transition-all text-white">
               <Syringe size={18} />
               <div className="text-left">
                 <p className="text-sm font-bold">Ir a Trombolisis</p>
-                <p className="text-xs text-emerald-200">Calcular dosis y registrar administración</p>
+                <p className="text-xs text-white/85">Calcular dosis y registrar administración</p>
               </div>
             </button>
           )}
@@ -123,7 +123,7 @@ export default function DecisionTab({ result, onGoToThrombolysis, onGoToThrombec
             <Zap size={18} />
             <div className="text-left">
               <p className="text-sm font-bold">Ir a Trombectomía</p>
-              <p className="text-xs text-blue-200">
+              <p className="text-xs text-stroke-bg/80">
                 {thrombolyze === true ? 'Evaluar OGV en paralelo' : 'Evaluar trombectomía mecánica'}
               </p>
             </div>

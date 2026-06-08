@@ -14,7 +14,7 @@ const toneStyles = {
   orange: {
     active: 'border-amber-500/30 bg-amber-500/10 text-amber-300',
     idle: 'border-stroke-line bg-stroke-navy text-stroke-text hover:border-amber-500/30 hover:bg-amber-500/10',
-    check: 'bg-amber-500/100',
+    check: 'bg-amber-500',
   },
   red: {
     active: 'border-blue-900/30 bg-blue-900/10 text-blue-300',

@@ -44,15 +44,6 @@ export default function StepCard({
     gray: 'bg-stroke-line',
   }
 
-  // Brighter, full-opacity colors for the left accent line so green/amber read distinctly on dark navy
-  const lineColors = {
-    red: 'bg-stroke-iconActive',
-    blue: 'bg-blue-400',
-    orange: 'bg-amber-400',
-    green: 'bg-emerald-400',
-    gray: 'bg-stroke-line',
-  }
-
   const hasStepDot = Boolean(step)
   const hasRailDot = hasStepDot || rail
   const targetStep = railStep ?? step
@@ -62,17 +53,13 @@ export default function StepCard({
 
   const card = (
     <div className={`
-      relative bg-stroke-navy rounded-xl border transition-all duration-200
+      relative bg-stroke-navy rounded-xl border transition-colors duration-200
       ${isActive
-        ? 'border-stroke-iconActive/50 shadow-elevated'
-        : isCompleted
-          ? 'border-emerald-500/30'
-          : 'border-stroke-line'
+        ? 'border-stroke-iconActive/40'
+        : 'border-stroke-line'
       }
     `}>
-      {/* Accent line — full opacity + brighter so green/amber read distinctly on dark navy */}
-      <div className={`absolute left-0 top-3 bottom-3 w-1 rounded-full ${lineColors[accent]}`} />
-      
+
       <div className="p-4 md:p-4">
         {(step || title) && (
           <div className="flex items-center gap-2.5 mb-3">

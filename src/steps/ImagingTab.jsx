@@ -45,8 +45,8 @@ function CTSection({ onConfirm, initialCtRequestTime, onCtRequest, initialBleedi
   }
 
   return (
-    <div className={`overflow-hidden rounded-xl border transition-all duration-200 ${
-      bleeding === true ? 'border-status-critical/30 bg-status-critical/10' : bleeding === false ? 'border-emerald-500/30 bg-emerald-500/10' : 'border-stroke-line bg-stroke-navy'
+    <div className={`overflow-hidden rounded-xl transition-colors duration-200 ${
+      bleeding === true ? 'bg-status-critical/10' : bleeding === false ? 'bg-emerald-500/10' : ''
     }`}>
       <div className="flex items-start gap-3 px-3 py-3">
         <span className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors ${ctRequestTime ? 'bg-emerald-500 text-stroke-bg' : 'bg-stroke-iconActive text-stroke-bg'}`}>
@@ -82,7 +82,7 @@ function CTSection({ onConfirm, initialCtRequestTime, onCtRequest, initialBleedi
           </button>
           <button type="button" onClick={() => handleBleedingSelect(false)}
             className={`flex min-h-[44px] items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-sm font-bold transition-all active:scale-[0.98] ${
-              bleeding === false ? 'border-emerald-500 bg-emerald-600 text-white' : 'border-emerald-500/30 bg-stroke-navy text-emerald-300 hover:border-emerald-300 hover:bg-emerald-500/10'
+              bleeding === false ? 'border-emerald-500 bg-emerald-700 text-white' : 'border-emerald-500/30 bg-stroke-navy text-emerald-300 hover:border-emerald-300 hover:bg-emerald-500/10'
             }`}>
             <CheckCircle2 size={17} strokeWidth={2.5} /> No sangre
           </button>
@@ -113,7 +113,7 @@ function MRISection({ onConfirm, initialMriRequestTime, initialMismatch }) {
   }
 
   return (
-    <div className="rounded-xl border border-indigo-500/30 bg-indigo-500/10 overflow-hidden">
+    <div className="rounded-xl bg-indigo-500/10 overflow-hidden">
       <div className="flex items-center gap-2 px-4 py-3 bg-indigo-500/15">
         <Moon size={14} className="text-indigo-300 shrink-0" />
         <span className="text-xs font-semibold text-indigo-300">Protocolo WAKE-UP — evaluar mismatch FLAIR-DWI</span>
@@ -148,7 +148,7 @@ function MRISection({ onConfirm, initialMriRequestTime, initialMismatch }) {
             </button>
             <button type="button" onClick={() => handleMismatch(true)}
               className={`py-2.5 rounded-lg border font-bold text-sm transition-all active:scale-[0.98] ${
-                mismatch === true ? 'border-emerald-500 bg-emerald-600 text-white' : 'border-emerald-500/30 bg-stroke-navy text-emerald-300 hover:bg-emerald-500/10'
+                mismatch === true ? 'border-emerald-500 bg-emerald-700 text-white' : 'border-emerald-500/30 bg-stroke-navy text-emerald-300 hover:bg-emerald-500/10'
               }`}>
               SÍ mismatch
             </button>

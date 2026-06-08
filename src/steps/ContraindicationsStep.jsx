@@ -88,7 +88,7 @@ function ContraRow({ item, value, onChange, color, expanded, onToggleExpand }) {
             onClick={() => onChange(true)}
             className={`px-2.5 py-1.5 transition-all active:scale-95 ${
               isYes
-                ? color === 'red' ? 'bg-blue-900 text-white' : 'bg-amber-500/100 text-white'
+                ? color === 'red' ? 'bg-status-critical text-white' : 'bg-amber-500 text-stroke-bg'
                 : 'bg-stroke-navy text-stroke-textMuted hover:bg-stroke-bg'
             }`}
           >
@@ -227,7 +227,7 @@ export default function ContraindicationsStep({ onConfirm, onAnticoagChange, isC
                 type="button"
                 onClick={() => handleAnticoagAnswer(true)}
                 className={`px-4 py-2 transition-all active:scale-95 ${
-                  anticoag.active === true ? 'bg-amber-500/100 text-white' : 'bg-stroke-navy text-stroke-textMuted hover:bg-stroke-bg'
+                  anticoag.active === true ? 'bg-amber-500 text-stroke-bg' : 'bg-stroke-navy text-stroke-textMuted hover:bg-stroke-bg'
                 }`}
               >
                 SÍ
@@ -493,7 +493,7 @@ export default function ContraindicationsStep({ onConfirm, onAnticoagChange, isC
           <div className="border-t border-stroke-line px-5 pb-6 pt-4 space-y-2">
             <button
               onClick={() => { setShowRelativeWarning(false); confirm(false) }}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-amber-500/100 px-4 py-3 text-sm font-semibold text-white transition-all hover:bg-amber-600 active:scale-[0.98]"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-amber-500 px-4 py-3 text-sm font-semibold text-stroke-bg transition-all hover:bg-amber-600 active:scale-[0.98]"
             >
               Trombolisis <ChevronRight size={16} />
             </button>

@@ -35,7 +35,7 @@ function getPhase(minutes) {
     bg: 'bg-stroke-navy',
     muted: 'text-stroke-textMuted',
     badge: 'bg-stroke-bg text-white',
-    timer: 'md:bg-amber-500 md:text-white',
+    timer: 'md:bg-amber-500 md:text-stroke-bg',
   }
   return {
     bg: 'bg-stroke-navy',
