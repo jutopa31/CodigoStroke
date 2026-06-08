@@ -25,7 +25,7 @@ export default function TimestampPanel({ codeStart, ct, thrombolytic, hemo, vari
           return (
             <div
               key={key}
-              className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white/15 border border-white/20 whitespace-nowrap flex-shrink-0"
+              className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-stroke-bg border border-white/20 whitespace-nowrap flex-shrink-0"
             >
               <Icon size={10} className="text-brand-200" strokeWidth={2} />
               <span className="text-[10px] font-medium text-brand-100">{label}</span>
@@ -38,9 +38,9 @@ export default function TimestampPanel({ codeStart, ct, thrombolytic, hemo, vari
   }
 
   return (
-    <div className="rounded-lg border border-neutral-200 bg-white overflow-hidden">
-      <div className="px-3 py-2 border-b border-neutral-100">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-neutral-400">Tiempos registrados</p>
+    <div className="rounded-lg border border-stroke-line bg-stroke-navy overflow-hidden">
+      <div className="px-3 py-2 border-b border-stroke-line">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-stroke-textMuted">Tiempos registrados</p>
       </div>
       <div className="p-2 space-y-1">
         {ITEMS.map(({ key, label, Icon }) => {
@@ -48,14 +48,14 @@ export default function TimestampPanel({ codeStart, ct, thrombolytic, hemo, vari
           return (
             <div
               key={key}
-              className={`flex items-center gap-2.5 rounded-md px-2.5 py-2 transition-colors ${time ? 'bg-neutral-50' : ''}`}
+              className={`flex items-center gap-2.5 rounded-md px-2.5 py-2 transition-colors ${time ? 'bg-stroke-bg' : ''}`}
             >
-              <Icon size={13} className={`flex-shrink-0 ${time ? 'text-neutral-700' : 'text-neutral-300'}`} strokeWidth={2} />
+              <Icon size={13} className={`flex-shrink-0 ${time ? 'text-stroke-text' : 'text-stroke-textMuted'}`} strokeWidth={2} />
               <div className="flex-1 min-w-0">
-                <p className={`text-[10px] font-medium leading-none mb-0.5 ${time ? 'text-neutral-600' : 'text-neutral-300'}`}>
+                <p className={`text-[10px] font-medium leading-none mb-0.5 ${time ? 'text-stroke-textMuted' : 'text-stroke-textMuted'}`}>
                   {label}
                 </p>
-                <p className={`text-xs font-mono font-semibold leading-none ${time ? 'text-neutral-950' : 'text-neutral-300'}`}>
+                <p className={`text-xs font-mono font-semibold leading-none ${time ? 'text-neutral-950' : 'text-stroke-textMuted'}`}>
                   {time ? fmt(time) : '-'}
                 </p>
               </div>

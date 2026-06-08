@@ -164,9 +164,9 @@ export const nihssItems = [
 ]
 
 export function getNihssSeverity(score) {
-  if (score === 0) return { label: 'Sin déficit', color: 'text-green-700', bg: 'bg-green-50', border: 'border-green-400' }
-  if (score <= 4) return { label: 'Leve', color: 'text-blue-700', bg: 'bg-blue-50', border: 'border-blue-400' }
-  if (score <= 15) return { label: 'Moderado', color: 'text-yellow-700', bg: 'bg-yellow-50', border: 'border-yellow-400' }
-  if (score <= 20) return { label: 'Moderado-severo', color: 'text-orange-700', bg: 'bg-orange-50', border: 'border-orange-400' }
-  return { label: 'Severo', color: 'text-blue-900', bg: 'bg-blue-100', border: 'border-blue-300' }
+  if (score === 0) return { label: 'Sin déficit', color: 'text-emerald-300', bg: 'bg-emerald-500/15', border: 'border-emerald-500/40' }
+  if (score <= 4) return { label: 'Leve', color: 'text-blue-300', bg: 'bg-blue-500/15', border: 'border-blue-500/40' }
+  if (score <= 15) return { label: 'Moderado', color: 'text-amber-300', bg: 'bg-amber-500/15', border: 'border-amber-500/40' }
+  if (score <= 20) return { label: 'Moderado-severo', color: 'text-amber-300', bg: 'bg-amber-500/15', border: 'border-amber-500/40' }
+  return { label: 'Severo', color: 'text-red-300', bg: 'bg-status-critical/15', border: 'border-status-critical/40' }
 }

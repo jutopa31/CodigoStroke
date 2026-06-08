@@ -17,7 +17,7 @@ export default function StepTimeline({ currentStep, completedSteps = [], onStepC
     return (
       <nav className="w-full">
         <div className="relative pl-1">
-          <div className="absolute left-[15px] top-4 bottom-4 w-px bg-neutral-100 rounded-full" />
+          <div className="absolute left-[15px] top-4 bottom-4 w-px bg-stroke-panel rounded-full" />
           <div className="space-y-0.5">
             {STEPS.map((step, index) => {
               const isCompleted = completedSteps.includes(step.value)
@@ -34,9 +34,9 @@ export default function StepTimeline({ currentStep, completedSteps = [], onStepC
                     relative flex items-center gap-3 w-full text-left rounded-xl py-2 pr-3
                     transition-all group focus:outline-none
                     ${isActive
-                      ? 'bg-brand-50/60'
+                      ? 'bg-stroke-iconActive/10'
                       : isUnlocked
-                        ? 'hover:bg-neutral-50'
+                        ? 'hover:bg-stroke-bg'
                         : 'opacity-40 cursor-not-allowed'
                     }
                   `}
@@ -46,12 +46,12 @@ export default function StepTimeline({ currentStep, completedSteps = [], onStepC
                       relative z-10 w-7 h-7 rounded-lg flex-shrink-0 flex items-center justify-center
                       font-semibold text-xs transition-all
                       ${isCompleted
-                        ? 'bg-emerald-500 text-white'
+                        ? 'bg-emerald-500/100 text-white'
                         : isActive
                           ? 'bg-brand-600 text-white shadow-minimal'
                           : isUnlocked
-                            ? 'bg-neutral-100 text-neutral-400 group-hover:bg-neutral-200 group-hover:text-neutral-500'
-                            : 'bg-neutral-100 text-neutral-300'
+                            ? 'bg-stroke-panel text-stroke-textMuted group-hover:bg-stroke-panel group-hover:text-stroke-textMuted'
+                            : 'bg-stroke-panel text-stroke-textMuted'
                       }
                     `}
                   >
@@ -61,12 +61,12 @@ export default function StepTimeline({ currentStep, completedSteps = [], onStepC
                     className={`
                       text-[13px] leading-tight transition-colors
                       ${isCompleted
-                        ? 'text-emerald-600 font-medium'
+                        ? 'text-emerald-400 font-medium'
                         : isActive
-                          ? 'text-brand-600 font-semibold'
+                          ? 'text-stroke-iconActive font-semibold'
                           : isUnlocked
-                            ? 'text-neutral-400 group-hover:text-neutral-600'
-                            : 'text-neutral-300'
+                            ? 'text-stroke-textMuted group-hover:text-stroke-textMuted'
+                            : 'text-stroke-textMuted'
                       }
                     `}
                   >

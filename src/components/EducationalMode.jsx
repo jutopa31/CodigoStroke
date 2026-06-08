@@ -4,13 +4,13 @@ import { nihssItems, getNihssSeverity } from '../content/nihss'
 
 // ─── mRS data ───────────────────────────────────────────────────────────────
 const MRS_LEVELS = [
-  { score: 0, label: 'Sin síntomas', desc: 'Ausencia completa de síntomas neurológicos.', bg: 'bg-emerald-50', border: 'border-emerald-200', text: 'text-emerald-700', badge: 'bg-emerald-100 text-emerald-700' },
-  { score: 1, label: 'Sin discapacidad significativa', desc: 'Puede realizar todas las actividades habituales a pesar de síntomas.', bg: 'bg-lime-50', border: 'border-lime-200', text: 'text-lime-700', badge: 'bg-lime-100 text-lime-700' },
-  { score: 2, label: 'Discapacidad leve', desc: 'Puede atender sus propios asuntos sin asistencia; incapaz de realizar todas las actividades previas.', bg: 'bg-yellow-50', border: 'border-yellow-200', text: 'text-yellow-700', badge: 'bg-yellow-100 text-yellow-700' },
-  { score: 3, label: 'Discapacidad moderada', desc: 'Requiere alguna ayuda; puede caminar sin asistencia.', bg: 'bg-orange-50', border: 'border-orange-200', text: 'text-orange-700', badge: 'bg-orange-100 text-orange-700' },
-  { score: 4, label: 'Discapacidad moderada-severa', desc: 'Incapaz de caminar sin asistencia. Necesita ayuda para atender sus necesidades básicas.', bg: 'bg-red-50', border: 'border-red-200', text: 'text-red-700', badge: 'bg-red-100 text-red-700' },
-  { score: 5, label: 'Discapacidad severa', desc: 'Requiere cuidado de enfermería constante; confinado en cama, incontinente.', bg: 'bg-blue-900/10', border: 'border-blue-800/30', text: 'text-blue-900', badge: 'bg-blue-900/20 text-blue-900' },
-  { score: 6, label: 'Muerte', desc: '', bg: 'bg-neutral-100', border: 'border-neutral-300', text: 'text-neutral-700', badge: 'bg-neutral-200 text-neutral-700' },
+  { score: 0, label: 'Sin síntomas', desc: 'Ausencia completa de síntomas neurológicos.', bg: 'bg-emerald-500/10', border: 'border-emerald-500/30', text: 'text-emerald-300', badge: 'bg-emerald-500/15 text-emerald-300' },
+  { score: 1, label: 'Sin discapacidad significativa', desc: 'Puede realizar todas las actividades habituales a pesar de síntomas.', bg: 'bg-emerald-500/15', border: 'border-emerald-500/30', text: 'text-emerald-300', badge: 'bg-emerald-500/15 text-emerald-300' },
+  { score: 2, label: 'Discapacidad leve', desc: 'Puede atender sus propios asuntos sin asistencia; incapaz de realizar todas las actividades previas.', bg: 'bg-amber-500/15', border: 'border-amber-500/30', text: 'text-amber-300', badge: 'bg-amber-500/15 text-amber-300' },
+  { score: 3, label: 'Discapacidad moderada', desc: 'Requiere alguna ayuda; puede caminar sin asistencia.', bg: 'bg-amber-500/15', border: 'border-amber-500/30', text: 'text-amber-300', badge: 'bg-amber-500/15 text-amber-300' },
+  { score: 4, label: 'Discapacidad moderada-severa', desc: 'Incapaz de caminar sin asistencia. Necesita ayuda para atender sus necesidades básicas.', bg: 'bg-status-critical/10', border: 'border-status-critical/30', text: 'text-red-300', badge: 'bg-status-critical/15 text-red-300' },
+  { score: 5, label: 'Discapacidad severa', desc: 'Requiere cuidado de enfermería constante; confinado en cama, incontinente.', bg: 'bg-blue-900/10', border: 'border-blue-800/30', text: 'text-blue-300', badge: 'bg-blue-900/20 text-blue-300' },
+  { score: 6, label: 'Muerte', desc: '', bg: 'bg-stroke-panel', border: 'border-stroke-line', text: 'text-stroke-text', badge: 'bg-stroke-panel text-stroke-text' },
 ]
 
 // ─── Contraindications data ──────────────────────────────────────────────────
@@ -62,7 +62,7 @@ const SECTIONS = [
 // ─── Section components ───────────────────────────────────────────────────────
 function SectionHeader({ children }) {
   return (
-    <h2 className="text-lg font-semibold text-neutral-800 mb-5 flex items-center gap-2">
+    <h2 className="text-lg font-semibold text-stroke-text mb-5 flex items-center gap-2">
       {children}
     </h2>
   )
@@ -70,7 +70,7 @@ function SectionHeader({ children }) {
 
 function Card({ children, className = '' }) {
   return (
-    <div className={`rounded-2xl border border-neutral-100 bg-white p-4 ${className}`}>
+    <div className={`rounded-2xl border border-stroke-line bg-stroke-navy p-4 ${className}`}>
       {children}
     </div>
   )
@@ -81,14 +81,14 @@ function IntroSection() {
     <div className="space-y-6">
       <SectionHeader>Bienvenido al Modo Educativo</SectionHeader>
 
-      <Card className="bg-amber-50 border-amber-200">
-        <p className="text-sm text-amber-800 leading-relaxed">
+      <Card className="bg-amber-500/10 border-amber-500/30">
+        <p className="text-sm text-amber-300 leading-relaxed">
           <strong>Este modo es solo de consulta.</strong> Podés navegar el algoritmo completo, interactuar con las escalas y explorar los criterios clínicos. Ningún dato se guarda ni afecta un caso real.
         </p>
       </Card>
 
       <div className="space-y-3">
-        <p className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Criterios de inclusión para trombolisis IV</p>
+        <p className="text-xs font-semibold text-stroke-textMuted uppercase tracking-wider">Criterios de inclusión para trombolisis IV</p>
         {[
           'Déficit neurológico agudo medible en la escala NIHSS',
           'Diagnóstico clínico de ACV isquémico',
@@ -98,22 +98,22 @@ function IntroSection() {
           'TA manejable: sistólica < 185 mmHg y diastólica < 110 mmHg',
           'Glucemia entre 50 y 400 mg/dL',
         ].map((item, i) => (
-          <div key={i} className="flex items-start gap-3 rounded-xl bg-white border border-neutral-100 px-4 py-3">
+          <div key={i} className="flex items-start gap-3 rounded-xl bg-stroke-navy border border-stroke-line px-4 py-3">
             <span className="w-5 h-5 rounded-md bg-blue-700 flex items-center justify-center text-white text-[10px] font-bold shrink-0 mt-0.5">{i + 1}</span>
-            <p className="text-sm text-neutral-700 leading-relaxed">{item}</p>
+            <p className="text-sm text-stroke-text leading-relaxed">{item}</p>
           </div>
         ))}
       </div>
 
       <Card>
-        <p className="text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-3">Severidad NIHSS — resumen rápido</p>
+        <p className="text-xs font-semibold text-stroke-textMuted uppercase tracking-wider mb-3">Severidad NIHSS — resumen rápido</p>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
           {[
-            { range: '0', label: 'Normal', bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-100' },
-            { range: '1–4', label: 'Leve', bg: 'bg-lime-50', text: 'text-lime-700', border: 'border-lime-100' },
-            { range: '5–15', label: 'Moderado', bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-100' },
-            { range: '16–20', label: 'Mod-severo', bg: 'bg-orange-50', text: 'text-orange-700', border: 'border-orange-100' },
-            { range: '21–42', label: 'Severo', bg: 'bg-blue-100', text: 'text-blue-900', border: 'border-blue-200' },
+            { range: '0', label: 'Normal', bg: 'bg-emerald-500/10', text: 'text-emerald-300', border: 'border-emerald-500/30' },
+            { range: '1–4', label: 'Leve', bg: 'bg-emerald-500/15', text: 'text-emerald-300', border: 'border-emerald-500/30' },
+            { range: '5–15', label: 'Moderado', bg: 'bg-amber-500/10', text: 'text-amber-300', border: 'border-amber-500/30' },
+            { range: '16–20', label: 'Mod-severo', bg: 'bg-amber-500/15', text: 'text-amber-300', border: 'border-orange-100' },
+            { range: '21–42', label: 'Severo', bg: 'bg-blue-500/15', text: 'text-blue-300', border: 'border-blue-500/30' },
           ].map((row) => (
             <div key={row.range} className={`rounded-xl px-3 py-2.5 border ${row.bg} ${row.border}`}>
               <p className={`text-lg font-bold tabular-nums ${row.text}`}>{row.range}</p>
@@ -142,30 +142,30 @@ function TiempoSection() {
       <SectionHeader><Clock size={18} className="text-amber-500" /> Ventanas terapéuticas</SectionHeader>
 
       {/* Calculator */}
-      <Card className="bg-amber-50 border-amber-200">
-        <p className="text-xs font-semibold text-amber-700 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+      <Card className="bg-amber-500/10 border-amber-500/30">
+        <p className="text-xs font-semibold text-amber-300 uppercase tracking-wider mb-3 flex items-center gap-1.5">
           <Calculator size={12} /> Calculadora de ventana
         </p>
-        <label className="text-sm text-amber-800 block mb-2">Hora de inicio de síntomas</label>
+        <label className="text-sm text-amber-300 block mb-2">Hora de inicio de síntomas</label>
         <input
           type="time"
           value={onsetTime}
           onChange={(e) => setOnsetTime(e.target.value)}
-          className="w-full bg-white border border-amber-200 rounded-xl px-4 py-3 text-neutral-800 text-lg font-mono focus:ring-2 focus:ring-amber-300 focus:border-amber-400 transition-all"
+          className="w-full bg-stroke-navy border border-amber-500/30 rounded-xl px-4 py-3 text-stroke-text text-lg font-mono focus:ring-2 focus:ring-amber-300 focus:border-amber-400 transition-all"
         />
         {minutesElapsed !== null && (
           <div className="mt-4 space-y-2">
-            <div className={`rounded-xl px-4 py-3 border ${inWindow ? 'bg-emerald-50 border-emerald-200' : 'bg-blue-900/10 border-blue-800/20'}`}>
-              <p className={`text-2xl font-bold tabular-nums ${inWindow ? 'text-emerald-700' : 'text-blue-900'}`}>
+            <div className={`rounded-xl px-4 py-3 border ${inWindow ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-blue-900/10 border-blue-800/20'}`}>
+              <p className={`text-2xl font-bold tabular-nums ${inWindow ? 'text-emerald-300' : 'text-blue-300'}`}>
                 {minutesElapsed < 60 ? `${minutesElapsed} min` : `${Math.floor(minutesElapsed / 60)}h ${minutesElapsed % 60}min`}
               </p>
-              <p className={`text-xs font-semibold mt-1 ${inWindow ? 'text-emerald-600' : 'text-blue-800'}`}>
+              <p className={`text-xs font-semibold mt-1 ${inWindow ? 'text-emerald-400' : 'text-blue-300'}`}>
                 {inWindow ? 'Dentro de ventana para trombolisis IV (4.5h)' : 'Fuera de ventana para trombolisis IV'}
               </p>
             </div>
             {!inWindow && inThrombectomyWindow && (
-              <div className="rounded-xl px-4 py-3 border bg-amber-50 border-amber-200">
-                <p className="text-sm font-semibold text-amber-800">Evaluar trombectomía mecánica (hasta 24h con criterios DAWN/DEFUSE-3)</p>
+              <div className="rounded-xl px-4 py-3 border bg-amber-500/10 border-amber-500/30">
+                <p className="text-sm font-semibold text-amber-300">Evaluar trombectomía mecánica (hasta 24h con criterios DAWN/DEFUSE-3)</p>
               </div>
             )}
           </div>
@@ -174,54 +174,54 @@ function TiempoSection() {
 
       {/* Ventanas */}
       <div className="space-y-3">
-        <div className="rounded-2xl border border-blue-200 bg-blue-50 px-5 py-4">
+        <div className="rounded-2xl border border-blue-500/30 bg-blue-500/10 px-5 py-4">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <p className="font-semibold text-blue-900">Trombolisis IV (rtPA / TNK)</p>
-              <p className="text-xs text-blue-600 mt-1 leading-relaxed">
+              <p className="font-semibold text-blue-300">Trombolisis IV (rtPA / TNK)</p>
+              <p className="text-xs text-blue-400 mt-1 leading-relaxed">
                 Desde inicio de síntomas hasta <strong>4.5 horas</strong> (270 min). La ventana más estrecha y de mayor beneficio.
               </p>
             </div>
             <span className="shrink-0 text-2xl font-bold text-blue-300 tabular-nums">4.5h</span>
           </div>
-          <div className="mt-3 pt-3 border-t border-blue-100">
-            <p className="text-xs text-blue-700 font-medium">Tiempo puerta-aguja objetivo: &lt; 60 min</p>
+          <div className="mt-3 pt-3 border-t border-blue-500/30">
+            <p className="text-xs text-blue-300 font-medium">Tiempo puerta-aguja objetivo: &lt; 60 min</p>
           </div>
         </div>
 
-        <div className="rounded-2xl border border-indigo-200 bg-indigo-50 px-5 py-4">
+        <div className="rounded-2xl border border-indigo-500/30 bg-indigo-500/10 px-5 py-4">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <p className="font-semibold text-indigo-900">ACV del despertar / hora incierta</p>
-              <p className="text-xs text-indigo-600 mt-1 leading-relaxed">
+              <p className="font-semibold text-indigo-300">ACV del despertar / hora incierta</p>
+              <p className="text-xs text-indigo-300 mt-1 leading-relaxed">
                 Evaluar con RMN: <strong>mismatch FLAIR-DWI positivo</strong> habilita trombolisis. Criterio DWI-FLAIR: lesión visible en DWI pero no en FLAIR sugiere evento &lt; 4.5h.
               </p>
             </div>
           </div>
-          <div className="mt-3 pt-3 border-t border-indigo-100">
-            <p className="text-xs text-indigo-700 font-medium">Estudio WAKE-UP (2018): NNT ≈ 14 para buen outcome funcional</p>
+          <div className="mt-3 pt-3 border-t border-indigo-500/30">
+            <p className="text-xs text-indigo-300 font-medium">Estudio WAKE-UP (2018): NNT ≈ 14 para buen outcome funcional</p>
           </div>
         </div>
 
-        <div className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4">
+        <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 px-5 py-4">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <p className="font-semibold text-amber-900">Trombectomía mecánica (OGV)</p>
-              <p className="text-xs text-amber-700 mt-1 leading-relaxed">
+              <p className="font-semibold text-amber-300">Trombectomía mecánica (OGV)</p>
+              <p className="text-xs text-amber-300 mt-1 leading-relaxed">
                 Hasta <strong>6h estándar</strong>, o hasta <strong>24h</strong> con criterios DAWN / DEFUSE-3 (penumbra isquémica preservada en perfusión-TC o RMN).
               </p>
             </div>
             <span className="shrink-0 text-2xl font-bold text-amber-300 tabular-nums">24h</span>
           </div>
-          <div className="mt-3 pt-3 border-t border-amber-100">
-            <p className="text-xs text-amber-700 font-medium">Tiempo puerta-punción objetivo: &lt; 90 min</p>
+          <div className="mt-3 pt-3 border-t border-amber-500/30">
+            <p className="text-xs text-amber-300 font-medium">Tiempo puerta-punción objetivo: &lt; 90 min</p>
           </div>
         </div>
       </div>
 
       <Card>
-        <p className="text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-2">Nota sobre última vez visto asintomático (LVSA)</p>
-        <p className="text-sm text-neutral-600 leading-relaxed">
+        <p className="text-xs font-semibold text-stroke-textMuted uppercase tracking-wider mb-2">Nota sobre última vez visto asintomático (LVSA)</p>
+        <p className="text-sm text-stroke-textMuted leading-relaxed">
           Cuando el paciente no puede informar el inicio exacto (dormía, afasia, etc.), se usa la LVSA como inicio estimado. En ACV del despertar, la LVSA es la hora de dormir.
         </p>
       </Card>
@@ -238,24 +238,24 @@ function NihssSection() {
 
   return (
     <div className="space-y-6">
-      <SectionHeader><Activity size={18} className="text-blue-600" /> Escala NIHSS — completa</SectionHeader>
+      <SectionHeader><Activity size={18} className="text-blue-400" /> Escala NIHSS — completa</SectionHeader>
 
       {/* Score display */}
       <div className={`rounded-2xl border ${severity.border} ${severity.bg} px-5 py-4 flex items-center justify-between`}>
         <div>
-          <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-1">Puntaje total</p>
+          <p className="text-xs font-semibold text-stroke-textMuted uppercase tracking-wider mb-1">Puntaje total</p>
           <p className={`text-4xl font-bold tabular-nums ${severity.color}`}>{total}</p>
           <p className={`text-sm font-semibold mt-1 ${severity.color}`}>{severity.label}</p>
         </div>
         <div className="text-right">
-          <p className="text-xs text-neutral-400">{Object.keys(scores).length}/{nihssItems.length} ítems</p>
+          <p className="text-xs text-stroke-textMuted">{Object.keys(scores).length}/{nihssItems.length} ítems</p>
           {allAnswered && (
-            <p className="text-xs font-semibold text-emerald-600 mt-1">Escala completa</p>
+            <p className="text-xs font-semibold text-emerald-400 mt-1">Escala completa</p>
           )}
         </div>
       </div>
 
-      <p className="text-xs text-neutral-400 bg-amber-50 border border-amber-100 rounded-xl px-3 py-2">
+      <p className="text-xs text-stroke-textMuted bg-amber-500/10 border border-amber-500/30 rounded-xl px-3 py-2">
         Modo educativo — las selecciones no se guardan ni afectan ningún caso.
       </p>
 
@@ -266,7 +266,7 @@ function NihssSection() {
           return (
             <Card key={item.id}>
               <div className="flex items-start justify-between gap-2 mb-3">
-                <p className="text-sm font-semibold text-neutral-800 leading-snug">{item.label}</p>
+                <p className="text-sm font-semibold text-stroke-text leading-snug">{item.label}</p>
                 {selected !== undefined && (
                   <span className={`shrink-0 text-xs font-bold px-2 py-0.5 rounded-lg ${getNihssSeverity(selected).bg} ${getNihssSeverity(selected).color} border ${getNihssSeverity(selected).border}`}>
                     {selected}
@@ -282,11 +282,11 @@ function NihssSection() {
                     className={`w-full flex items-center gap-3 rounded-xl border px-3 py-2.5 text-left transition-all active:scale-[0.98] ${
                       selected === opt.score
                         ? 'bg-blue-700 border-blue-700 text-white'
-                        : 'bg-neutral-50 border-neutral-100 text-neutral-700 hover:bg-blue-50 hover:border-blue-200'
+                        : 'bg-stroke-bg border-stroke-line text-stroke-text hover:bg-blue-500/10 hover:border-blue-500/30'
                     }`}
                   >
                     <span className={`shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold ${
-                      selected === opt.score ? 'bg-white/20 text-white' : 'bg-white text-neutral-500 border border-neutral-200'
+                      selected === opt.score ? 'bg-stroke-bg text-white' : 'bg-stroke-navy text-stroke-textMuted border border-stroke-line'
                     }`}>
                       {opt.score}
                     </span>
@@ -302,7 +302,7 @@ function NihssSection() {
       <button
         type="button"
         onClick={() => setScores({})}
-        className="w-full py-3 rounded-xl border border-neutral-200 text-neutral-500 text-sm font-medium hover:bg-neutral-50 transition-colors"
+        className="w-full py-3 rounded-xl border border-stroke-line text-stroke-textMuted text-sm font-medium hover:bg-stroke-bg transition-colors"
       >
         Resetear escala
       </button>
@@ -315,15 +315,15 @@ function MrsSection() {
 
   return (
     <div className="space-y-6">
-      <SectionHeader><Shield size={18} className="text-emerald-600" /> Escala de Rankin Modificada (mRS)</SectionHeader>
+      <SectionHeader><Shield size={18} className="text-emerald-400" /> Escala de Rankin Modificada (mRS)</SectionHeader>
 
-      <Card className="bg-neutral-50">
-        <p className="text-xs text-neutral-500 leading-relaxed">
+      <Card className="bg-stroke-bg">
+        <p className="text-xs text-stroke-textMuted leading-relaxed">
           La mRS evalúa el grado de discapacidad o dependencia en las actividades diarias después de un ACV. Se usa para clasificar el estado funcional basal (pre-ACV) y el desenlace a los 90 días.
         </p>
       </Card>
 
-      <p className="text-xs text-neutral-400 bg-amber-50 border border-amber-100 rounded-xl px-3 py-2">
+      <p className="text-xs text-stroke-textMuted bg-amber-500/10 border border-amber-500/30 rounded-xl px-3 py-2">
         Modo educativo — la selección no se guarda.
       </p>
 
@@ -336,21 +336,21 @@ function MrsSection() {
             className={`w-full rounded-2xl border-2 px-4 py-4 text-left transition-all active:scale-[0.99] ${
               selected === level.score
                 ? `${level.bg} ${level.border}`
-                : 'bg-white border-neutral-100 hover:border-neutral-200'
+                : 'bg-stroke-navy border-stroke-line hover:border-stroke-line'
             }`}
           >
             <div className="flex items-start gap-3">
               <span className={`shrink-0 w-9 h-9 rounded-xl flex items-center justify-center text-xl font-bold ${
-                selected === level.score ? `${level.badge}` : 'bg-neutral-100 text-neutral-600'
+                selected === level.score ? `${level.badge}` : 'bg-stroke-panel text-stroke-textMuted'
               }`}>
                 {level.score}
               </span>
               <div className="flex-1">
-                <p className={`text-sm font-semibold leading-snug ${selected === level.score ? level.text : 'text-neutral-800'}`}>
+                <p className={`text-sm font-semibold leading-snug ${selected === level.score ? level.text : 'text-stroke-text'}`}>
                   {level.label}
                 </p>
                 {level.desc && (
-                  <p className={`text-xs mt-1 leading-relaxed ${selected === level.score ? level.text + '/70' : 'text-neutral-500'}`}>
+                  <p className={`text-xs mt-1 leading-relaxed ${selected === level.score ? level.text + '/70' : 'text-stroke-textMuted'}`}>
                     {level.desc}
                   </p>
                 )}
@@ -361,8 +361,8 @@ function MrsSection() {
       </div>
 
       <Card>
-        <p className="text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-2">Relevancia clínica</p>
-        <div className="space-y-2 text-sm text-neutral-600">
+        <p className="text-xs font-semibold text-stroke-textMuted uppercase tracking-wider mb-2">Relevancia clínica</p>
+        <div className="space-y-2 text-sm text-stroke-textMuted">
           <p><strong>mRS basal ≤ 1:</strong> Candidato ideal para trombolisis (vida independiente previa).</p>
           <p><strong>mRS basal 2–3:</strong> Evaluar individualmente; el beneficio puede ser menor.</p>
           <p><strong>mRS basal ≥ 4:</strong> Raramente se beneficia; discutir con familia y especialista.</p>
@@ -378,60 +378,60 @@ function ContrasSection() {
 
   return (
     <div className="space-y-6">
-      <SectionHeader><AlertTriangle size={18} className="text-blue-800" /> Contraindicaciones tPA</SectionHeader>
+      <SectionHeader><AlertTriangle size={18} className="text-blue-300" /> Contraindicaciones tPA</SectionHeader>
 
-      <Card className="bg-blue-900/8 border-blue-200">
-        <p className="text-sm text-blue-900 font-semibold mb-1">Contraindicaciones absolutas</p>
-        <p className="text-xs text-blue-700">Cualquier SÍ bloquea la trombolisis IV de forma absoluta.</p>
+      <Card className="bg-blue-900/8 border-blue-500/30">
+        <p className="text-sm text-blue-300 font-semibold mb-1">Contraindicaciones absolutas</p>
+        <p className="text-xs text-blue-300">Cualquier SÍ bloquea la trombolisis IV de forma absoluta.</p>
       </Card>
 
       <div className="space-y-2">
         {RED_CONTRAS.map((item, i) => (
-          <div key={i} className="rounded-2xl border border-blue-200 bg-white overflow-hidden">
+          <div key={i} className="rounded-2xl border border-blue-500/30 bg-stroke-navy overflow-hidden">
             <button
               type="button"
               onClick={() => toggle(`red-${i}`)}
-              className="w-full flex items-start gap-3 px-4 py-3.5 text-left hover:bg-blue-50/50 transition-colors"
+              className="w-full flex items-start gap-3 px-4 py-3.5 text-left hover:bg-blue-500/10 transition-colors"
             >
               <span className="shrink-0 w-5 h-5 rounded-md bg-blue-900 flex items-center justify-center text-white text-[10px] font-bold mt-0.5">{i + 1}</span>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-blue-900 leading-snug">{item.label}</p>
-                {item.sub && <p className="text-xs text-blue-600 mt-0.5">{item.sub}</p>}
+                <p className="text-sm font-semibold text-blue-300 leading-snug">{item.label}</p>
+                {item.sub && <p className="text-xs text-blue-400 mt-0.5">{item.sub}</p>}
               </div>
               <ChevronRight size={14} className={`shrink-0 text-blue-300 mt-1 transition-transform ${expanded[`red-${i}`] ? 'rotate-90' : ''}`} />
             </button>
             {expanded[`red-${i}`] && (
-              <div className="px-4 pb-4 pt-0 border-t border-blue-100 bg-blue-50">
-                <p className="text-sm text-blue-800 leading-relaxed pt-3">{item.detail}</p>
+              <div className="px-4 pb-4 pt-0 border-t border-blue-500/30 bg-blue-500/10">
+                <p className="text-sm text-blue-300 leading-relaxed pt-3">{item.detail}</p>
               </div>
             )}
           </div>
         ))}
       </div>
 
-      <Card className="bg-amber-50 border-amber-200 mt-2">
-        <p className="text-sm text-amber-800 font-semibold mb-1">Contraindicaciones relativas</p>
-        <p className="text-xs text-amber-700">Requieren valoración individual riesgo/beneficio. Interconsultar con coordinación.</p>
+      <Card className="bg-amber-500/10 border-amber-500/30 mt-2">
+        <p className="text-sm text-amber-300 font-semibold mb-1">Contraindicaciones relativas</p>
+        <p className="text-xs text-amber-300">Requieren valoración individual riesgo/beneficio. Interconsultar con coordinación.</p>
       </Card>
 
       <div className="space-y-2">
         {ORANGE_CONTRAS.map((item, i) => (
-          <div key={i} className="rounded-2xl border border-amber-200 bg-white overflow-hidden">
+          <div key={i} className="rounded-2xl border border-amber-500/30 bg-stroke-navy overflow-hidden">
             <button
               type="button"
               onClick={() => toggle(`orange-${i}`)}
-              className="w-full flex items-start gap-3 px-4 py-3.5 text-left hover:bg-amber-50/50 transition-colors"
+              className="w-full flex items-start gap-3 px-4 py-3.5 text-left hover:bg-amber-500/10 transition-colors"
             >
-              <span className="shrink-0 w-5 h-5 rounded-md bg-amber-500 flex items-center justify-center text-white text-[10px] font-bold mt-0.5">{i + 1}</span>
+              <span className="shrink-0 w-5 h-5 rounded-md bg-amber-500/100 flex items-center justify-center text-white text-[10px] font-bold mt-0.5">{i + 1}</span>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-amber-800 leading-snug">{item.label}</p>
-                {item.sub && <p className="text-xs text-amber-600 mt-0.5">{item.sub}</p>}
+                <p className="text-sm font-semibold text-amber-300 leading-snug">{item.label}</p>
+                {item.sub && <p className="text-xs text-amber-400 mt-0.5">{item.sub}</p>}
               </div>
               <ChevronRight size={14} className={`shrink-0 text-amber-300 mt-1 transition-transform ${expanded[`orange-${i}`] ? 'rotate-90' : ''}`} />
             </button>
             {expanded[`orange-${i}`] && (
-              <div className="px-4 pb-4 pt-0 border-t border-amber-100 bg-amber-50">
-                <p className="text-sm text-amber-800 leading-relaxed pt-3">{item.detail}</p>
+              <div className="px-4 pb-4 pt-0 border-t border-amber-500/30 bg-amber-500/10">
+                <p className="text-sm text-amber-300 leading-relaxed pt-3">{item.detail}</p>
               </div>
             )}
           </div>
@@ -455,70 +455,70 @@ function DosisSection() {
 
   return (
     <div className="space-y-6">
-      <SectionHeader><Pill size={18} className="text-brand-600" /> Dosis y administración</SectionHeader>
+      <SectionHeader><Pill size={18} className="text-stroke-iconActive" /> Dosis y administración</SectionHeader>
 
       {/* Weight calculator */}
-      <Card className="bg-blue-50 border-blue-200">
-        <p className="text-xs font-semibold text-blue-700 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+      <Card className="bg-blue-500/10 border-blue-500/30">
+        <p className="text-xs font-semibold text-blue-300 uppercase tracking-wider mb-3 flex items-center gap-1.5">
           <Calculator size={12} /> Calculadora de dosis
         </p>
-        <label className="text-sm text-blue-800 block mb-2">Peso del paciente (kg)</label>
+        <label className="text-sm text-blue-300 block mb-2">Peso del paciente (kg)</label>
         <input
           type="number"
           inputMode="decimal"
           placeholder="ej. 75"
           value={weight}
           onChange={(e) => setWeight(e.target.value)}
-          className="w-full bg-white border border-blue-200 rounded-xl px-4 py-3 text-neutral-800 text-lg font-mono focus:ring-2 focus:ring-blue-300 focus:border-blue-400 transition-all"
+          className="w-full bg-stroke-navy border border-blue-500/30 rounded-xl px-4 py-3 text-stroke-text text-lg font-mono focus:ring-2 focus:ring-blue-300 focus:border-blue-400 transition-all"
         />
       </Card>
 
       {/* rtPA */}
-      <div className="rounded-2xl border border-blue-200 bg-blue-50 px-5 py-4 space-y-3">
+      <div className="rounded-2xl border border-blue-500/30 bg-blue-500/10 px-5 py-4 space-y-3">
         <div className="flex items-start justify-between gap-2">
           <div>
-            <p className="font-semibold text-blue-900">Alteplase (rtPA)</p>
-            <p className="text-xs text-blue-600 mt-0.5">0.9 mg/kg IV — máximo 90 mg</p>
+            <p className="font-semibold text-blue-300">Alteplase (rtPA)</p>
+            <p className="text-xs text-blue-400 mt-0.5">0.9 mg/kg IV — máximo 90 mg</p>
           </div>
           {rtpaDose && (
             <span className="shrink-0 text-2xl font-bold text-blue-400 tabular-nums">{rtpaDose.toFixed(1)} mg</span>
           )}
         </div>
-        <div className="space-y-2 pt-2 border-t border-blue-100">
-          <div className="flex items-center justify-between rounded-xl bg-white border border-blue-100 px-3 py-2.5">
-            <p className="text-xs font-semibold text-blue-800">Bolo IV (10%) — en 1–2 min</p>
-            <span className="text-sm font-bold text-blue-900 tabular-nums">{rtpaBolus ? `${rtpaBolus} mg` : '—'}</span>
+        <div className="space-y-2 pt-2 border-t border-blue-500/30">
+          <div className="flex items-center justify-between rounded-xl bg-stroke-navy border border-blue-500/30 px-3 py-2.5">
+            <p className="text-xs font-semibold text-blue-300">Bolo IV (10%) — en 1–2 min</p>
+            <span className="text-sm font-bold text-blue-300 tabular-nums">{rtpaBolus ? `${rtpaBolus} mg` : '—'}</span>
           </div>
-          <div className="flex items-center justify-between rounded-xl bg-white border border-blue-100 px-3 py-2.5">
-            <p className="text-xs font-semibold text-blue-800">Infusión (90%) — en 60 min</p>
-            <span className="text-sm font-bold text-blue-900 tabular-nums">{rtpaInfusion ? `${rtpaInfusion} mg` : '—'}</span>
+          <div className="flex items-center justify-between rounded-xl bg-stroke-navy border border-blue-500/30 px-3 py-2.5">
+            <p className="text-xs font-semibold text-blue-300">Infusión (90%) — en 60 min</p>
+            <span className="text-sm font-bold text-blue-300 tabular-nums">{rtpaInfusion ? `${rtpaInfusion} mg` : '—'}</span>
           </div>
         </div>
       </div>
 
       {/* TNK */}
-      <div className="rounded-2xl border border-brand-200 bg-brand-50 px-5 py-4 space-y-3">
+      <div className="rounded-2xl border border-stroke-iconActive/40 bg-stroke-iconActive/10 px-5 py-4 space-y-3">
         <div className="flex items-start justify-between gap-2">
           <div>
-            <p className="font-semibold text-brand-800">Tenecteplase (TNK)</p>
-            <p className="text-xs text-brand-600 mt-0.5">0.25 mg/kg IV — máximo 25 mg</p>
+            <p className="font-semibold text-stroke-iconActive">Tenecteplase (TNK)</p>
+            <p className="text-xs text-stroke-iconActive mt-0.5">0.25 mg/kg IV — máximo 25 mg</p>
           </div>
           {tnkDose && (
             <span className="shrink-0 text-2xl font-bold text-brand-300 tabular-nums">{tnkDose.toFixed(1)} mg</span>
           )}
         </div>
-        <div className="pt-2 border-t border-brand-100">
-          <div className="flex items-center justify-between rounded-xl bg-white border border-brand-100 px-3 py-2.5">
-            <p className="text-xs font-semibold text-brand-700">Bolo único en 5–10 segundos</p>
-            <span className="text-sm font-bold text-brand-800 tabular-nums">{tnkDose ? `${tnkDose.toFixed(1)} mg` : '—'}</span>
+        <div className="pt-2 border-t border-stroke-iconActive/40">
+          <div className="flex items-center justify-between rounded-xl bg-stroke-navy border border-stroke-iconActive/40 px-3 py-2.5">
+            <p className="text-xs font-semibold text-stroke-iconActive">Bolo único en 5–10 segundos</p>
+            <span className="text-sm font-bold text-stroke-iconActive tabular-nums">{tnkDose ? `${tnkDose.toFixed(1)} mg` : '—'}</span>
           </div>
         </div>
-        <p className="text-xs text-brand-600">Ventaja: bolo único facilita administración antes de la trombectomía (protocolo drip-and-ship).</p>
+        <p className="text-xs text-stroke-iconActive">Ventaja: bolo único facilita administración antes de la trombectomía (protocolo drip-and-ship).</p>
       </div>
 
       {/* Post-thrombolysis */}
       <Card>
-        <p className="text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-3">Protocolo post-trombolisis</p>
+        <p className="text-xs font-semibold text-stroke-textMuted uppercase tracking-wider mb-3">Protocolo post-trombolisis</p>
         <div className="space-y-2">
           {[
             'NIHSS cada 15 min durante infusión, luego horario × 6h',
@@ -529,9 +529,9 @@ function DosisSection() {
             'Ingreso a UCI o unidad de stroke',
             'Evaluar trombectomía mecánica si hay oclusión de gran vaso (AngioTAC)',
           ].map((item, i) => (
-            <div key={i} className="flex items-start gap-2.5 rounded-xl border border-neutral-100 bg-neutral-50 px-3 py-2.5">
+            <div key={i} className="flex items-start gap-2.5 rounded-xl border border-stroke-line bg-stroke-bg px-3 py-2.5">
               <span className="mt-0.5 w-5 h-5 rounded-md bg-blue-700 flex items-center justify-center text-white text-[10px] font-bold shrink-0">{i + 1}</span>
-              <p className="text-xs leading-relaxed text-neutral-700">{item}</p>
+              <p className="text-xs leading-relaxed text-stroke-text">{item}</p>
             </div>
           ))}
         </div>
@@ -543,17 +543,17 @@ function DosisSection() {
 function TrombectomiaSection() {
   return (
     <div className="space-y-6">
-      <SectionHeader><Activity size={18} className="text-amber-600" /> Trombectomía mecánica</SectionHeader>
+      <SectionHeader><Activity size={18} className="text-amber-400" /> Trombectomía mecánica</SectionHeader>
 
-      <Card className="bg-amber-50 border-amber-200">
-        <p className="text-sm text-amber-800 font-semibold mb-2">Indicada en oclusión de gran vaso (OGV)</p>
-        <p className="text-xs text-amber-700 leading-relaxed">
+      <Card className="bg-amber-500/10 border-amber-500/30">
+        <p className="text-sm text-amber-300 font-semibold mb-2">Indicada en oclusión de gran vaso (OGV)</p>
+        <p className="text-xs text-amber-300 leading-relaxed">
           La trombectomía mecánica es el estándar de cuidado para OGV. Puede combinarse con trombolisis IV si no hay contraindicaciones (paradigma "bridging").
         </p>
       </Card>
 
       <div className="space-y-3">
-        <p className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Criterios de elegibilidad</p>
+        <p className="text-xs font-semibold text-stroke-textMuted uppercase tracking-wider">Criterios de elegibilidad</p>
         {[
           { label: 'Localización del trombo', desc: 'ACI intracraneal, ACM M1 o M2 proximal, basilar, ACP P1. Solicitar AngioTAC de cabeza y cuello.' },
           { label: 'ASPECTS ≥ 6', desc: 'Cambios isquémicos moderados o leves en TC. ASPECTS < 6 puede considerarse con criterio de penumbra en perfusión-TC.' },
@@ -561,12 +561,12 @@ function TrombectomiaSection() {
           { label: 'Ventana 0–6h (estándar)', desc: 'Desde inicio de síntomas o LVSA. Todos los ensayos pivotales primarios (MR CLEAN, ESCAPE, SWIFT PRIME, etc.).' },
           { label: 'Ventana 6–24h (extendida)', desc: 'Con criterios DAWN (déficit clínico/volumen de infarto) o DEFUSE-3 (penumbra por perfusión). Solo centros con perfusión-TC o RMN disponible.' },
         ].map((item, i) => (
-          <div key={i} className="rounded-2xl border border-neutral-100 bg-white px-4 py-4">
+          <div key={i} className="rounded-2xl border border-stroke-line bg-stroke-navy px-4 py-4">
             <div className="flex items-start gap-3">
-              <span className="shrink-0 w-6 h-6 rounded-lg bg-amber-100 flex items-center justify-center text-amber-700 text-xs font-bold mt-0.5">{i + 1}</span>
+              <span className="shrink-0 w-6 h-6 rounded-lg bg-amber-500/15 flex items-center justify-center text-amber-300 text-xs font-bold mt-0.5">{i + 1}</span>
               <div>
-                <p className="text-sm font-semibold text-neutral-800">{item.label}</p>
-                <p className="text-xs text-neutral-500 mt-1 leading-relaxed">{item.desc}</p>
+                <p className="text-sm font-semibold text-stroke-text">{item.label}</p>
+                <p className="text-xs text-stroke-textMuted mt-1 leading-relaxed">{item.desc}</p>
               </div>
             </div>
           </div>
@@ -574,10 +574,10 @@ function TrombectomiaSection() {
       </div>
 
       <Card>
-        <p className="text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-3">Vasos objetivo</p>
+        <p className="text-xs font-semibold text-stroke-textMuted uppercase tracking-wider mb-3">Vasos objetivo</p>
         <div className="grid grid-cols-2 gap-2">
           {['ACI intracraneal', 'ACM M1', 'ACM M2 proximal', 'Arteria basilar', 'ACP P1', 'ACA A1 (casos seleccionados)'].map(v => (
-            <div key={v} className="rounded-xl bg-amber-50 border border-amber-100 px-3 py-2 text-xs font-semibold text-amber-800 text-center">
+            <div key={v} className="rounded-xl bg-amber-500/10 border border-amber-500/30 px-3 py-2 text-xs font-semibold text-amber-300 text-center">
               {v}
             </div>
           ))}
@@ -585,8 +585,8 @@ function TrombectomiaSection() {
       </Card>
 
       <Card>
-        <p className="text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-2">Referencias clave</p>
-        <div className="space-y-1.5 text-xs text-neutral-600">
+        <p className="text-xs font-semibold text-stroke-textMuted uppercase tracking-wider mb-2">Referencias clave</p>
+        <div className="space-y-1.5 text-xs text-stroke-textMuted">
           <p><strong>MR CLEAN (2015):</strong> Primer RCT positivo de trombectomía, N=500, ventana 6h.</p>
           <p><strong>ESCAPE (2015):</strong> Incluyó criterios de colaterales en AngioTAC.</p>
           <p><strong>DAWN (2018):</strong> Extendió ventana a 24h con mismatch clínico-imagen.</p>
@@ -623,7 +623,7 @@ export default function EducationalMode({ onClose, initialSection = 'intro' }) {
   }
 
   return (
-    <div className="fixed inset-0 z-[110] bg-white flex flex-col overflow-hidden animate-fade-in">
+    <div className="fixed inset-0 z-[110] bg-stroke-navy flex flex-col overflow-hidden animate-fade-in">
       {/* Amber "MODO EDUCATIVO" banner */}
       <div className="flex items-center justify-between px-4 py-3 bg-amber-400 shrink-0">
         <div className="flex items-center gap-2.5">
@@ -631,8 +631,8 @@ export default function EducationalMode({ onClose, initialSection = 'intro' }) {
             <BookOpen size={15} className="text-white" strokeWidth={2} />
           </div>
           <div>
-            <p className="text-xs font-bold text-amber-900 uppercase tracking-widest leading-none">Modo Educativo</p>
-            <p className="text-[10px] text-amber-800 mt-0.5">Solo consulta · Sin persistencia · AHA/ASA 2026</p>
+            <p className="text-xs font-bold text-amber-300 uppercase tracking-widest leading-none">Modo Educativo</p>
+            <p className="text-[10px] text-amber-300 mt-0.5">Solo consulta · Sin persistencia · AHA/ASA 2026</p>
           </div>
         </div>
         <button
@@ -645,7 +645,7 @@ export default function EducationalMode({ onClose, initialSection = 'intro' }) {
       </div>
 
       {/* Section tabs */}
-      <div className="flex overflow-x-auto gap-1 px-3 py-2 border-b border-neutral-100 bg-neutral-50 shrink-0 scrollbar-hide">
+      <div className="flex overflow-x-auto gap-1 px-3 py-2 border-b border-stroke-line bg-stroke-bg shrink-0 scrollbar-hide">
         {SECTIONS.map((section) => (
           <button
             key={section.id}
@@ -653,11 +653,11 @@ export default function EducationalMode({ onClose, initialSection = 'intro' }) {
             onClick={() => setActiveSection(section.id)}
             className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap ${
               activeSection === section.id
-                ? 'bg-amber-500 text-white shadow-sm'
-                : 'text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700'
+                ? 'bg-amber-500/100 text-white shadow-sm'
+                : 'text-stroke-textMuted hover:bg-stroke-panel hover:text-stroke-text'
             }`}
           >
-            <span className={activeSection === section.id ? 'text-white' : 'text-neutral-400'}>
+            <span className={activeSection === section.id ? 'text-white' : 'text-stroke-textMuted'}>
               {section.icon}
             </span>
             {section.label}
@@ -671,18 +671,18 @@ export default function EducationalMode({ onClose, initialSection = 'intro' }) {
           {renderContent()}
 
           {/* Prev / Next nav */}
-          <div className="flex items-center justify-between mt-10 pt-6 border-t border-neutral-100">
+          <div className="flex items-center justify-between mt-10 pt-6 border-t border-stroke-line">
             <button
               type="button"
               onClick={goPrev}
               disabled={currentIdx === 0}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-neutral-200 text-sm font-medium text-neutral-600 hover:bg-neutral-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-stroke-line text-sm font-medium text-stroke-textMuted hover:bg-stroke-bg disabled:opacity-30 disabled:cursor-not-allowed transition-all"
             >
               <ChevronLeft size={15} />
               {currentIdx > 0 ? SECTIONS[currentIdx - 1].label : 'Anterior'}
             </button>
 
-            <span className="text-xs text-neutral-400 tabular-nums">
+            <span className="text-xs text-stroke-textMuted tabular-nums">
               {currentIdx + 1} / {SECTIONS.length}
             </span>
 
@@ -690,14 +690,14 @@ export default function EducationalMode({ onClose, initialSection = 'intro' }) {
               type="button"
               onClick={goNext}
               disabled={currentIdx === SECTIONS.length - 1}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500 text-white text-sm font-semibold hover:bg-amber-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500/100 text-white text-sm font-semibold hover:bg-amber-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
             >
               {currentIdx < SECTIONS.length - 1 ? SECTIONS[currentIdx + 1].label : 'Fin'}
               <ChevronRight size={15} />
             </button>
           </div>
 
-          <p className="text-center text-xs text-neutral-300 mt-6 mb-2">
+          <p className="text-center text-xs text-stroke-textMuted mt-6 mb-2">
             Esta herramienta es un apoyo educativo. Las decisiones clínicas siempre deben individualizarse.
           </p>
         </div>

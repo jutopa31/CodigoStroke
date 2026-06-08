@@ -717,7 +717,7 @@ export default function App() {
     : 'pt-[calc(3.75rem+env(safe-area-inset-top,0px))] md:pt-[calc(2.75rem+env(safe-area-inset-top,0px))]'
 
   return (
-    <div className="h-dvh flex flex-col overflow-hidden bg-neutral-50 md:bg-[#f6f6f4]">
+    <div className="h-dvh flex flex-col overflow-hidden bg-stroke-bg">
 
       {/* Fixed header */}
       <GlobalTimer
@@ -753,46 +753,46 @@ export default function App() {
 
           {/* Desktop sidebar */}
           {(patient || phase === 'pre') && (
-            <aside className="hidden md:flex md:flex-col w-[270px] shrink-0 overflow-hidden border-r border-neutral-200 pr-3 pt-3">
+            <aside className="hidden md:flex md:flex-col w-[270px] shrink-0 overflow-hidden border-r border-stroke-line pr-3 pt-3">
 
               {/* Scrollable content */}
               <div className="flex-1 overflow-y-auto flex flex-col gap-2 pb-2" style={{ scrollbarWidth: 'none' }}>
-                <div className="rounded-lg border border-neutral-200 bg-white p-2.5">
+                <div className="rounded-lg border border-stroke-line bg-stroke-navy p-2.5">
                   {patient ? (
                     <>
                       <div className="flex items-start justify-between gap-2 mb-0.5">
-                        <p className="font-semibold text-neutral-900 text-sm leading-snug">{patient.name}</p>
-                        {patientId && <p className="text-[10px] font-mono font-bold text-neutral-500 tracking-wider shrink-0"><span className="font-sans font-normal text-neutral-400">ID </span>{patientId}</p>}
+                        <p className="font-semibold text-stroke-text text-sm leading-snug">{patient.name}</p>
+                        {patientId && <p className="text-[10px] font-mono font-bold text-stroke-textMuted tracking-wider shrink-0"><span className="font-sans font-normal text-stroke-textMuted/70">ID </span>{patientId}</p>}
                       </div>
-                      <p className="text-xs text-neutral-500">DNI {patient.dni}</p>
+                      <p className="text-xs text-stroke-textMuted">DNI {patient.dni}</p>
                     </>
                   ) : (
                     <>
-                      <p className="font-semibold text-neutral-900 text-sm leading-snug">Evaluación inicial</p>
-                      <p className="text-xs text-neutral-500">Cargar paciente y signos vitales</p>
+                      <p className="font-semibold text-stroke-text text-sm leading-snug">Evaluación inicial</p>
+                      <p className="text-xs text-stroke-textMuted">Cargar paciente y signos vitales</p>
                     </>
                   )}
 
                   {(latestNihss !== null || latestVitals || latestGlucose !== null) && (
-                    <div className="mt-2 pt-2 border-t border-neutral-100 grid grid-cols-3 gap-1">
+                    <div className="mt-2 pt-2 border-t border-stroke-line grid grid-cols-3 gap-1">
                       {latestNihss !== null && (() => {
                         const sev = getNihssSeverity(latestNihss)
                         return (
                           <div className={`rounded-md px-1.5 py-1.5 text-center ${sev.bg}`}>
-                            <p className="text-[9px] text-neutral-400 uppercase tracking-wider font-semibold mb-0.5">NIHSS</p>
+                            <p className="text-[9px] text-stroke-textMuted uppercase tracking-wider font-semibold mb-0.5">NIHSS</p>
                             <p className={`text-sm font-bold tabular-nums ${sev.color}`}>{latestNihss}</p>
                           </div>
                         )
                       })()}
                       {latestVitals && (
-                        <div className={`rounded-md px-1.5 py-1.5 text-center ${latestVitals.systolic > 185 ? 'bg-status-critical/10' : 'bg-neutral-50'}`}>
-                          <p className="text-[9px] text-neutral-400 uppercase tracking-wider font-semibold mb-0.5">TA</p>
+                        <div className={`rounded-md px-1.5 py-1.5 text-center ${latestVitals.systolic > 185 ? 'bg-status-critical/10' : 'bg-stroke-bg'}`}>
+                          <p className="text-[9px] text-stroke-textMuted uppercase tracking-wider font-semibold mb-0.5">TA</p>
                           <p className={`text-xs font-bold tabular-nums ${latestVitals.systolic > 185 ? 'text-status-critical' : 'text-status-info'}`}>{latestVitals.systolic}/{latestVitals.diastolic}</p>
                         </div>
                       )}
                       {latestGlucose !== null && (
-                        <div className={`rounded-md px-1.5 py-1.5 text-center ${latestGlucose < 50 ? 'bg-status-critical/10' : latestGlucose > 400 ? 'bg-status-warning-muted' : 'bg-neutral-50'}`}>
-                          <p className="text-[9px] text-neutral-400 uppercase tracking-wider font-semibold mb-0.5">GLC</p>
+                        <div className={`rounded-md px-1.5 py-1.5 text-center ${latestGlucose < 50 ? 'bg-status-critical/10' : latestGlucose > 400 ? 'bg-status-warning-muted' : 'bg-stroke-bg'}`}>
+                          <p className="text-[9px] text-stroke-textMuted uppercase tracking-wider font-semibold mb-0.5">GLC</p>
                           <p className={`text-xs font-bold tabular-nums ${latestGlucose < 50 ? 'text-status-critical' : latestGlucose > 400 ? 'text-status-warning' : 'text-status-glucose'}`}>{latestGlucose}</p>
                         </div>
                       )}
@@ -801,8 +801,8 @@ export default function App() {
                 </div>
 
                 {timerStart && (
-                  <div className="rounded-lg border border-neutral-200 bg-white p-2">
-                    <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Registros rápidos</p>
+                  <div className="rounded-lg border border-stroke-line bg-stroke-navy p-2">
+                    <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-stroke-textMuted">Registros rápidos</p>
                     <QuickAddFAB
                       variant="sidebar"
                       onAddNihss={handleAddNihss}
@@ -826,7 +826,7 @@ export default function App() {
 
                 {/* Trombolisis shortcut (desktop sidebar, Phase 2) */}
                 {showTrombolisisFAB && (
-                  <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-2.5">
+                  <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-2.5">
                     <button type="button" onClick={() => setActiveTab('trombolisis')}
                       className="w-full flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition-all active:scale-[0.98]">
                       <Syringe size={13} /> Ir a Trombolisis
@@ -836,10 +836,10 @@ export default function App() {
 
                 {/* Summary copy (Phase 2 only) */}
                 {phase === 'post' && (
-                  <div className="rounded-lg border border-neutral-200 bg-white p-2.5">
+                  <div className="rounded-lg border border-stroke-line bg-stroke-navy p-2.5">
                     <button type="button" onClick={handleCopy}
                       className={`w-full flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-medium border transition-all ${
-                        copied ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50'
+                        copied ? 'border-emerald-500/30 bg-emerald-500/15 text-emerald-300' : 'border-stroke-line bg-stroke-bg text-stroke-textMuted hover:bg-stroke-panel/40'
                       }`}>
                       {copied ? <><Check size={13} /> Copiado</> : <><Copy size={13} /> Copiar resumen</>}
                     </button>
@@ -847,7 +847,7 @@ export default function App() {
                       const url = `https://wa.me/?text=${encodeURIComponent(buildSummaryText())}`
                       window.open(url, '_blank')
                     }}
-                      className="w-full flex items-center justify-center gap-2 py-2 mt-1 rounded-lg text-xs font-medium border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-all">
+                      className="w-full flex items-center justify-center gap-2 py-2 mt-1 rounded-lg text-xs font-medium border border-emerald-500/30 bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/25 transition-all">
                       WhatsApp
                     </button>
                   </div>
@@ -862,13 +862,13 @@ export default function App() {
 
             {/* ── Full-width sticky CTA — appears in main content when all 6 tabs complete ── */}
             {phase === 'pre' && tabCompletion.allComplete && (
-              <div className="shrink-0 px-3 py-2.5 bg-brand-700 shadow-lg animate-slide-down md:px-5 md:py-3 md:bg-white md:border-b md:border-neutral-200 md:shadow-sm">
+              <div className="shrink-0 px-3 py-2.5 bg-stroke-navy shadow-lg animate-slide-down md:px-5 md:py-3 md:bg-stroke-navy md:border-b md:border-stroke-line md:shadow-sm">
                 <button
                   type="button"
                   onClick={handleComputeDecision}
                   className="w-full flex items-center justify-center gap-2.5 py-3.5 rounded-xl font-bold text-sm
-                    bg-white text-brand-700 shadow-elevated transition-all active:scale-[0.98] hover:bg-white/95 animate-pulse-subtle
-                    md:py-3 md:rounded-lg md:bg-brand-700 md:text-white md:shadow-sm md:hover:bg-brand-800 md:animate-none"
+                    bg-stroke-iconActive text-stroke-bg shadow-elevated transition-all active:scale-[0.98] hover:bg-[#4D6CD6] animate-pulse-subtle
+                    md:py-3 md:rounded-lg md:animate-none"
                 >
                   <Brain size={18} strokeWidth={2} />
                   Calcular decisión de trombolisis
@@ -890,7 +890,7 @@ export default function App() {
         {/* ── Fixed bottom: "Completá los 6 tabs" status bar (Phase 1, incomplete only) ── */}
         {phase === 'pre' && !tabCompletion.allComplete && (
           <div
-            className="fixed inset-x-0 bottom-0 z-50 bg-brand-700/95 backdrop-blur-sm border-t border-brand-500/30 px-4 py-3 md:hidden"
+            className="fixed inset-x-0 bottom-0 z-50 bg-stroke-navy/95 backdrop-blur-sm border-t border-stroke-line px-4 py-3 md:hidden"
             style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}
           >
             <div className="max-w-3xl mx-auto">
@@ -906,7 +906,7 @@ export default function App() {
         {/* ── Fixed bottom: QuickAddFAB toolbar (Phase 2, mobile only) ── */}
         {phase === 'post' && timerStart && (
           <div
-            className="fixed inset-x-0 bottom-0 z-40 border-t border-neutral-200 bg-white/95 px-3 pb-3 pt-2 shadow-elevated backdrop-blur-md md:hidden"
+            className="fixed inset-x-0 bottom-0 z-40 border-t border-stroke-line bg-stroke-navy/95 px-3 pb-3 pt-2 shadow-elevated backdrop-blur-md md:hidden"
             style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}
           >
             <QuickAddFAB

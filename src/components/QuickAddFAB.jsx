@@ -4,11 +4,11 @@ import { Brain, Heart, Droplets, X, RotateCcw, Clock } from 'lucide-react'
 import NihssModal from './NihssModal'
 
 function getNihssSeverity(score) {
-  if (score === 0)  return { label: 'Normal',          color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-100' }
-  if (score <= 4)   return { label: 'Leve',            color: 'text-lime-600',    bg: 'bg-lime-50',    border: 'border-lime-100' }
-  if (score <= 15)  return { label: 'Moderado',        color: 'text-amber-600',   bg: 'bg-amber-50',   border: 'border-amber-100' }
-  if (score <= 20)  return { label: 'Moderado-severo', color: 'text-orange-600',  bg: 'bg-orange-50',  border: 'border-orange-100' }
-  return                   { label: 'Severo',          color: 'text-blue-900',    bg: 'bg-blue-100',   border: 'border-blue-200' }
+  if (score === 0)  return { label: 'Normal',          color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/30' }
+  if (score <= 4)   return { label: 'Leve',            color: 'text-emerald-300',    bg: 'bg-emerald-500/15',    border: 'border-emerald-500/30' }
+  if (score <= 15)  return { label: 'Moderado',        color: 'text-amber-400',   bg: 'bg-amber-500/10',   border: 'border-amber-500/30' }
+  if (score <= 20)  return { label: 'Moderado-severo', color: 'text-amber-400',  bg: 'bg-amber-500/15',  border: 'border-orange-100' }
+  return                   { label: 'Severo',          color: 'text-blue-300',    bg: 'bg-blue-500/15',   border: 'border-blue-500/30' }
 }
 
 function useVisualViewportHeight() {
@@ -42,15 +42,15 @@ function ModalShell({ title, onClose, onConfirm, confirmLabel = 'Registrar', con
       onClick={onClose}
     >
       <div
-        className="bg-white w-full max-w-xs max-h-[calc(var(--visual-viewport-height,100svh)-4rem)] overflow-y-auto rounded-2xl shadow-modal animate-scale-in sm:max-h-[calc(100svh-2rem)]"
+        className="bg-stroke-navy w-full max-w-xs max-h-[calc(var(--visual-viewport-height,100svh)-4rem)] overflow-y-auto rounded-2xl shadow-modal animate-scale-in sm:max-h-[calc(100svh-2rem)]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-neutral-100">
-          <h2 className="font-semibold text-neutral-800 text-base">{title}</h2>
+        <div className="flex items-center justify-between px-5 py-4 border-b border-stroke-line">
+          <h2 className="font-semibold text-stroke-text text-base">{title}</h2>
           <button
             onClick={onClose}
-            className="text-neutral-400 hover:text-neutral-600 transition-colors"
+            className="text-stroke-textMuted hover:text-stroke-textMuted transition-colors"
           >
             <X size={18} strokeWidth={2} />
           </button>
@@ -65,7 +65,7 @@ function ModalShell({ title, onClose, onConfirm, confirmLabel = 'Registrar', con
         <div className="px-5 pb-5 flex gap-3">
           <button
             onClick={onClose}
-            className="flex-1 py-2.5 border border-neutral-200 rounded-xl text-neutral-600 text-sm font-medium hover:bg-neutral-50 transition-colors"
+            className="flex-1 py-2.5 border border-stroke-line rounded-xl text-stroke-textMuted text-sm font-medium hover:bg-stroke-bg transition-colors"
           >
             Cancelar
           </button>
@@ -121,7 +121,7 @@ function NihssQuickModal({ onClose, onConfirm }) {
         value={value}
         onChange={(e) => setValue(e.target.value)}
         autoFocus
-        className="w-full border border-neutral-200 rounded-xl px-4 py-3 text-2xl font-semibold text-center text-neutral-800 focus:outline-none focus:ring-2 focus:ring-brand-200 focus:border-brand-300 transition"
+        className="w-full border border-stroke-line rounded-xl px-4 py-3 text-2xl font-semibold text-center text-stroke-text focus:outline-none focus:ring-2 focus:ring-brand-200 focus:border-stroke-iconActive/40 transition"
       />
 
       {severity && (
@@ -133,13 +133,13 @@ function NihssQuickModal({ onClose, onConfirm }) {
       )}
 
       {value !== '' && !isValid && (
-        <p className="mt-2 text-xs text-blue-800 text-center">Ingresá un valor entre 0 y 42</p>
+        <p className="mt-2 text-xs text-blue-300 text-center">Ingresá un valor entre 0 y 42</p>
       )}
 
       <button
         type="button"
         onClick={() => setShowCalculator(true)}
-        className="mt-3 w-full text-xs text-brand-600 font-medium text-center hover:text-brand-700 transition-colors"
+        className="mt-3 w-full text-xs text-stroke-iconActive font-medium text-center hover:text-stroke-iconActive transition-colors"
       >
         Usar calculadora NIHSS completa
       </button>
@@ -174,7 +174,7 @@ function VitalsQuickModal({ onClose, onConfirm }) {
     >
       <div className="flex gap-3">
         <div className="flex-1">
-          <label className="block text-xs text-neutral-500 mb-1.5 text-center font-medium">Sistólica</label>
+          <label className="block text-xs text-stroke-textMuted mb-1.5 text-center font-medium">Sistólica</label>
           <input
             type="number"
             inputMode="numeric"
@@ -183,14 +183,14 @@ function VitalsQuickModal({ onClose, onConfirm }) {
             value={systolic}
             onChange={(e) => setSystolic(e.target.value)}
             autoFocus
-            className="w-full border border-neutral-200 rounded-xl px-3 py-3 text-xl font-semibold text-center text-neutral-800 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-300 transition"
+            className="w-full border border-stroke-line rounded-xl px-3 py-3 text-xl font-semibold text-center text-stroke-text focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-300 transition"
           />
         </div>
 
-        <div className="flex items-end pb-3 text-neutral-300 font-semibold text-lg">/</div>
+        <div className="flex items-end pb-3 text-stroke-textMuted font-semibold text-lg">/</div>
 
         <div className="flex-1">
-          <label className="block text-xs text-neutral-500 mb-1.5 text-center font-medium">Diastólica</label>
+          <label className="block text-xs text-stroke-textMuted mb-1.5 text-center font-medium">Diastólica</label>
           <input
             type="number"
             inputMode="numeric"
@@ -198,13 +198,13 @@ function VitalsQuickModal({ onClose, onConfirm }) {
             placeholder="80"
             value={diastolic}
             onChange={(e) => setDiastolic(e.target.value)}
-            className="w-full border border-neutral-200 rounded-xl px-3 py-3 text-xl font-semibold text-center text-neutral-800 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-300 transition"
+            className="w-full border border-stroke-line rounded-xl px-3 py-3 text-xl font-semibold text-center text-stroke-text focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-300 transition"
           />
         </div>
       </div>
 
       {highAlert && (
-        <p className="mt-3 text-xs text-blue-900 font-medium text-center animate-fade-in">
+        <p className="mt-3 text-xs text-blue-300 font-medium text-center animate-fade-in">
           TA sistólica &gt; 185 mmHg — considerar manejo antes de trombolisis
         </p>
       )}
@@ -234,7 +234,7 @@ function GlucoseQuickModal({ onClose, onConfirm }) {
       confirmDisabled={!isValid}
     >
       <div>
-        <label className="mb-1.5 block text-xs font-medium text-neutral-500">Glucemia</label>
+        <label className="mb-1.5 block text-xs font-medium text-stroke-textMuted">Glucemia</label>
         <div className="relative">
           <input
             type="number"
@@ -244,22 +244,22 @@ function GlucoseQuickModal({ onClose, onConfirm }) {
             value={value}
             onChange={(e) => setValue(e.target.value)}
             autoFocus
-            className="w-full border border-neutral-200 rounded-xl py-3 pl-4 pr-16 text-2xl font-semibold text-center text-neutral-800 focus:outline-none focus:ring-2 focus:ring-violet-200 focus:border-violet-300 transition placeholder:text-neutral-300"
+            className="w-full border border-stroke-line rounded-xl py-3 pl-4 pr-16 text-2xl font-semibold text-center text-stroke-text focus:outline-none focus:ring-2 focus:ring-violet-200 focus:border-status-glucose/40 transition placeholder:text-stroke-textMuted"
           />
-          <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-sm font-semibold text-neutral-400">
+          <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-sm font-semibold text-stroke-textMuted">
             mg/dL
           </span>
         </div>
       </div>
 
       {isHypo && (
-        <p className="mt-3 text-xs text-blue-900 font-medium text-center animate-fade-in">
+        <p className="mt-3 text-xs text-blue-300 font-medium text-center animate-fade-in">
           Hipoglucemia — descartar como causa del cuadro
         </p>
       )}
 
       {isHyper && (
-        <p className="mt-3 text-xs text-orange-600 font-medium text-center animate-fade-in">
+        <p className="mt-3 text-xs text-amber-400 font-medium text-center animate-fade-in">
           Hiperglucemia severa (&gt;400 mg/dL)
         </p>
       )}
@@ -285,7 +285,7 @@ export default function QuickAddFAB({
       id: 'nihss',
       label: 'NIHSS',
       Icon: Brain,
-      colorClass: 'bg-white text-status-warning border-status-warning-border hover:bg-status-warning-muted',
+      colorClass: 'bg-stroke-navy text-status-warning border-status-warning-border hover:bg-status-warning-muted',
       badge: latestNihss !== null ? String(latestNihss) : null,
       badgeClass: 'bg-status-warning-badge text-white',
     },
@@ -293,7 +293,7 @@ export default function QuickAddFAB({
       id: 'vitals',
       label: 'TA',
       Icon: Heart,
-      colorClass: 'bg-white text-status-info border-status-info-border hover:bg-status-info-muted',
+      colorClass: 'bg-stroke-navy text-status-info border-status-info-border hover:bg-status-info-muted',
       badge: latestVitals ? String(latestVitals.systolic) : null,
       badgeClass: latestVitals && latestVitals.systolic > 185 ? 'bg-status-critical text-white' : 'bg-status-info-badge text-white',
     },
@@ -301,7 +301,7 @@ export default function QuickAddFAB({
       id: 'glucose',
       label: 'GLC',
       Icon: Droplets,
-      colorClass: 'bg-white text-status-glucose border-status-glucose-border hover:bg-status-glucose-muted',
+      colorClass: 'bg-stroke-navy text-status-glucose border-status-glucose-border hover:bg-status-glucose-muted',
       badge: latestGlucose !== null ? String(latestGlucose) : null,
       badgeClass: latestGlucose < 50 ? 'bg-status-critical text-white' : latestGlucose > 400 ? 'bg-status-warning text-white' : 'bg-status-glucose-badge text-white',
     },
@@ -326,10 +326,10 @@ export default function QuickAddFAB({
       ? 'relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-[11px] font-semibold active:scale-[0.97] transition-transform'
       : 'relative w-10 h-10 rounded-xl border flex flex-col items-center justify-center gap-0.5 active:scale-95 transition-transform'
   const resetClass = isMobileToolbar || isSidebar
-    ? 'relative flex min-h-[44px] min-w-0 flex-col items-center justify-center gap-0.5 rounded-xl border border-neutral-200 bg-white text-neutral-500 hover:bg-neutral-50 text-[10px] font-semibold active:scale-[0.98] transition-transform'
+    ? 'relative flex min-h-[44px] min-w-0 flex-col items-center justify-center gap-0.5 rounded-xl border border-stroke-line bg-stroke-navy text-stroke-textMuted hover:bg-stroke-bg text-[10px] font-semibold active:scale-[0.98] transition-transform'
     : isCompactRow
-      ? 'relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-neutral-200 bg-white text-neutral-500 hover:bg-neutral-50 text-[11px] font-semibold active:scale-[0.97] transition-transform'
-      : 'w-10 h-10 rounded-xl border border-neutral-200 bg-white text-neutral-500 hover:bg-neutral-50 flex flex-col items-center justify-center gap-0.5 active:scale-95 transition-transform'
+      ? 'relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-stroke-line bg-stroke-navy text-stroke-textMuted hover:bg-stroke-bg text-[11px] font-semibold active:scale-[0.97] transition-transform'
+      : 'w-10 h-10 rounded-xl border border-stroke-line bg-stroke-navy text-stroke-textMuted hover:bg-stroke-bg flex flex-col items-center justify-center gap-0.5 active:scale-95 transition-transform'
   const iconSize = isCompactRow ? 13 : 14
   const labelClass = isMobileToolbar || isSidebar ? 'text-[10px] font-semibold leading-none' : isCompactRow ? 'text-[11px] font-semibold leading-none' : 'text-[9px] font-semibold leading-none'
 
@@ -357,8 +357,8 @@ export default function QuickAddFAB({
             onClick={onOutOfWindow}
             title="Fuera de ventana"
             className={isCompactRow
-              ? 'relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-amber-300 bg-amber-50 text-amber-700 text-[11px] font-semibold active:scale-[0.97] transition-transform hover:bg-amber-100'
-              : 'relative flex min-h-[44px] min-w-0 flex-col items-center justify-center gap-0.5 rounded-xl border border-amber-300 bg-amber-50 text-amber-700 text-[10px] font-semibold active:scale-[0.98] transition-transform hover:bg-amber-100'
+              ? 'relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-amber-300 bg-amber-500/10 text-amber-300 text-[11px] font-semibold active:scale-[0.97] transition-transform hover:bg-amber-500/15'
+              : 'relative flex min-h-[44px] min-w-0 flex-col items-center justify-center gap-0.5 rounded-xl border border-amber-300 bg-amber-500/10 text-amber-300 text-[10px] font-semibold active:scale-[0.98] transition-transform hover:bg-amber-500/15'
             }
           >
             <Clock size={iconSize} strokeWidth={2} />

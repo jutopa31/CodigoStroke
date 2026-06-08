@@ -21,12 +21,12 @@ function TabItem({ tab, active, completion, onClick }) {
   const { id, label, Icon } = tab
 
   const iconBg = active
-    ? 'bg-white/25 text-white md:bg-stroke-iconActive md:text-white'
+    ? 'bg-stroke-bg text-white md:bg-stroke-iconActive md:text-white'
     : completion === 'complete'
-      ? 'bg-emerald-100 text-emerald-700 md:bg-stroke-icon md:text-white'
+      ? 'bg-emerald-500/15 text-emerald-700 md:bg-stroke-icon md:text-white'
       : completion === 'partial'
         ? 'bg-status-warning-muted text-status-warning md:bg-status-warning-badge/90 md:text-white'
-        : 'bg-white/15 text-white/75 md:bg-stroke-icon md:text-stroke-textMuted'
+        : 'bg-stroke-bg text-white/75 md:bg-stroke-icon md:text-stroke-textMuted'
 
   const ring = completion === 'complete' && !active
     ? 'ring-2 ring-emerald-400 md:ring-0'
@@ -53,8 +53,8 @@ function TabItem({ tab, active, completion, onClick }) {
         min-w-[3rem] h-12 px-2 rounded-xl transition-all shrink-0
         md:min-w-[4.5rem] md:h-auto md:gap-1 md:rounded-lg md:border md:px-2 md:py-1 ${
           active
-            ? 'bg-white/15 md:border-white/10 md:bg-stroke-panel'
-            : 'hover:bg-white/8 md:border-transparent md:hover:bg-white/5'
+            ? 'bg-stroke-bg md:border-white/10 md:bg-stroke-panel'
+            : 'hover:bg-stroke-bg md:border-transparent md:hover:bg-stroke-bg'
         }`}
     >
       <div className={`relative w-8 h-8 rounded-xl flex items-center justify-center transition-all md:h-7 md:w-7 md:rounded-md ${iconBg} ${ring}`}>
@@ -86,11 +86,11 @@ export default function TabBar({ phase, activeTab, onTabChange, completion = {} 
   return (
     <div className="relative flex flex-col shrink-0 md:flex-row md:items-center md:justify-end md:gap-3">
       <div className="flex items-center gap-2 px-4 pt-1 pb-0 md:flex-1 md:px-0 md:py-0">
-        <div className="h-px flex-1 bg-white/15" />
+        <div className="h-px flex-1 bg-stroke-bg" />
         <span className={`text-[8px] font-bold tracking-[0.18em] uppercase md:text-[10px] md:tracking-[0.14em] md:text-stroke-textMuted ${phaseColor}`}>
           {phaseLabel}
         </span>
-        <div className="h-px flex-1 bg-white/15 md:hidden" />
+        <div className="h-px flex-1 bg-stroke-bg md:hidden" />
       </div>
 
       <div

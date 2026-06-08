@@ -47,15 +47,15 @@ const POST_CHECKLIST = [
 function EduSection({ title, icon, children }) {
   return (
     <section>
-      <h2 className="flex items-center gap-2.5 text-base font-semibold text-blue-900 pb-2 mb-4 border-b border-blue-100">
+      <h2 className="flex items-center gap-2.5 text-base font-semibold text-blue-300 pb-2 mb-4 border-b border-blue-500/30">
         {icon && (
-          <span className="w-7 h-7 rounded-lg bg-blue-100 flex items-center justify-center text-blue-700 shrink-0">
+          <span className="w-7 h-7 rounded-lg bg-blue-500/15 flex items-center justify-center text-blue-300 shrink-0">
             {icon}
           </span>
         )}
         {title}
       </h2>
-      <div className="text-sm text-neutral-700 leading-relaxed space-y-2">
+      <div className="text-sm text-stroke-text leading-relaxed space-y-2">
         {children}
       </div>
     </section>
@@ -81,14 +81,14 @@ function ContraList({ items, color }) {
       {items.map((item, i) => (
         <div key={i} className={`rounded-xl px-3 py-2.5 border ${
           color === 'red'
-            ? 'bg-blue-900/8 border-blue-200'
-            : 'bg-amber-50 border-amber-200'
+            ? 'bg-blue-900/8 border-blue-500/30'
+            : 'bg-amber-500/10 border-amber-500/30'
         }`}>
-          <p className={`text-sm font-semibold ${color === 'red' ? 'text-blue-900' : 'text-amber-800'}`}>
+          <p className={`text-sm font-semibold ${color === 'red' ? 'text-blue-300' : 'text-amber-300'}`}>
             {item.label}
           </p>
           {item.sub && (
-            <p className="text-xs text-neutral-500 mt-0.5">{item.sub}</p>
+            <p className="text-xs text-stroke-textMuted mt-0.5">{item.sub}</p>
           )}
         </div>
       ))}
@@ -98,21 +98,21 @@ function ContraList({ items, color }) {
 
 export default function EducationalOverlay({ onClose }) {
   return (
-    <div className="fixed inset-0 z-[100] bg-white flex flex-col overflow-hidden animate-fade-in">
+    <div className="fixed inset-0 z-[100] bg-stroke-navy flex flex-col overflow-hidden animate-fade-in">
       {/* Header */}
-      <div className="flex items-center justify-between px-5 py-4 border-b border-blue-100 bg-blue-50 shrink-0">
+      <div className="flex items-center justify-between px-5 py-4 border-b border-blue-500/30 bg-blue-500/10 shrink-0">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-blue-700 flex items-center justify-center shrink-0">
             <BookOpen size={17} className="text-white" strokeWidth={2} />
           </div>
           <div>
-            <h1 className="text-base font-semibold text-blue-900 leading-tight">Protocolo Código Stroke</h1>
+            <h1 className="text-base font-semibold text-blue-300 leading-tight">Protocolo Código Stroke</h1>
             <p className="text-xs text-blue-500 mt-0.5">Referencia educativa — AHA/ASA 2026</p>
           </div>
         </div>
         <button
           onClick={onClose}
-          className="w-9 h-9 rounded-xl bg-white border border-blue-200 flex items-center justify-center text-blue-600 hover:bg-blue-50 transition-colors shrink-0"
+          className="w-9 h-9 rounded-xl bg-stroke-navy border border-blue-500/30 flex items-center justify-center text-blue-400 hover:bg-blue-500/10 transition-colors shrink-0"
           aria-label="Cerrar referencia educativa"
         >
           <X size={18} strokeWidth={2} />
@@ -136,11 +136,11 @@ export default function EducationalOverlay({ onClose }) {
           <EduSection title="2. Escala NIHSS — Severidad" icon={<Activity size={14} strokeWidth={2.5} />}>
             <div className="grid grid-cols-2 gap-2">
               {[
-                { range: '0', label: 'Normal', bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-100' },
-                { range: '1–4', label: 'Leve', bg: 'bg-lime-50', text: 'text-lime-700', border: 'border-lime-100' },
-                { range: '5–15', label: 'Moderado', bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-100' },
-                { range: '16–20', label: 'Moderado-severo', bg: 'bg-orange-50', text: 'text-orange-700', border: 'border-orange-100' },
-                { range: '21–42', label: 'Severo', bg: 'bg-blue-100', text: 'text-blue-900', border: 'border-blue-200' },
+                { range: '0', label: 'Normal', bg: 'bg-emerald-500/10', text: 'text-emerald-300', border: 'border-emerald-500/30' },
+                { range: '1–4', label: 'Leve', bg: 'bg-emerald-500/15', text: 'text-emerald-300', border: 'border-emerald-500/30' },
+                { range: '5–15', label: 'Moderado', bg: 'bg-amber-500/10', text: 'text-amber-300', border: 'border-amber-500/30' },
+                { range: '16–20', label: 'Moderado-severo', bg: 'bg-amber-500/15', text: 'text-amber-300', border: 'border-orange-100' },
+                { range: '21–42', label: 'Severo', bg: 'bg-blue-500/15', text: 'text-blue-300', border: 'border-blue-500/30' },
               ].map((row) => (
                 <div key={row.range} className={`rounded-xl px-3 py-2.5 border ${row.bg} ${row.border}`}>
                   <p className={`text-lg font-bold tabular-nums ${row.text}`}>{row.range}</p>
@@ -148,24 +148,24 @@ export default function EducationalOverlay({ onClose }) {
                 </div>
               ))}
             </div>
-            <p className="text-xs text-neutral-500 mt-2">
+            <p className="text-xs text-stroke-textMuted mt-2">
               Nota: NIHSS &lt; 5 con déficit discapacitante (afasia, hemianopsia, etc.) puede calificar igualmente.
             </p>
           </EduSection>
 
           <EduSection title="3. Ventanas terapéuticas" icon={<Clock size={14} strokeWidth={2.5} />}>
             <div className="space-y-2">
-              <div className="rounded-xl border border-blue-100 bg-blue-50 px-4 py-3">
-                <p className="font-semibold text-blue-900">Trombolisis IV (rtPA / TNK)</p>
-                <p className="text-xs text-blue-700 mt-1">Hasta <strong>4.5 horas</strong> desde el inicio de síntomas</p>
+              <div className="rounded-xl border border-blue-500/30 bg-blue-500/10 px-4 py-3">
+                <p className="font-semibold text-blue-300">Trombolisis IV (rtPA / TNK)</p>
+                <p className="text-xs text-blue-300 mt-1">Hasta <strong>4.5 horas</strong> desde el inicio de síntomas</p>
               </div>
-              <div className="rounded-xl border border-indigo-100 bg-indigo-50 px-4 py-3">
-                <p className="font-semibold text-indigo-800">ACV del despertar / hora incierta</p>
-                <p className="text-xs text-indigo-600 mt-1">Evaluar con RMN: <strong>mismatch FLAIR-DWI</strong> positivo habilita trombolisis</p>
+              <div className="rounded-xl border border-indigo-500/30 bg-indigo-500/10 px-4 py-3">
+                <p className="font-semibold text-indigo-300">ACV del despertar / hora incierta</p>
+                <p className="text-xs text-indigo-300 mt-1">Evaluar con RMN: <strong>mismatch FLAIR-DWI</strong> positivo habilita trombolisis</p>
               </div>
-              <div className="rounded-xl border border-amber-100 bg-amber-50 px-4 py-3">
-                <p className="font-semibold text-amber-800">Trombectomía mecánica (OGV)</p>
-                <p className="text-xs text-amber-700 mt-1">Hasta <strong>24 horas</strong> con criterios DAWN / DEFUSE-3</p>
+              <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3">
+                <p className="font-semibold text-amber-300">Trombectomía mecánica (OGV)</p>
+                <p className="text-xs text-amber-300 mt-1">Hasta <strong>24 horas</strong> con criterios DAWN / DEFUSE-3</p>
               </div>
             </div>
           </EduSection>
@@ -182,28 +182,28 @@ export default function EducationalOverlay({ onClose }) {
           </EduSection>
 
           <EduSection title="5. Contraindicaciones absolutas" icon={<AlertTriangle size={14} strokeWidth={2.5} />}>
-            <p className="text-xs text-neutral-500 mb-3">Cualquier SI bloquea la trombolisis IV de forma absoluta.</p>
+            <p className="text-xs text-stroke-textMuted mb-3">Cualquier SI bloquea la trombolisis IV de forma absoluta.</p>
             <ContraList items={RED_CONTRAS} color="red" />
           </EduSection>
 
           <EduSection title="6. Contraindicaciones relativas" icon={<AlertTriangle size={14} strokeWidth={2.5} />}>
-            <p className="text-xs text-neutral-500 mb-3">Requieren valoración individual riesgo/beneficio. Interconsultar con coordinación.</p>
+            <p className="text-xs text-stroke-textMuted mb-3">Requieren valoración individual riesgo/beneficio. Interconsultar con coordinación.</p>
             <ContraList items={ORANGE_CONTRAS} color="orange" />
           </EduSection>
 
           <EduSection title="7. Dosis y administración" icon={<Pill size={14} strokeWidth={2.5} />}>
             <div className="space-y-3">
-              <div className="rounded-xl border border-blue-100 bg-blue-50 px-4 py-3">
-                <p className="font-semibold text-blue-900 mb-1">Alteplase (rtPA)</p>
-                <p className="text-xs text-blue-800">
+              <div className="rounded-xl border border-blue-500/30 bg-blue-500/10 px-4 py-3">
+                <p className="font-semibold text-blue-300 mb-1">Alteplase (rtPA)</p>
+                <p className="text-xs text-blue-300">
                   <strong>0.9 mg/kg IV</strong> (máximo 90 mg)<br />
                   — 10% en bolo IV rápido (1–2 min)<br />
                   — 90% restante en infusión continua × 60 min
                 </p>
               </div>
-              <div className="rounded-xl border border-brand-100 bg-brand-50 px-4 py-3">
-                <p className="font-semibold text-brand-800 mb-1">Tenecteplase (TNK)</p>
-                <p className="text-xs text-brand-700">
+              <div className="rounded-xl border border-stroke-iconActive/40 bg-stroke-iconActive/10 px-4 py-3">
+                <p className="font-semibold text-stroke-iconActive mb-1">Tenecteplase (TNK)</p>
+                <p className="text-xs text-stroke-iconActive">
                   <strong>0.25 mg/kg IV</strong> (máximo 25 mg)<br />
                   — Bolo único en 5–10 segundos
                 </p>
@@ -214,7 +214,7 @@ export default function EducationalOverlay({ onClose }) {
           <EduSection title="8. Protocolo post-trombolisis" icon={<Zap size={14} strokeWidth={2.5} />}>
             <div className="space-y-2">
               {POST_CHECKLIST.map((item, i) => (
-                <div key={i} className="flex items-start gap-2.5 rounded-xl border border-neutral-100 bg-neutral-50 px-3 py-2.5">
+                <div key={i} className="flex items-start gap-2.5 rounded-xl border border-stroke-line bg-stroke-bg px-3 py-2.5">
                   <span className="mt-0.5 w-5 h-5 rounded-md bg-blue-700 flex items-center justify-center text-white text-[10px] font-bold shrink-0">
                     {i + 1}
                   </span>
@@ -235,8 +235,8 @@ export default function EducationalOverlay({ onClose }) {
             ]} />
           </EduSection>
 
-          <div className="rounded-2xl bg-blue-50 border border-blue-100 px-5 py-4 text-center">
-            <p className="text-xs font-semibold text-blue-700">Referencia: AHA/ASA Guidelines 2026</p>
+          <div className="rounded-2xl bg-blue-500/10 border border-blue-500/30 px-5 py-4 text-center">
+            <p className="text-xs font-semibold text-blue-300">Referencia: AHA/ASA Guidelines 2026</p>
             <p className="text-xs text-blue-500 mt-1">Esta herramienta es un apoyo educativo. Las decisiones clínicas siempre deben individualizarse.</p>
           </div>
 

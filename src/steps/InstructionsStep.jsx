@@ -58,16 +58,16 @@ export default function InstructionsStep({ onConfirm }) {
                 onClick={() => toggle(item.id)}
                 className={`w-full flex items-start gap-3 px-4 py-3.5 rounded-xl border-2 text-left transition-all ${
                   done
-                    ? 'bg-green-50 border-green-500 text-green-900 shadow-sm ring-2 ring-green-100'
-                    : 'border-gray-200 bg-white hover:border-green-300 hover:bg-green-50/40'
+                    ? 'bg-emerald-500/15 border-green-500 text-emerald-300 shadow-sm ring-2 ring-emerald-500/30'
+                    : 'border-stroke-line bg-stroke-navy hover:border-green-300 hover:bg-emerald-500/15'
                 }`}
               >
-                <item.Icon size={18} className={`shrink-0 mt-0.5 ${done ? 'text-green-600' : 'text-gray-400'}`} />
+                <item.Icon size={18} className={`shrink-0 mt-0.5 ${done ? 'text-green-600' : 'text-stroke-textMuted'}`} />
                 <div className="flex-1 min-w-0">
-                  <p className={`font-medium text-sm ${done ? 'text-green-800 line-through decoration-green-400' : 'text-gray-700'}`}>
+                  <p className={`font-medium text-sm ${done ? 'text-emerald-300 line-through decoration-green-400' : 'text-stroke-text'}`}>
                     {item.label}
                   </p>
-                  <p className="text-xs text-gray-400 mt-0.5 leading-relaxed">{item.sub}</p>
+                  <p className="text-xs text-stroke-textMuted mt-0.5 leading-relaxed">{item.sub}</p>
                 </div>
                 <SelectionCheck active={done} tone="green" />
               </button>
@@ -77,16 +77,16 @@ export default function InstructionsStep({ onConfirm }) {
       </StepCard>
 
       {/* Progress indicator */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm px-5 py-3.5">
+      <div className="bg-stroke-navy rounded-xl border border-gray-100 shadow-sm px-5 py-3.5">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-xs text-gray-400 uppercase tracking-wider">Progreso</span>
-          <span className="text-xs font-semibold text-gray-600">
+          <span className="text-xs text-stroke-textMuted uppercase tracking-wider">Progreso</span>
+          <span className="text-xs font-semibold text-stroke-textMuted">
             {Object.values(checked).filter(Boolean).length}/{CHECKLIST.length}
           </span>
         </div>
-        <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+        <div className="h-2 bg-stroke-panel rounded-full overflow-hidden">
           <div
-            className="h-2 bg-green-500 rounded-full transition-all duration-300"
+            className="h-2 bg-emerald-500/150 rounded-full transition-all duration-300"
             style={{ width: `${(Object.values(checked).filter(Boolean).length / CHECKLIST.length) * 100}%` }}
           />
         </div>

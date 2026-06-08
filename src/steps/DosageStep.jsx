@@ -83,31 +83,31 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
           {/* Progress dots */}
           <div className="flex items-center gap-2 mb-3">
             <div className="flex gap-1.5">
-              <div className="h-1.5 w-8 rounded-full bg-emerald-500" />
-              <div className="h-1.5 w-8 rounded-full bg-neutral-200" />
+              <div className="h-1.5 w-8 rounded-full bg-emerald-500/100" />
+              <div className="h-1.5 w-8 rounded-full bg-stroke-panel" />
             </div>
-            <span className="text-[10px] text-neutral-400 font-medium">1 de 2</span>
+            <span className="text-[10px] text-stroke-textMuted font-medium">1 de 2</span>
           </div>
 
           {/* Drug: toggle o fila colapsada */}
           {drugLocked ? (
-            <div className="flex items-center justify-between py-2 border-b border-neutral-100 mb-3">
+            <div className="flex items-center justify-between py-2 border-b border-stroke-line mb-3">
               <div className="flex items-center gap-2">
                 <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
-                <span className="text-sm font-semibold text-neutral-800">
+                <span className="text-sm font-semibold text-stroke-text">
                   {drug === 'tnk' ? 'TNK · Tenecteplase' : 'rtPA · Alteplase'}
                 </span>
               </div>
               <button
                 type="button"
                 onClick={() => setDrugLocked(false)}
-                className="text-[10px] text-brand-500 font-semibold hover:underline ml-2 shrink-0"
+                className="text-[10px] text-stroke-iconActive font-semibold hover:underline ml-2 shrink-0"
               >
                 editar
               </button>
             </div>
           ) : (
-            <div className="flex rounded-lg overflow-hidden border border-neutral-200 mb-3 text-sm font-semibold">
+            <div className="flex rounded-lg overflow-hidden border border-stroke-line mb-3 text-sm font-semibold">
               {[
                 { id: 'tnk',  label: 'TNK',  sub: 'Tenecteplase' },
                 { id: 'rtpa', label: 'rtPA', sub: 'Alteplase' },
@@ -119,11 +119,11 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
                   className={`flex-1 py-2 transition-all ${
                     drug === id
                       ? 'bg-emerald-600 text-white'
-                      : 'bg-white text-neutral-500 hover:bg-emerald-50'
+                      : 'bg-stroke-navy text-stroke-textMuted hover:bg-emerald-500/10'
                   }`}
                 >
                   {label}
-                  <span className={`block text-[10px] font-normal ${drug === id ? 'text-emerald-100' : 'text-neutral-400'}`}>
+                  <span className={`block text-[10px] font-normal ${drug === id ? 'text-emerald-100' : 'text-stroke-textMuted'}`}>
                     {sub}
                   </span>
                 </button>
@@ -133,26 +133,26 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
 
           {/* Weight: stepper+chips o fila colapsada */}
           {weightLocked ? (
-            <div className="flex items-center justify-between py-2 border-b border-neutral-100 mb-3">
+            <div className="flex items-center justify-between py-2 border-b border-stroke-line mb-3">
               <div className="flex items-center gap-2">
                 <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
-                <span className="text-sm font-semibold text-neutral-800">{weight} kg</span>
+                <span className="text-sm font-semibold text-stroke-text">{weight} kg</span>
               </div>
               <button
                 type="button"
                 onClick={() => setWeightLocked(false)}
-                className="text-[10px] text-brand-500 font-semibold hover:underline ml-2 shrink-0"
+                className="text-[10px] text-stroke-iconActive font-semibold hover:underline ml-2 shrink-0"
               >
                 editar
               </button>
             </div>
           ) : (
             <>
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-500 mb-2">Peso (kg)</p>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-stroke-textMuted mb-2">Peso (kg)</p>
               <div className="grid max-w-md grid-cols-[2.2rem_2.2rem_8rem_2.2rem_2.2rem] items-center gap-1.5 mb-3">
                 {[-5, -1].map((d) => (
                   <button key={d} type="button" onClick={() => adjust(d)}
-                    className="h-10 rounded-xl border border-neutral-200 text-neutral-600 font-semibold text-xs hover:bg-neutral-50 active:scale-95 transition-all">
+                    className="h-10 rounded-xl border border-stroke-line text-stroke-textMuted font-semibold text-xs hover:bg-stroke-bg active:scale-95 transition-all">
                     {d}
                   </button>
                 ))}
@@ -161,11 +161,11 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
                   value={weightStr} onChange={(e) => setWeightStr(e.target.value)}
                   onKeyDown={(e) => { if (e.key === 'Enter' && validWeight) setWeightLocked(true) }}
                   autoFocus
-                  className="w-full min-w-0 border border-neutral-200 rounded-xl px-2 py-2 text-neutral-800 text-lg font-bold text-center focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent placeholder-neutral-300"
+                  className="w-full min-w-0 border border-stroke-line rounded-xl px-2 py-2 text-stroke-text text-lg font-bold text-center focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent placeholder-stroke-textMuted/50"
                 />
                 {[1, 5].map((d) => (
                   <button key={d} type="button" onClick={() => adjust(d)}
-                    className="h-10 rounded-xl border border-neutral-200 text-neutral-600 font-semibold text-xs hover:bg-neutral-50 active:scale-95 transition-all">
+                    className="h-10 rounded-xl border border-stroke-line text-stroke-textMuted font-semibold text-xs hover:bg-stroke-bg active:scale-95 transition-all">
                     +{d}
                   </button>
                 ))}
@@ -179,7 +179,7 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
                     className={`px-2.5 py-1 rounded-full text-xs font-bold border-2 transition-all ${
                       weightStr === String(w)
                         ? 'bg-emerald-600 border-emerald-600 text-white'
-                        : 'border-neutral-200 text-neutral-500 hover:border-emerald-300 hover:bg-emerald-50'
+                        : 'border-stroke-line text-stroke-textMuted hover:border-emerald-300 hover:bg-emerald-500/10'
                     }`}>
                     {w} kg
                   </button>
@@ -191,59 +191,59 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
           {/* Dose result */}
           <div className={`rounded-xl px-3 py-2.5 transition-all duration-200 ${
             validWeight && dose
-              ? 'bg-emerald-50 border-2 border-emerald-300'
-              : 'bg-neutral-50 border-2 border-dashed border-neutral-200'
+              ? 'bg-emerald-500/10 border-2 border-emerald-300'
+              : 'bg-stroke-bg border-2 border-dashed border-stroke-line'
           }`}>
             {validWeight && dose ? (
               drug === 'tnk' ? (
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl font-mono font-bold text-emerald-800">{tnk.total} mg</span>
+                  <span className="text-2xl font-mono font-bold text-emerald-300">{tnk.total} mg</span>
                   <div>
-                    <p className="text-xs font-semibold text-emerald-700">Tenecteplase</p>
-                    <p className="text-xs text-emerald-600">bolo único IV</p>
+                    <p className="text-xs font-semibold text-emerald-300">Tenecteplase</p>
+                    <p className="text-xs text-emerald-400">bolo único IV</p>
                     {weight * 0.25 >= 25 && <p className="text-[10px] text-emerald-500 mt-0.5">⚠ Dosis máxima</p>}
                   </div>
                 </div>
               ) : (
                 <div>
                   <div className="flex items-center gap-3 mb-2">
-                    <span className="text-2xl font-mono font-bold text-emerald-800">{rtpa.total} mg</span>
-                    <p className="text-xs text-emerald-600">Alteplase — dosis total</p>
+                    <span className="text-2xl font-mono font-bold text-emerald-300">{rtpa.total} mg</span>
+                    <p className="text-xs text-emerald-400">Alteplase — dosis total</p>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
-                    <div className="bg-white rounded-lg px-3 py-2 border border-emerald-200">
-                      <p className="text-[10px] text-neutral-500">Bolo IV (10%)</p>
-                      <p className="text-base font-mono font-bold text-emerald-800">{rtpa.bolo} mg</p>
-                      <p className="text-[10px] text-neutral-400">en 1 min</p>
+                    <div className="bg-stroke-navy rounded-lg px-3 py-2 border border-emerald-500/30">
+                      <p className="text-[10px] text-stroke-textMuted">Bolo IV (10%)</p>
+                      <p className="text-base font-mono font-bold text-emerald-300">{rtpa.bolo} mg</p>
+                      <p className="text-[10px] text-stroke-textMuted">en 1 min</p>
                     </div>
-                    <div className="bg-white rounded-lg px-3 py-2 border border-emerald-200">
-                      <p className="text-[10px] text-neutral-500">Infusión (90%)</p>
-                      <p className="text-base font-mono font-bold text-emerald-800">{rtpa.infusion} mg</p>
-                      <p className="text-[10px] text-neutral-400">en 60 min</p>
+                    <div className="bg-stroke-navy rounded-lg px-3 py-2 border border-emerald-500/30">
+                      <p className="text-[10px] text-stroke-textMuted">Infusión (90%)</p>
+                      <p className="text-base font-mono font-bold text-emerald-300">{rtpa.infusion} mg</p>
+                      <p className="text-[10px] text-stroke-textMuted">en 60 min</p>
                     </div>
                   </div>
                 </div>
               )
             ) : (
-              <span className="text-2xl font-mono font-bold text-neutral-300">— mg</span>
+              <span className="text-2xl font-mono font-bold text-stroke-textMuted">— mg</span>
             )}
           </div>
 
           {/* Start time button */}
           {validWeight && dose && (
-            <div className="mt-3 flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3">
-              <Clock size={16} className="text-emerald-600 shrink-0" />
+            <div className="mt-3 flex items-center gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3">
+              <Clock size={16} className="text-emerald-400 shrink-0" />
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold text-emerald-800">Inicio del trombolítico</p>
+                <p className="text-xs font-semibold text-emerald-300">Inicio del trombolítico</p>
                 {thrombolyticStartTime && (
-                  <p className="text-sm font-mono font-bold text-emerald-900">{fmtTime(thrombolyticStartTime)}</p>
+                  <p className="text-sm font-mono font-bold text-emerald-300">{fmtTime(thrombolyticStartTime)}</p>
                 )}
               </div>
               <button
                 type="button" ref={startButtonRef} onClick={handleThrombolyticStart}
                 className={`shrink-0 px-3 py-2 rounded-xl text-xs font-bold transition-all active:scale-95 ${
                   thrombolyticStartTime
-                    ? 'border border-emerald-300 bg-white text-emerald-700 hover:bg-emerald-100'
+                    ? 'border border-emerald-300 bg-stroke-navy text-emerald-300 hover:bg-emerald-500/15'
                     : 'bg-emerald-600 text-white hover:bg-emerald-700'
                 }`}
               >
@@ -262,7 +262,7 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
             Continuar — post-trombolisis <ChevronRight size={16} />
           </button>
           {!thrombolyticStartTime && validWeight && (
-            <p className="text-center text-[11px] text-neutral-400 mt-2">Registrá el inicio del trombolítico para continuar</p>
+            <p className="text-center text-[11px] text-stroke-textMuted mt-2">Registrá el inicio del trombolítico para continuar</p>
           )}
         </div>
       </div>
@@ -278,21 +278,21 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <div className="flex gap-1.5">
-              <div className="h-1.5 w-8 rounded-full bg-neutral-200" />
-              <div className="h-1.5 w-8 rounded-full bg-emerald-500" />
+              <div className="h-1.5 w-8 rounded-full bg-stroke-panel" />
+              <div className="h-1.5 w-8 rounded-full bg-emerald-500/100" />
             </div>
-            <span className="text-[10px] text-neutral-400 font-medium">2 de 2</span>
+            <span className="text-[10px] text-stroke-textMuted font-medium">2 de 2</span>
           </div>
           <button type="button" onClick={() => setView('dose')}
-            className="text-[10px] text-brand-500 font-semibold hover:underline">
+            className="text-[10px] text-stroke-iconActive font-semibold hover:underline">
             ← Dosis
           </button>
         </div>
 
         {/* Dose summary chip */}
-        <div className="flex items-center gap-2 mb-3 px-3 py-2 rounded-xl bg-emerald-50 border border-emerald-200">
+        <div className="flex items-center gap-2 mb-3 px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30">
           <CheckCircle2 size={13} className="text-emerald-500 shrink-0" />
-          <p className="text-xs font-semibold text-emerald-800">
+          <p className="text-xs font-semibold text-emerald-300">
             {drug === 'tnk' ? `TNK ${tnk?.total ?? '—'} mg` : `rtPA ${rtpa?.total ?? '—'} mg`}
             {thrombolyticStartTime ? ` · ${fmtTime(thrombolyticStartTime)}` : ''}
           </p>
@@ -309,21 +309,21 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
                 onClick={() => setChecked((c) => ({ ...c, [item.id]: !c[item.id] }))}
                 className={`flex flex-col items-start gap-1.5 rounded-lg border px-3 py-2 text-left transition-all active:scale-[0.97] ${
                   done
-                    ? 'bg-emerald-50 border-emerald-400 text-emerald-900'
-                    : 'border-neutral-200 hover:border-emerald-200 hover:bg-emerald-50/40'
+                    ? 'bg-emerald-500/10 border-emerald-400 text-emerald-300'
+                    : 'border-stroke-line hover:border-emerald-500/30 hover:bg-emerald-500/10'
                 }`}
               >
                 <div className="flex items-center justify-between w-full">
-                  <item.Icon size={14} className={done ? 'text-emerald-600' : 'text-neutral-400'} />
+                  <item.Icon size={14} className={done ? 'text-emerald-400' : 'text-stroke-textMuted'} />
                   {done
                     ? <CheckCircle2 size={14} className="text-emerald-500" />
-                    : <Circle size={14} className="text-neutral-200" />
+                    : <Circle size={14} className="text-stroke-textMuted" />
                   }
                 </div>
-                <p className={`text-xs font-semibold leading-snug ${done ? 'text-emerald-800' : 'text-neutral-700'}`}>
+                <p className={`text-xs font-semibold leading-snug ${done ? 'text-emerald-300' : 'text-stroke-text'}`}>
                   {item.label}
                 </p>
-                <p className="text-[9px] text-neutral-400 leading-snug">{item.sub}</p>
+                <p className="text-[9px] text-stroke-textMuted leading-snug">{item.sub}</p>
               </button>
             )
           })}
@@ -349,22 +349,22 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
 
         {/* Progress bar */}
         <div className="flex items-center gap-2 mb-3">
-          <div className="flex-1 h-1.5 bg-neutral-100 rounded-full overflow-hidden">
+          <div className="flex-1 h-1.5 bg-stroke-panel rounded-full overflow-hidden">
             <div
-              className="h-1.5 bg-emerald-500 rounded-full transition-all duration-300"
+              className="h-1.5 bg-emerald-500/100 rounded-full transition-all duration-300"
               style={{ width: `${(checkedCount / POST_CHECKLIST.length) * 100}%` }}
             />
           </div>
-          <span className="text-[10px] font-semibold text-neutral-500 shrink-0">{checkedCount}/{POST_CHECKLIST.length}</span>
+          <span className="text-[10px] font-semibold text-stroke-textMuted shrink-0">{checkedCount}/{POST_CHECKLIST.length}</span>
         </div>
 
         {/* NIHSS intra-infusion — compact collapsible */}
         {thrombolyticStartTime && (
-          <div className="border-t border-neutral-100 pt-3">
+          <div className="border-t border-stroke-line pt-3">
             {nihssRecords.length > 0 && (
               <div className="mb-2 flex flex-wrap gap-1.5">
                 {nihssRecords.map((r) => (
-                  <span key={r.id} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-800">
+                  <span key={r.id} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-xs font-bold text-emerald-300">
                     <Brain size={10} />
                     {r.score} · {r.timestamp.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}
                   </span>
@@ -379,10 +379,10 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
                   onChange={(e) => { setNihssEntry(e.target.value); setNihssEntrySource('manual') }}
                   onKeyDown={(e) => { if (e.key === 'Enter' && nihssValid) handleSaveNihss() }}
                   autoFocus
-                  className="flex-1 border border-emerald-300 rounded-xl px-3 py-2 text-neutral-800 text-base font-bold text-center focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                  className="flex-1 border border-emerald-300 rounded-xl px-3 py-2 text-stroke-text text-base font-bold text-center focus:outline-none focus:ring-2 focus:ring-emerald-400"
                 />
                 <button type="button" onClick={() => setShowNihssCalc(true)}
-                  className="px-3 py-2 border border-neutral-200 rounded-xl text-xs text-brand-600 font-medium">
+                  className="px-3 py-2 border border-stroke-line rounded-xl text-xs text-stroke-iconActive font-medium">
                   Guía
                 </button>
                 <button type="button" onClick={() => handleSaveNihss()} disabled={!nihssValid}
@@ -390,13 +390,13 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
                   ✓
                 </button>
                 <button type="button" onClick={() => { setShowNihssInput(false); setNihssEntry('') }}
-                  className="px-3 py-2 border border-neutral-200 rounded-xl text-neutral-500 text-sm">
+                  className="px-3 py-2 border border-stroke-line rounded-xl text-stroke-textMuted text-sm">
                   ✕
                 </button>
               </div>
             ) : (
               <button type="button" onClick={() => setShowNihssInput(true)}
-                className="flex items-center gap-2 text-xs text-emerald-600 font-semibold hover:underline">
+                className="flex items-center gap-2 text-xs text-emerald-400 font-semibold hover:underline">
                 <Plus size={12} /><Brain size={12} />
                 NIHSS intra-infusión
               </button>

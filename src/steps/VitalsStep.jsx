@@ -14,8 +14,8 @@ const MRS_OPTIONS = [
 
 function VitalAlert({ message, color = 'red' }) {
   const styles = {
-    red:    { wrap: 'border-red-100 bg-red-50/50',       icon: 'text-red-500',    text: 'text-red-600'    },
-    orange: { wrap: 'border-orange-100 bg-orange-50/50', icon: 'text-orange-500', text: 'text-orange-600' },
+    red:    { wrap: 'border-status-critical/30 bg-status-critical/10',       icon: 'text-red-400',    text: 'text-red-400'    },
+    orange: { wrap: 'border-orange-100 bg-amber-500/15', icon: 'text-orange-500', text: 'text-amber-400' },
   }
   const s = styles[color] ?? styles.red
   return (
@@ -83,22 +83,22 @@ export default function VitalsStep({ onConfirm, isCollapsed = false }) {
   }
 
   const taInput = (isCritical, isFilled) =>
-    'flex-1 rounded-xl border py-2.5 text-xl font-bold text-center text-neutral-800 ' +
-    'focus:outline-none focus:ring-2 transition placeholder:text-neutral-300 ' +
+    'flex-1 rounded-xl border py-2.5 text-xl font-bold text-center text-stroke-text ' +
+    'focus:outline-none focus:ring-2 transition placeholder:text-stroke-textMuted ' +
     (isCritical
-      ? 'border-red-300 bg-red-50/40 focus:border-red-400 focus:ring-red-100'
+      ? 'border-red-300 bg-status-critical/10 focus:border-red-400 focus:ring-status-critical/30'
       : isFilled
-        ? 'border-blue-300 bg-blue-50/30 focus:border-blue-400 focus:ring-blue-100'
-        : 'border-neutral-200 bg-white focus:border-blue-300 focus:ring-blue-100')
+        ? 'border-blue-300 bg-blue-500/10 focus:border-blue-400 focus:ring-blue-500/30'
+        : 'border-stroke-line bg-stroke-navy focus:border-blue-300 focus:ring-blue-500/30')
 
   const glucInput =
-    'w-full rounded-xl border py-2.5 text-xl font-bold text-center text-neutral-800 pr-16 ' +
-    'focus:outline-none focus:ring-2 transition placeholder:text-neutral-300 ' +
+    'w-full rounded-xl border py-2.5 text-xl font-bold text-center text-stroke-text pr-16 ' +
+    'focus:outline-none focus:ring-2 transition placeholder:text-stroke-textMuted ' +
     (glucLow || glucHigh
-      ? 'border-red-300 bg-red-50/40 focus:border-red-400 focus:ring-red-100'
+      ? 'border-red-300 bg-status-critical/10 focus:border-red-400 focus:ring-status-critical/30'
       : glucose
-        ? 'border-violet-300 bg-violet-50/20 focus:border-violet-400 focus:ring-violet-100'
-        : 'border-neutral-200 bg-white focus:border-violet-300 focus:ring-violet-100')
+        ? 'border-status-glucose/40 bg-status-glucose/15 focus:border-violet-400 focus:ring-status-glucose/30'
+        : 'border-stroke-line bg-stroke-navy focus:border-status-glucose/40 focus:ring-status-glucose/30')
 
   if (isCollapsed && confirmed) {
     return (
@@ -117,10 +117,10 @@ export default function VitalsStep({ onConfirm, isCollapsed = false }) {
           <div>
             <InfoBanner
               icon={Heart}
-              iconClass="text-blue-700"
-              bgClass="bg-blue-50"
-              borderClass="border-blue-200"
-              textClass="text-blue-800"
+              iconClass="text-blue-300"
+              bgClass="bg-blue-500/10"
+              borderClass="border-blue-500/30"
+              textClass="text-blue-300"
               title="Tensión arterial"
               subtitle="Meta pre-trombolisis: PAS ≤ 185 · PAD ≤ 110 mmHg"
             />
@@ -139,7 +139,7 @@ export default function VitalsStep({ onConfirm, isCollapsed = false }) {
                 className={taInput(taCritical, !!sys)}
               />
 
-              <span className="text-neutral-300 font-bold text-xl select-none">/</span>
+              <span className="text-stroke-textMuted font-bold text-xl select-none">/</span>
 
               <input
                 ref={diaRef}
@@ -155,8 +155,8 @@ export default function VitalsStep({ onConfirm, isCollapsed = false }) {
               />
 
               <div className="flex items-center gap-1 shrink-0">
-                <Activity size={11} className="text-neutral-400" />
-                <span className="text-xs text-neutral-400 font-medium">mmHg</span>
+                <Activity size={11} className="text-stroke-textMuted" />
+                <span className="text-xs text-stroke-textMuted font-medium">mmHg</span>
               </div>
             </div>
 
@@ -168,16 +168,16 @@ export default function VitalsStep({ onConfirm, isCollapsed = false }) {
             )}
           </div>
 
-          <div className="border-t border-neutral-100" />
+          <div className="border-t border-stroke-line" />
 
           {/* ── Glucemia ── */}
           <div>
             <InfoBanner
               icon={Droplets}
-              iconClass="text-violet-700"
-              bgClass="bg-violet-50"
-              borderClass="border-violet-200"
-              textClass="text-violet-800"
+              iconClass="text-violet-300"
+              bgClass="bg-status-glucose/15"
+              borderClass="border-status-glucose/30"
+              textClass="text-violet-300"
               title="Glucemia"
               subtitle="Rango aceptable: 50 – 400 mg/dL"
             />
@@ -195,7 +195,7 @@ export default function VitalsStep({ onConfirm, isCollapsed = false }) {
                 onKeyDown={(e) => { if (e.key === 'Enter' && valid) { e.preventDefault(); handleConfirm() } }}
                 className={glucInput}
               />
-              <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-sm font-semibold text-neutral-400">
+              <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-sm font-semibold text-stroke-textMuted">
                 mg/dL
               </span>
             </div>
@@ -208,16 +208,16 @@ export default function VitalsStep({ onConfirm, isCollapsed = false }) {
             )}
           </div>
 
-          <div className="border-t border-neutral-100" />
+          <div className="border-t border-stroke-line" />
 
           {/* ── mRS basal ── */}
           <div>
             <InfoBanner
               icon={UserCheck}
-              iconClass="text-brand-700"
-              bgClass="bg-brand-50"
-              borderClass="border-brand-200"
-              textClass="text-brand-800"
+              iconClass="text-stroke-iconActive"
+              bgClass="bg-stroke-iconActive/10"
+              borderClass="border-stroke-iconActive/40"
+              textClass="text-stroke-iconActive"
               title="mRS basal (funcionalidad previa al ACV)"
               subtitle="mRS ≥ 4 pre-stroke es contraindicación relativa para rtPA"
             />
@@ -231,8 +231,8 @@ export default function VitalsStep({ onConfirm, isCollapsed = false }) {
                   title={o.label}
                   className={`rounded-xl border py-2.5 text-lg font-bold transition-all active:scale-95 ${
                     mrs === o.score
-                      ? 'border-brand-500 bg-brand-50 text-brand-700 ring-2 ring-brand-100'
-                      : 'border-neutral-200 text-neutral-500 hover:border-brand-300 hover:bg-brand-50/40'
+                      ? 'border-stroke-iconActive/40 bg-stroke-iconActive/10 text-stroke-iconActive ring-2 ring-stroke-iconActive/30'
+                      : 'border-stroke-line text-stroke-textMuted hover:border-stroke-iconActive/40 hover:bg-stroke-iconActive/10'
                   }`}
                 >
                   {o.score}
@@ -241,9 +241,9 @@ export default function VitalsStep({ onConfirm, isCollapsed = false }) {
             </div>
 
             {mrs !== null && (
-              <div className="mt-2 px-2.5 py-2 bg-brand-50 rounded-xl border border-brand-100 animate-fade-in">
-                <p className="text-[11px] font-semibold text-brand-700 leading-tight">{MRS_OPTIONS[mrs].label}</p>
-                <p className="text-[10px] text-neutral-500 mt-0.5 leading-snug">{MRS_OPTIONS[mrs].desc}</p>
+              <div className="mt-2 px-2.5 py-2 bg-stroke-iconActive/10 rounded-xl border border-stroke-iconActive/40 animate-fade-in">
+                <p className="text-[11px] font-semibold text-stroke-iconActive leading-tight">{MRS_OPTIONS[mrs].label}</p>
+                <p className="text-[10px] text-stroke-textMuted mt-0.5 leading-snug">{MRS_OPTIONS[mrs].desc}</p>
               </div>
             )}
 

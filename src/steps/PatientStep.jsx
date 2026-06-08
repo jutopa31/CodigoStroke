@@ -60,14 +60,14 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
           {/* Top row: name + meta badges + checkmark */}
           <div className="flex items-start justify-between gap-3 mb-3">
             <div className="min-w-0">
-              <p className="font-semibold text-neutral-800 leading-snug">{patient.name}</p>
+              <p className="font-semibold text-stroke-text leading-snug">{patient.name}</p>
               <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-1">
-                <span className="text-xs text-neutral-400">DNI {patient.dni}</span>
+                <span className="text-xs text-stroke-textMuted">DNI {patient.dni}</span>
                 {patientId && (
-                  <span className="text-xs font-mono font-bold text-brand-600 tracking-wider">{patientId}</span>
+                  <span className="text-xs font-mono font-bold text-stroke-iconActive tracking-wider">{patientId}</span>
                 )}
                 {arrivalTime && (
-                  <span className="text-xs text-neutral-400 tabular-nums">
+                  <span className="text-xs text-stroke-textMuted tabular-nums">
                     Llegada {arrivalTime.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}
                   </span>
                 )}
@@ -79,26 +79,26 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
           {/* Vitals row — horizontal pills */}
           {v && (
             <div className="grid grid-cols-3 gap-1.5">
-              <div className={`rounded-lg px-2.5 py-2 ${v.systolic > 185 || v.diastolic > 110 ? 'bg-blue-900/10' : 'bg-neutral-50'}`}>
-                <p className="text-[9px] text-neutral-400 uppercase tracking-wider font-semibold mb-1">TA</p>
-                <p className={`text-base font-bold tabular-nums leading-none ${v.systolic > 185 || v.diastolic > 110 ? 'text-blue-900' : 'text-neutral-800'}`}>
+              <div className={`rounded-lg px-2.5 py-2 ${v.systolic > 185 || v.diastolic > 110 ? 'bg-blue-900/10' : 'bg-stroke-bg'}`}>
+                <p className="text-[9px] text-stroke-textMuted uppercase tracking-wider font-semibold mb-1">TA</p>
+                <p className={`text-base font-bold tabular-nums leading-none ${v.systolic > 185 || v.diastolic > 110 ? 'text-blue-300' : 'text-stroke-text'}`}>
                   {v.systolic}/{v.diastolic}
                 </p>
-                <p className="text-[9px] text-neutral-400 mt-0.5">mmHg</p>
+                <p className="text-[9px] text-stroke-textMuted mt-0.5">mmHg</p>
               </div>
-              <div className={`rounded-lg px-2.5 py-2 ${v.glucose < 50 || v.glucose > 400 ? 'bg-blue-900/10' : 'bg-neutral-50'}`}>
-                <p className="text-[9px] text-neutral-400 uppercase tracking-wider font-semibold mb-1">Glucemia</p>
-                <p className={`text-base font-bold tabular-nums leading-none ${v.glucose < 50 || v.glucose > 400 ? 'text-blue-900' : 'text-neutral-800'}`}>
+              <div className={`rounded-lg px-2.5 py-2 ${v.glucose < 50 || v.glucose > 400 ? 'bg-blue-900/10' : 'bg-stroke-bg'}`}>
+                <p className="text-[9px] text-stroke-textMuted uppercase tracking-wider font-semibold mb-1">Glucemia</p>
+                <p className={`text-base font-bold tabular-nums leading-none ${v.glucose < 50 || v.glucose > 400 ? 'text-blue-300' : 'text-stroke-text'}`}>
                   {v.glucose}
                 </p>
-                <p className="text-[9px] text-neutral-400 mt-0.5">mg/dL</p>
+                <p className="text-[9px] text-stroke-textMuted mt-0.5">mg/dL</p>
               </div>
-              <div className="bg-neutral-50 rounded-lg px-2.5 py-2">
-                <p className="text-[9px] text-neutral-400 uppercase tracking-wider font-semibold mb-1">mRS basal</p>
-                <p className="text-base font-bold text-neutral-800 tabular-nums leading-none">
+              <div className="bg-stroke-bg rounded-lg px-2.5 py-2">
+                <p className="text-[9px] text-stroke-textMuted uppercase tracking-wider font-semibold mb-1">mRS basal</p>
+                <p className="text-base font-bold text-stroke-text tabular-nums leading-none">
                   {v.modifiedRankinScale?.score ?? '—'}
                 </p>
-                <p className="text-[9px] text-neutral-400 mt-0.5">pts</p>
+                <p className="text-[9px] text-stroke-textMuted mt-0.5">pts</p>
               </div>
             </div>
           )}
@@ -124,7 +124,7 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
           <button
             type="button"
             onClick={() => setShowScanner(true)}
-            className="flex items-center gap-1.5 text-xs font-semibold text-brand-600 bg-brand-50 hover:bg-brand-100 border border-brand-200 px-2.5 py-1.5 rounded-lg transition-colors"
+            className="flex items-center gap-1.5 text-xs font-semibold text-stroke-iconActive bg-stroke-iconActive/10 hover:bg-stroke-iconActive/20 border border-stroke-iconActive/40 px-2.5 py-1.5 rounded-lg transition-colors"
           >
             <ScanLine size={13} strokeWidth={2} />
             Escanear DNI
@@ -133,7 +133,7 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
             <button
               type="button"
               onClick={onOpenEducational}
-              className="flex items-center gap-1.5 text-xs text-neutral-400 hover:text-amber-600 transition-colors"
+              className="flex items-center gap-1.5 text-xs text-stroke-textMuted hover:text-amber-400 transition-colors"
             >
               <BookOpen size={13} strokeWidth={2} />
               Modo educativo
@@ -147,7 +147,7 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
           style={{ background: 'linear-gradient(135deg, #1D4ED8 0%, #1E3A8A 100%)' }}
         >
           {/* decorative circles */}
-          <div className="absolute -top-5 -right-5 w-24 h-24 rounded-full bg-white/5 pointer-events-none" />
+          <div className="absolute -top-5 -right-5 w-24 h-24 rounded-full bg-stroke-bg pointer-events-none" />
           <div className="absolute -bottom-8 -left-2 w-20 h-20 rounded-full bg-white/[0.04] pointer-events-none" />
 
           <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-white/50 mb-2.5">
@@ -176,7 +176,7 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
           {/* DNI + Nombre en dos columnas */}
           <div className="grid grid-cols-[1fr_1.5fr] gap-2.5">
             <div>
-              <label className="text-[10px] font-semibold text-neutral-400 uppercase tracking-wider flex items-center gap-1 mb-1.5">
+              <label className="text-[10px] font-semibold text-stroke-textMuted uppercase tracking-wider flex items-center gap-1 mb-1.5">
                 <CreditCard size={11} strokeWidth={2} /> DNI
               </label>
               <input
@@ -188,12 +188,12 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
                 onChange={(e) => setDni(e.target.value)}
                 onKeyDown={(event) => focusNext(event, nameRef)}
                 autoFocus
-                className="h-[42px] w-full bg-neutral-50 border border-neutral-200 rounded-xl px-3 text-sm font-semibold text-neutral-800 focus:bg-white focus:ring-2 focus:ring-brand-100 focus:border-brand-400 placeholder-neutral-300 transition-all outline-none"
+                className="h-[42px] w-full bg-stroke-bg border border-stroke-line rounded-xl px-3 text-sm font-semibold text-stroke-text focus:bg-stroke-navy focus:ring-2 focus:ring-stroke-iconActive/30 focus:border-stroke-iconActive/40 placeholder-stroke-textMuted/50 transition-all outline-none"
                 required
               />
             </div>
             <div>
-              <label className="text-[10px] font-semibold text-neutral-400 uppercase tracking-wider flex items-center gap-1 mb-1.5">
+              <label className="text-[10px] font-semibold text-stroke-textMuted uppercase tracking-wider flex items-center gap-1 mb-1.5">
                 <User size={11} strokeWidth={2} /> Nombre
               </label>
               <input
@@ -203,7 +203,7 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 onKeyDown={(event) => focusNext(event, passphraseRef)}
-                className="h-[42px] w-full bg-neutral-50 border border-neutral-200 rounded-xl px-3 text-sm text-neutral-800 focus:bg-white focus:ring-2 focus:ring-brand-100 focus:border-brand-400 placeholder-neutral-300 transition-all outline-none"
+                className="h-[42px] w-full bg-stroke-bg border border-stroke-line rounded-xl px-3 text-sm text-stroke-text focus:bg-stroke-navy focus:ring-2 focus:ring-stroke-iconActive/30 focus:border-stroke-iconActive/40 placeholder-stroke-textMuted/50 transition-all outline-none"
                 required
               />
             </div>
@@ -214,7 +214,7 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
             <button
               type="button"
               onClick={() => setShowPassphrase((v) => !v)}
-              className="flex items-center gap-1.5 text-[11px] text-neutral-400 hover:text-neutral-600 transition-colors"
+              className="flex items-center gap-1.5 text-[11px] text-stroke-textMuted hover:text-stroke-textMuted transition-colors"
             >
               <Lock size={11} strokeWidth={2} />
               <span>{showPassphrase ? 'Ocultar contraseña de turno' : 'Agregar contraseña de turno (opcional)'}</span>
@@ -231,7 +231,7 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
                 placeholder="Frase de acceso"
                 value={passphrase}
                 onChange={(e) => setPassphrase(e.target.value)}
-                className="mt-2 h-10 w-full bg-neutral-50 border border-neutral-200 rounded-xl px-3 text-sm text-neutral-800 focus:bg-white focus:ring-2 focus:ring-brand-100 focus:border-brand-400 placeholder-neutral-300 transition-all outline-none"
+                className="mt-2 h-10 w-full bg-stroke-bg border border-stroke-line rounded-xl px-3 text-sm text-stroke-text focus:bg-stroke-navy focus:ring-2 focus:ring-stroke-iconActive/30 focus:border-stroke-iconActive/40 placeholder-stroke-textMuted/50 transition-all outline-none"
               />
             )}
           </div>
@@ -239,13 +239,13 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
           <button
             type="submit"
             disabled={!valid}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-600 py-3 text-sm font-semibold text-white transition-all hover:bg-brand-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-neutral-100 disabled:text-neutral-400"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-600 py-3 text-sm font-semibold text-white transition-all hover:bg-brand-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-stroke-panel disabled:text-stroke-textMuted"
           >
             Confirmar y activar código <ChevronRight size={16} strokeWidth={2} />
           </button>
 
           {showHint && (
-            <p className="text-xs text-neutral-400 text-center animate-fade-in">
+            <p className="text-xs text-stroke-textMuted text-center animate-fade-in">
               {dni.length < 7 && name.trim().length < 2
                 ? 'Completá el DNI (mín. 7 dígitos) y el nombre'
                 : dni.length < 7

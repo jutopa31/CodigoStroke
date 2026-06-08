@@ -21,37 +21,37 @@ function ContraRow({ item, value, onChange }) {
 
   return (
     <div className={`rounded-lg border transition-all ${
-      isYes ? 'bg-blue-900/8 border-blue-700/40' : isNo ? 'bg-slate-50 border-slate-200' : 'border-neutral-150 bg-white'
+      isYes ? 'bg-blue-900/8 border-blue-700/40' : isNo ? 'bg-stroke-bg border-stroke-line' : 'border-stroke-line bg-stroke-navy'
     }`}>
       <div className="flex items-center gap-2 px-3 py-1.5">
         {/* Label */}
-        <p className={`flex-1 min-w-0 text-xs font-semibold leading-snug truncate ${isYes ? 'text-blue-900' : 'text-neutral-700'}`}>
+        <p className={`flex-1 min-w-0 text-xs font-semibold leading-snug truncate ${isYes ? 'text-blue-300' : 'text-stroke-text'}`}>
           {item.short}
         </p>
 
         {/* Info toggle */}
         <button type="button" onClick={() => setExpanded(v => !v)}
-          className={`shrink-0 p-1 rounded-full transition-colors ${expanded ? 'bg-neutral-100 text-neutral-600' : 'text-neutral-300 hover:text-neutral-500'}`}>
+          className={`shrink-0 p-1 rounded-full transition-colors ${expanded ? 'bg-stroke-panel text-stroke-textMuted' : 'text-stroke-textMuted hover:text-stroke-textMuted'}`}>
           {expanded ? <ChevronDown size={11} /> : <Info size={11} />}
         </button>
 
         {/* NO | SÍ toggle */}
-        <div className="flex shrink-0 rounded-md overflow-hidden border border-neutral-200 text-[11px] font-bold">
+        <div className="flex shrink-0 rounded-md overflow-hidden border border-stroke-line text-[11px] font-bold">
           <button type="button" onClick={() => onChange(false)}
-            className={`px-2.5 py-1 transition-all active:scale-95 ${isNo ? 'bg-slate-600 text-white' : 'bg-white text-neutral-400 hover:bg-neutral-50'}`}>
+            className={`px-2.5 py-1 transition-all active:scale-95 ${isNo ? 'bg-slate-600 text-white' : 'bg-stroke-navy text-stroke-textMuted hover:bg-stroke-bg'}`}>
             NO
           </button>
-          <div className="w-px bg-neutral-200" />
+          <div className="w-px bg-stroke-panel" />
           <button type="button" onClick={() => onChange(true)}
-            className={`px-2.5 py-1 transition-all active:scale-95 ${isYes ? 'bg-blue-900 text-white' : 'bg-white text-neutral-400 hover:bg-neutral-50'}`}>
+            className={`px-2.5 py-1 transition-all active:scale-95 ${isYes ? 'bg-blue-900 text-white' : 'bg-stroke-navy text-stroke-textMuted hover:bg-stroke-bg'}`}>
             SÍ
           </button>
         </div>
       </div>
 
       {expanded && (
-        <div className="px-3 pb-2 border-t border-neutral-100 animate-fade-in">
-          <div className="rounded-lg bg-blue-50 border border-blue-100 px-3 py-1.5 mt-1.5 text-xs text-blue-900">
+        <div className="px-3 pb-2 border-t border-stroke-line animate-fade-in">
+          <div className="rounded-lg bg-blue-500/10 border border-blue-500/30 px-3 py-1.5 mt-1.5 text-xs text-blue-300">
             <p className="font-semibold">{item.label}</p>
             {item.sub && <p className="opacity-75 mt-0.5">{item.sub}</p>}
           </div>
@@ -91,16 +91,16 @@ export default function CIAbsolutasTab({ initialState, onUpdate }) {
   return (
     <div className="px-4 pb-6 space-y-2.5 md:px-0">
       {/* Header */}
-      <div className="flex items-start gap-3 px-3 py-2.5 rounded-xl bg-blue-50 border border-blue-200">
-        <AlertTriangle size={16} className="text-blue-900 shrink-0 mt-0.5" />
+      <div className="flex items-start gap-3 px-3 py-2.5 rounded-xl bg-blue-500/10 border border-blue-500/30">
+        <AlertTriangle size={16} className="text-blue-300 shrink-0 mt-0.5" />
         <div>
-          <p className="text-xs font-bold text-blue-900">Contraindicaciones absolutas</p>
-          <p className="text-xs text-blue-700 mt-0.5">Cualquier <strong>SÍ</strong> excluye trombolisis IV</p>
+          <p className="text-xs font-bold text-blue-300">Contraindicaciones absolutas</p>
+          <p className="text-xs text-blue-300 mt-0.5">Cualquier <strong>SÍ</strong> excluye trombolisis IV</p>
         </div>
         {allAnswered && (
           <div className="ml-auto shrink-0">
             {hasAbsolute
-              ? <span className="text-xs font-bold text-blue-900 bg-blue-100 rounded-lg px-2 py-1">CI presente</span>
+              ? <span className="text-xs font-bold text-blue-300 bg-blue-500/15 rounded-lg px-2 py-1">CI presente</span>
               : <CheckCircle2 size={18} className="text-emerald-500" />
             }
           </div>
@@ -109,7 +109,7 @@ export default function CIAbsolutasTab({ initialState, onUpdate }) {
 
       {/* Batch action row — "mark all NO" shortcut */}
       <button type="button" onClick={markAllNo}
-        className="flex w-full items-center justify-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50/50 py-2 text-xs font-semibold text-emerald-700 transition-all hover:border-emerald-400 hover:bg-emerald-100/70 hover:shadow-sm active:scale-[0.98] active:bg-emerald-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 md:w-auto md:px-4">
+        className="flex w-full items-center justify-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 py-2 text-xs font-semibold text-emerald-300 transition-all hover:border-emerald-400 hover:bg-emerald-500/15 hover:shadow-sm active:scale-[0.98] active:bg-emerald-500/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 md:w-auto md:px-4">
         <ShieldCheck size={14} /> Ninguna presente — marcar las {RED_CONTRAS.length} como NO
       </button>
 
@@ -123,18 +123,18 @@ export default function CIAbsolutasTab({ initialState, onUpdate }) {
 
       {/* Progress */}
       <div className="flex items-center gap-2 pt-1">
-        <div className="flex-1 bg-neutral-100 rounded-full h-1.5 overflow-hidden">
-          <div className="bg-brand-500 h-1.5 rounded-full transition-all duration-300"
+        <div className="flex-1 bg-stroke-panel rounded-full h-1.5 overflow-hidden">
+          <div className="bg-stroke-iconActive/100 h-1.5 rounded-full transition-all duration-300"
             style={{ width: `${(answered / RED_CONTRAS.length) * 100}%` }} />
         </div>
-        <span className="text-[10px] text-neutral-400 font-medium shrink-0">{answered}/{RED_CONTRAS.length}</span>
+        <span className="text-[10px] text-stroke-textMuted font-medium shrink-0">{answered}/{RED_CONTRAS.length}</span>
       </div>
 
       {/* Alert banner when absolute CI found */}
       {hasAbsolute && (
         <div className="px-3 py-2.5 rounded-xl bg-blue-900/10 border border-blue-800/50 animate-fade-in">
-          <p className="text-sm font-bold text-blue-900">Contraindicación absoluta presente</p>
-          <p className="text-xs text-blue-800 mt-0.5 leading-snug">
+          <p className="text-sm font-bold text-blue-300">Contraindicación absoluta presente</p>
+          <p className="text-xs text-blue-300 mt-0.5 leading-snug">
             No indicar trombolisis IV. Evaluar trombectomía mecánica directa.
           </p>
         </div>
