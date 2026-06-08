@@ -107,8 +107,8 @@ export default function CTResultStep({ onConfirm, initialCtRequestTime = null, o
                 onClick={() => handleBleedingSelect(true)}
                 className={`flex min-h-[46px] items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-sm font-bold transition-all active:scale-[0.98] ${
                   bleeding === true
-                    ? 'border-blue-900 bg-blue-900 text-white shadow-elevated'
-                    : 'border-blue-500/30 bg-stroke-navy text-blue-300 hover:border-blue-300 hover:bg-blue-500/10'
+                    ? 'border-status-critical bg-status-critical text-white shadow-elevated'
+                    : 'border-status-critical/30 bg-stroke-navy text-red-300 hover:border-status-critical/50 hover:bg-status-critical/10'
                 }`}
               >
                 <Droplets size={17} strokeWidth={2.5} />
@@ -119,7 +119,7 @@ export default function CTResultStep({ onConfirm, initialCtRequestTime = null, o
                 onClick={() => handleBleedingSelect(false)}
                 className={`flex min-h-[46px] items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-sm font-bold transition-all active:scale-[0.98] ${
                   bleeding === false
-                    ? 'border-emerald-500 bg-emerald-600 text-white shadow-elevated'
+                    ? 'border-emerald-500 bg-emerald-700 text-white shadow-elevated'
                     : 'border-emerald-500/30 bg-stroke-navy text-emerald-300 hover:border-emerald-300 hover:bg-emerald-500/10'
                 }`}
               >
@@ -131,9 +131,9 @@ export default function CTResultStep({ onConfirm, initialCtRequestTime = null, o
         </div>
 
         {bleeding === true && (
-          <div className="mt-3 bg-blue-900/10 border border-blue-800/50 rounded-lg px-3 py-2.5 animate-fade-in">
-            <p className="text-sm font-bold text-blue-300 mb-1">Hemorragia intracraneal presente</p>
-            <p className="text-xs text-blue-300 leading-relaxed">
+          <div className="mt-3 bg-status-critical/10 border border-status-critical/40 rounded-lg px-3 py-2.5 animate-fade-in">
+            <p className="text-sm font-bold text-red-300 mb-1">Hemorragia intracraneal presente</p>
+            <p className="text-xs text-red-300 leading-relaxed">
               Contraindicacion absoluta para trombolisis IV. No administrar rtPA ni TNK.
             </p>
           </div>

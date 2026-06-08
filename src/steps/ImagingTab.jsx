@@ -82,7 +82,7 @@ function CTSection({ onConfirm, initialCtRequestTime, onCtRequest, initialBleedi
           </button>
           <button type="button" onClick={() => handleBleedingSelect(false)}
             className={`flex min-h-[44px] items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-sm font-bold transition-all active:scale-[0.98] ${
-              bleeding === false ? 'border-emerald-500 bg-emerald-600 text-white' : 'border-emerald-500/30 bg-stroke-navy text-emerald-300 hover:border-emerald-300 hover:bg-emerald-500/10'
+              bleeding === false ? 'border-emerald-500 bg-emerald-700 text-white' : 'border-emerald-500/30 bg-stroke-navy text-emerald-300 hover:border-emerald-300 hover:bg-emerald-500/10'
             }`}>
             <CheckCircle2 size={17} strokeWidth={2.5} /> No sangre
           </button>
@@ -148,7 +148,7 @@ function MRISection({ onConfirm, initialMriRequestTime, initialMismatch }) {
             </button>
             <button type="button" onClick={() => handleMismatch(true)}
               className={`py-2.5 rounded-lg border font-bold text-sm transition-all active:scale-[0.98] ${
-                mismatch === true ? 'border-emerald-500 bg-emerald-600 text-white' : 'border-emerald-500/30 bg-stroke-navy text-emerald-300 hover:bg-emerald-500/10'
+                mismatch === true ? 'border-emerald-500 bg-emerald-700 text-white' : 'border-emerald-500/30 bg-stroke-navy text-emerald-300 hover:bg-emerald-500/10'
               }`}>
               SÍ mismatch
             </button>

@@ -52,7 +52,7 @@ function ContraRow({ item, value, onChange }) {
           </button>
           <div className="w-px bg-stroke-panel" />
           <button type="button" onClick={() => onChange(true)}
-            className={`px-2.5 py-1 transition-all active:scale-95 ${isYes ? 'bg-amber-500/100 text-white' : 'bg-stroke-navy text-stroke-textMuted hover:bg-stroke-bg'}`}>
+            className={`px-2.5 py-1 transition-all active:scale-95 ${isYes ? 'bg-amber-500 text-stroke-bg' : 'bg-stroke-navy text-stroke-textMuted hover:bg-stroke-bg'}`}>
             SÍ
           </button>
         </div>
@@ -164,7 +164,7 @@ export default function CIRelativasTab({ initialState, onUpdate, onAnticoagChang
             </button>
             <div className="w-px bg-stroke-panel" />
             <button type="button" onClick={() => setAnticoagActive(true)}
-              className={`px-2.5 py-1 transition-all active:scale-95 ${anticoag.active === true ? 'bg-amber-500/100 text-white' : 'bg-stroke-navy text-stroke-textMuted hover:bg-stroke-bg'}`}>
+              className={`px-2.5 py-1 transition-all active:scale-95 ${anticoag.active === true ? 'bg-amber-500 text-stroke-bg' : 'bg-stroke-navy text-stroke-textMuted hover:bg-stroke-bg'}`}>
               SÍ
             </button>
           </div>

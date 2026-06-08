@@ -828,7 +828,7 @@ export default function App() {
                 {showTrombolisisFAB && (
                   <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-2.5">
                     <button type="button" onClick={() => setActiveTab('trombolisis')}
-                      className="w-full flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition-all active:scale-[0.98]">
+                      className="w-full flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-semibold bg-emerald-700 hover:bg-emerald-800 text-white transition-all active:scale-[0.98]">
                       <Syringe size={13} /> Ir a Trombolisis
                     </button>
                   </div>
@@ -928,7 +928,7 @@ export default function App() {
             type="button"
             onClick={() => setActiveTab('trombolisis')}
             className="fixed z-50 flex items-center gap-2 px-4 py-3 rounded-2xl shadow-xl
-              bg-emerald-600 hover:bg-emerald-700 active:scale-[0.97] text-white font-bold text-sm
+              bg-emerald-700 hover:bg-emerald-800 active:scale-[0.97] text-white font-bold text-sm
               transition-all animate-fade-in md:hidden"
             style={{
               bottom: timerStart
