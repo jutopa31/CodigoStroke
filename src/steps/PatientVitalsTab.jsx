@@ -420,23 +420,16 @@ function VitalsSection({ vitals, onConfirm, draftVitals, onDraftChange, nihssSco
   }
 
   // ── Input helpers ──
-  const numInputCls = (warn, filled) =>
-    'w-full rounded-xl border py-3 text-2xl font-bold text-center text-stroke-text ' +
-    'focus:outline-none focus:ring-2 transition-all placeholder:text-stroke-textMuted/50 ' +
+  // Compact input (mobile + desktop) — 44px touch target, mono, centered
+  const miniInputCls = (warn, filled, isGlu = false) =>
+    'h-11 rounded-lg border text-lg font-bold font-mono tabular-nums text-center text-stroke-text ' +
+    'focus:outline-none focus:ring-2 transition-all placeholder:text-stroke-textMuted/40 ' +
     (warn
-      ? 'border-red-400/60 bg-red-500/10 focus:border-red-400 focus:ring-red-500/20'
+      ? 'border-red-400/60 bg-red-500/10 focus:ring-red-500/20'
       : filled
-        ? 'border-stroke-iconActive/40 bg-stroke-iconActive/10 focus:border-stroke-iconActive/60 focus:ring-stroke-iconActive/20'
-        : 'border-stroke-line bg-stroke-navy focus:border-stroke-iconActive/40 focus:ring-stroke-iconActive/15')
-
-  const glucInputCls =
-    'w-full rounded-xl border py-3 text-2xl font-bold text-center text-stroke-text pr-14 ' +
-    'focus:outline-none focus:ring-2 transition-all placeholder:text-stroke-textMuted/50 ' +
-    (glucLow || glucHigh
-      ? 'border-red-400/60 bg-red-500/10 focus:border-red-400 focus:ring-red-500/20'
-      : glucose
-        ? 'border-violet-400/40 bg-violet-500/10 focus:border-violet-400/60 focus:ring-violet-500/15'
-        : 'border-stroke-line bg-stroke-navy focus:border-violet-400/40 focus:ring-violet-500/15')
+        ? (isGlu ? 'border-violet-400/40 bg-violet-500/10 focus:ring-violet-500/15'
+                 : 'border-stroke-iconActive/40 bg-stroke-iconActive/10 focus:ring-stroke-iconActive/20')
+        : 'border-stroke-line bg-stroke-navy focus:ring-stroke-iconActive/15')
 
   const missing = [!sys && 'PAS', !dia && 'PAD', !glucose && 'glucemia', mrs === null && 'mRS'].filter(Boolean)
 
@@ -463,60 +456,71 @@ function VitalsSection({ vitals, onConfirm, draftVitals, onDraftChange, nihssSco
         <div className="bg-stroke-bg rounded-2xl border border-stroke-line p-4 space-y-4">
           <p className="text-[10px] font-bold uppercase tracking-widest text-stroke-textMuted">Form Inputs</p>
 
+          {/* TA — PAS / PAD inline */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="flex items-center gap-1.5 text-xs font-semibold text-stroke-text">
+                <Heart size={12} className="text-blue-400" /> Tensión arterial
+              </label>
+              {sys && (() => { const s = getSysSeverity(sysNum); return s ? <SeverityBadge label={s.label} variant={s.variant} /> : null })()}
+            </div>
+            <div className="flex items-center gap-2">
+              <input ref={sysRef} type="text" inputMode="numeric" maxLength={3} placeholder="—"
+                value={sys}
+                onChange={(e) => setSys(e.target.value.replace(/\D/g, '').slice(0, 3))}
+                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); diaRef.current?.focus() } }}
+                aria-label="Presión sistólica"
+                className={`${miniInputCls(taCrit, !!sys)} flex-1 min-w-0`} />
+              <span className="font-bold text-stroke-textMuted">/</span>
+              <input ref={diaRef} type="text" inputMode="numeric" maxLength={3} placeholder="—"
+                value={dia}
+                onChange={(e) => setDia(e.target.value.replace(/\D/g, '').slice(0, 3))}
+                aria-label="Presión diastólica"
+                className={`${miniInputCls(diaCrit, !!dia)} flex-1 min-w-0`} />
+            </div>
+            <p className="text-[10px] text-stroke-textMuted mt-1.5">mmHg · ≤185/110</p>
+          </div>
+
           {/* Glucemia */}
           <div>
-            <label className="flex items-center gap-1.5 text-xs font-semibold text-stroke-text mb-2">
-              <Droplets size={12} className="text-violet-400" />
-              Glucemia al ingreso (mg/dL)
-            </label>
+            <div className="flex items-center justify-between mb-2">
+              <label className="flex items-center gap-1.5 text-xs font-semibold text-stroke-text">
+                <Droplets size={12} className="text-violet-400" /> Glucemia
+              </label>
+              {glucose && (() => { const g = getGlucSeverity(glucNum); return g ? <SeverityBadge label={g.label} variant={g.variant} /> : null })()}
+            </div>
             <div className="relative">
               <input ref={glucoseRef} type="text" inputMode="numeric" maxLength={3} placeholder="—"
                 value={glucose}
                 onChange={(e) => setGlucose(e.target.value.replace(/\D/g, '').slice(0, 3))}
-                className={glucInputCls + ' py-2.5 text-lg'} />
-              <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-xs font-semibold text-stroke-textMuted">mg/dL</span>
+                aria-label="Glucemia"
+                className={`${miniInputCls(glucLow || glucHigh, !!glucose, true)} w-full pr-12`} />
+              <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-[10px] font-semibold text-stroke-textMuted">mg/dL</span>
             </div>
+            <p className="text-[10px] text-stroke-textMuted mt-1.5">50–400 mg/dL</p>
           </div>
 
-          {/* TA */}
-          <div>
-            <label className="flex items-center gap-1.5 text-xs font-semibold text-stroke-text mb-2">
-              <Heart size={12} className="text-blue-400" />
-              Presión arterial sistólica
-            </label>
-            <input ref={sysRef} type="text" inputMode="numeric" maxLength={3} placeholder="—"
-              value={sys}
-              onChange={(e) => setSys(e.target.value.replace(/\D/g, '').slice(0, 3))}
-              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); diaRef.current?.focus() } }}
-              className={numInputCls(taCrit, !!sys) + ' py-2.5 text-lg'} />
-          </div>
-
-          {/* Diastólica (colapsada, accesible) */}
-          <div>
-            <label className="flex items-center gap-1.5 text-xs font-semibold text-stroke-text mb-2">
-              Presión arterial diastólica
-            </label>
-            <input ref={diaRef} type="text" inputMode="numeric" maxLength={3} placeholder="—"
-              value={dia}
-              onChange={(e) => setDia(e.target.value.replace(/\D/g, '').slice(0, 3))}
-              className={numInputCls(diaCrit, !!dia) + ' py-2.5 text-lg'} />
-          </div>
-
-          {/* mRS */}
-          <div>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-stroke-textMuted mb-2">mRS basal</p>
+          {/* mRS basal — prominent band */}
+          <div className={`rounded-xl border p-3 transition-colors ${mrs !== null ? 'border-stroke-iconActive/40 bg-stroke-iconActive/5' : 'border-stroke-iconActive/30 bg-stroke-navy'}`}>
+            <div className="flex items-center justify-between mb-2.5">
+              <p className="text-[11px] font-bold uppercase tracking-wider text-stroke-iconActive">mRS basal</p>
+              <span className="text-[10px] text-stroke-textMuted">func. previa</span>
+            </div>
             <div className="grid grid-cols-6 gap-1">
               {MRS_OPTIONS.map((o) => (
                 <button key={o.score} type="button" onClick={() => setMrs(o.score)} title={o.label}
-                  className={`rounded-lg border py-2 text-sm font-bold transition-all active:scale-95 ${
+                  aria-pressed={mrs === o.score} aria-label={`mRS ${o.score}: ${o.label}`}
+                  className={`h-10 rounded-lg border font-mono text-sm font-bold transition-all active:scale-95 ${
                     mrs === o.score
-                      ? 'border-stroke-iconActive/40 bg-stroke-iconActive/10 text-stroke-iconActive ring-1 ring-stroke-iconActive/30'
-                      : 'border-stroke-line text-stroke-textMuted hover:border-stroke-iconActive/40 hover:bg-stroke-iconActive/10'
+                      ? 'border-stroke-iconActive bg-stroke-iconActive text-white'
+                      : 'border-stroke-line bg-stroke-bg text-stroke-textMuted hover:border-stroke-iconActive/40'
                   }`}>{o.score}</button>
               ))}
             </div>
             {mrs !== null && (
-              <p className="text-[11px] text-stroke-iconActive font-semibold mt-1.5 animate-fade-in">{MRS_OPTIONS[mrs].label}</p>
+              <p className="mt-2 text-[11px] text-stroke-text animate-fade-in">
+                <span className="font-semibold text-stroke-iconActive">{mrs}</span> · {MRS_OPTIONS[mrs].label}
+              </p>
             )}
           </div>
 
@@ -571,93 +575,94 @@ function VitalsSection({ vitals, onConfirm, draftVitals, onDraftChange, nihssSco
       </div>
 
       {/* ══════════════════════════════════════
-          MOBILE: stacked linear (existing UX)
+          MOBILE: compact grid + prominent mRS band (variant B)
       ══════════════════════════════════════ */}
-      <div className="md:hidden space-y-4">
+      <div className="md:hidden space-y-3">
 
-        {/* ── Tensión arterial ── */}
-        <div>
-          <div className="flex items-center justify-between mb-2.5">
-            <div className="flex items-center gap-1.5">
-              <Heart size={12} className="text-blue-400" />
-              <p className="text-xs font-semibold text-stroke-text">Tensión arterial</p>
+        {/* ── TA + Glucemia: compact 2-col grid ── */}
+        <div className="grid grid-cols-2 gap-2.5">
+
+          {/* Tensión arterial */}
+          <div className={`rounded-xl border p-3 ${taCrit || diaCrit ? 'border-red-500/40 bg-red-500/5' : 'bg-stroke-bg border-stroke-line'}`}>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-1.5 min-w-0">
+                <Heart size={12} className="text-blue-400 shrink-0" />
+                <p className="text-[11px] font-semibold text-stroke-text truncate">Tensión arterial</p>
+              </div>
+              {sys && (() => { const s = getSysSeverity(sysNum); return s ? <SeverityBadge label={s.label} variant={s.variant} /> : null })()}
             </div>
-            <span className="text-[10px] font-medium text-stroke-textMuted">mmHg · meta ≤185/110</span>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <div>
+            <div className="flex items-center gap-1.5">
               <input ref={sysRef} type="text" inputMode="numeric" maxLength={3} placeholder="—"
                 value={sys}
                 onChange={(e) => setSys(e.target.value.replace(/\D/g, '').slice(0, 3))}
                 onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); diaRef.current?.focus() } }}
-                className={numInputCls(taCrit, !!sys)} />
-              <p className={`text-[10px] text-center mt-1 font-medium ${taCrit ? 'text-red-400' : 'text-stroke-textMuted'}`}>Sistólica</p>
-            </div>
-            <div>
+                aria-label="Presión sistólica"
+                className={`${miniInputCls(taCrit, !!sys)} flex-1 min-w-0`} />
+              <span className="font-bold text-stroke-textMuted">/</span>
               <input ref={diaRef} type="text" inputMode="numeric" maxLength={3} placeholder="—"
                 value={dia}
                 onChange={(e) => setDia(e.target.value.replace(/\D/g, '').slice(0, 3))}
                 onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); glucoseRef.current?.focus() } }}
-                className={numInputCls(diaCrit, !!dia)} />
-              <p className={`text-[10px] text-center mt-1 font-medium ${diaCrit ? 'text-red-400' : 'text-stroke-textMuted'}`}>Diastólica</p>
+                aria-label="Presión diastólica"
+                className={`${miniInputCls(diaCrit, !!dia)} flex-1 min-w-0`} />
             </div>
+            <p className="text-[10px] text-stroke-textMuted mt-1.5">mmHg · ≤185/110</p>
           </div>
-          {(taCrit || diaCrit) && (
-            <ClinicalAlert variant="critical" role="alert" className="mt-2">
-              {taCrit && 'PAS >185 mmHg — ajustar antes de trombolisis. '}
-              {diaCrit && 'PAD >110 mmHg — ajustar antes de trombolisis.'}
-            </ClinicalAlert>
-          )}
+
+          {/* Glucemia */}
+          <div className={`rounded-xl border p-3 ${glucLow || glucHigh ? 'border-red-500/40 bg-red-500/5' : 'bg-stroke-bg border-stroke-line'}`}>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-1.5 min-w-0">
+                <Droplets size={12} className="text-violet-400 shrink-0" />
+                <p className="text-[11px] font-semibold text-stroke-text truncate">Glucemia</p>
+              </div>
+              {glucose && (() => { const g = getGlucSeverity(glucNum); return g ? <SeverityBadge label={g.label} variant={g.variant} /> : null })()}
+            </div>
+            <div className="relative">
+              <input ref={glucoseRef} type="text" inputMode="numeric" maxLength={3} placeholder="—"
+                value={glucose}
+                onChange={(e) => setGlucose(e.target.value.replace(/\D/g, '').slice(0, 3))}
+                aria-label="Glucemia"
+                className={`${miniInputCls(glucLow || glucHigh, !!glucose, true)} w-full pr-10`} />
+              <span className="pointer-events-none absolute inset-y-0 right-2.5 flex items-center text-[10px] font-semibold text-stroke-textMuted">mg/dL</span>
+            </div>
+            <p className="text-[10px] text-stroke-textMuted mt-1.5">50–400 mg/dL</p>
+          </div>
         </div>
 
-        <div className="border-t border-stroke-line" />
-
-        {/* ── Glucemia ── */}
-        <div>
+        {/* ── mRS basal: prominent band ── */}
+        <div className={`rounded-xl border p-3 transition-colors ${mrs !== null ? 'border-stroke-iconActive/40 bg-stroke-iconActive/5' : 'border-stroke-iconActive/30 bg-stroke-bg'}`}>
           <div className="flex items-center justify-between mb-2.5">
-            <div className="flex items-center gap-1.5">
-              <Droplets size={12} className="text-violet-400" />
-              <p className="text-xs font-semibold text-stroke-text">Glucemia</p>
-            </div>
-            <span className="text-[10px] font-medium text-stroke-textMuted">rango 50–400 mg/dL</span>
+            <p className="text-[11px] font-bold uppercase tracking-wider text-stroke-iconActive">mRS basal</p>
+            <span className="text-[10px] text-stroke-textMuted">funcionalidad previa</span>
           </div>
-          <div className="relative">
-            <input ref={glucoseRef} type="text" inputMode="numeric" maxLength={3} placeholder="—"
-              value={glucose}
-              onChange={(e) => setGlucose(e.target.value.replace(/\D/g, '').slice(0, 3))}
-              className={glucInputCls} />
-            <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-sm font-semibold text-stroke-textMuted">mg/dL</span>
-          </div>
-          {(glucLow || glucHigh) && (
-            <ClinicalAlert variant="critical" role="alert" className="mt-2">
-              {glucLow  && 'Hipoglucemia <50 mg/dL — corregir antes de trombolisis. '}
-              {glucHigh && 'Hiperglucemia >400 mg/dL — controlar antes de proceder.'}
-            </ClinicalAlert>
-          )}
-        </div>
-
-        <div className="border-t border-stroke-line" />
-
-        {/* ── mRS ── */}
-        <div>
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-stroke-textMuted mb-2">mRS basal (funcionalidad previa)</p>
-          <div className="grid grid-cols-6 gap-1">
+          <div className="grid grid-cols-6 gap-1.5">
             {MRS_OPTIONS.map((o) => (
               <button key={o.score} type="button" onClick={() => setMrs(o.score)} title={o.label}
-                className={`rounded-lg border py-2 text-sm font-bold transition-all active:scale-95 ${
+                aria-pressed={mrs === o.score} aria-label={`mRS ${o.score}: ${o.label}`}
+                className={`h-11 rounded-lg border font-mono text-base font-bold transition-all active:scale-95 ${
                   mrs === o.score
-                    ? 'border-stroke-iconActive/40 bg-stroke-iconActive/10 text-stroke-iconActive ring-2 ring-stroke-iconActive/30'
-                    : 'border-stroke-line text-stroke-textMuted hover:border-stroke-iconActive/40 hover:bg-stroke-iconActive/10'
+                    ? 'border-stroke-iconActive bg-stroke-iconActive text-white'
+                    : 'border-stroke-line bg-stroke-navy text-stroke-textMuted hover:border-stroke-iconActive/40'
                 }`}>{o.score}</button>
             ))}
           </div>
           {mrs !== null && (
-            <div className="mt-1.5 px-2.5 py-1.5 bg-stroke-iconActive/10 rounded-lg border border-stroke-iconActive/40 animate-fade-in">
-              <p className="text-[11px] font-semibold text-stroke-iconActive leading-tight">{MRS_OPTIONS[mrs].label}</p>
-              <p className="text-[10px] text-stroke-textMuted mt-0.5 leading-snug">{MRS_OPTIONS[mrs].desc}</p>
-            </div>
+            <p className="mt-2 text-[11px] text-stroke-text animate-fade-in">
+              <span className="font-semibold text-stroke-iconActive">{mrs}</span> · {MRS_OPTIONS[mrs].label}
+            </p>
           )}
         </div>
+
+        {/* ── Critical alert (out-of-range only) ── */}
+        {(taCrit || diaCrit || glucLow || glucHigh) && (
+          <ClinicalAlert variant="critical" role="alert" className="animate-slide-down">
+            {taCrit   && 'PAS >185 mmHg — ajustar antes de trombolisis. '}
+            {diaCrit  && 'PAD >110 mmHg — ajustar antes de trombolisis. '}
+            {glucLow  && 'Hipoglucemia <50 mg/dL — corregir antes de trombolisis. '}
+            {glucHigh && 'Hiperglucemia >400 mg/dL — controlar antes de proceder.'}
+          </ClinicalAlert>
+        )}
 
         <button type="button" onClick={handleConfirm} disabled={!valid}
           className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-all active:scale-[0.98] ${
