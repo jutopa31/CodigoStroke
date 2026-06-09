@@ -1,3 +1,5 @@
+import { useEffect, useRef, useState } from 'react'
+
 // Numeric 7-step protocol stepper (HANDOFF_SPEC Phase 2, adapted to the tab state machine).
 // Replaces the icon TabBar. Each circle maps to one or more underlying tabs; grouped
 // steps (CI, Tratamiento) expose a thin secondary nav when active so no sub-tab is lost.
@@ -41,6 +43,26 @@ function circleClasses(status, active) {
 export default function StepStepper({ phase, activeTab, completion = {}, postUnlocked = false, showTrombolisis = false, onNavigate }) {
   const activeStep = STEPS.find((s) => s.phase === phase && s.tabs.includes(activeTab))
 
+  // One-shot "pop" flash when a step transitions into the completed state.
+  const prevStatuses = useRef({})
+  const [popping, setPopping] = useState({})
+  useEffect(() => {
+    const next = {}
+    STEPS.forEach((s) => { next[s.key] = stepStatus(s, { completion, postUnlocked }) })
+    const justCompleted = STEPS.filter(
+      (s) => next[s.key] === 'complete' && prevStatuses.current[s.key] && prevStatuses.current[s.key] !== 'complete',
+    ).map((s) => s.key)
+    if (justCompleted.length) {
+      setPopping((p) => ({ ...p, ...Object.fromEntries(justCompleted.map((k) => [k, true])) }))
+      const timers = justCompleted.map((k) =>
+        setTimeout(() => setPopping((p) => { const np = { ...p }; delete np[k]; return np }), 320),
+      )
+      prevStatuses.current = next
+      return () => timers.forEach(clearTimeout)
+    }
+    prevStatuses.current = next
+  }, [completion, postUnlocked])
+
   function go(step) {
     const reachable = step.phase === 'pre' || postUnlocked
     if (!reachable) return
@@ -73,7 +95,7 @@ export default function StepStepper({ phase, activeTab, completion = {}, postUnl
               aria-label={`Paso ${step.n}: ${step.name}`}
               title={step.name}
               className={`relative z-10 flex h-8 w-8 items-center justify-center rounded-full font-mono text-[13px] font-semibold
-                transition-all ${circleClasses(status, active)} ${reachable ? 'active:scale-95' : 'opacity-50 cursor-not-allowed'}`}
+                transition-all duration-300 ${circleClasses(status, active)} ${popping[step.key] ? 'animate-step-pop' : ''} ${reachable ? 'active:scale-95' : 'opacity-50 cursor-not-allowed'}`}
             >
               {step.n}
             </button>
