@@ -145,13 +145,33 @@ Scale: `2(2px) 4(4px) 8(8px) 12(12px) 16(16px) 20(20px) 24(24px) 32(32px) 40(40p
 
 ## Component Conventions
 
-### Timer display
+### Timer display (Hero)
+The timer is a hero block, not a widget. Mobile: `CÓDIGO STROKE` eyebrow (accent
+`#5C7AEA`, uppercase, tracking 0.14em) + `PASO X/Y` pill above a 32px Geist Mono
+timer with a pulsing dot and a `desde inicio` muted label. Geist Mono, tabular-nums.
+
+**Color escalates with elapsed time** (single source of truth — `getTimerTone()` in `GlobalTimer.jsx`):
+| Elapsed | Timer text | Token |
+|---------|-----------|-------|
+| 0–30 min | amber | `text-status-warning` (`#FBBF24`) |
+| 30–60 min | orange | `text-orange-500` (`#F97316`) |
+| >60 min | red | `text-status-critical` (`#EF4444`) |
+
+The pulsing dot and progress-bar fill follow the same phase color.
+
 ```jsx
-// Always: Geist Mono, 40px+, amber (#D97706), tabular-nums, pulsing dot
-<span className="font-mono text-4xl font-semibold text-warning tabular-nums">
-  {formatTime(elapsed)}
+const tone = getTimerTone(minutes)
+<span className={`font-mono text-[2rem] font-bold tabular-nums ${tone.text}`}>
+  {formatElapsed(elapsed)}
 </span>
 ```
+
+### ClinicalAlert (`src/components/ClinicalAlert.jsx`)
+Single component for all clinical alert banners. 3px left-border in the status color,
+muted translucent background, 10px radius, icon + bold lead + muted body. Variants map
+to the clinical channels: `warning` (amber), `critical` (red), `info` (accent blue),
+`glucose` (violet), `success` (green). Prefer this over ad-hoc inline `AlertTriangle`
+banners.
 
 ### Status badges
 Each badge maps to exactly one clinical channel. Never mix semantics.
@@ -180,3 +200,5 @@ Left-border accent matching status color, muted background, icon + bold lead + m
 | 2026-06-07 | Changed critical status from dark navy to red `#EF4444` | Insufficient contrast for navy-on-navy on dark backgrounds |
 | 2026-06-07 | Established timer as persistent hero element | Timer is the most important UI element during a code stroke — visibility must be unambiguous |
 | 2026-06-07 | Initial design system created | Created by /design-consultation based on codebase audit + clinical context |
+| 2026-06-08 | Timer Hero: amber→orange→red text phases + CÓDIGO STROKE eyebrow + PASO X/Y pill + "desde inicio" | Implemented HANDOFF_SPEC Phase 1 adapted to the tab architecture (no stepper migration) |
+| 2026-06-08 | Added `ClinicalAlert` component | Consolidates scattered inline warning banners into one channel-aware component (HANDOFF_SPEC Phase 3) |

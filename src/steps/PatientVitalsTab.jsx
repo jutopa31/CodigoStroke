@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
-import { User, CheckCircle2, AlertTriangle, CreditCard, Lock, BookOpen, ScanLine, Heart, Droplets, Zap, ChevronRight } from 'lucide-react'
+import { User, CheckCircle2, CreditCard, Lock, BookOpen, ScanLine, Heart, Droplets, Zap, ChevronRight } from 'lucide-react'
 import DniQrScanner from '../components/DniQrScanner'
+import ClinicalAlert from '../components/ClinicalAlert'
 
 const MRS_OPTIONS = [
   { score: 0, label: 'Sin síntomas',                  desc: 'Sin síntomas.' },
@@ -289,13 +290,10 @@ function VitalsSection({ vitals, onConfirm, draftVitals, onDraftChange }) {
         </div>
 
         {(taCrit || diaCrit) && (
-          <div className="flex items-start gap-2 mt-2 rounded-lg border border-status-critical/30 bg-status-critical/10 px-3 py-2">
-            <AlertTriangle size={11} className="shrink-0 text-red-400 mt-0.5" />
-            <p className="text-xs text-red-400">
-              {taCrit && 'PAS >185 mmHg — ajustar antes de trombolisis. '}
-              {diaCrit && 'PAD >110 mmHg — ajustar antes de trombolisis.'}
-            </p>
-          </div>
+          <ClinicalAlert variant="critical" role="alert" className="mt-2">
+            {taCrit && 'PAS >185 mmHg — ajustar antes de trombolisis. '}
+            {diaCrit && 'PAD >110 mmHg — ajustar antes de trombolisis.'}
+          </ClinicalAlert>
         )}
       </div>
 
@@ -325,13 +323,10 @@ function VitalsSection({ vitals, onConfirm, draftVitals, onDraftChange }) {
         </div>
 
         {(glucLow || glucHigh) && (
-          <div className="flex items-start gap-2 mt-2 rounded-lg border border-status-critical/30 bg-status-critical/10 px-3 py-2">
-            <AlertTriangle size={11} className="shrink-0 text-red-400 mt-0.5" />
-            <p className="text-xs text-red-400">
-              {glucLow  && 'Hipoglucemia <50 mg/dL — corregir antes de trombolisis. '}
-              {glucHigh && 'Hiperglucemia >400 mg/dL — controlar antes de proceder.'}
-            </p>
-          </div>
+          <ClinicalAlert variant="critical" role="alert" className="mt-2">
+            {glucLow  && 'Hipoglucemia <50 mg/dL — corregir antes de trombolisis. '}
+            {glucHigh && 'Hiperglucemia >400 mg/dL — controlar antes de proceder.'}
+          </ClinicalAlert>
         )}
       </div>
 

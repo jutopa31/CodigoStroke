@@ -707,13 +707,25 @@ export default function App() {
     ? (PHASE1_TAB_IDS.filter((k) => tabCompletion[k] === 'complete').length / PHASE1_TAB_IDS.length) * 100
     : 100
 
+  // PASO X/Y pill — current tab position within the active phase
+  const stepLabel = (() => {
+    if (phase === 'pre') {
+      const i = PHASE1_TAB_IDS.indexOf(activeTab)
+      return i >= 0 ? `PASO ${i + 1}/${PHASE1_TAB_IDS.length}` : null
+    }
+    const PHASE2_ORDER = ['decision', 'trombolisis', 'cuidados', 'trombectomia', 'resumen']
+      .filter((id) => !(id === 'trombolisis' && decisionResult?.thrombolyze !== true))
+    const i = PHASE2_ORDER.indexOf(activeTab)
+    return i >= 0 ? `PASO ${i + 1}/${PHASE2_ORDER.length}` : null
+  })()
+
   // Floating trombolisis button: visible in Phase 2 when indicated, not already on that tab
   const showTrombolisisFAB = phase === 'post'
     && decisionResult?.thrombolyze === true
     && activeTab !== 'trombolisis'
 
   const headerOffsetClass = timerStart
-    ? 'pt-[calc(6.85rem+env(safe-area-inset-top,0px))] md:pt-[calc(2.75rem+env(safe-area-inset-top,0px))]'
+    ? 'pt-[calc(7rem+env(safe-area-inset-top,0px))] md:pt-[calc(2.75rem+env(safe-area-inset-top,0px))]'
     : 'pt-[calc(3.75rem+env(safe-area-inset-top,0px))] md:pt-[calc(2.75rem+env(safe-area-inset-top,0px))]'
 
   return (
@@ -731,6 +743,7 @@ export default function App() {
         onReset={patient ? handleReset : undefined}
         onEducationalOpen={() => setShowEducationalOverlay(true)}
         progressPct={progressPct}
+        stepLabel={stepLabel}
         authUser={user}
         onAuthClick={() => setShowLoginModal(true)}
       />

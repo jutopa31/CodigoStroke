@@ -23,26 +23,11 @@ function fmtClock(ts) {
   return d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
 }
 
-function getPhase(minutes) {
-  // Unified navy chrome — urgency lives in the timer pill (escalates to amber/red) + progress bar
-  if (minutes >= 60) return {
-    bg: 'bg-stroke-navy',
-    muted: 'text-stroke-textMuted',
-    badge: 'bg-stroke-bg text-white',
-    timer: 'md:bg-status-critical md:text-white',
-  }
-  if (minutes >= 30) return {
-    bg: 'bg-stroke-navy',
-    muted: 'text-stroke-textMuted',
-    badge: 'bg-stroke-bg text-white',
-    timer: 'md:bg-amber-500 md:text-stroke-bg',
-  }
-  return {
-    bg: 'bg-stroke-navy',
-    muted: 'text-stroke-textMuted',
-    badge: 'bg-stroke-bg text-white',
-    timer: 'md:bg-stroke-panel md:text-white',
-  }
+// Timer color escalates with elapsed time (HANDOFF_SPEC: amber → orange → red)
+function getTimerTone(minutes) {
+  if (minutes >= 60) return { text: 'text-status-critical', dot: 'bg-status-critical', bar: 'bg-status-critical' }
+  if (minutes >= 30) return { text: 'text-orange-500',      dot: 'bg-orange-500',      bar: 'bg-orange-500' }
+  return { text: 'text-status-warning', dot: 'bg-status-warning', bar: 'bg-stroke-iconActive' }
 }
 
 function EventBadge({ label, time, badgeClass, compact = false }) {
@@ -64,7 +49,54 @@ function getEventBadges(startTime, timestamps) {
   ].filter(Boolean)
 }
 
-export default function GlobalTimer({ startTime, timestamps = {}, patient, onReset, progressPct, onEducationalOpen, authUser, onAuthClick }) {
+// "CÓDIGO STROKE" eyebrow + optional PASO X/Y pill (HANDOFF_SPEC header strip)
+function HeaderStrip({ stepLabel }) {
+  return (
+    <div className="flex items-center gap-2 min-w-0">
+      <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-stroke-iconActive shrink-0">
+        Código Stroke
+      </span>
+      {stepLabel && (
+        <span className="rounded-full border border-stroke-iconActive/30 bg-stroke-iconActive/15 px-2.5 py-0.5 text-[10px] font-semibold text-stroke-iconActive shrink-0">
+          {stepLabel}
+        </span>
+      )}
+    </div>
+  )
+}
+
+function HeaderActions({ authUser, onAuthClick, onEducationalOpen, onReset, size = 'mobile' }) {
+  const base = size === 'mobile'
+    ? 'w-10 h-10 rounded-xl'
+    : 'w-7 h-7 rounded-lg'
+  const cls = `${base} border border-stroke-line bg-stroke-bg flex items-center justify-center text-white md:text-stroke-textMuted hover:bg-stroke-panel/40 transition-colors shrink-0`
+  return (
+    <div className="flex items-center gap-2 shrink-0">
+      {onAuthClick && (
+        <button type="button" onClick={onAuthClick} className={cls}
+          title={authUser ? 'Tu cuenta' : 'Iniciar sesión'} aria-label={authUser ? 'Tu cuenta' : 'Iniciar sesión'}>
+          {authUser
+            ? <span className="text-[10px] font-bold leading-none">{getInitials(authUser)}</span>
+            : <User size={14} strokeWidth={2} />}
+        </button>
+      )}
+      {onEducationalOpen && (
+        <button type="button" onClick={onEducationalOpen} className={cls}
+          title="Referencia educativa del protocolo" aria-label="Abrir referencia educativa">
+          <BookOpen size={14} strokeWidth={2} />
+        </button>
+      )}
+      {onReset && (
+        <button type="button" onClick={onReset} className={cls}
+          title="Reiniciar protocolo" aria-label="Reiniciar protocolo">
+          <RotateCcw size={14} strokeWidth={2} />
+        </button>
+      )}
+    </div>
+  )
+}
+
+export default function GlobalTimer({ startTime, timestamps = {}, patient, onReset, progressPct, stepLabel, onEducationalOpen, authUser, onAuthClick }) {
   const [elapsed, setElapsed] = useState(0)
 
   useEffect(() => {
@@ -76,32 +108,83 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
   }, [startTime])
 
   const minutes = elapsed / 60
-  const phase = startTime ? getPhase(minutes) : null
-  const bg = phase ? phase.bg : 'bg-stroke-navy'
+  const tone = getTimerTone(minutes)
   const eventBadges = getEventBadges(startTime, timestamps)
-  const primaryEvent = eventBadges[eventBadges.length - 1]
 
   return (
     <div
-      className={`fixed top-0 left-0 right-0 z-50 ${bg} transition-colors duration-500 md:border-b md:border-stroke-line md:bg-stroke-navy`}
+      className="fixed top-0 left-0 right-0 z-50 bg-stroke-bg md:border-b md:border-stroke-line md:bg-stroke-navy"
       style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
     >
-      <div className="flex items-center justify-between gap-3 px-3 py-2 md:h-11 md:px-5 md:py-0">
-        <div className="flex items-center gap-2.5 min-w-0 shrink md:gap-3">
-          <div className={`w-10 h-10 md:w-7 md:h-7 rounded-xl md:rounded-lg bg-stroke-bg flex items-center justify-center shrink-0 ${phase?.timer ?? 'md:bg-stroke-panel md:text-white'}`}>
-            {startTime
-              ? <Clock size={16} className="text-white" strokeWidth={2} />
-              : <Activity size={16} className="text-white" strokeWidth={2} />
-            }
-          </div>
-          {startTime ? (
-            <div className="min-w-0">
-              <span className="block font-mono font-bold text-[1.35rem] leading-none md:text-lg text-status-warning tracking-tight tabular-nums">
+      {/* ───────── MOBILE: Timer Hero ───────── */}
+      <div className="md:hidden">
+        {startTime ? (
+          <div className="px-4 pt-2 pb-1.5">
+            {/* Header strip: brand + step pill ........ actions */}
+            <div className="flex items-center justify-between gap-2">
+              <HeaderStrip stepLabel={stepLabel} />
+              <HeaderActions
+                authUser={authUser} onAuthClick={onAuthClick}
+                onEducationalOpen={onEducationalOpen} onReset={onReset} size="mobile"
+              />
+            </div>
+            {/* Timer row */}
+            <div className="mt-0.5 flex items-baseline gap-2.5">
+              <span className={`font-mono font-bold text-[2rem] leading-none tabular-nums tracking-tight transition-colors duration-500 ${tone.text}`}>
                 {formatElapsed(elapsed)}
               </span>
-              {primaryEvent && (
-                <span className="mt-1 block truncate text-[10px] font-semibold uppercase tracking-wide text-white/65 md:hidden">
-                  {primaryEvent.label} {fmtClock(primaryEvent.time)}
+              <span className={`w-2 h-2 rounded-full self-center animate-pulse-subtle ${tone.dot}`} aria-hidden="true" />
+              <span className="text-[11px] text-stroke-textMuted leading-tight">desde inicio</span>
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-center justify-between gap-3 px-4 py-2.5">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-10 h-10 rounded-xl bg-stroke-navy flex items-center justify-center shrink-0">
+                <Activity size={16} className="text-stroke-iconActive" strokeWidth={2} />
+              </div>
+              <span className="text-white font-semibold text-sm tracking-wide">Código Stroke</span>
+            </div>
+            <HeaderActions
+              authUser={authUser} onAuthClick={onAuthClick}
+              onEducationalOpen={onEducationalOpen} onReset={onReset} size="mobile"
+            />
+          </div>
+        )}
+
+        {/* Event timeline strip (mobile, when >1 event) */}
+        {startTime && eventBadges.length > 1 && (
+          <div className="border-t border-stroke-line px-4 pb-2">
+            <div
+              className="flex gap-1.5 overflow-x-auto pt-2 pr-8 [mask-image:linear-gradient(to_right,black_0%,black_86%,transparent_100%)]"
+              style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}
+            >
+              {eventBadges.map((event) => (
+                <EventBadge key={event.label} label={event.label} time={event.time}
+                  badgeClass="bg-stroke-navy text-stroke-textMuted" compact />
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ───────── DESKTOP: compact bar ───────── */}
+      <div className="hidden md:flex items-center justify-between gap-3 h-11 px-5">
+        <div className="flex items-center gap-3 min-w-0 shrink">
+          <div className="w-7 h-7 rounded-lg bg-stroke-panel flex items-center justify-center shrink-0">
+            {startTime
+              ? <Clock size={16} className="text-white" strokeWidth={2} />
+              : <Activity size={16} className="text-white" strokeWidth={2} />}
+          </div>
+          {startTime ? (
+            <div className="flex items-baseline gap-2.5 min-w-0">
+              <span className={`font-mono font-bold text-lg leading-none tabular-nums tracking-tight transition-colors duration-500 ${tone.text}`}>
+                {formatElapsed(elapsed)}
+              </span>
+              <span className={`w-1.5 h-1.5 rounded-full self-center animate-pulse-subtle ${tone.dot}`} aria-hidden="true" />
+              {stepLabel && (
+                <span className="rounded-full border border-stroke-iconActive/30 bg-stroke-iconActive/15 px-2 py-0.5 text-[10px] font-semibold text-stroke-iconActive shrink-0">
+                  {stepLabel}
                 </span>
               )}
             </div>
@@ -111,85 +194,30 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
         </div>
 
         {startTime && (
-          <div className="hidden md:flex items-center justify-center gap-1.5 mx-2 overflow-x-auto shrink min-w-0" style={{ scrollbarWidth: 'none' }}>
+          <div className="flex items-center justify-center gap-1.5 mx-2 overflow-x-auto shrink min-w-0" style={{ scrollbarWidth: 'none' }}>
             {eventBadges.map((event) => (
-              <EventBadge
-                key={event.label}
-                label={event.label}
-                time={event.time}
-                badgeClass={`${phase.badge} md:bg-stroke-bg md:text-stroke-textMuted`}
-              />
+              <EventBadge key={event.label} label={event.label} time={event.time}
+                badgeClass="bg-stroke-bg text-stroke-textMuted" />
             ))}
           </div>
         )}
 
         <div className="flex items-center gap-2 shrink-0">
           {startTime && patient && (
-            <span className={`text-xs font-medium ${phase.muted} md:text-white truncate max-w-[140px] hidden md:block`}>
-              {patient.name}
-            </span>
+            <span className="text-xs font-medium text-white truncate max-w-[140px]">{patient.name}</span>
           )}
-          {onAuthClick && (
-            <button
-              type="button"
-              onClick={onAuthClick}
-              className="w-11 h-11 md:w-7 md:h-7 rounded-xl md:rounded-lg border border-stroke-line md:border-stroke-line bg-stroke-bg md:bg-stroke-bg flex items-center justify-center text-white md:text-stroke-textMuted hover:bg-stroke-bg md:hover:bg-stroke-bg transition-colors"
-              title={authUser ? 'Tu cuenta' : 'Iniciar sesión'}
-              aria-label={authUser ? 'Tu cuenta' : 'Iniciar sesión'}
-            >
-              {authUser
-                ? <span className="text-[10px] font-bold leading-none">{getInitials(authUser)}</span>
-                : <User size={14} strokeWidth={2} />
-              }
-            </button>
-          )}
-          {onEducationalOpen && (
-            <button
-              type="button"
-              onClick={onEducationalOpen}
-              className="w-11 h-11 md:w-7 md:h-7 rounded-xl md:rounded-lg border border-stroke-line md:border-stroke-line bg-stroke-bg md:bg-stroke-bg flex items-center justify-center text-white md:text-stroke-textMuted hover:bg-stroke-bg md:hover:bg-stroke-bg transition-colors"
-              title="Referencia educativa del protocolo"
-              aria-label="Abrir referencia educativa"
-            >
-              <BookOpen size={14} strokeWidth={2} />
-            </button>
-          )}
-          {onReset && (
-            <button
-              type="button"
-              onClick={onReset}
-              className="w-11 h-11 md:w-7 md:h-7 rounded-xl md:rounded-lg border border-stroke-line md:border-stroke-line bg-stroke-bg md:bg-stroke-bg flex items-center justify-center text-white md:text-stroke-textMuted hover:bg-stroke-bg md:hover:bg-stroke-bg transition-colors"
-              title="Reiniciar protocolo"
-              aria-label="Reiniciar protocolo"
-            >
-              <RotateCcw size={14} strokeWidth={2} />
-            </button>
-          )}
+          <HeaderActions
+            authUser={authUser} onAuthClick={onAuthClick}
+            onEducationalOpen={onEducationalOpen} onReset={onReset} size="desktop"
+          />
         </div>
       </div>
 
-      {startTime && eventBadges.length > 1 && (
-        <div className="md:hidden border-t border-stroke-line px-3 pb-2">
-          <div
-            className="flex gap-1.5 overflow-x-auto pt-2 pr-8 [mask-image:linear-gradient(to_right,black_0%,black_86%,transparent_100%)]"
-            style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}
-          >
-            {eventBadges.map((event) => (
-              <EventBadge key={event.label} label={event.label} time={event.time} badgeClass={phase.badge} compact />
-            ))}
-          </div>
-        </div>
-      )}
-
+      {/* Progress bar (protocol completion; color tracks time phase) */}
       {progressPct > 0 && (
         <div className="h-1.5 bg-stroke-bg md:bg-stroke-line">
           <div
-            className={`h-full rounded-r-full transition-all duration-500 md:bg-stroke-iconActive ${
-              !phase ? 'bg-emerald-400' :
-              minutes < 30 ? 'bg-emerald-400' :
-              minutes < 60 ? 'bg-amber-400' :
-              'bg-red-400'
-            }`}
+            className={`h-full rounded-r-full transition-all duration-500 md:bg-stroke-iconActive ${tone.bar}`}
             style={{ width: `${progressPct}%` }}
           />
         </div>
