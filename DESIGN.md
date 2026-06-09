@@ -173,6 +173,15 @@ to the clinical channels: `warning` (amber), `critical` (red), `info` (accent bl
 `glucose` (violet), `success` (green). Prefer this over ad-hoc inline `AlertTriangle`
 banners.
 
+### Step Stepper (`src/components/StepStepper.jsx`)
+Primary navigation: 7 numbered circles (numbers only) + connector line, replacing the
+icon TabBar. Maps the protocol across both phases:
+1 Paciente · 2 Tiempo · 3 NIHSS · 4 Imagen · 5 Contraindicaciones · 6 Decisión · 7 Tratamiento.
+Circle states: **completed** = amber fill (`bg-status-warning`, navy number); **active** =
+2px accent ring (`border-stroke-iconActive`, accent bg/text); **pending** = navy fill, line
+border, muted number. Grouped steps (5 CI, 7 Tratamiento) reveal a thin pill sub-nav when
+active so no sub-tab is lost. Post steps (6, 7) are gated until the decision is computed.
+
 ### Status badges
 Each badge maps to exactly one clinical channel. Never mix semantics.
 - **Amber** → CI relativa (relative contraindication)
