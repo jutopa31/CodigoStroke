@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CodigoStroke — Diseño Objetivo Anotado</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #1a1a2e;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    display: flex;
+    gap: 24px;
+    padding: 32px 24px;
+    min-height: 100vh;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  /* ===================== PHONE MOCKUP ===================== */
+  .phone {
+    width: 300px;
+    min-width: 300px;
+    background: #0F1C38;
+    border-radius: 28px;
+    border: 2px solid #29416D;
+    overflow: hidden;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+  }
+
+  /* Header strip */
+  .header-strip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px 8px;
+    background: #0F1C38;
+  }
+  .app-name {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #5C7AEA;
+  }
+  .step-pill {
+    background: rgba(92,122,234,0.15);
+    border: 1px solid rgba(92,122,234,0.3);
+    border-radius: 999px;
+    padding: 3px 10px;
+    font-size: 10px;
+    font-weight: 600;
+    color: #5C7AEA;
+  }
+
+  /* Timer hero */
+  .timer-hero {
+    padding: 4px 16px 10px;
+    background: #0F1C38;
+  }
+  .timer-row {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+  .timer-display {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 44px;
+    font-weight: 700;
+    color: #FBBF24;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+  .timer-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #FBBF24;
+    flex-shrink: 0;
+    margin-bottom: 4px;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.35; }
+  }
+  .timer-aside {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .timer-label {
+    font-size: 11px;
+    color: #A8B6D6;
+    line-height: 1.3;
+  }
+  .progress-bar-track {
+    height: 3px;
+    background: rgba(92,122,234,0.15);
+    border-radius: 999px;
+    margin-top: 8px;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    width: 28%;
+    background: #5C7AEA;
+    border-radius: 999px;
+  }
+
+  /* Step stepper */
+  .stepper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 24px 12px;
+    position: relative;
+  }
+  .stepper-line {
+    position: absolute;
+    top: 50%;
+    left: 44px;
+    right: 44px;
+    height: 1px;
+    background: #29416D;
+    transform: translateY(-4px);
+    z-index: 0;
+  }
+  .step-circle {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    position: relative;
+  }
+  .step-circle.completed {
+    background: #FBBF24;
+    color: #0F1C38;
+  }
+  .step-circle.active {
+    background: rgba(92,122,234,0.15);
+    border: 2px solid #5C7AEA;
+    color: #5C7AEA;
+  }
+  .step-circle.pending {
+    background: #132B58;
+    border: 1px solid #29416D;
+    color: #7089B8;
+  }
+
+  /* Content area */
+  .content {
+    padding: 14px 14px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .step-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #F0F4FF;
+    margin-bottom: 2px;
+  }
+  .step-subtitle {
+    font-size: 12px;
+    color: #A8B6D6;
+    line-height: 1.45;
+    margin-bottom: 2px;
+  }
+
+  /* Warning card */
+  .warning-card {
+    background: rgba(245,158,11,0.08);
+    border: 1px solid rgba(245,158,11,0.2);
+    border-left: 3px solid #FBBF24;
+    border-radius: 10px;
+    padding: 10px 12px;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  .warning-icon {
+    font-size: 13px;
+    margin-top: 1px;
+    flex-shrink: 0;
+  }
+  .warning-text {
+    font-size: 11.5px;
+    line-height: 1.45;
+  }
+  .warning-text strong {
+    color: #FBBF24;
+    font-weight: 600;
+  }
+  .warning-text span {
+    color: #A8B6D6;
+  }
+
+  /* NIHSS item card */
+  .nihss-card {
+    background: #132B58;
+    border: 1px solid #29416D;
+    border-radius: 12px;
+    padding: 12px 13px;
+  }
+  .nihss-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .nihss-title {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #F0F4FF;
+  }
+  .nihss-score {
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .nihss-score.score-normal { color: #A8B6D6; }
+  .nihss-score.score-warn   { color: #FBBF24; }
+  .nihss-score.score-crit   { color: #EF4444; }
+
+  .nihss-options {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+  }
+  .option-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 9px 4px 7px;
+    border-radius: 8px;
+    border: 1px solid #29416D;
+    background: rgba(41,65,109,0.5);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .option-btn.sel-normal {
+    background: #5C7AEA;
+    border-color: #5C7AEA;
+  }
+  .option-btn.sel-abnormal {
+    background: transparent;
+    border: 1.5px solid #FBBF24;
+  }
+  .opt-num {
+    font-family: 'Courier New', monospace;
+    font-size: 15px;
+    font-weight: 700;
+    color: #A8B6D6;
+  }
+  .option-btn.sel-normal .opt-num   { color: #F0F4FF; }
+  .option-btn.sel-abnormal .opt-num { color: #FBBF24; }
+  .opt-label {
+    font-size: 8.5px;
+    color: #7089B8;
+    margin-top: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    text-align: center;
+  }
+  .option-btn.sel-normal .opt-label   { color: rgba(240,244,255,0.8); }
+  .option-btn.sel-abnormal .opt-label { color: rgba(251,191,36,0.75); }
+
+  /* ===================== ANNOTATIONS PANEL ===================== */
+  .annotations {
+    flex: 1;
+    min-width: 300px;
+    max-width: 420px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .panel-title {
+    color: #F0F4FF;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .panel-subtitle {
+    color: #A8B6D6;
+    font-size: 12px;
+    margin-bottom: 4px;
+    line-height: 1.5;
+  }
+  .ann-section {
+    background: rgba(255,255,255,0.04);
+    border-radius: 10px;
+    padding: 14px 16px;
+    border-left: 3px solid transparent;
+  }
+  .ann-section.ann-critical { border-left-color: #EF4444; }
+  .ann-section.ann-warning  { border-left-color: #FBBF24; }
+  .ann-section.ann-info     { border-left-color: #5C7AEA; }
+  .ann-section.ann-ok       { border-left-color: #10B981; }
+
+  .ann-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .ann-critical .ann-label { color: #EF4444; }
+  .ann-warning  .ann-label { color: #FBBF24; }
+  .ann-info     .ann-label { color: #5C7AEA; }
+  .ann-ok       .ann-label { color: #10B981; }
+
+  .ann-text {
+    font-size: 12px;
+    color: #A8B6D6;
+    line-height: 1.55;
+  }
+  .ann-text strong { color: #F0F4FF; font-weight: 600; }
+  .ann-text code {
+    background: rgba(255,255,255,0.08);
+    border-radius: 4px;
+    padding: 1px 5px;
+    color: #F0F4FF;
+    font-size: 11px;
+    font-family: monospace;
+  }
+  .ann-text ul { padding-left: 16px; margin-top: 6px; }
+  .ann-text ul li { margin-bottom: 4px; }
+
+  /* ===================== TOKEN TABLE ===================== */
+  .token-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+    margin-top: 8px;
+  }
+  .token-table th {
+    text-align: left;
+    color: #7089B8;
+    font-weight: 600;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 4px 8px 6px;
+    border-bottom: 1px solid #29416D;
+  }
+  .token-table td {
+    padding: 6px 8px;
+    color: #A8B6D6;
+    border-bottom: 1px solid rgba(41,65,109,0.5);
+    vertical-align: middle;
+  }
+  .token-table td code {
+    background: rgba(255,255,255,0.07);
+    border-radius: 4px;
+    padding: 1px 5px;
+    color: #F0F4FF;
+    font-size: 10px;
+    font-family: monospace;
+  }
+  .color-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 6px;
+    vertical-align: middle;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+</style>
+</head>
+<body>
+
+  <!-- Phone mockup -->
+  <div class="phone" role="img" aria-label="Mockup del diseño objetivo de CodigoStroke">
+
+    <!-- Header strip -->
+    <div class="header-strip">
+      <span class="app-name">Código Stroke</span>
+      <span class="step-pill">PASO 2/5</span>
+    </div>
+
+    <!-- Timer hero -->
+    <div class="timer-hero">
+      <div class="timer-row">
+        <span class="timer-display">00:14:37</span>
+        <div class="timer-dot" aria-hidden="true"></div>
+        <div class="timer-aside">
+          <span class="timer-label">desde</span>
+          <span class="timer-label">inicio</span>
+        </div>
+      </div>
+      <div class="progress-bar-track" role="progressbar" aria-valuenow="28" aria-valuemin="0" aria-valuemax="100">
+        <div class="progress-bar-fill"></div>
+      </div>
+    </div>
+
+    <!-- Step stepper -->
+    <div class="stepper" role="list" aria-label="Progreso del protocolo">
+      <div class="stepper-line" aria-hidden="true"></div>
+      <div class="step-circle completed" role="listitem" aria-label="Paso 1 completado">1</div>
+      <div class="step-circle active"    role="listitem" aria-label="Paso 2 activo" aria-current="step">2</div>
+      <div class="step-circle pending"   role="listitem" aria-label="Paso 3 pendiente">3</div>
+      <div class="step-circle pending"   role="listitem" aria-label="Paso 4 pendiente">4</div>
+      <div class="step-circle pending"   role="listitem" aria-label="Paso 5 pendiente">5</div>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+      <div>
+        <div class="step-title">Evaluación NIHSS</div>
+        <div class="step-subtitle">Puntaje neurológico al ingreso. Registrar dentro de los primeros 15 min.</div>
+      </div>
+
+      <!-- Warning card -->
+      <div class="warning-card" role="alert">
+        <span class="warning-icon" aria-hidden="true">⚠</span>
+        <div class="warning-text">
+          <strong>TA 188/104 mmHg</strong>
+          <span> — sobre umbral para tPA. Registrar y reevaluar post-labetalol.</span>
+        </div>
+      </div>
+
+      <!-- NIHSS item: score 0 (normal) -->
+      <div class="nihss-card">
+        <div class="nihss-header">
+          <span class="nihss-title">1a. Nivel de conciencia</span>
+          <span class="nihss-score score-normal" aria-label="Score actual: 0">0</span>
+        </div>
+        <div class="nihss-options" role="group" aria-label="Opciones 1a. Nivel de conciencia">
+          <button class="option-btn sel-normal" aria-pressed="true">
+            <span class="opt-num">0</span>
+            <span class="opt-label">Alerta</span>
+          </button>
+          <button class="option-btn" aria-pressed="false">
+            <span class="opt-num">1</span>
+            <span class="opt-label">Somnol.</span>
+          </button>
+          <button class="option-btn" aria-pressed="false">
+            <span class="opt-num">2</span>
+            <span class="opt-label">Estupor</span>
+          </button>
+          <button class="option-btn" aria-pressed="false">
+            <span class="opt-num">3</span>
+            <span class="opt-label">Coma</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- NIHSS item: score 2 (abnormal) -->
+      <div class="nihss-card">
+        <div class="nihss-header">
+          <span class="nihss-title">4. Paresia facial</span>
+          <span class="nihss-score score-warn" aria-label="Score actual: 2">2</span>
+        </div>
+        <div class="nihss-options" role="group" aria-label="Opciones 4. Paresia facial">
+          <button class="option-btn" aria-pressed="false">
+            <span class="opt-num">0</span>
+            <span class="opt-label">Normal</span>
+          </button>
+          <button class="option-btn" aria-pressed="false">
+            <span class="opt-num">1</span>
+            <span class="opt-label">Mínima</span>
+          </button>
+          <button class="option-btn sel-abnormal" aria-pressed="true">
+            <span class="opt-num">2</span>
+            <span class="opt-label">Parcial</span>
+          </button>
+          <button class="option-btn" aria-pressed="false">
+            <span class="opt-num">3</span>
+            <span class="opt-label">Completa</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Annotations panel -->
+  <div class="annotations">
+    <div class="panel-title">Diseño objetivo — CodigoStroke</div>
+    <div class="panel-subtitle">
+      Mockup anotado generado el 2026-06-08. Cada sección mapea los tokens del sistema de diseño (DESIGN.md) a los componentes de React. Ver HANDOFF_SPEC.md para las medidas exactas.
+    </div>
+
+    <div class="ann-section ann-critical">
+      <div class="ann-label">🔴 Brecha crítica — Timer como héroe</div>
+      <div class="ann-text">
+        El timer ocupa la <strong>sección superior</strong> como elemento de 44px en Geist Mono amber. Actualmente está embebido dentro del sticky header bar.<br><br>
+        Fix: extraer <code>GlobalTimer</code> del nav y convertirlo en sección autónoma.<br><br>
+        <ul>
+          <li>Color: <code>#FBBF24</code> (status-warning / amber-400)</li>
+          <li>Tamaño: 44–48px, <code>font-mono</code>, <code>tabular-nums</code></li>
+          <li>Dot pulsante: <code>animate-pulse-subtle</code></li>
+          <li>Progress bar 3px debajo</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="ann-section ann-critical">
+      <div class="ann-label">🔴 Brecha crítica — Step Stepper numérico</div>
+      <div class="ann-text">
+        Los tabs con íconos se reemplazan por <strong>círculos numerados</strong> con 3 estados:<br><br>
+        <ul>
+          <li><strong>Completado:</strong> <code>bg-status-warning</code> fill amber</li>
+          <li><strong>Activo:</strong> <code>border-stroke-iconActive</code> + bg tintado</li>
+          <li><strong>Pendiente:</strong> <code>border-stroke-line</code> muted</li>
+        </ul>
+        Nuevo componente: <code>StepStepper.jsx</code>
+      </div>
+    </div>
+
+    <div class="ann-section ann-warning">
+      <div class="ann-label">🟡 Mejora — Warning card con left-border</div>
+      <div class="ann-text">
+        Alertas clínicas (TA fuera de rango, glucemia) usan border-left 3px amber + fondo tintado.<br><br>
+        <code>border-l-[3px] border-amber-400</code><br>
+        <code>bg-amber-500/8 border border-amber-500/20</code><br><br>
+        El valor clínico va en <strong>bold amber</strong>, el texto descriptivo en <code>text-stroke-textMuted</code>.
+      </div>
+    </div>
+
+    <div class="ann-section ann-warning">
+      <div class="ann-label">🟡 Mejora — Estados de opción NIHSS</div>
+      <div class="ann-text">
+        <ul>
+          <li><strong>Score 0:</strong> fill <code>#5C7AEA</code> (normal)</li>
+          <li><strong>Score 1–2:</strong> border + número <code>#FBBF24</code> amber</li>
+          <li><strong>Score ≥3:</strong> border + número <code>#EF4444</code> red</li>
+        </ul>
+        El score badge en el header de la card refleja el mismo semáforo.
+      </div>
+    </div>
+
+    <div class="ann-section ann-info">
+      <div class="ann-label">ℹ️ Header strip minimal</div>
+      <div class="ann-text">
+        "CÓDIGO STROKE" en 10px uppercase tracking-wide <code>#5C7AEA</code>.<br>
+        "PASO X/Y" como pill con <code>bg-stroke-iconActive/15</code>.<br>
+        Background siempre <code>#0F1C38</code> — la urgencia la comunica el timer, no el header.
+      </div>
+    </div>
+
+    <div class="ann-section ann-ok">
+      <div class="ann-label">✅ Ya implementado en el codebase</div>
+      <div class="ann-text">
+        <ul>
+          <li>Fondo general <code>#0F1C38</code> (stroke-bg) ✓</li>
+          <li>Cards <code>#132B58</code> con border <code>#29416D</code> ✓</li>
+          <li>Fuentes DM Sans + Geist Mono ✓</li>
+          <li>Tokens status-warning, stroke-iconActive ✓</li>
+          <li>Animaciones slide-down, fade-in, pulse-subtle ✓</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Token reference table -->
+    <div class="ann-section ann-info">
+      <div class="ann-label">Tokens clave de esta pantalla</div>
+      <table class="token-table">
+        <thead>
+          <tr>
+            <th>Token</th>
+            <th>Valor</th>
+            <th>Uso</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>stroke-bg</code></td>
+            <td><span class="color-dot" style="background:#0F1C38"></span>#0F1C38</td>
+            <td>Fondo general</td>
+          </tr>
+          <tr>
+            <td><code>stroke-navy</code></td>
+            <td><span class="color-dot" style="background:#132B58"></span>#132B58</td>
+            <td>Cards NIHSS</td>
+          </tr>
+          <tr>
+            <td><code>stroke-line</code></td>
+            <td><span class="color-dot" style="background:#29416D"></span>#29416D</td>
+            <td>Bordes, stepper line</td>
+          </tr>
+          <tr>
+            <td><code>stroke-iconActive</code></td>
+            <td><span class="color-dot" style="background:#5C7AEA"></span>#5C7AEA</td>
+            <td>Step activo, progress bar, nombre app</td>
+          </tr>
+          <tr>
+            <td><code>status-warning</code></td>
+            <td><span class="color-dot" style="background:#FBBF24"></span>#FBBF24</td>
+            <td>Timer, step completado, score anormal</td>
+          </tr>
+          <tr>
+            <td><code>status-critical</code></td>
+            <td><span class="color-dot" style="background:#EF4444"></span>#EF4444</td>
+            <td>Score severo (≥3), timer >60min</td>
+          </tr>
+          <tr>
+            <td><code>stroke-textMuted</code></td>
+            <td><span class="color-dot" style="background:#A8B6D6"></span>#A8B6D6</td>
+            <td>Subtítulos, labels opciones</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</body>
+</html>
