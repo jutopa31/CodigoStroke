@@ -90,17 +90,74 @@ const MRS_OPTIONS = [
 
 // ── Patient section ──────────────────────────────────────────────────────────
 
+// Flat patient card (replaces the gradient card)
+function PatientCardPreview({ name, dni, arrivalTime, patientId, confirmed }) {
+  const hasName = name?.trim().length >= 2
+  const hasDni  = dni?.trim().length >= 7
+  const now     = arrivalTime
+    ? arrivalTime.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
+    : new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
+
+  return (
+    <div className={`rounded-2xl border p-5 space-y-4 transition-all ${
+      confirmed
+        ? 'bg-emerald-500/5 border-emerald-500/25'
+        : 'bg-stroke-bg border-stroke-line'
+    }`}>
+      {/* Label row */}
+      <div className="flex items-center justify-between">
+        <p className="text-[10px] font-bold uppercase tracking-widest text-stroke-textMuted">
+          Patient Card
+        </p>
+        {confirmed && (
+          <span className="flex items-center gap-1 text-[10px] font-bold text-emerald-300 bg-emerald-500/15 border border-emerald-500/25 px-2 py-0.5 rounded-full">
+            <CheckCircle2 size={10} /> Registrado
+          </span>
+        )}
+      </div>
+
+      {/* Name */}
+      <div>
+        <p className="text-[9px] uppercase tracking-wider font-semibold text-stroke-textMuted mb-1">Nombre</p>
+        <p className={`text-lg font-bold leading-tight ${hasName ? 'text-stroke-text' : 'text-stroke-textMuted/30 italic text-sm font-normal'}`}>
+          {hasName ? name.trim() : 'Nombre del paciente'}
+        </p>
+      </div>
+
+      {/* DNI + Llegada row */}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="bg-stroke-navy rounded-xl px-3 py-2.5 border border-stroke-line">
+          <p className="text-[9px] uppercase tracking-wider font-semibold text-stroke-textMuted mb-1">DNI</p>
+          <p className={`text-sm font-bold font-mono tabular-nums ${hasDni ? 'text-stroke-text' : 'text-stroke-textMuted/30'}`}>
+            {hasDni ? dni.trim() : '——'}
+          </p>
+        </div>
+        <div className="bg-stroke-navy rounded-xl px-3 py-2.5 border border-stroke-line">
+          <p className="text-[9px] uppercase tracking-wider font-semibold text-stroke-textMuted mb-1">Llegada</p>
+          <p className="text-sm font-bold font-mono tabular-nums text-stroke-text">{now}</p>
+        </div>
+      </div>
+
+      {/* Case ID (only when confirmed) */}
+      {patientId && (
+        <div className="bg-stroke-navy rounded-xl px-3 py-2.5 border border-stroke-iconActive/25 animate-fade-in">
+          <p className="text-[9px] uppercase tracking-wider font-semibold text-stroke-textMuted mb-1">ID del caso</p>
+          <p className="text-sm font-bold font-mono text-stroke-iconActive tabular-nums">{patientId}</p>
+        </div>
+      )}
+    </div>
+  )
+}
+
 function PatientSection({ patient, patientId, arrivalTime, onConfirm, onOpenEducational }) {
-  const [dni, setDni]               = useState('')
-  const [name, setName]             = useState('')
+  const [dni, setDni]               = useState(patient?.dni  ?? '')
+  const [name, setName]             = useState(patient?.name ?? '')
   const [pass, setPass]             = useState('')
   const [showPassphrase, setShowPassphrase] = useState(false)
   const [showScanner, setShowScanner] = useState(false)
   const nameRef = useRef(null)
   const passRef = useRef(null)
   const valid   = dni.trim().length >= 7 && name.trim().length >= 2
-  const hasName = name.trim().length >= 2
-  const hasDni  = dni.trim().length >= 7
 
   function handleScan({ name: scannedName, dni: scannedDni }) {
     setName(scannedName)
@@ -114,123 +171,179 @@ function PatientSection({ patient, patientId, arrivalTime, onConfirm, onOpenEduc
     onConfirm({ dni: dni.trim(), name: name.trim(), passphrase: pass.trim() })
   }
 
+  const inputCls = (filled) =>
+    'h-11 w-full rounded-xl border px-3 text-sm text-stroke-text transition-all outline-none ' +
+    'placeholder-stroke-textMuted/40 ' +
+    (filled
+      ? 'bg-stroke-iconActive/10 border-stroke-iconActive/40 focus:ring-2 focus:ring-stroke-iconActive/20 focus:border-stroke-iconActive/60'
+      : 'bg-stroke-bg border-stroke-line focus:ring-2 focus:ring-stroke-iconActive/20 focus:border-stroke-iconActive/40')
+
+  // ── Confirmed display — single compact row, no duplication ──
   if (patient) {
     return (
-      <div className="flex items-center gap-3 px-3 py-2.5 bg-emerald-500/10 rounded-xl border border-emerald-500/30">
-        <div className="w-9 h-9 rounded-lg bg-emerald-500/15 flex items-center justify-center shrink-0">
-          <User size={16} className="text-emerald-300" />
+      <div className="flex items-center gap-4 px-4 py-3 bg-emerald-500/5 rounded-2xl border border-emerald-500/20">
+        <div className="w-9 h-9 rounded-xl bg-emerald-500/15 flex items-center justify-center shrink-0">
+          <CheckCircle2 size={16} className="text-emerald-400" />
         </div>
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 grid grid-cols-[1fr_auto_auto_auto] gap-x-6 items-center">
           <p className="font-semibold text-sm text-stroke-text truncate">{patient.name}</p>
-          <p className="text-xs text-stroke-textMuted mt-0.5">
-            DNI {patient.dni}
-            {arrivalTime && ` · ${arrivalTime.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}`}
-            {patientId && <span className="ml-1.5"><span className="text-stroke-textMuted font-normal">ID </span><span className="font-mono font-bold text-stroke-iconActive">{patientId}</span></span>}
-          </p>
+          <span className="text-xs text-stroke-textMuted font-mono tabular-nums">DNI {patient.dni}</span>
+          {arrivalTime && (
+            <span className="text-xs text-stroke-textMuted font-mono tabular-nums">
+              {arrivalTime.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}
+            </span>
+          )}
+          {patientId && (
+            <span className="text-xs font-bold font-mono text-stroke-iconActive tabular-nums">{patientId}</span>
+          )}
         </div>
-        <CheckCircle2 size={16} className="text-emerald-500 shrink-0" />
+        <span className="shrink-0 text-[10px] font-bold text-emerald-300 bg-emerald-500/15 border border-emerald-500/25 px-2 py-0.5 rounded-full">
+          Registrado
+        </span>
       </div>
     )
   }
 
+  // ── Edit form ──
   return (
     <>
       {showScanner && <DniQrScanner onScan={handleScan} onClose={() => setShowScanner(false)} />}
 
-      {/* Header: scan badge + educational mode */}
-      <div className="flex items-center justify-between mb-3">
-        <button type="button" onClick={() => setShowScanner(true)}
-          className="flex items-center gap-1.5 text-xs font-semibold text-stroke-iconActive bg-stroke-iconActive/10 hover:bg-stroke-iconActive/20 border border-stroke-iconActive/40 px-2.5 py-1.5 rounded-lg transition-colors">
-          <ScanLine size={13} strokeWidth={2} />
-          Escanear DNI
-        </button>
-        {onOpenEducational && (
-          <button type="button" onClick={onOpenEducational}
-            className="flex items-center gap-1 text-[11px] text-stroke-textMuted hover:text-amber-500 transition-colors">
-            <BookOpen size={11} strokeWidth={2} /> Modo educativo
-          </button>
-        )}
-      </div>
+      {/* ══ DESKTOP: 2-column ══ */}
+      <div className="hidden md:grid md:grid-cols-2 md:gap-4">
 
-      {/* Live identity card preview */}
-      <div className="rounded-2xl p-4 mb-3 relative overflow-hidden"
-        style={{ background: 'linear-gradient(135deg, #244B99 0%, #132B58 100%)' }}>
-        <div className="absolute -top-5 -right-5 w-24 h-24 rounded-full bg-white/[0.06] pointer-events-none" />
-        <div className="absolute -bottom-8 -left-2 w-20 h-20 rounded-full bg-white/[0.04] pointer-events-none" />
-        <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-white/50 mb-2.5">
-          Código Stroke · Paciente
-        </p>
-        <p className={`text-[17px] font-black leading-tight ${hasName ? 'text-white' : 'text-white/25 font-normal italic text-sm'}`}>
-          {hasName ? name.trim() : 'Nombre del paciente'}
-        </p>
-        <div className="flex gap-4 mt-2">
-          <div>
-            <p className="text-[9px] text-white/40 uppercase tracking-[0.08em]">DNI</p>
-            <p className={`text-[13px] font-bold font-mono ${hasDni ? 'text-white' : 'text-white/20'}`}>
-              {hasDni ? dni.trim() : '——'}
-            </p>
+        {/* Col 1: Form Inputs */}
+        <div className="bg-stroke-bg rounded-2xl border border-stroke-line p-4 space-y-4">
+          <div className="flex items-center justify-between">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-stroke-textMuted">Form Inputs</p>
+            <button type="button" onClick={() => setShowScanner(true)}
+              className="flex items-center gap-1.5 text-[11px] font-semibold text-stroke-iconActive bg-stroke-iconActive/10 hover:bg-stroke-iconActive/20 border border-stroke-iconActive/30 px-2.5 py-1.5 rounded-lg transition-colors">
+              <ScanLine size={12} strokeWidth={2} /> Escanear DNI
+            </button>
           </div>
-          <div>
-            <p className="text-[9px] text-white/40 uppercase tracking-[0.08em]">Llegada</p>
-            <p className="text-[13px] font-bold font-mono text-white/70">
-              {new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}
-            </p>
-          </div>
-        </div>
-      </div>
 
-      <form onSubmit={handleSubmit} className="space-y-3">
-        {/* DNI + Nombre en dos columnas */}
-        <div className="grid grid-cols-[1fr_1.5fr] gap-2.5">
-          <div>
-            <label className="text-[10px] font-semibold uppercase tracking-wider text-stroke-textMuted flex items-center gap-1 mb-1.5">
-              <CreditCard size={10} /> DNI
-            </label>
-            <input
-              type="text" inputMode="numeric" pattern="[0-9]*" placeholder="12345678"
-              value={dni} onChange={(e) => setDni(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); nameRef.current?.focus() } }}
-              autoFocus
-              className="h-[42px] w-full bg-stroke-bg border border-stroke-line rounded-xl px-3 text-sm font-semibold text-stroke-text focus:bg-stroke-navy focus:ring-2 focus:ring-stroke-iconActive/30 focus:border-stroke-iconActive/40 placeholder-stroke-textMuted/50 transition-all outline-none"
-            />
-          </div>
-          <div>
-            <label className="text-[10px] font-semibold uppercase tracking-wider text-stroke-textMuted flex items-center gap-1 mb-1.5">
-              <User size={10} /> Nombre
-            </label>
-            <input
-              ref={nameRef} type="text" placeholder="Nombre y apellido"
-              value={name} onChange={(e) => setName(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); passRef.current?.focus() } }}
-              className="h-[42px] w-full bg-stroke-bg border border-stroke-line rounded-xl px-3 text-sm text-stroke-text focus:bg-stroke-navy focus:ring-2 focus:ring-stroke-iconActive/30 focus:border-stroke-iconActive/40 placeholder-stroke-textMuted/50 transition-all outline-none"
-            />
-          </div>
-        </div>
+          <form onSubmit={handleSubmit} className="space-y-3">
+            <div>
+              <label className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-stroke-textMuted mb-1.5">
+                <CreditCard size={10} /> DNI
+              </label>
+              <input type="text" inputMode="numeric" placeholder="12345678"
+                value={dni} onChange={(e) => setDni(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); nameRef.current?.focus() } }}
+                autoFocus
+                className={inputCls(!!dni) + ' font-mono tracking-widest'} />
+            </div>
 
-        {/* Passphrase — colapsada por defecto */}
-        <div>
-          <button type="button" onClick={() => setShowPassphrase(v => !v)}
-            className="flex items-center gap-1.5 text-[11px] text-stroke-textMuted hover:text-stroke-textMuted transition-colors">
-            <Lock size={11} strokeWidth={2} />
-            <span>{showPassphrase ? 'Ocultar contraseña de turno' : 'Agregar contraseña de turno (opcional)'}</span>
-            <ChevronRight size={11} strokeWidth={2} className={`transition-transform ${showPassphrase ? 'rotate-90' : ''}`} />
-          </button>
-          {showPassphrase && (
-            <input
-              ref={passRef} type="password" placeholder="Frase de acceso"
-              value={pass} onChange={(e) => setPass(e.target.value)}
-              className="mt-2 h-10 w-full bg-stroke-bg border border-stroke-line rounded-xl px-3 text-sm text-stroke-text focus:bg-stroke-navy focus:ring-2 focus:ring-stroke-iconActive/30 focus:border-stroke-iconActive/40 placeholder-stroke-textMuted/50 transition-all outline-none"
-            />
+            <div>
+              <label className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-stroke-textMuted mb-1.5">
+                <User size={10} /> Nombre completo
+              </label>
+              <input ref={nameRef} type="text" placeholder="Nombre y apellido"
+                value={name} onChange={(e) => setName(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); passRef.current?.focus() } }}
+                className={inputCls(!!name)} />
+            </div>
+
+            <div>
+              <button type="button" onClick={() => setShowPassphrase(v => !v)}
+                className="flex items-center gap-1.5 text-[11px] text-stroke-textMuted hover:text-stroke-iconActive transition-colors">
+                <Lock size={11} strokeWidth={2} />
+                {showPassphrase ? 'Ocultar contraseña de turno' : 'Agregar contraseña de turno (opcional)'}
+                <ChevronRight size={11} strokeWidth={2} className={`transition-transform ${showPassphrase ? 'rotate-90' : ''}`} />
+              </button>
+              {showPassphrase && (
+                <input ref={passRef} type="password" placeholder="Frase de acceso"
+                  value={pass} onChange={(e) => setPass(e.target.value)}
+                  className={inputCls(false) + ' mt-2'} />
+              )}
+            </div>
+
+            <button type="submit" disabled={!valid}
+              className={`flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold transition-all active:scale-[0.98] mt-2 ${
+                valid ? 'bg-stroke-iconActive hover:bg-[#4D6CD6] text-white' : 'bg-stroke-panel text-stroke-textMuted cursor-not-allowed'
+              }`}>
+              <Zap size={14} strokeWidth={2.5} />
+              Activar Código Stroke
+            </button>
+          </form>
+
+          {onOpenEducational && (
+            <button type="button" onClick={onOpenEducational}
+              className="flex items-center gap-1.5 text-[11px] text-stroke-textMuted hover:text-amber-400 transition-colors">
+              <BookOpen size={11} strokeWidth={2} /> Modo educativo
+            </button>
           )}
         </div>
 
-        <button type="submit" disabled={!valid}
-          className={`flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold transition-all active:scale-[0.98]
-            ${valid ? 'bg-stroke-iconActive hover:bg-[#4D6CD6] text-stroke-bg' : 'bg-stroke-panel text-stroke-textMuted cursor-not-allowed'}`}>
-          <Zap size={15} strokeWidth={2.5} />
-          Activar Código Stroke
-        </button>
-      </form>
+        {/* Col 2: Live patient card preview */}
+        <PatientCardPreview name={name} dni={dni} arrivalTime={null} patientId={null} confirmed={false} />
+      </div>
+
+      {/* ══ MOBILE: stacked ══ */}
+      <div className="md:hidden space-y-3">
+        {/* Scan + educational row */}
+        <div className="flex items-center justify-between">
+          <button type="button" onClick={() => setShowScanner(true)}
+            className="flex items-center gap-1.5 text-xs font-semibold text-stroke-iconActive bg-stroke-iconActive/10 hover:bg-stroke-iconActive/20 border border-stroke-iconActive/40 px-2.5 py-1.5 rounded-lg transition-colors">
+            <ScanLine size={13} strokeWidth={2} /> Escanear DNI
+          </button>
+          {onOpenEducational && (
+            <button type="button" onClick={onOpenEducational}
+              className="flex items-center gap-1 text-[11px] text-stroke-textMuted hover:text-amber-500 transition-colors">
+              <BookOpen size={11} strokeWidth={2} /> Modo educativo
+            </button>
+          )}
+        </div>
+
+        {/* Mobile card preview */}
+        <PatientCardPreview name={name} dni={dni} arrivalTime={null} patientId={null} confirmed={false} />
+
+        {/* Mobile form */}
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <div className="grid grid-cols-[1fr_1.5fr] gap-2.5">
+            <div>
+              <label className="text-[10px] font-semibold uppercase tracking-wider text-stroke-textMuted flex items-center gap-1 mb-1.5">
+                <CreditCard size={10} /> DNI
+              </label>
+              <input type="text" inputMode="numeric" placeholder="12345678"
+                value={dni} onChange={(e) => setDni(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); nameRef.current?.focus() } }}
+                autoFocus
+                className="h-[42px] w-full bg-stroke-bg border border-stroke-line rounded-xl px-3 text-sm font-semibold font-mono tracking-widest text-stroke-text focus:ring-2 focus:ring-stroke-iconActive/30 focus:border-stroke-iconActive/40 placeholder-stroke-textMuted/50 transition-all outline-none" />
+            </div>
+            <div>
+              <label className="text-[10px] font-semibold uppercase tracking-wider text-stroke-textMuted flex items-center gap-1 mb-1.5">
+                <User size={10} /> Nombre
+              </label>
+              <input ref={nameRef} type="text" placeholder="Nombre y apellido"
+                value={name} onChange={(e) => setName(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); passRef.current?.focus() } }}
+                className="h-[42px] w-full bg-stroke-bg border border-stroke-line rounded-xl px-3 text-sm text-stroke-text focus:ring-2 focus:ring-stroke-iconActive/30 focus:border-stroke-iconActive/40 placeholder-stroke-textMuted/50 transition-all outline-none" />
+            </div>
+          </div>
+
+          <div>
+            <button type="button" onClick={() => setShowPassphrase(v => !v)}
+              className="flex items-center gap-1.5 text-[11px] text-stroke-textMuted hover:text-stroke-textMuted transition-colors">
+              <Lock size={11} strokeWidth={2} />
+              <span>{showPassphrase ? 'Ocultar contraseña de turno' : 'Agregar contraseña de turno (opcional)'}</span>
+              <ChevronRight size={11} strokeWidth={2} className={`transition-transform ${showPassphrase ? 'rotate-90' : ''}`} />
+            </button>
+            {showPassphrase && (
+              <input ref={passRef} type="password" placeholder="Frase de acceso"
+                value={pass} onChange={(e) => setPass(e.target.value)}
+                className="mt-2 h-10 w-full bg-stroke-bg border border-stroke-line rounded-xl px-3 text-sm text-stroke-text focus:ring-2 focus:ring-stroke-iconActive/30 focus:border-stroke-iconActive/40 placeholder-stroke-textMuted/50 transition-all outline-none" />
+            )}
+          </div>
+
+          <button type="submit" disabled={!valid}
+            className={`flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold transition-all active:scale-[0.98] ${
+              valid ? 'bg-stroke-iconActive hover:bg-[#4D6CD6] text-white' : 'bg-stroke-panel text-stroke-textMuted cursor-not-allowed'
+            }`}>
+            <Zap size={15} strokeWidth={2.5} /> Activar Código Stroke
+          </button>
+        </form>
+      </div>
     </>
   )
 }
@@ -586,7 +699,7 @@ export default function PatientVitalsTab({
 
       {/* Patient section */}
       <div className="bg-stroke-navy rounded-xl border border-stroke-line p-3 md:max-w-none">
-        <p className="text-[10px] font-bold uppercase tracking-widest text-stroke-textMuted mb-2.5">Identificación del paciente</p>
+        {!patient && <p className="text-[10px] font-bold uppercase tracking-widest text-stroke-textMuted mb-2.5">Identificación del paciente</p>}
         <PatientSection
           patient={patient}
           patientId={patientId}
