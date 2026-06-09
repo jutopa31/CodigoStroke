@@ -2,7 +2,7 @@ import { CheckCircle2, XCircle, AlertTriangle, Moon, Clock, Syringe, Zap } from 
 
 function DecisionIcon({ icon }) {
   if (icon === 'check')   return <CheckCircle2 size={28} className="text-emerald-400" />
-  if (icon === 'error')   return <XCircle size={28} className="text-blue-300" />
+  if (icon === 'error')   return <XCircle size={28} className="text-status-critical" />
   if (icon === 'warning') return <AlertTriangle size={28} className="text-amber-400" />
   if (icon === 'moon')    return <Moon size={28} className="text-indigo-300" />
   if (icon === 'pending') return <Clock size={28} className="text-stroke-textMuted" />
@@ -11,7 +11,7 @@ function DecisionIcon({ icon }) {
 
 const iconBgMap = {
   check:   'bg-emerald-500/15',
-  error:   'bg-blue-500/15',
+  error:   'bg-status-critical/10',
   warning: 'bg-amber-500/15',
   moon:    'bg-indigo-500/15',
   pending: 'bg-stroke-panel',
@@ -19,7 +19,7 @@ const iconBgMap = {
 
 const borderMap = {
   check:   'border-emerald-400',
-  error:   'border-blue-800',
+  error:   'border-status-critical/30',
   warning: 'border-amber-400',
   moon:    'border-indigo-400',
   pending: 'border-stroke-line',
@@ -27,7 +27,7 @@ const borderMap = {
 
 function DetailChip({ label, tone }) {
   const colors = {
-    red:    'bg-blue-500/10 border-blue-500/30 text-blue-300',
+    red:    'bg-status-critical/10 border-status-critical/30 text-status-critical',
     orange: 'bg-amber-500/10 border-amber-500/30 text-amber-300',
     green:  'bg-emerald-500/10 border-emerald-500/30 text-emerald-300',
     gray:   'bg-stroke-bg border-stroke-line text-stroke-textMuted',
@@ -83,8 +83,8 @@ export default function DecisionTab({ result, onGoToThrombolysis, onGoToThrombec
           )}
 
           {absoluteCI && absoluteDetails.length > 0 && (
-            <div className="rounded-lg bg-blue-500/10 border border-blue-500/30 px-3 py-3">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-blue-300 mb-2">Contraindicaciones absolutas</p>
+            <div className="rounded-lg bg-status-critical/10 border border-status-critical/30 px-3 py-3">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-status-critical mb-2">Contraindicaciones absolutas</p>
               <div className="space-y-1.5">
                 {absoluteDetails.map((d) => <DetailChip key={d} label={d} tone="red" />)}
               </div>
