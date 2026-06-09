@@ -5,45 +5,45 @@
 @tailwind utilities;
 
 :root {
-  /* Minimal Medical Palette */
-  --color-background: #FAFAFA;
-  --color-surface: #FFFFFF;
-  --color-surface-elevated: #FFFFFF;
-  --color-border: #F0F0F0;
-  --color-border-muted: #F5F5F5;
-  
-  /* Text colors */
-  --color-text-primary: #1A1A1A;
-  --color-text-secondary: #6B6B6B;
-  --color-text-muted: #A0A0A0;
-  
-  /* Brand - Deep medical blue */
-  --color-brand: #1D4ED8;
-  --color-brand-muted: #EFF6FF;
-  --color-brand-subtle: #BFDBFE;
+  /* Dark Navy Palette — DESIGN.md §Color */
+  --color-background: #0F1C38;   /* --bg: primary background */
+  --color-surface: #132B58;      /* --surface: card/panel surfaces */
+  --color-surface-elevated: #1E3356; /* --panel: nested panels, inputs */
+  --color-border: #29416D;       /* --line: borders, dividers */
+  --color-border-muted: #1E3356; /* subtle dividers */
 
-  /* Status colors - Subtle, professional */
-  --color-success: #059669;
-  --color-success-muted: #ECFDF5;
+  /* Text colors */
+  --color-text-primary: #F0F4FF;   /* --text */
+  --color-text-secondary: #A8B6D6; /* --text-muted */
+  --color-text-muted: #7089B8;     /* --text-dim */
+
+  /* Brand / accent */
+  --color-brand: #5C7AEA;          /* --accent */
+  --color-brand-muted: rgba(92,122,234,0.1);
+  --color-brand-subtle: rgba(92,122,234,0.25);
+
+  /* Status colors — dark-adapted (translucent muted, solid borders) */
+  --color-success: #10B981;
+  --color-success-muted: rgba(16,185,129,0.10);
   --color-warning: #D97706;
-  --color-warning-muted: #FFFBEB;
-  --color-danger: #1E3A8A;
-  --color-danger-muted: #EFF6FF;
-  --color-info: #2563EB;
-  --color-info-muted: #EFF6FF;
+  --color-warning-muted: rgba(217,119,6,0.12);
+  --color-danger: #EF4444;         /* critical red — NOT navy (DESIGN.md) */
+  --color-danger-muted: rgba(239,68,68,0.12);
+  --color-info: #5C7AEA;
+  --color-info-muted: rgba(92,122,234,0.10);
 
   /* Semantic status tokens (mirror tailwind status.* palette)
      Use these for inline styles; prefer Tailwind classes (text-status-*) elsewhere. */
-  --status-warning:         #D97706; /* amber-600  — caution: CI relativas, partial tabs */
-  --status-warning-muted:   #FFFBEB; /* amber-50 */
-  --status-warning-badge:   #F59E0B; /* amber-500 */
-  --status-info:            #2563EB; /* blue-600   — clinical info: TA readings */
-  --status-info-muted:      #EFF6FF; /* blue-50 */
-  --status-info-badge:      #3B82F6; /* blue-500 */
-  --status-critical:        #EF4444; /* red-500    — severe: NIHSS ≥21, BP >185 (DESIGN.md: red on dark navy) */
-  --status-glucose:         #7C3AED; /* violet-600 — dedicated glycemia channel */
-  --status-glucose-muted:   #F5F3FF; /* violet-50 */
-  --status-glucose-badge:   #8B5CF6; /* violet-500 */
+  --status-warning:         #D97706;
+  --status-warning-muted:   rgba(217,119,6,0.12);
+  --status-warning-badge:   #F59E0B;
+  --status-info:            #5C7AEA;
+  --status-info-muted:      rgba(92,122,234,0.10);
+  --status-info-badge:      #5C7AEA;
+  --status-critical:        #EF4444;
+  --status-glucose:         #7C3AED;
+  --status-glucose-muted:   rgba(124,58,237,0.12);
+  --status-glucose-badge:   #8B5CF6;
 }
 
 * {
@@ -66,7 +66,7 @@ body {
   overflow: hidden;
   max-width: 100vw;
   height: 100dvh;
-  color: var(--color-text-primary);
+  color: #F0F4FF;
   font-feature-settings: 'cv11' 1, 'ss01' 1;
   letter-spacing: -0.011em;
 }

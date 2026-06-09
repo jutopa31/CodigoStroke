@@ -96,7 +96,7 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
           </div>
           {startTime ? (
             <div className="min-w-0">
-              <span className="block font-mono font-bold text-[1.35rem] leading-none md:text-lg text-white tracking-tight tabular-nums">
+              <span className="block font-mono font-bold text-[1.35rem] leading-none md:text-lg text-status-warning tracking-tight tabular-nums">
                 {formatElapsed(elapsed)}
               </span>
               {primaryEvent && (

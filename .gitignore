@@ -30,3 +30,7 @@ dist-ssr
 .vercel
 package-lock.json
 .gstack/
+
+# Test artifacts
+test-results/
+playwright-report/
