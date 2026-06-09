@@ -650,6 +650,10 @@ export default function App() {
             thrombolyticStartTime={thrombolyticStartTime}
             onThrombolyticStart={handleThrombolyticStart}
             onAddNihss={handleAddNihss}
+            latestVitals={latestVitals}
+            latestGlucose={latestGlucose}
+            onAddVitals={handleAddVitals}
+            onAddGlucose={handleAddGlucose}
           />
         )
       case 'trombectomia':

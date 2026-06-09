@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { ChevronRight, CheckCircle2, Circle, Hospital, Ban, Pill, BarChart2, Brain, Microscope, Heart, Clock, Plus } from 'lucide-react'
+import { ChevronRight, CheckCircle2, Circle, Hospital, Ban, Pill, BarChart2, Brain, Microscope, Heart, Clock, Plus, AlertTriangle, Droplets, ShieldCheck } from 'lucide-react'
 import StepCard from '../components/StepCard'
 import NihssModal from '../components/NihssModal'
 import { calcRtPA, calcTNK } from '../lib/calculations'
@@ -21,7 +21,160 @@ function fmtTime(date) {
   return date?.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' }) ?? null
 }
 
-export default function DosageStep({ onConfirm, thrombolyticStartTime = null, onThrombolyticStart, onAddNihss }) {
+// Pre-thrombolysis BP/glucose check. Reads the most recent readings and flags
+// anything outside the safe-to-treat window (PAS ≤185, PAD ≤110, gluc 50–400).
+function evalVitalsGate(latestVitals, latestGlucose) {
+  const pas = latestVitals?.systolic
+  const pad = latestVitals?.diastolic
+  const flags = {
+    pasHigh:   pas != null && pas > 185,
+    padHigh:   pad != null && pad > 110,
+    glucLow:   latestGlucose != null && latestGlucose < 50,
+    glucHigh:  latestGlucose != null && latestGlucose > 400,
+    noData:    latestVitals == null && latestGlucose == null,
+  }
+  flags.blocked = flags.pasHigh || flags.padHigh || flags.glucLow || flags.glucHigh || flags.noData
+  return flags
+}
+
+// Mini numeric input used inside the correction gate.
+function GateInput({ value, onChange, placeholder, warn, ariaLabel, suffix }) {
+  return (
+    <div className="relative flex-1 min-w-0">
+      <input
+        type="text" inputMode="numeric" maxLength={3} placeholder={placeholder}
+        value={value}
+        onChange={(e) => onChange(e.target.value.replace(/\D/g, '').slice(0, 3))}
+        aria-label={ariaLabel}
+        className={`h-10 w-full rounded-lg border text-center text-base font-mono font-bold tabular-nums text-stroke-text ${suffix ? 'pr-9' : ''} focus:outline-none focus:ring-2 transition-all placeholder:text-stroke-textMuted/40 ${
+          warn
+            ? 'border-red-400/60 bg-red-500/10 focus:ring-red-500/20'
+            : value
+              ? 'border-emerald-400/50 bg-emerald-500/10 focus:ring-emerald-500/20'
+              : 'border-stroke-line bg-stroke-navy focus:ring-stroke-iconActive/20'
+        }`}
+      />
+      {suffix && <span className="pointer-events-none absolute inset-y-0 right-2.5 flex items-center text-[10px] font-semibold text-stroke-textMuted">{suffix}</span>}
+    </div>
+  )
+}
+
+// Pre-thrombolysis control gate — blocks "Registrar inicio" until the most
+// recent TA/glucemia are within the safe-to-treat window. Corrections are saved
+// as new serial readings (original out-of-range value stays in the trace).
+function PreThrombolysisGate({ latestVitals, latestGlucose, gate, onAddVitals, onAddGlucose }) {
+  const [sys, setSys]         = useState('')
+  const [dia, setDia]         = useState('')
+  const [glucose, setGlucose] = useState('')
+
+  const sysNum  = parseInt(sys, 10)
+  const diaNum  = parseInt(dia, 10)
+  const glucNum = parseInt(glucose, 10)
+
+  const taValid   = sys && dia && sysNum <= 185 && diaNum <= 110
+  const glucValid = glucose && glucNum >= 50 && glucNum <= 400
+  const taWarn    = (sys && sysNum > 185) || (dia && diaNum > 110)
+  const glucWarn  = glucose && (glucNum < 50 || glucNum > 400)
+
+  const needTa   = gate.pasHigh || gate.padHigh
+  const needGluc = gate.glucLow || gate.glucHigh
+
+  function saveTa() {
+    if (!taValid) return
+    onAddVitals?.({ systolic: sysNum, diastolic: diaNum })
+    setSys(''); setDia('')
+  }
+  function saveGluc() {
+    if (!glucValid) return
+    onAddGlucose?.(glucNum)
+    setGlucose('')
+  }
+
+  // ── In meta → green confirmation ──
+  if (!gate.blocked) {
+    return (
+      <div className="mt-3 flex items-center gap-2.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3">
+        <ShieldCheck size={16} className="text-emerald-400 shrink-0" />
+        <div className="min-w-0">
+          <p className="text-xs font-semibold text-emerald-300">TA y glucemia en meta</p>
+          <p className="text-[11px] text-emerald-400/90 font-mono tabular-nums">
+            {latestVitals ? `${latestVitals.systolic}/${latestVitals.diastolic} mmHg` : '—'}
+            {latestGlucose != null ? ` · ${latestGlucose} mg/dL` : ''}
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  // ── Out of range / missing → red blocking gate ──
+  return (
+    <div className="mt-3 rounded-xl border border-red-500/40 bg-red-500/5 px-4 py-3.5 space-y-3">
+      <div className="flex items-start gap-2">
+        <AlertTriangle size={15} className="text-red-400 shrink-0 mt-0.5" strokeWidth={2} />
+        <div>
+          <p className="text-xs font-bold text-red-300">Corregir antes de iniciar el trombolítico</p>
+          <p className="text-[11px] text-stroke-textMuted mt-0.5">
+            {gate.noData
+              ? 'Sin registro de signos vitales. Cargá TA y glucemia para habilitar el inicio.'
+              : 'Registrá la medición corregida en rango para habilitar “Registrar inicio”.'}
+          </p>
+        </div>
+      </div>
+
+      {/* TA correction */}
+      {(needTa || gate.noData) && (
+        <div>
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="flex items-center gap-1.5 text-[11px] font-semibold text-stroke-text">
+              <Heart size={12} className="text-blue-400" /> TA corregida
+            </span>
+            <span className="text-[10px] text-stroke-textMuted font-mono tabular-nums">
+              {latestVitals ? `actual ${latestVitals.systolic}/${latestVitals.diastolic}` : 'sin dato'} · meta ≤185/110
+            </span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <GateInput value={sys} onChange={setSys} placeholder="PAS" warn={sys && sysNum > 185} ariaLabel="PAS corregida" />
+            <span className="font-bold text-stroke-textMuted">/</span>
+            <GateInput value={dia} onChange={setDia} placeholder="PAD" warn={dia && diaNum > 110} ariaLabel="PAD corregida" />
+            <button type="button" onClick={saveTa} disabled={!taValid}
+              className={`shrink-0 h-10 px-3 rounded-lg text-xs font-bold transition-all active:scale-95 ${
+                taValid ? 'bg-emerald-700 text-white hover:bg-emerald-800' : 'bg-stroke-panel text-stroke-textMuted cursor-not-allowed'
+              }`}>
+              Guardar
+            </button>
+          </div>
+          {taWarn && <p className="text-[10px] text-red-400 mt-1">Valor aún fuera de meta — no habilita el inicio.</p>}
+        </div>
+      )}
+
+      {/* Glucose correction */}
+      {(needGluc || gate.noData) && (
+        <div>
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="flex items-center gap-1.5 text-[11px] font-semibold text-stroke-text">
+              <Droplets size={12} className="text-violet-400" /> Glucemia corregida
+            </span>
+            <span className="text-[10px] text-stroke-textMuted font-mono tabular-nums">
+              {latestGlucose != null ? `actual ${latestGlucose}` : 'sin dato'} · meta 50–400
+            </span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <GateInput value={glucose} onChange={setGlucose} placeholder="mg/dL" warn={glucWarn} ariaLabel="Glucemia corregida" suffix="mg/dL" />
+            <button type="button" onClick={saveGluc} disabled={!glucValid}
+              className={`shrink-0 h-10 px-3 rounded-lg text-xs font-bold transition-all active:scale-95 ${
+                glucValid ? 'bg-emerald-700 text-white hover:bg-emerald-800' : 'bg-stroke-panel text-stroke-textMuted cursor-not-allowed'
+              }`}>
+              Guardar
+            </button>
+          </div>
+          {glucWarn && <p className="text-[10px] text-red-400 mt-1">Valor aún fuera de rango — no habilita el inicio.</p>}
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default function DosageStep({ onConfirm, thrombolyticStartTime = null, onThrombolyticStart, onAddNihss, latestVitals = null, latestGlucose = null, onAddVitals, onAddGlucose }) {
   const [view, setView]           = useState('dose')   // 'dose' | 'post'
   const [drug, setDrug]           = useState('tnk')
   const [drugLocked, setDrugLocked]     = useState(false)
@@ -45,12 +198,16 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
   const allChecked   = checkedCount === POST_CHECKLIST.length
   const canContinue  = validWeight && allChecked && thrombolyticStartTime
 
+  // Pre-thrombolysis BP/glucose gate — blocks start until vitals are in meta.
+  const gate = evalVitalsGate(latestVitals, latestGlucose)
+
   function adjust(delta) {
     const current = parseFloat(weightStr) || 0
     setWeightStr(String(Math.max(1, Math.min(250, current + delta))))
   }
 
   function handleThrombolyticStart() {
+    if (gate.blocked) return
     onThrombolyticStart?.(new Date())
     setTimeout(() => setView('post'), 300)
   }
@@ -229,6 +386,17 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
             )}
           </div>
 
+          {/* Pre-thrombolysis vitals gate */}
+          {validWeight && dose && !thrombolyticStartTime && (
+            <PreThrombolysisGate
+              latestVitals={latestVitals}
+              latestGlucose={latestGlucose}
+              gate={gate}
+              onAddVitals={onAddVitals}
+              onAddGlucose={onAddGlucose}
+            />
+          )}
+
           {/* Start time button */}
           {validWeight && dose && (
             <div className="mt-3 flex items-center gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3">
@@ -241,7 +409,9 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
               </div>
               <button
                 type="button" ref={startButtonRef} onClick={handleThrombolyticStart}
-                className={`shrink-0 px-3 py-2 rounded-xl text-xs font-bold transition-all active:scale-95 ${
+                disabled={!thrombolyticStartTime && gate.blocked}
+                title={!thrombolyticStartTime && gate.blocked ? 'Corregí TA/glucemia antes de iniciar' : undefined}
+                className={`shrink-0 px-3 py-2 rounded-xl text-xs font-bold transition-all active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 ${
                   thrombolyticStartTime
                     ? 'border border-emerald-300 bg-stroke-navy text-emerald-300 hover:bg-emerald-500/15'
                     : 'bg-emerald-700 text-white hover:bg-emerald-800'
