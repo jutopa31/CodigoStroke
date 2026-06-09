@@ -420,25 +420,7 @@ function VitalsSection({ vitals, onConfirm, draftVitals, onDraftChange, nihssSco
   }
 
   // ── Input helpers ──
-  const numInputCls = (warn, filled) =>
-    'w-full rounded-xl border py-3 text-2xl font-bold text-center text-stroke-text ' +
-    'focus:outline-none focus:ring-2 transition-all placeholder:text-stroke-textMuted/50 ' +
-    (warn
-      ? 'border-red-400/60 bg-red-500/10 focus:border-red-400 focus:ring-red-500/20'
-      : filled
-        ? 'border-stroke-iconActive/40 bg-stroke-iconActive/10 focus:border-stroke-iconActive/60 focus:ring-stroke-iconActive/20'
-        : 'border-stroke-line bg-stroke-navy focus:border-stroke-iconActive/40 focus:ring-stroke-iconActive/15')
-
-  const glucInputCls =
-    'w-full rounded-xl border py-3 text-2xl font-bold text-center text-stroke-text pr-14 ' +
-    'focus:outline-none focus:ring-2 transition-all placeholder:text-stroke-textMuted/50 ' +
-    (glucLow || glucHigh
-      ? 'border-red-400/60 bg-red-500/10 focus:border-red-400 focus:ring-red-500/20'
-      : glucose
-        ? 'border-violet-400/40 bg-violet-500/10 focus:border-violet-400/60 focus:ring-violet-500/15'
-        : 'border-stroke-line bg-stroke-navy focus:border-violet-400/40 focus:ring-violet-500/15')
-
-  // Compact input (mobile variant B) — 44px touch target, mono, centered
+  // Compact input (mobile + desktop) — 44px touch target, mono, centered
   const miniInputCls = (warn, filled, isGlu = false) =>
     'h-11 rounded-lg border text-lg font-bold font-mono tabular-nums text-center text-stroke-text ' +
     'focus:outline-none focus:ring-2 transition-all placeholder:text-stroke-textMuted/40 ' +
@@ -474,60 +456,71 @@ function VitalsSection({ vitals, onConfirm, draftVitals, onDraftChange, nihssSco
         <div className="bg-stroke-bg rounded-2xl border border-stroke-line p-4 space-y-4">
           <p className="text-[10px] font-bold uppercase tracking-widest text-stroke-textMuted">Form Inputs</p>
 
+          {/* TA — PAS / PAD inline */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="flex items-center gap-1.5 text-xs font-semibold text-stroke-text">
+                <Heart size={12} className="text-blue-400" /> Tensión arterial
+              </label>
+              {sys && (() => { const s = getSysSeverity(sysNum); return s ? <SeverityBadge label={s.label} variant={s.variant} /> : null })()}
+            </div>
+            <div className="flex items-center gap-2">
+              <input ref={sysRef} type="text" inputMode="numeric" maxLength={3} placeholder="—"
+                value={sys}
+                onChange={(e) => setSys(e.target.value.replace(/\D/g, '').slice(0, 3))}
+                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); diaRef.current?.focus() } }}
+                aria-label="Presión sistólica"
+                className={`${miniInputCls(taCrit, !!sys)} flex-1 min-w-0`} />
+              <span className="font-bold text-stroke-textMuted">/</span>
+              <input ref={diaRef} type="text" inputMode="numeric" maxLength={3} placeholder="—"
+                value={dia}
+                onChange={(e) => setDia(e.target.value.replace(/\D/g, '').slice(0, 3))}
+                aria-label="Presión diastólica"
+                className={`${miniInputCls(diaCrit, !!dia)} flex-1 min-w-0`} />
+            </div>
+            <p className="text-[10px] text-stroke-textMuted mt-1.5">mmHg · ≤185/110</p>
+          </div>
+
           {/* Glucemia */}
           <div>
-            <label className="flex items-center gap-1.5 text-xs font-semibold text-stroke-text mb-2">
-              <Droplets size={12} className="text-violet-400" />
-              Glucemia al ingreso (mg/dL)
-            </label>
+            <div className="flex items-center justify-between mb-2">
+              <label className="flex items-center gap-1.5 text-xs font-semibold text-stroke-text">
+                <Droplets size={12} className="text-violet-400" /> Glucemia
+              </label>
+              {glucose && (() => { const g = getGlucSeverity(glucNum); return g ? <SeverityBadge label={g.label} variant={g.variant} /> : null })()}
+            </div>
             <div className="relative">
               <input ref={glucoseRef} type="text" inputMode="numeric" maxLength={3} placeholder="—"
                 value={glucose}
                 onChange={(e) => setGlucose(e.target.value.replace(/\D/g, '').slice(0, 3))}
-                className={glucInputCls + ' py-2.5 text-lg'} />
-              <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-xs font-semibold text-stroke-textMuted">mg/dL</span>
+                aria-label="Glucemia"
+                className={`${miniInputCls(glucLow || glucHigh, !!glucose, true)} w-full pr-12`} />
+              <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-[10px] font-semibold text-stroke-textMuted">mg/dL</span>
             </div>
+            <p className="text-[10px] text-stroke-textMuted mt-1.5">50–400 mg/dL</p>
           </div>
 
-          {/* TA */}
-          <div>
-            <label className="flex items-center gap-1.5 text-xs font-semibold text-stroke-text mb-2">
-              <Heart size={12} className="text-blue-400" />
-              Presión arterial sistólica
-            </label>
-            <input ref={sysRef} type="text" inputMode="numeric" maxLength={3} placeholder="—"
-              value={sys}
-              onChange={(e) => setSys(e.target.value.replace(/\D/g, '').slice(0, 3))}
-              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); diaRef.current?.focus() } }}
-              className={numInputCls(taCrit, !!sys) + ' py-2.5 text-lg'} />
-          </div>
-
-          {/* Diastólica (colapsada, accesible) */}
-          <div>
-            <label className="flex items-center gap-1.5 text-xs font-semibold text-stroke-text mb-2">
-              Presión arterial diastólica
-            </label>
-            <input ref={diaRef} type="text" inputMode="numeric" maxLength={3} placeholder="—"
-              value={dia}
-              onChange={(e) => setDia(e.target.value.replace(/\D/g, '').slice(0, 3))}
-              className={numInputCls(diaCrit, !!dia) + ' py-2.5 text-lg'} />
-          </div>
-
-          {/* mRS */}
-          <div>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-stroke-textMuted mb-2">mRS basal</p>
+          {/* mRS basal — prominent band */}
+          <div className={`rounded-xl border p-3 transition-colors ${mrs !== null ? 'border-stroke-iconActive/40 bg-stroke-iconActive/5' : 'border-stroke-iconActive/30 bg-stroke-navy'}`}>
+            <div className="flex items-center justify-between mb-2.5">
+              <p className="text-[11px] font-bold uppercase tracking-wider text-stroke-iconActive">mRS basal</p>
+              <span className="text-[10px] text-stroke-textMuted">func. previa</span>
+            </div>
             <div className="grid grid-cols-6 gap-1">
               {MRS_OPTIONS.map((o) => (
                 <button key={o.score} type="button" onClick={() => setMrs(o.score)} title={o.label}
-                  className={`rounded-lg border py-2 text-sm font-bold transition-all active:scale-95 ${
+                  aria-pressed={mrs === o.score} aria-label={`mRS ${o.score}: ${o.label}`}
+                  className={`h-10 rounded-lg border font-mono text-sm font-bold transition-all active:scale-95 ${
                     mrs === o.score
-                      ? 'border-stroke-iconActive/40 bg-stroke-iconActive/10 text-stroke-iconActive ring-1 ring-stroke-iconActive/30'
-                      : 'border-stroke-line text-stroke-textMuted hover:border-stroke-iconActive/40 hover:bg-stroke-iconActive/10'
+                      ? 'border-stroke-iconActive bg-stroke-iconActive text-white'
+                      : 'border-stroke-line bg-stroke-bg text-stroke-textMuted hover:border-stroke-iconActive/40'
                   }`}>{o.score}</button>
               ))}
             </div>
             {mrs !== null && (
-              <p className="text-[11px] text-stroke-iconActive font-semibold mt-1.5 animate-fade-in">{MRS_OPTIONS[mrs].label}</p>
+              <p className="mt-2 text-[11px] text-stroke-text animate-fade-in">
+                <span className="font-semibold text-stroke-iconActive">{mrs}</span> · {MRS_OPTIONS[mrs].label}
+              </p>
             )}
           </div>
 
