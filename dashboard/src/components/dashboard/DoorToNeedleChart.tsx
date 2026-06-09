@@ -38,16 +38,16 @@ export default function DoorToNeedleChart({ data }: Props) {
     <div className="bg-white rounded-xl border border-[#F0F0F0] shadow-[0_1px_3px_rgba(0,0,0,0.04)] p-5">
       <div className="mb-4">
         <h3 className="text-sm font-semibold text-[#132B58]">Puerta-Aguja promedio (min)</h3>
-        <p className="text-xs text-[#A8B6D6] mt-0.5">Meta ≤ 45 min · límite ≤ 60 min</p>
+        <p className="text-xs text-[#334155] mt-0.5">Meta ≤ 45 min · límite ≤ 60 min</p>
       </div>
       {chartData.length === 0 ? (
-        <p className="text-sm text-[#A8B6D6] py-12 text-center">Sin datos aún</p>
+        <p className="text-sm text-[#334155] py-12 text-center">Sin datos aún</p>
       ) : (
         <ResponsiveContainer width="100%" height={220}>
           <LineChart data={chartData} margin={{ top: 4, right: 8, left: -12, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#F0F0F0" />
-            <XAxis dataKey="name" tick={{ fontSize: 11, fill: "#A8B6D6" }} axisLine={false} tickLine={false} />
-            <YAxis tick={{ fontSize: 11, fill: "#A8B6D6" }} axisLine={false} tickLine={false} domain={[0, "auto"]} />
+            <XAxis dataKey="name" tick={{ fontSize: 11, fill: "#64748B" }} axisLine={false} tickLine={false} />
+            <YAxis tick={{ fontSize: 11, fill: "#64748B" }} axisLine={false} tickLine={false} domain={[0, "auto"]} />
             <Tooltip
               contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid #F0F0F0", boxShadow: "0 4px 12px rgba(0,0,0,0.06)" }}
               // eslint-disable-next-line @typescript-eslint/no-explicit-any

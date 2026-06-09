@@ -24,7 +24,7 @@ export default async function CasosPage({ searchParams }: Props) {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold text-[#132B58]">Casos</h1>
-          <p className="text-sm text-[#A8B6D6] mt-0.5">Registro histórico de eventos ACV</p>
+          <p className="text-sm text-[#334155] mt-0.5">Registro histórico de eventos ACV</p>
         </div>
         <ExportButton filters={filters} />
       </div>
@@ -75,7 +75,7 @@ export default async function CasosPage({ searchParams }: Props) {
         {Object.values(filters).some(Boolean) && (
           <Link
             href="/dashboard/casos"
-            className="px-3 py-2 text-xs text-[#A8B6D6] hover:text-[#132B58] transition-colors"
+            className="px-3 py-2 text-xs text-[#334155] hover:text-[#132B58] transition-colors"
           >
             Limpiar
           </Link>

@@ -14,7 +14,7 @@ import {
   TOAST_LABEL,
 } from "@/lib/types";
 
-const labelCls = "block text-[11px] font-semibold text-[#A8B6D6] uppercase tracking-wide mb-1";
+const labelCls = "block text-[11px] font-semibold text-[#334155] uppercase tracking-wide mb-1";
 const fieldCls =
   "w-full rounded-lg border border-[#F0F0F0] bg-white px-3 py-2 text-sm text-[#132B58] outline-none focus:border-[#244B99] transition";
 

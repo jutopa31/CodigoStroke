@@ -12,7 +12,7 @@ interface Props {
 const PAGE_SIZE = 20;
 
 function dtnColor(min: number | null): string {
-  if (min === null) return "text-[#A8B6D6]";
+  if (min === null) return "text-[#334155]";
   if (min <= 45) return "text-emerald-600 font-semibold";
   if (min <= 60) return "text-amber-600 font-semibold";
   return "text-red-600 font-semibold";
@@ -41,7 +41,7 @@ function SourceBadge({ source }: { source: string }) {
 }
 
 function MrsPill({ score }: { score: number | null }) {
-  if (score === null) return <span className="text-[#A8B6D6]">—</span>;
+  if (score === null) return <span className="text-[#334155]">—</span>;
   const favorable = isFavorableMrs(score as 0 | 1 | 2 | 3 | 4 | 5 | 6);
   return (
     <span
@@ -75,7 +75,7 @@ export default function CasesTable({ data, count, page }: Props) {
       <div className="overflow-x-auto">
         <table className="w-full min-w-[880px] text-sm whitespace-nowrap">
           <thead>
-            <tr className="bg-[#F0F2F5] text-xs font-semibold text-[#A8B6D6] uppercase tracking-wide">
+            <tr className="bg-[#F0F2F5] text-xs font-semibold text-[#334155] uppercase tracking-wide">
               <th className="px-4 py-3 text-left sticky left-0 z-10 bg-[#F0F2F5]">Fecha</th>
               <th className="px-4 py-3 text-left">Alias</th>
               <th className="px-4 py-3 text-center">Edad/Sexo</th>
@@ -89,7 +89,7 @@ export default function CasesTable({ data, count, page }: Props) {
           <tbody className="divide-y divide-[#F0F0F0]">
             {data.length === 0 && (
               <tr>
-                <td colSpan={8} className="py-12 text-center text-sm text-[#A8B6D6]">
+                <td colSpan={8} className="py-12 text-center text-sm text-[#334155]">
                   Sin registros
                 </td>
               </tr>
@@ -106,22 +106,22 @@ export default function CasesTable({ data, count, page }: Props) {
                     {row.createdAt ? new Date(row.createdAt).toLocaleDateString("es-AR") : "—"}
                   </td>
                   <td className="px-4 py-3 text-[#132B58] font-medium">
-                    {row.patientAlias ?? <span className="text-[#A8B6D6]">—</span>}
+                    {row.patientAlias ?? <span className="text-[#334155]">—</span>}
                   </td>
                   <td className="px-4 py-3 text-center tabular-nums text-[#132B58]">
-                    {row.age ? `${row.age} ${row.sex ?? ""}`.trim() : <span className="text-[#A8B6D6]">—</span>}
+                    {row.age ? `${row.age} ${row.sex ?? ""}`.trim() : <span className="text-[#334155]">—</span>}
                   </td>
                   <td className="px-4 py-3 text-center tabular-nums text-[#132B58]">
-                    {row.nihssScore ?? <span className="text-[#A8B6D6]">—</span>}
+                    {row.nihssScore ?? <span className="text-[#334155]">—</span>}
                   </td>
                   <td className={`px-4 py-3 text-center tabular-nums ${dtnColor(dtn)}`}>
-                    {dtn ?? <span className="text-[#A8B6D6] font-normal">—</span>}
+                    {dtn ?? <span className="text-[#334155] font-normal">—</span>}
                   </td>
                   <td className="px-4 py-3 text-center">
                     {row.drugUsed ? (
                       <span className="uppercase text-xs font-semibold text-[#132B58]">{DRUG_LABEL[row.drugUsed]}</span>
                     ) : (
-                      <span className="text-[#A8B6D6]">—</span>
+                      <span className="text-[#334155]">—</span>
                     )}
                   </td>
                   <td className="px-4 py-3 text-center">
@@ -140,7 +140,7 @@ export default function CasesTable({ data, count, page }: Props) {
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex items-center justify-between px-4 py-3 border-t border-[#F0F0F0]">
-          <p className="text-xs text-[#A8B6D6]">
+          <p className="text-xs text-[#334155]">
             {count} resultados · página {page} de {totalPages}
           </p>
           <div className="flex gap-1">

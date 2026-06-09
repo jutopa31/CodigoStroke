@@ -21,7 +21,7 @@ function fmtTime(iso: string | null): string {
 function Stat({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div>
-      <p className="text-[11px] font-semibold text-[#A8B6D6] uppercase tracking-wide">{label}</p>
+      <p className="text-[11px] font-semibold text-[#334155] uppercase tracking-wide">{label}</p>
       <p className="text-sm text-[#132B58] font-medium mt-0.5">{value}</p>
     </div>
   );
@@ -38,7 +38,7 @@ function Card({ title, children }: { title: string; children: React.ReactNode })
 
 function Interval({ label, min, ok, warn }: { label: string; min: number | null; ok: number; warn: number }) {
   const color =
-    min === null ? "text-[#A8B6D6]" : min <= ok ? "text-emerald-600" : min <= warn ? "text-amber-600" : "text-red-600";
+    min === null ? "text-[#334155]" : min <= ok ? "text-emerald-600" : min <= warn ? "text-amber-600" : "text-red-600";
   return (
     <div className="flex items-baseline justify-between py-1.5 border-b border-[#F0F0F0] last:border-0">
       <span className="text-sm text-[#475569]">{label}</span>
@@ -58,7 +58,7 @@ export default async function CaseDetailPage({ params }: Props) {
     <div className="px-8 py-6 space-y-6 max-w-5xl">
       {/* Header */}
       <div>
-        <Link href="/dashboard/casos" className="text-xs text-[#A8B6D6] hover:text-[#132B58] transition-colors">
+        <Link href="/dashboard/casos" className="text-xs text-[#334155] hover:text-[#132B58] transition-colors">
           ← Volver a casos
         </Link>
         <div className="flex items-center gap-3 mt-1">
@@ -70,7 +70,7 @@ export default async function CaseDetailPage({ params }: Props) {
             <span className="text-amber-600 text-xs font-medium">En curso</span>
           )}
         </div>
-        <p className="text-sm text-[#A8B6D6] mt-0.5">{fmtTime(c.createdAt)}</p>
+        <p className="text-sm text-[#334155] mt-0.5">{fmtTime(c.createdAt)}</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -114,7 +114,7 @@ export default async function CaseDetailPage({ params }: Props) {
 
       {/* Outcomes retrospectivos */}
       <Card title="Outcomes (carga retrospectiva)">
-        <p className="text-xs text-[#A8B6D6] -mt-2 mb-4">
+        <p className="text-xs text-[#334155] -mt-2 mb-4">
           Datos que exceden a la app del momento agudo. Se cargan desde la historia clínica.
         </p>
         <RetrospectiveForm c={c} />

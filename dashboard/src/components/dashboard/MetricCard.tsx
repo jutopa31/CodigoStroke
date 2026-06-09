@@ -37,13 +37,13 @@ export default function MetricCard({
     <div
       className={`bg-white rounded-xl border-l-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] pl-5 pr-4 py-4 flex flex-col gap-1.5 ${STATUS_BORDER[status]}`}
     >
-      <p className="text-xs font-medium text-[#A8B6D6] uppercase tracking-wide">{label}</p>
+      <p className="text-xs font-medium text-[#334155] uppercase tracking-wide">{label}</p>
       <div className="flex items-end gap-1.5">
         <span className={`text-4xl font-bold tabular-nums leading-none ${STATUS_VALUE[status]}`}>
           {value ?? "—"}
         </span>
         {unit && (
-          <span className="text-sm text-[#A8B6D6] mb-1">{unit}</span>
+          <span className="text-sm text-[#334155] mb-1">{unit}</span>
         )}
       </div>
       {(delta || subtitle) && (
@@ -58,7 +58,7 @@ export default function MetricCard({
             </span>
           )}
           {subtitle && (
-            <span className="text-xs text-[#A8B6D6]">{subtitle}</span>
+            <span className="text-xs text-[#334155]">{subtitle}</span>
           )}
         </div>
       )}
