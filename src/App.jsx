@@ -710,17 +710,14 @@ export default function App() {
     ? (PHASE1_TAB_IDS.filter((k) => tabCompletion[k] === 'complete').length / PHASE1_TAB_IDS.length) * 100
     : 100
 
-  // PASO X/Y pill — current tab position within the active phase
-  const stepLabel = (() => {
-    if (phase === 'pre') {
-      const i = PHASE1_TAB_IDS.indexOf(activeTab)
-      return i >= 0 ? `PASO ${i + 1}/${PHASE1_TAB_IDS.length}` : null
-    }
-    const PHASE2_ORDER = ['decision', 'trombolisis', 'cuidados', 'trombectomia', 'resumen']
-      .filter((id) => !(id === 'trombolisis' && decisionResult?.thrombolyze !== true))
-    const i = PHASE2_ORDER.indexOf(activeTab)
-    return i >= 0 ? `PASO ${i + 1}/${PHASE2_ORDER.length}` : null
-  })()
+  // PASO X/7 pill — position in the 7-step stepper model (kept consistent with StepStepper)
+  const STEP_OF_TAB = {
+    paciente: 1, tiempo: 2, clinica: 3, imagenes: 4,
+    ci_abs: 5, ci_rel: 5,
+    decision: 6,
+    trombolisis: 7, cuidados: 7, trombectomia: 7, resumen: 7,
+  }
+  const stepLabel = STEP_OF_TAB[activeTab] ? `PASO ${STEP_OF_TAB[activeTab]}/7` : null
 
   // Floating trombolisis button: visible in Phase 2 when indicated, not already on that tab
   const showTrombolisisFAB = phase === 'post'
