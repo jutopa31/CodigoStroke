@@ -73,10 +73,10 @@ export default function CasesTable({ data, count, page }: Props) {
   return (
     <div className="bg-white rounded-xl border border-[#F0F0F0] shadow-[0_1px_3px_rgba(0,0,0,0.04)] overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+        <table className="w-full min-w-[880px] text-sm whitespace-nowrap">
           <thead>
             <tr className="bg-[#F0F2F5] text-xs font-semibold text-[#A8B6D6] uppercase tracking-wide">
-              <th className="px-4 py-3 text-left">Fecha</th>
+              <th className="px-4 py-3 text-left sticky left-0 z-10 bg-[#F0F2F5]">Fecha</th>
               <th className="px-4 py-3 text-left">Alias</th>
               <th className="px-4 py-3 text-center">Edad/Sexo</th>
               <th className="px-4 py-3 text-center">NIHSS</th>
@@ -100,9 +100,9 @@ export default function CasesTable({ data, count, page }: Props) {
                 <tr
                   key={row.id}
                   onClick={() => router.push(`/dashboard/casos/${row.id}`)}
-                  className="hover:bg-[#132B58]/[0.03] transition-colors cursor-pointer"
+                  className="bg-white hover:bg-[#EEF1F6] transition-colors cursor-pointer"
                 >
-                  <td className="px-4 py-3 text-[#132B58] tabular-nums">
+                  <td className="px-4 py-3 text-[#132B58] tabular-nums sticky left-0 z-10 bg-inherit">
                     {row.createdAt ? new Date(row.createdAt).toLocaleDateString("es-AR") : "—"}
                   </td>
                   <td className="px-4 py-3 text-[#132B58] font-medium">

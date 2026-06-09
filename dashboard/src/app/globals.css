@@ -35,6 +35,9 @@
 }
 
 :root {
+  /* Dashboard de tema claro: evita que el modo oscuro del SO / Auto Dark Mode
+     del navegador invierta colores y rompa el contraste sobre las cards blancas. */
+  color-scheme: light;
   --background: #F0F2F5;
   --foreground: #132B58;
 }
@@ -44,4 +47,15 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+}
+
+/* Next inyecta `@media (prefers-color-scheme:dark){body{color:#fff;background:#000}}`
+   (estilos de su overlay de error). Como prefers-color-scheme refleja el SO y no
+   la página, eso volvía el texto blanco e invisible sobre las cards blancas cuando
+   el SO está en modo oscuro. Re-afirmamos el tema claro. */
+@media (prefers-color-scheme: dark) {
+  body {
+    color: var(--foreground) !important;
+    background: var(--background) !important;
+  }
 }
