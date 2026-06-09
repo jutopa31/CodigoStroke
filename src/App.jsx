@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { Copy, Check, Syringe, Brain, ChevronRight } from 'lucide-react'
 import GlobalTimer from './components/GlobalTimer'
 import AlertModal from './components/AlertModal'
-import TabBar from './components/TabBar'
+import StepStepper from './components/StepStepper'
 import DecisionButton from './components/DecisionButton'
 import QuickAddFAB from './components/QuickAddFAB'
 import TimestampPanel from './components/TimestampPanel'
@@ -532,10 +532,12 @@ export default function App() {
 
   const tabCompletion = getTabCompletion({ patient, vitals, symptoms, nihss, ctResult, contraAbsolutes, contraRelatives })
 
-  // Phase 2: show Trombolisis tab only if thrombolysis indicated
-  const phase2TabCompletion = {
-    ...tabCompletion,
-    showTrombolisis: decisionResult?.thrombolyze === true,
+  // Stepper navigation — jump between protocol steps across phases.
+  // Guard: post-phase steps (Decisión, Tratamiento) only reachable once decision is computed.
+  function handleStepNavigate(targetPhase, tab) {
+    if (targetPhase === 'post' && !decisionResult) return
+    setPhase(targetPhase)
+    setActiveTab(tab)
   }
 
   // ── Derived latest readings ─────────────────────────────────────────────────
@@ -725,8 +727,13 @@ export default function App() {
     && decisionResult?.thrombolyze === true
     && activeTab !== 'trombolisis'
 
+  // Mobile header height varies: the event-timeline strip appears once there are
+  // registered timestamps (>1 badge), adding a row. Offset the body accordingly.
+  const hasEventStrip = !!(ctRequestTime || thrombolyticStartTime || angioRequestTime)
   const headerOffsetClass = timerStart
-    ? 'pt-[calc(7rem+env(safe-area-inset-top,0px))] md:pt-[calc(2.75rem+env(safe-area-inset-top,0px))]'
+    ? (hasEventStrip
+        ? 'pt-[calc(8.25rem+env(safe-area-inset-top,0px))] md:pt-[calc(2.75rem+env(safe-area-inset-top,0px))]'
+        : 'pt-[calc(5rem+env(safe-area-inset-top,0px))] md:pt-[calc(2.75rem+env(safe-area-inset-top,0px))]')
     : 'pt-[calc(3.75rem+env(safe-area-inset-top,0px))] md:pt-[calc(2.75rem+env(safe-area-inset-top,0px))]'
 
   return (
@@ -752,13 +759,15 @@ export default function App() {
       {/* Body below header */}
       <div className={`flex-1 flex flex-col overflow-hidden ${headerOffsetClass}`}>
 
-        {/* TabBar — colored band */}
+        {/* Protocol stepper — 7 numbered steps replacing the icon TabBar */}
         <div className="shrink-0 bg-stroke-navy md:border-b md:border-stroke-line md:px-5 md:py-1">
-          <TabBar
+          <StepStepper
             phase={phase}
             activeTab={activeTab}
-            onTabChange={setActiveTab}
-            completion={phase === 'pre' ? tabCompletion : phase2TabCompletion}
+            completion={tabCompletion}
+            postUnlocked={!!decisionResult}
+            showTrombolisis={decisionResult?.thrombolyze === true}
+            onNavigate={handleStepNavigate}
           />
         </div>
 
