@@ -1,185 +1,144 @@
-import { createServerSupabaseClient } from "./supabase-server";
+// ─────────────────────────────────────────────────────────────────────────────
+// Provider de datos INTERCAMBIABLE.
+//
+//   USE_MOCK = true  → lee del dataset mock determinista (default por ahora)
+//   USE_MOCK = false → lee de Supabase, mapea a StrokeCase y corre LOS MISMOS
+//                      agregadores puros que el path mock.
+//
+// Cambiar de mock a real es flipear NEXT_PUBLIC_USE_MOCK=false y tener datos
+// en `stroke_events`. Ningún componente de UI cambia.
+// ─────────────────────────────────────────────────────────────────────────────
 
-export interface MonthlyDtnRow {
-  month: string;
-  avg_dtn: number | null;
-  count: number;
+import type { StrokeCase, Drug } from "./types";
+import {
+  MOCK_CASES,
+  computeQualityMetrics,
+  computeDtnByMonth,
+  computeThrombolysisByMonth,
+  computeMrsDistribution,
+  type QualityMetrics,
+  type MonthlyDtnRow,
+  type MonthlyThrombolysisRow,
+  type MrsDistributionRow,
+} from "./mock-data";
+import { getOverride } from "./mock-store";
+
+export type {
+  QualityMetrics,
+  MonthlyDtnRow,
+  MonthlyThrombolysisRow,
+  MrsDistributionRow,
+};
+
+const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK !== "false";
+const PAGE_SIZE = 20;
+
+export interface CaseFilters {
+  source?: string;
+  from?: string;
+  to?: string;
+  drug?: string;
 }
 
-export interface MonthlyThrombolysisRow {
-  month: string;
-  total: number;
-  with_thrombolysis: number;
-  rate: number;
+// ── Carga de todos los casos según el origen activo ─────────────────────────────
+
+/** Aplica los overrides retrospectivos en memoria (modo mock). */
+function withOverrides(c: StrokeCase): StrokeCase {
+  const o = getOverride(c.id);
+  return o ? { ...c, ...o } : c;
 }
 
-export interface SourceRow {
-  source: string;
-  count: number;
-}
+async function loadAllCases(): Promise<StrokeCase[]> {
+  if (USE_MOCK) return MOCK_CASES.map(withOverrides);
 
-export interface CaseRow {
-  id: string;
-  created_at: string;
-  patient_alias: string | null;
-  nihss_score: number | null;
-  door_to_needle_min: number | null;
-  drug_used: string | null;
-  form_status: string | null;
-  source: string | null;
-  thrombolysis_given: boolean | null;
-}
-
-export interface SummaryStats {
-  totalCases: number;
-  avgDtn: number | null;
-  thrombolysisRate: number | null;
-  casesThisMonth: number;
-  sheetsImportRatio: number | null;
-}
-
-export async function getSummaryStats(): Promise<SummaryStats> {
+  // ── Path Supabase real ──
+  const { createServerSupabaseClient } = await import("./supabase-server");
   const supabase = await createServerSupabaseClient();
-
-  const now = new Date();
-  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-
-  const [allRes, monthRes, dtnRes, thrombolysisRes, sourceRes] =
-    await Promise.all([
-      supabase
-        .from("stroke_events")
-        .select("id", { count: "exact", head: true })
-        .eq("form_status", "completed"),
-      supabase
-        .from("stroke_events")
-        .select("id", { count: "exact", head: true })
-        .eq("form_status", "completed")
-        .gte("created_at", monthStart),
-      supabase
-        .from("stroke_events")
-        .select("door_to_needle_min")
-        .not("door_to_needle_min", "is", null)
-        .eq("form_status", "completed"),
-      supabase
-        .from("stroke_events")
-        .select("thrombolysis_given")
-        .eq("form_status", "completed"),
-      supabase
-        .from("stroke_events")
-        .select("source")
-        .eq("form_status", "completed"),
-    ]);
-
-  const totalCases = allRes.count ?? 0;
-  const casesThisMonth = monthRes.count ?? 0;
-
-  const dtnValues = (dtnRes.data ?? [])
-    .map((r) => r.door_to_needle_min)
-    .filter((v): v is number => v !== null);
-  const avgDtn =
-    dtnValues.length > 0
-      ? Math.round(dtnValues.reduce((a, b) => a + b, 0) / dtnValues.length)
-      : null;
-
-  const thromboData = thrombolysisRes.data ?? [];
-  const thrombolysisRate =
-    thromboData.length > 0
-      ? Math.round(
-          (100 * thromboData.filter((r) => r.thrombolysis_given).length) /
-            thromboData.length
-        )
-      : null;
-
-  const sourceData = sourceRes.data ?? [];
-  const sheetsCount = sourceData.filter((r) => r.source === "sheets_import").length;
-  const sheetsImportRatio =
-    sourceData.length > 0
-      ? Math.round((100 * sheetsCount) / sourceData.length)
-      : null;
-
-  return { totalCases, avgDtn, thrombolysisRate, casesThisMonth, sheetsImportRatio };
-}
-
-export async function getDoorToNeedleByMonth(): Promise<MonthlyDtnRow[]> {
-  const supabase = await createServerSupabaseClient();
-
   const { data } = await supabase
     .from("stroke_events")
-    .select("created_at, door_to_needle_min")
-    .not("door_to_needle_min", "is", null)
-    .eq("form_status", "completed")
-    .order("created_at");
-
-  if (!data) return [];
-
-  const byMonth: Record<string, number[]> = {};
-  for (const row of data) {
-    const month = row.created_at.slice(0, 7); // "YYYY-MM"
-    if (!byMonth[month]) byMonth[month] = [];
-    byMonth[month].push(row.door_to_needle_min as number);
-  }
-
-  return Object.entries(byMonth)
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([month, vals]) => ({
-      month,
-      avg_dtn: Math.round(vals.reduce((a, b) => a + b, 0) / vals.length),
-      count: vals.length,
-    }));
+    .select("*")
+    .order("created_at", { ascending: false });
+  return (data ?? []).map(mapRowToCase);
 }
 
-export async function getThrombolysisRateByMonth(): Promise<MonthlyThrombolysisRow[]> {
-  const supabase = await createServerSupabaseClient();
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/** Mapea una fila de `stroke_events` al modelo de dominio. */
+function mapRowToCase(row: any): StrokeCase {
+  return {
+    id: row.id,
+    createdAt: row.created_at,
+    patientAlias: row.patient_alias ?? null,
+    source: row.source ?? "app",
+    formStatus: row.form_status === "completed" ? "completed" : "in_progress",
+    age: row.age ?? null,
+    sex: row.sex ?? null,
+    nihssScore: row.nihss_score ?? null,
+    aspectsScore: row.aspects_score ?? null,
+    isWakeUpStroke: row.is_wake_up_stroke ?? null,
+    symptomOnset: row.symptom_onset_time ?? null,
+    doorTime: row.door_time ?? null,
+    ctRequestTime: row.ct_request_time ?? null,
+    thrombolyticStart: row.thrombolytic_start_at ?? null,
+    angioRequestTime: row.angio_request_time ?? null,
+    thrombectomyActivation: row.thrombectomy_activation_at ?? null,
+    thrombolysisGiven: row.thrombolysis_given ?? null,
+    drugUsed: (row.drug_used as Drug) ?? null,
+    thrombectomyDone: row.thrombectomy_activated ?? null,
+    hasBleeding: row.has_bleeding ?? null,
+    // Origen C — columnas a agregar por migración; null hasta entonces.
+    mrsBaseline: row.patient_mrs_score ?? row.mrs_baseline ?? null,
+    mrsDischarge: row.mrs_discharge ?? null,
+    mrs90d: row.mrs_90d ?? null,
+    lengthOfStayDays: row.length_of_stay_days ?? null,
+    dischargeDestination: row.discharge_destination ?? null,
+    toastEtiology: row.toast_etiology ?? null,
+    symptomaticICH: row.symptomatic_ich ?? null,
+    mortality90d: row.mortality_90d ?? null,
+  };
+}
+/* eslint-enable @typescript-eslint/no-explicit-any */
 
-  const { data } = await supabase
-    .from("stroke_events")
-    .select("created_at, thrombolysis_given")
-    .eq("form_status", "completed")
-    .order("created_at");
+// ── API pública ─────────────────────────────────────────────────────────────────
 
-  if (!data) return [];
+export async function getQualityMetrics(): Promise<QualityMetrics> {
+  return computeQualityMetrics(await loadAllCases());
+}
 
-  const byMonth: Record<string, { total: number; with_thrombolysis: number }> = {};
-  for (const row of data) {
-    const month = row.created_at.slice(0, 7);
-    if (!byMonth[month]) byMonth[month] = { total: 0, with_thrombolysis: 0 };
-    byMonth[month].total += 1;
-    if (row.thrombolysis_given) byMonth[month].with_thrombolysis += 1;
-  }
+export async function getDtnByMonth(): Promise<MonthlyDtnRow[]> {
+  return computeDtnByMonth(await loadAllCases());
+}
 
-  return Object.entries(byMonth)
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([month, { total, with_thrombolysis }]) => ({
-      month,
-      total,
-      with_thrombolysis,
-      rate: Math.round((100 * with_thrombolysis) / total),
-    }));
+export async function getThrombolysisByMonth(): Promise<MonthlyThrombolysisRow[]> {
+  return computeThrombolysisByMonth(await loadAllCases());
+}
+
+export async function getMrsDistribution(): Promise<MrsDistributionRow[]> {
+  return computeMrsDistribution(await loadAllCases());
 }
 
 export async function getRecentCases(
   page = 1,
-  filters: { source?: string; from?: string; to?: string; drug?: string } = {}
-): Promise<{ data: CaseRow[]; count: number }> {
-  const supabase = await createServerSupabaseClient();
-  const pageSize = 20;
-  const from = (page - 1) * pageSize;
-
-  let query = supabase
-    .from("stroke_events")
-    .select(
-      "id, created_at, patient_alias, nihss_score, door_to_needle_min, drug_used, form_status, source, thrombolysis_given",
-      { count: "exact" }
-    )
-    .eq("form_status", "completed")
-    .order("created_at", { ascending: false })
-    .range(from, from + pageSize - 1);
-
-  if (filters.source) query = query.eq("source", filters.source);
-  if (filters.from) query = query.gte("created_at", filters.from);
-  if (filters.to) query = query.lte("created_at", filters.to);
-  if (filters.drug) query = query.eq("drug_used", filters.drug);
-
-  const { data, count } = await query;
-  return { data: (data ?? []) as CaseRow[], count: count ?? 0 };
+  filters: CaseFilters = {}
+): Promise<{ data: StrokeCase[]; count: number }> {
+  const all = (await loadAllCases()).filter((c) => c.formStatus === "completed");
+  const filtered = all.filter((c) => {
+    if (filters.source && c.source !== filters.source) return false;
+    if (filters.drug && c.drugUsed !== filters.drug) return false;
+    if (filters.from && c.createdAt < filters.from) return false;
+    if (filters.to && c.createdAt > `${filters.to}T23:59:59`) return false;
+    return true;
+  });
+  const from = (page - 1) * PAGE_SIZE;
+  return { data: filtered.slice(from, from + PAGE_SIZE), count: filtered.length };
 }
+
+export async function getCaseById(id: string): Promise<StrokeCase | null> {
+  return (await loadAllCases()).find((c) => c.id === id) ?? null;
+}
+
+/** Todos los casos completados, para export. */
+export async function getAllCompletedCases(): Promise<StrokeCase[]> {
+  return (await loadAllCases()).filter((c) => c.formStatus === "completed");
+}
+
+export { USE_MOCK };

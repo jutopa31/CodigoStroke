@@ -1,5 +1,7 @@
+import Link from "next/link";
 import { getRecentCases } from "@/lib/queries";
 import CasesTable from "@/components/dashboard/CasesTable";
+import ExportButton from "@/components/dashboard/ExportButton";
 
 interface Props {
   searchParams: Promise<{ page?: string; source?: string; from?: string; to?: string; drug?: string }>;
@@ -19,9 +21,12 @@ export default async function CasosPage({ searchParams }: Props) {
 
   return (
     <div className="px-8 py-6 space-y-4">
-      <div>
-        <h1 className="text-xl font-bold text-[#132B58]">Casos</h1>
-        <p className="text-sm text-[#A8B6D6] mt-0.5">Registro histórico de eventos ACV</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold text-[#132B58]">Casos</h1>
+          <p className="text-sm text-[#A8B6D6] mt-0.5">Registro histórico de eventos ACV</p>
+        </div>
+        <ExportButton filters={filters} />
       </div>
 
       {/* Filter bar */}
@@ -34,6 +39,7 @@ export default async function CasosPage({ searchParams }: Props) {
           <option value="">Todas las fuentes</option>
           <option value="app">App</option>
           <option value="sheets_import">Google Sheets</option>
+          <option value="manual">Manual</option>
         </select>
 
         <select
@@ -67,12 +73,12 @@ export default async function CasosPage({ searchParams }: Props) {
         </button>
 
         {Object.values(filters).some(Boolean) && (
-          <a
+          <Link
             href="/dashboard/casos"
             className="px-3 py-2 text-xs text-[#A8B6D6] hover:text-[#132B58] transition-colors"
           >
             Limpiar
-          </a>
+          </Link>
         )}
       </form>
 

@@ -1,32 +1,35 @@
 import {
-  getSummaryStats,
-  getDoorToNeedleByMonth,
-  getThrombolysisRateByMonth,
+  getQualityMetrics,
+  getDtnByMonth,
+  getThrombolysisByMonth,
+  getMrsDistribution,
 } from "@/lib/queries";
 import MetricCard from "@/components/dashboard/MetricCard";
 import DoorToNeedleChart from "@/components/dashboard/DoorToNeedleChart";
 import ThrombolysisChart from "@/components/dashboard/ThrombolysisChart";
+import MrsShiftChart from "@/components/dashboard/MrsShiftChart";
 import SyncButton from "@/components/dashboard/SyncButton";
 
-function dtnStatus(avg: number | null): "ok" | "warning" | "alert" | "neutral" {
-  if (avg === null) return "neutral";
-  if (avg <= 45) return "ok";
-  if (avg <= 60) return "warning";
-  return "alert";
-}
+type Status = "ok" | "warning" | "alert" | "neutral";
 
-function thrombolysisStatus(rate: number | null): "ok" | "warning" | "alert" | "neutral" {
-  if (rate === null) return "neutral";
-  if (rate >= 80) return "ok";
-  if (rate >= 60) return "warning";
+function band(value: number | null, ok: number, warn: number, higherIsBetter = true): Status {
+  if (value === null) return "neutral";
+  if (higherIsBetter) {
+    if (value >= ok) return "ok";
+    if (value >= warn) return "warning";
+    return "alert";
+  }
+  if (value <= ok) return "ok";
+  if (value <= warn) return "warning";
   return "alert";
 }
 
 export default async function DashboardPage() {
-  const [stats, dtnData, thrombolysisData] = await Promise.all([
-    getSummaryStats(),
-    getDoorToNeedleByMonth(),
-    getThrombolysisRateByMonth(),
+  const [m, dtnData, thrombolysisData, mrsData] = await Promise.all([
+    getQualityMetrics(),
+    getDtnByMonth(),
+    getThrombolysisByMonth(),
+    getMrsDistribution(),
   ]);
 
   return (
@@ -42,40 +45,41 @@ export default async function DashboardPage() {
         <SyncButton />
       </div>
 
-      {/* Metric cards */}
-      <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
-        <MetricCard
-          label="DTN promedio"
-          value={stats.avgDtn}
-          unit="min"
-          status={dtnStatus(stats.avgDtn)}
-          subtitle="puerta-aguja"
-        />
-        <MetricCard
-          label="Tasa de trombolisis"
-          value={stats.thrombolysisRate}
-          unit="%"
-          status={thrombolysisStatus(stats.thrombolysisRate)}
-          subtitle="casos completados"
-        />
-        <MetricCard
-          label="Casos este mes"
-          value={stats.casesThisMonth}
-          status="neutral"
-          subtitle="completados"
-        />
-        <MetricCard
-          label="Total de casos"
-          value={stats.totalCases}
-          status="neutral"
-          subtitle="histórico"
-        />
+      {/* Métricas de proceso */}
+      <div>
+        <p className="text-[11px] font-semibold text-[#A8B6D6] uppercase tracking-wider mb-2">Proceso</p>
+        <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+          <MetricCard label="DTN promedio" value={m.avgDtn} unit="min" status={band(m.avgDtn, 45, 60, false)} subtitle="puerta-aguja" />
+          <MetricCard label="DTN ≤ 60 min" value={m.pctDtnUnder60} unit="%" status={band(m.pctDtnUnder60, 75, 50)} subtitle="meta GWTG ≥75%" />
+          <MetricCard label="Puerta-TC" value={m.avgDoorToCt} unit="min" status={band(m.avgDoorToCt, 25, 45, false)} subtitle="meta ≤25 min" />
+          <MetricCard label="Casos este mes" value={m.casesThisMonth} status="neutral" subtitle={`${m.totalCases} histórico`} />
+        </div>
       </div>
 
-      {/* Charts */}
+      {/* Métricas de tratamiento y resultado */}
+      <div>
+        <p className="text-[11px] font-semibold text-[#A8B6D6] uppercase tracking-wider mb-2">Tratamiento y resultado</p>
+        <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+          <MetricCard label="Tasa trombólisis" value={m.thrombolysisRate} unit="%" status={band(m.thrombolysisRate, 80, 60)} subtitle="casos completados" />
+          <MetricCard label="Tasa trombectomía" value={m.thrombectomyRate} unit="%" status="neutral" subtitle="casos completados" />
+          <MetricCard label="mRS 0-2 a 90d" value={m.mrs90FavorableRate} unit="%" status={band(m.mrs90FavorableRate, 50, 35)} subtitle="independencia funcional" />
+          <MetricCard label="Mortalidad 90d" value={m.mortality90Rate} unit="%" status={band(m.mortality90Rate, 15, 25, false)} subtitle="casos con seguimiento" />
+        </div>
+      </div>
+
+      {/* Seguridad */}
+      <div>
+        <p className="text-[11px] font-semibold text-[#A8B6D6] uppercase tracking-wider mb-2">Seguridad</p>
+        <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+          <MetricCard label="sICH" value={m.sichRate} unit="%" status={band(m.sichRate, 6, 9, false)} subtitle="hemorragia sintomática (SITS)" />
+        </div>
+      </div>
+
+      {/* Gráficos */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
         <DoorToNeedleChart data={dtnData} />
         <ThrombolysisChart data={thrombolysisData} />
+        <MrsShiftChart data={mrsData} />
       </div>
     </div>
   );
