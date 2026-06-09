@@ -112,6 +112,7 @@ export default {
         'fade-in': 'fadeIn 0.25s ease-out',
         'pulse-subtle': 'pulseSubtle 2s ease-in-out infinite',
         'scale-in': 'scaleIn 0.2s ease-out',
+        'step-pop': 'stepPop 0.3s ease-out',
       },
       keyframes: {
         slideDown: {
@@ -133,6 +134,10 @@ export default {
         scaleIn: {
           '0%': { opacity: '0', transform: 'scale(0.95)' },
           '100%': { opacity: '1', transform: 'scale(1)' },
+        },
+        stepPop: {
+          '0%, 100%': { transform: 'scale(1)' },
+          '50%': { transform: 'scale(1.18)' },
         },
       },
       spacing: {

@@ -137,7 +137,8 @@ Scale: `2(2px) 4(4px) 8(8px) 12(12px) 16(16px) 20(20px) 24(24px) 32(32px) 40(40p
 
 - **Approach:** Intentional — existing animations are well-calibrated, keep them
 - **Keep:** `slide-down`, `slide-up` (step transitions), `fade-in` (content appears), `pulse-subtle` (timer dot)
-- **Add:** 50ms ease-out green flash on step completion (scale 1→1.02→1, success color)
+- **Step completion:** `step-pop` — a one-shot scale 1→1.18→1 over 300ms on the stepper circle as it transitions into the completed (amber) state. Color tweens via `transition-all duration-300`.
+- **Dynamic alerts:** `ClinicalAlert` that appears in response to input (TA/glucemia out of range) slides in with `animate-slide-down`.
 - **Easing:** enter `cubic-bezier(0.16, 1, 0.3, 1)` / exit `ease-in` / move `ease-in-out`
 - **Duration:** micro 50-100ms / short 150-250ms / medium 250-400ms (step transitions)
 

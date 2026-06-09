@@ -290,7 +290,7 @@ function VitalsSection({ vitals, onConfirm, draftVitals, onDraftChange }) {
         </div>
 
         {(taCrit || diaCrit) && (
-          <ClinicalAlert variant="critical" role="alert" className="mt-2">
+          <ClinicalAlert variant="critical" role="alert" className="mt-2 animate-slide-down">
             {taCrit && 'PAS >185 mmHg — ajustar antes de trombolisis. '}
             {diaCrit && 'PAD >110 mmHg — ajustar antes de trombolisis.'}
           </ClinicalAlert>
@@ -323,7 +323,7 @@ function VitalsSection({ vitals, onConfirm, draftVitals, onDraftChange }) {
         </div>
 
         {(glucLow || glucHigh) && (
-          <ClinicalAlert variant="critical" role="alert" className="mt-2">
+          <ClinicalAlert variant="critical" role="alert" className="mt-2 animate-slide-down">
             {glucLow  && 'Hipoglucemia <50 mg/dL — corregir antes de trombolisis. '}
             {glucHigh && 'Hiperglucemia >400 mg/dL — controlar antes de proceder.'}
           </ClinicalAlert>
