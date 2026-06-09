@@ -23,7 +23,7 @@ export default function DecisionButton({ allComplete, onClick, executed }) {
       bg-stroke-bg border border-stroke-line text-white/40 text-sm font-medium cursor-not-allowed select-none
       md:rounded-lg md:border-stroke-line md:bg-stroke-bg md:py-3 md:text-stroke-textMuted">
       <CheckCircle2 size={15} strokeWidth={2} />
-      Completá los 6 tabs para calcular
+      Completá la evaluación para calcular
     </div>
   )
 }

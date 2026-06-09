@@ -137,7 +137,8 @@ Scale: `2(2px) 4(4px) 8(8px) 12(12px) 16(16px) 20(20px) 24(24px) 32(32px) 40(40p
 
 - **Approach:** Intentional — existing animations are well-calibrated, keep them
 - **Keep:** `slide-down`, `slide-up` (step transitions), `fade-in` (content appears), `pulse-subtle` (timer dot)
-- **Add:** 50ms ease-out green flash on step completion (scale 1→1.02→1, success color)
+- **Step completion:** `step-pop` — a one-shot scale 1→1.18→1 over 300ms on the stepper circle as it transitions into the completed (amber) state. Color tweens via `transition-all duration-300`.
+- **Dynamic alerts:** `ClinicalAlert` that appears in response to input (TA/glucemia out of range) slides in with `animate-slide-down`.
 - **Easing:** enter `cubic-bezier(0.16, 1, 0.3, 1)` / exit `ease-in` / move `ease-in-out`
 - **Duration:** micro 50-100ms / short 150-250ms / medium 250-400ms (step transitions)
 
@@ -172,6 +173,15 @@ muted translucent background, 10px radius, icon + bold lead + muted body. Varian
 to the clinical channels: `warning` (amber), `critical` (red), `info` (accent blue),
 `glucose` (violet), `success` (green). Prefer this over ad-hoc inline `AlertTriangle`
 banners.
+
+### Step Stepper (`src/components/StepStepper.jsx`)
+Primary navigation: 7 numbered circles (numbers only) + connector line, replacing the
+icon TabBar. Maps the protocol across both phases:
+1 Paciente · 2 Tiempo · 3 NIHSS · 4 Imagen · 5 Contraindicaciones · 6 Decisión · 7 Tratamiento.
+Circle states: **completed** = amber fill (`bg-status-warning`, navy number); **active** =
+2px accent ring (`border-stroke-iconActive`, accent bg/text); **pending** = navy fill, line
+border, muted number. Grouped steps (5 CI, 7 Tratamiento) reveal a thin pill sub-nav when
+active so no sub-tab is lost. Post steps (6, 7) are gated until the decision is computed.
 
 ### Status badges
 Each badge maps to exactly one clinical channel. Never mix semantics.
