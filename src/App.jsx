@@ -587,6 +587,7 @@ export default function App() {
               onOpenEducational={() => { setEducationalSection('intro'); setShowEducationalMode(true) }}
               draftVitals={draftVitals}
               onDraftVitalsChange={setDraftVitals}
+              nihssScore={nihss?.nihssScore}
             />
           )
         case 'tiempo':
