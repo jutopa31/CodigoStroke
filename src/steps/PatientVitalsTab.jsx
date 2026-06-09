@@ -46,21 +46,6 @@ function SeverityBadge({ label, variant }) {
   )
 }
 
-function StatRow({ label, value, unit, severity }) {
-  return (
-    <div className="flex items-center justify-between bg-stroke-bg rounded-xl px-4 py-3">
-      <div>
-        <p className="text-[10px] text-stroke-textMuted mb-0.5">{label}</p>
-        <div className="flex items-baseline gap-1.5">
-          <span className="text-xl font-bold font-mono text-stroke-text tabular-nums">{value ?? '—'}</span>
-          {unit && <span className="text-[11px] text-stroke-textMuted">{unit}</span>}
-        </div>
-      </div>
-      {severity && <SeverityBadge label={severity.label} variant={severity.variant} />}
-    </div>
-  )
-}
-
 function AlertItem({ variant, Icon, title, body }) {
   const borderCls = { warning: 'border-l-amber-400', critical: 'border-l-red-400', glucose: 'border-l-violet-400' }
   const bgCls     = { warning: 'bg-amber-500/5',     critical: 'bg-red-500/5',     glucose: 'bg-violet-500/5'    }
@@ -450,7 +435,7 @@ function VitalsSection({ vitals, onConfirm, draftVitals, onDraftChange, nihssSco
       {/* ══════════════════════════════════════
           DESKTOP: 3-column grid
       ══════════════════════════════════════ */}
-      <div className="hidden md:grid md:grid-cols-3 md:gap-4">
+      <div className="hidden md:grid md:grid-cols-[1.4fr_1fr] md:gap-4">
 
         {/* ── Col 1: Form Inputs ── */}
         <div className="bg-stroke-bg rounded-2xl border border-stroke-line p-4 space-y-4">
@@ -532,37 +517,9 @@ function VitalsSection({ vitals, onConfirm, draftVitals, onDraftChange, nihssSco
           </button>
         </div>
 
-        {/* ── Col 2: Vital Stats (live preview) ── */}
+        {/* ── Col 2: Alerts ── */}
         <div className="bg-stroke-bg rounded-2xl border border-stroke-line p-4 space-y-3">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-stroke-textMuted">Vital Stats</p>
-          {nihssScore != null && (
-            <StatRow label="NIHSS" value={nihssScore} severity={getNihssSeverity(nihssScore)} />
-          )}
-          <StatRow
-            label="Glucemia"
-            value={glucose || null}
-            unit={glucose ? 'mg/dL' : undefined}
-            severity={glucose ? getGlucSeverity(glucNum) : null}
-          />
-          <StatRow
-            label="TA Sistólica"
-            value={sys || null}
-            unit={sys ? 'mmHg' : undefined}
-            severity={sys ? getSysSeverity(sysNum) : null}
-          />
-          {dia && (
-            <StatRow
-              label="TA Diastólica"
-              value={dia}
-              unit="mmHg"
-              severity={diaCrit ? { label: 'Alta', variant: 'critical' } : { label: 'Normal', variant: 'normal' }}
-            />
-          )}
-        </div>
-
-        {/* ── Col 3: Alerts ── */}
-        <div className="bg-stroke-bg rounded-2xl border border-stroke-line p-4 space-y-3">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-stroke-textMuted">Alerts</p>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-stroke-textMuted">Alertas</p>
           {alerts.length === 0 ? (
             <div className="flex items-center gap-2 px-3 py-3 bg-emerald-500/5 border-l-2 border-l-emerald-400 rounded-r-xl">
               <CheckCircle2 size={13} className="text-emerald-400 shrink-0" />
