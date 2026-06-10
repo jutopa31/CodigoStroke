@@ -26,15 +26,17 @@ export default {
           800: '#1E3A8A',
         },
         stroke: {
-          bg: '#0F1C38',       // DESIGN.md primary background (darker than navyDeep, for the dark-UI migration)
-          text: '#F0F4FF',     // DESIGN.md primary text on dark (15.3:1 on bg)
-          navy: '#132B58',
+          // CSS vars → adapts to data-theme="light" / "dark" automatically
+          bg:        'rgb(var(--tw-stroke-bg) / <alpha-value>)',
+          text:      'rgb(var(--tw-stroke-text) / <alpha-value>)',
+          navy:      'rgb(var(--tw-stroke-surface) / <alpha-value>)',
+          line:      'rgb(var(--tw-stroke-line) / <alpha-value>)',
+          panel:     'rgb(var(--tw-stroke-panel) / <alpha-value>)',
+          iconActive:'rgb(var(--tw-stroke-accent) / <alpha-value>)',
+          textMuted: 'rgb(var(--tw-stroke-text-muted) / <alpha-value>)',
+          // Fixed — not used in theme-sensitive contexts
           navyDeep: '#10264F',
-          line: '#29416D',
-          panel: '#3B4D73',
           icon: '#244B99',
-          iconActive: '#5C7AEA',
-          textMuted: '#A8B6D6',
         },
         // Semantic status tokens — use these instead of raw Tailwind color names
         // to keep mobile/desktop and all contexts visually consistent.

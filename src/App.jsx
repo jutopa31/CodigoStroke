@@ -138,6 +138,19 @@ export default function App() {
   const [eventId] = useState(uuidv4)
   const { user } = useAuth()
 
+  const [theme, setTheme] = useState(() => {
+    try { return localStorage.getItem('codigostroke_theme') ?? 'dark' } catch { return 'dark' }
+  })
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme
+    try { localStorage.setItem('codigostroke_theme', theme) } catch { /* Safari private mode */ }
+  }, [theme])
+
+  function handleToggleTheme() {
+    setTheme(t => t === 'dark' ? 'light' : 'dark')
+  }
+
   // ── Sync + mock ─────────────────────────────────────────────────────────────
 
   useEffect(() => {
@@ -358,6 +371,10 @@ export default function App() {
 
   function handleCtRequest(time) {
     setCtRequestTime(time)
+  }
+
+  function handleCtPerformed(time) {
+    setCtResult((prev) => ({ ...prev, ctPerformedTime: time.toISOString() }))
   }
 
   // CI tabs auto-save on each toggle
@@ -608,6 +625,7 @@ export default function App() {
               onCtConfirm={handleCtConfirm}
               onMriConfirm={handleMriConfirm}
               onCtRequest={handleCtRequest}
+              onCtPerformed={handleCtPerformed}
               ctResult={ctResult}
               isWakeUpStroke={symptoms?.isWakeUpStroke}
               initialCtRequestTime={ctRequestTime}
@@ -755,6 +773,8 @@ export default function App() {
         stepLabel={stepLabel}
         authUser={user}
         onAuthClick={() => setShowLoginModal(true)}
+        theme={theme}
+        onToggleTheme={handleToggleTheme}
       />
 
       {/* Body below header */}
