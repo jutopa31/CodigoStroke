@@ -26,18 +26,27 @@ const NAV = [
   },
 ];
 
-export default function Sidebar({ userName }: { userName?: string }) {
+export default function Sidebar({
+  userName,
+  className = "",
+  onNavigate,
+}: {
+  userName?: string;
+  className?: string;
+  onNavigate?: () => void;
+}) {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
 
   async function handleSignOut() {
+    onNavigate?.();
     await supabase?.auth.signOut();
     router.push("/login");
   }
 
   return (
-    <aside className="w-60 shrink-0 flex flex-col h-full bg-[#10264F]">
+    <aside className={`w-60 shrink-0 flex flex-col h-full bg-[#10264F] ${className}`}>
       {/* Logo */}
       <div className="px-5 pt-6 pb-4 border-b border-[#29416D]">
         <div className="flex items-center gap-2.5">
@@ -57,6 +66,7 @@ export default function Sidebar({ userName }: { userName?: string }) {
             <Link
               key={href}
               href={href}
+              onClick={onNavigate}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                 active
                   ? "bg-[#244B99] text-white"

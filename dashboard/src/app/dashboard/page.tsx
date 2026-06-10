@@ -33,7 +33,7 @@ export default async function DashboardPage() {
   ]);
 
   return (
-    <div className="px-8 py-6 space-y-6">
+    <div className="px-4 py-5 sm:px-8 sm:py-6 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -48,7 +48,7 @@ export default async function DashboardPage() {
       {/* Métricas de proceso */}
       <div>
         <p className="text-[11px] font-semibold text-[#334155] uppercase tracking-wider mb-2">Proceso</p>
-        <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
           <MetricCard label="DTN promedio" value={m.avgDtn} unit="min" status={band(m.avgDtn, 45, 60, false)} subtitle="puerta-aguja" />
           <MetricCard label="DTN ≤ 60 min" value={m.pctDtnUnder60} unit="%" status={band(m.pctDtnUnder60, 75, 50)} subtitle="meta GWTG ≥75%" />
           <MetricCard label="Puerta-TC" value={m.avgDoorToCt} unit="min" status={band(m.avgDoorToCt, 25, 45, false)} subtitle="meta ≤25 min" />
@@ -59,7 +59,7 @@ export default async function DashboardPage() {
       {/* Métricas de tratamiento y resultado */}
       <div>
         <p className="text-[11px] font-semibold text-[#334155] uppercase tracking-wider mb-2">Tratamiento y resultado</p>
-        <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
           <MetricCard label="Tasa trombólisis" value={m.thrombolysisRate} unit="%" status={band(m.thrombolysisRate, 80, 60)} subtitle="casos completados" />
           <MetricCard label="Tasa trombectomía" value={m.thrombectomyRate} unit="%" status="neutral" subtitle="casos completados" />
           <MetricCard label="mRS 0-2 a 90d" value={m.mrs90FavorableRate} unit="%" status={band(m.mrs90FavorableRate, 50, 35)} subtitle="independencia funcional" />
@@ -70,7 +70,7 @@ export default async function DashboardPage() {
       {/* Seguridad */}
       <div>
         <p className="text-[11px] font-semibold text-[#334155] uppercase tracking-wider mb-2">Seguridad</p>
-        <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
           <MetricCard label="sICH" value={m.sichRate} unit="%" status={band(m.sichRate, 6, 9, false)} subtitle="hemorragia sintomática (SITS)" />
         </div>
       </div>

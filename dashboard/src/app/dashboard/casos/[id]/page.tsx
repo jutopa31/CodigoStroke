@@ -55,7 +55,7 @@ export default async function CaseDetailPage({ params }: Props) {
   const d = deriveTimes(c);
 
   return (
-    <div className="px-8 py-6 space-y-6 max-w-5xl">
+    <div className="px-4 py-5 sm:px-8 sm:py-6 space-y-6 max-w-5xl">
       {/* Header */}
       <div>
         <Link href="/dashboard/casos" className="text-xs text-[#334155] hover:text-[#132B58] transition-colors">
