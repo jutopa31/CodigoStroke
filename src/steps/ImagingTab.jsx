@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { CheckCircle2, Scan, Clock, Droplets, Moon } from 'lucide-react'
+import { CheckCircle2, Scan, Clock, Droplets, Moon, Activity } from 'lucide-react'
 import StepCard from '../components/StepCard'
 
 function useInterval(ms) {
@@ -20,74 +20,162 @@ function timeSince(date) {
 }
 
 // ── CT Section ───────────────────────────────────────────────────────────────
+// Stepped-cards timeline: three milestones advance left→right, each stamping a
+// time. Buttons appear sequentially; the active card grows, completed cards
+// collapse to a compact time + delta stamp.
 
-function CTSection({ onConfirm, initialCtRequestTime, onCtRequest, initialBleeding }) {
-  const [ctRequestTime, setCtRequestTime] = useState(initialCtRequestTime)
+function fmtClock(d) {
+  return d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false })
+}
+
+function fmtDelta(a, b) {
+  const s = Math.round((b.getTime() - a.getTime()) / 1000)
+  const m = Math.floor(s / 60)
+  return m > 0 ? `Δ ${m}m ${String(s % 60).padStart(2, '0')}s` : `Δ ${s}s`
+}
+
+const CT_MILESTONES = [
+  { label: 'Solicitada', Icon: Scan },
+  { label: 'Realizada', Icon: Activity },
+  { label: 'Interpretada', Icon: Droplets },
+]
+
+function CTSection({
+  onConfirm,
+  onCtRequest,
+  onCtPerformed,
+  initialCtRequestTime,
+  initialCtPerformedTime,
+  initialInterpretTime,
+  initialBleeding,
+}) {
+  const [requestTime, setRequestTime] = useState(initialCtRequestTime ?? null)
+  const [performedTime, setPerformedTime] = useState(initialCtPerformedTime ?? null)
+  const [interpretTime, setInterpretTime] = useState(initialInterpretTime ?? null)
   const [bleeding, setBleeding] = useState(initialBleeding ?? null)
   useInterval(1000)
 
-  const elapsed = timeSince(ctRequestTime)
+  const interpreted = bleeding === true || bleeding === false
+  const times = [requestTime, performedTime, interpretTime]
+  // step = number of completed milestones (also the index of the active one)
+  const step = !requestTime ? 0 : !performedTime ? 1 : !interpreted ? 2 : 3
 
-  function handleCtRequest() {
+  function handleRequest() {
     const now = new Date()
-    setCtRequestTime(now)
+    setRequestTime(now)
     onCtRequest?.(now)
   }
 
-  function handleBleedingSelect(value) {
-    if (!ctRequestTime) return
+  function handlePerformed() {
+    if (!requestTime) return
+    const now = new Date()
+    setPerformedTime(now)
+    onCtPerformed?.(now)
+  }
+
+  function handleInterpret(value) {
+    if (!requestTime || !performedTime) return
+    const now = new Date()
+    setInterpretTime(now)
     setBleeding(value)
     onConfirm({
       bleeding: value,
-      ctRequestTime: ctRequestTime.toISOString(),
-      ctElapsedSeconds: Math.floor((Date.now() - ctRequestTime.getTime()) / 1000),
+      ctRequestTime: requestTime.toISOString(),
+      ctPerformedTime: performedTime.toISOString(),
+      ctInterpretTime: now.toISOString(),
+      ctElapsedSeconds: Math.floor((now.getTime() - requestTime.getTime()) / 1000),
     })
   }
 
+  const elapsedSinceLast = step === 1 ? timeSince(requestTime) : step === 2 ? timeSince(performedTime) : null
+
+  const btnBase = 'flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-bold transition-all active:scale-[0.98]'
+
   return (
-    <div className={`overflow-hidden rounded-xl transition-colors duration-200 ${
-      bleeding === true ? 'bg-status-critical/10' : bleeding === false ? 'bg-emerald-500/10' : ''
-    }`}>
-      <div className="flex items-start gap-3 px-3 py-3">
-        <span className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors ${ctRequestTime ? 'bg-emerald-500 text-stroke-bg' : 'bg-stroke-iconActive text-stroke-bg'}`}>
-          {ctRequestTime ? <CheckCircle2 size={17} strokeWidth={2.4} /> : <Scan size={17} strokeWidth={2.4} />}
-        </span>
-        <div className="min-w-0 flex-1">
-          <p className={`text-sm font-bold leading-tight ${ctRequestTime ? 'text-emerald-300' : 'text-stroke-text'}`}>
-            {ctRequestTime ? 'TAC solicitada' : 'TAC de encéfalo'}
-          </p>
-          {ctRequestTime && (
-            <span className="inline-flex items-center gap-1 mt-1 rounded-md bg-stroke-bg px-2 py-1 text-[11px] font-semibold text-emerald-300 ring-1 ring-emerald-500/30">
-              <Clock size={11} />
-              <span className="tabular-nums">{elapsed}</span>
-            </span>
-          )}
-        </div>
+    <div>
+      {/* progress sweep */}
+      <div className="mb-3 h-1.5 overflow-hidden rounded-full bg-stroke-line">
+        <div
+          className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-status-warning transition-all duration-500"
+          style={{ width: `${(step / 3) * 100}%` }}
+        />
       </div>
 
-      {!ctRequestTime ? (
-        <div className="border-t border-stroke-line bg-stroke-bg p-2.5">
-          <button type="button" onClick={handleCtRequest}
-            className="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg bg-stroke-iconActive text-stroke-bg px-4 py-2.5 text-sm font-bold transition-all hover:bg-[#4D6CD6] active:scale-[0.98]">
-            <Scan size={17} strokeWidth={2.5} /> TAC solicitada
-          </button>
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 gap-2 border-t border-stroke-line bg-stroke-bg p-2.5 animate-fade-in">
-          <button type="button" onClick={() => handleBleedingSelect(true)}
-            className={`flex min-h-[44px] items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-sm font-bold transition-all active:scale-[0.98] ${
-              bleeding === true ? 'border-status-critical bg-status-critical text-white' : 'border-stroke-line bg-stroke-navy text-stroke-textMuted hover:border-status-critical/50 hover:bg-status-critical/10'
-            }`}>
-            <Droplets size={17} strokeWidth={2.5} /> Sí sangre
-          </button>
-          <button type="button" onClick={() => handleBleedingSelect(false)}
-            className={`flex min-h-[44px] items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-sm font-bold transition-all active:scale-[0.98] ${
-              bleeding === false ? 'border-emerald-500 bg-emerald-700 text-white' : 'border-emerald-500/30 bg-stroke-navy text-emerald-300 hover:border-emerald-300 hover:bg-emerald-500/10'
-            }`}>
-            <CheckCircle2 size={17} strokeWidth={2.5} /> No sangre
-          </button>
+      {/* stepped cards */}
+      <div className="flex items-stretch gap-2">
+        {CT_MILESTONES.map(({ label, Icon }, i) => {
+          const isDone = !!times[i]
+          const isActive = i === step && step < 3
+          return (
+            <div
+              key={label}
+              className={`flex min-h-[94px] flex-col items-center justify-center rounded-xl border px-2 py-3 text-center transition-all duration-300 ${
+                isActive
+                  ? 'flex-[1.6] -translate-y-0.5 border-stroke-iconActive bg-stroke-panel ring-2 ring-stroke-iconActive/20'
+                  : isDone
+                    ? 'flex-1 border-stroke-line bg-stroke-bg'
+                    : 'flex-1 border-stroke-line bg-stroke-bg opacity-50'
+              }`}
+            >
+              <span className={`mb-1.5 flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${
+                isDone ? 'bg-emerald-500 text-stroke-bg animate-scale-in' : isActive ? 'bg-stroke-iconActive/20 text-stroke-iconActive' : 'bg-stroke-navy text-stroke-textMuted'
+              }`}>
+                {isDone ? <CheckCircle2 size={16} strokeWidth={2.5} /> : <Icon size={16} strokeWidth={2.4} />}
+              </span>
+              <span className={`font-sans text-xs font-semibold leading-tight ${isDone || isActive ? 'text-stroke-text' : 'text-stroke-textMuted'}`}>
+                {label}
+              </span>
+              {isDone && (
+                <span className="mt-1 font-mono text-[11px] font-semibold tabular-nums text-emerald-300">{fmtClock(times[i])}</span>
+              )}
+              {isDone && i > 0 && times[i - 1] && (
+                <span className="mt-0.5 font-mono text-[10px] tabular-nums text-stroke-textMuted">{fmtDelta(times[i - 1], times[i])}</span>
+              )}
+            </div>
+          )
+        })}
+      </div>
+
+      {/* live elapsed since last milestone */}
+      {elapsedSinceLast && (
+        <div className="mt-2.5 flex justify-center animate-fade-in">
+          <span className="inline-flex items-center gap-1.5 rounded-md border border-stroke-line bg-stroke-bg px-2.5 py-1 text-[11px] text-stroke-textMuted">
+            <Clock size={11} /> desde último hito
+            <span className="font-mono font-semibold tabular-nums text-status-warning">{elapsedSinceLast}</span>
+          </span>
         </div>
       )}
+
+      {/* sequential action area */}
+      <div className="mt-4">
+        {step === 0 && (
+          <button type="button" onClick={handleRequest}
+            className={`${btnBase} animate-fade-in bg-stroke-iconActive text-stroke-bg hover:bg-[#4D6CD6]`}>
+            <Scan size={17} strokeWidth={2.5} /> TAC solicitada
+          </button>
+        )}
+        {step === 1 && (
+          <button type="button" onClick={handlePerformed}
+            className={`${btnBase} animate-fade-in bg-stroke-iconActive text-stroke-bg hover:bg-[#4D6CD6]`}>
+            <Activity size={17} strokeWidth={2.5} /> TAC realizada
+          </button>
+        )}
+        {step === 2 && (
+          <div className="animate-fade-in">
+            <p className="mb-2 text-center text-xs font-medium text-stroke-textMuted">TAC interpretada — ¿hemorragia?</p>
+            <div className="grid grid-cols-2 gap-2">
+              <button type="button" onClick={() => handleInterpret(true)}
+                className={`${btnBase} border border-status-critical/40 bg-stroke-navy text-red-300 hover:border-status-critical hover:bg-status-critical hover:text-white`}>
+                <Droplets size={17} strokeWidth={2.5} /> Sí sangre
+              </button>
+              <button type="button" onClick={() => handleInterpret(false)}
+                className={`${btnBase} border border-emerald-500/40 bg-stroke-navy text-emerald-300 hover:border-emerald-500 hover:bg-emerald-700 hover:text-white`}>
+                <CheckCircle2 size={17} strokeWidth={2.5} /> No sangre
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
@@ -176,6 +264,7 @@ export default function ImagingTab({
   onCtConfirm,
   onMriConfirm,
   onCtRequest,
+  onCtPerformed,
   ctResult,
   isWakeUpStroke,
   initialCtRequestTime,
@@ -228,9 +317,12 @@ export default function ImagingTab({
         <StepCard step="" title="TAC de encéfalo" accent="blue">
           <CTSection
             onConfirm={onCtConfirm}
-            initialCtRequestTime={initialCtRequestTime}
-            initialBleeding={ctResult?.bleeding ?? null}
             onCtRequest={onCtRequest}
+            onCtPerformed={onCtPerformed}
+            initialCtRequestTime={initialCtRequestTime}
+            initialCtPerformedTime={ctResult?.ctPerformedTime ? new Date(ctResult.ctPerformedTime) : null}
+            initialInterpretTime={ctResult?.ctInterpretTime ? new Date(ctResult.ctInterpretTime) : null}
+            initialBleeding={ctResult?.bleeding ?? null}
           />
           {ctResult?.bleeding === true && (
           <div className="mt-3 bg-status-critical/10 border border-status-critical/40 rounded-lg px-3 py-2.5 animate-fade-in">

@@ -45,8 +45,9 @@ test.describe('Clinical pathway — hemorrhage detected', () => {
   test('CT with bleeding ends the thrombolysis pathway and shows hemorrhage warning', async ({ page }) => {
     await progressToCT(page)
 
-    // Request CT scan
+    // Request CT scan, then mark it performed
     await page.getByRole('button', { name: 'TAC solicitada' }).click()
+    await page.getByRole('button', { name: 'TAC realizada' }).click()
     // Select "bleeding present"
     await page.getByRole('button', { name: 'Sí sangre' }).click()
 
@@ -59,6 +60,7 @@ test.describe('Clinical pathway — hemorrhage detected', () => {
     await progressToCT(page)
 
     await page.getByRole('button', { name: 'TAC solicitada' }).click()
+    await page.getByRole('button', { name: 'TAC realizada' }).click()
     await page.getByRole('button', { name: 'No sangre' }).click()
 
     await expect(page.getByText(/TAC sin hemorragia/i)).toBeVisible()
@@ -78,6 +80,7 @@ test.describe('Clinical pathway — absolute contraindication', () => {
 
     // Clear CT (no bleeding)
     await page.getByRole('button', { name: 'TAC solicitada' }).click()
+    await page.getByRole('button', { name: 'TAC realizada' }).click()
     await page.getByRole('button', { name: 'No sangre' }).click()
 
     // Navigate to contraindications step via the tab/button
