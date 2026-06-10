@@ -13,7 +13,7 @@ import {
   Zap,
 } from 'lucide-react'
 import StepCard from '../components/StepCard'
-import NihssModal from '../components/NihssModal'
+import NihssGuided from '../components/NihssGuided'
 import WakeUpStrokeModal from '../components/WakeUpStrokeModal'
 import { SelectionCheck, StatusPill } from '../components/GuidedControls'
 import { getNihssSeverity } from '../content/nihss'
@@ -326,7 +326,7 @@ function NihssCompactPanel({ score, onScoreChange, hasDisabling, onDisablingChan
       )}
 
       {showModal && (
-        <NihssModal
+        <NihssGuided
           onLoad={(result) => {
             handleScoreChange(String(result))
             setShowModal(false)

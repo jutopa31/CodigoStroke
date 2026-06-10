@@ -64,7 +64,8 @@ export default function NihssGuided({ onLoad, onClose }) {
   }
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="fixed inset-0 z-50 flex flex-col bg-stroke-bg overflow-hidden">
+    <div className="flex-1 overflow-y-auto px-4 pt-4 pb-4 flex flex-col gap-3">
       {/* Progress header */}
       <div className="flex items-center gap-3">
         <span className="text-xs font-semibold text-stroke-textMuted whitespace-nowrap">
@@ -165,6 +166,7 @@ export default function NihssGuided({ onLoad, onClose }) {
           Entrada manual
         </button>
       </div>
+    </div>
     </div>
   )
 }
