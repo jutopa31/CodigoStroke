@@ -462,6 +462,7 @@ export default function App() {
   function handleThrombectomyConfirm(data) {
     setThrombectomy(data)
     if (data.thrombectomyActivationTime) setThrombectomyActivationTime(new Date(data.thrombectomyActivationTime))
+    setActiveTab('resumen')
   }
 
   // ── Quick-add handlers ──────────────────────────────────────────────────────
@@ -553,6 +554,7 @@ export default function App() {
   // Guard: post-phase steps (Decisión, Tratamiento) only reachable once decision is computed.
   function handleStepNavigate(targetPhase, tab) {
     if (targetPhase === 'post' && !decisionResult) return
+    if (tab === 'resumen' && !thrombectomy) return
     setPhase(targetPhase)
     setActiveTab(tab)
   }
@@ -732,14 +734,15 @@ export default function App() {
     ? (PHASE1_TAB_IDS.filter((k) => tabCompletion[k] === 'complete').length / PHASE1_TAB_IDS.length) * 100
     : 100
 
-  // PASO X/7 pill — position in the 7-step stepper model (kept consistent with StepStepper)
+  // PASO X/8 pill — position in the 8-step stepper model (kept consistent with StepStepper)
   const STEP_OF_TAB = {
     paciente: 1, tiempo: 2, clinica: 3, imagenes: 4,
     ci_abs: 5, ci_rel: 5,
     decision: 6,
-    trombolisis: 7, cuidados: 7, trombectomia: 7, resumen: 7,
+    trombolisis: 7, cuidados: 7, trombectomia: 7,
+    resumen: 8,
   }
-  const stepLabel = STEP_OF_TAB[activeTab] ? `PASO ${STEP_OF_TAB[activeTab]}/7` : null
+  const stepLabel = STEP_OF_TAB[activeTab] ? `PASO ${STEP_OF_TAB[activeTab]}/8` : null
 
   // Floating trombolisis button: visible in Phase 2 when indicated, not already on that tab
   const showTrombolisisFAB = phase === 'post'
@@ -788,6 +791,7 @@ export default function App() {
             completion={tabCompletion}
             postUnlocked={!!decisionResult}
             showTrombolisis={decisionResult?.thrombolyze === true}
+            summaryUnlocked={!!thrombectomy}
             onNavigate={handleStepNavigate}
           />
         </div>
