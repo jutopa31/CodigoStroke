@@ -85,7 +85,7 @@ export default function StartStep({ onStart, onResume, onOpenEducational, authUs
             type="button"
             onClick={onOpenEducational}
             aria-label="Modo educativo"
-            className="w-10 h-10 flex items-center justify-center text-stroke-textMuted hover:text-amber-400 transition-colors rounded-xl"
+            className="w-11 h-11 flex items-center justify-center text-stroke-textMuted hover:text-amber-400 transition-colors rounded-xl"
           >
             <BookOpen size={16} strokeWidth={2} />
           </button>
@@ -95,7 +95,7 @@ export default function StartStep({ onStart, onResume, onOpenEducational, authUs
             type="button"
             onClick={onAuthClick}
             aria-label={authUser ? 'Tu cuenta' : 'Iniciar sesión'}
-            className="w-10 h-10 flex items-center justify-center text-stroke-textMuted hover:text-stroke-iconActive transition-colors rounded-xl"
+            className="w-11 h-11 flex items-center justify-center text-stroke-textMuted hover:text-stroke-iconActive transition-colors rounded-xl"
           >
             {authUser
               ? <span className="text-[10px] font-bold text-stroke-iconActive">{getInitials(authUser)}</span>
