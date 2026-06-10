@@ -17,7 +17,7 @@ function getAspectLabel(score) {
 
 function fmtTime(date) {
   if (!date) return null
-  return date.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
+  return date.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false })
 }
 
 // Compact row: label on left, value+icon on right

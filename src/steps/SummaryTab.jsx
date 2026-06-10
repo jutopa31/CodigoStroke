@@ -12,13 +12,13 @@ const SYMPTOM_LABELS = {
 function fmtTime(date) {
   if (!date) return null
   const d = date instanceof Date ? date : new Date(date)
-  return d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
+  return d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false })
 }
 
 function fmtDateTime(value) {
   if (!value) return null
   const d = value instanceof Date ? value : new Date(value)
-  return `${d.toLocaleDateString('es-AR')} ${d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}`
+  return `${d.toLocaleDateString('es-AR')} ${d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false })}`
 }
 
 function diffMinutes(a, b) {

@@ -20,7 +20,7 @@ function formatElapsed(seconds) {
 
 function fmtClock(ts) {
   const d = ts instanceof Date ? ts : new Date(ts)
-  return d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
+  return d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false })
 }
 
 // Timer color escalates with elapsed time (HANDOFF_SPEC: amber → orange → red)

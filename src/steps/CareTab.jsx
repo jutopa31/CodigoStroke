@@ -4,7 +4,7 @@ import StepCard from '../components/StepCard'
 
 function fmtTime(date) {
   if (!date) return '--:--'
-  return date.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
+  return date.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false })
 }
 
 const BP_ALERTS = [

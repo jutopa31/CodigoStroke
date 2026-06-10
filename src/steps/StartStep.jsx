@@ -16,7 +16,7 @@ function getInitials(user) {
 }
 
 function fmtTime(ms) {
-  return new Date(ms).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
+  return new Date(ms).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false })
 }
 
 function getRecentSession() {

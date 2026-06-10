@@ -18,7 +18,7 @@ const POST_CHECKLIST = [
 
 
 function fmtTime(date) {
-  return date?.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' }) ?? null
+  return date?.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false }) ?? null
 }
 
 // Pre-thrombolysis BP/glucose check. Reads the most recent readings and flags
@@ -536,7 +536,7 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
                 {nihssRecords.map((r) => (
                   <span key={r.id} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-xs font-bold text-emerald-300">
                     <Brain size={10} />
-                    {r.score} · {r.timestamp.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}
+                    {r.score} · {r.timestamp.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false })}
                   </span>
                 ))}
               </div>

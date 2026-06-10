@@ -4,7 +4,7 @@ import StepCard, { CollapsedStep } from '../components/StepCard'
 import DniQrScanner from '../components/DniQrScanner'
 
 function fmtTime(date) {
-  return date.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
+  return date.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false })
 }
 
 export default function PatientStep({ onConfirm, confirmed = false, patient = null, patientId = null, arrivalTime = null, vitals = null, isCollapsed = false, onOpenEducational }) {
@@ -68,7 +68,7 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
                 )}
                 {arrivalTime && (
                   <span className="text-xs text-stroke-textMuted tabular-nums">
-                    Llegada {arrivalTime.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}
+                    Llegada {arrivalTime.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false })}
                   </span>
                 )}
               </div>
@@ -166,7 +166,7 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
             <div>
               <p className="text-[9px] text-white/40 uppercase tracking-[0.08em]">Llegada</p>
               <p className="text-[13px] font-bold font-mono text-white/70">
-                {new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}
+                {new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false })}
               </p>
             </div>
           </div>

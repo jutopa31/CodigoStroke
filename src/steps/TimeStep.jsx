@@ -33,7 +33,7 @@ function useInterval(ms) {
 
 function formatClock(dateStr) {
   if (!dateStr) return '--:--'
-  return new Date(dateStr).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
+  return new Date(dateStr).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false })
 }
 
 export default function TimeStep({ onConfirm, isCollapsed = false }) {

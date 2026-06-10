@@ -175,7 +175,7 @@ function PatientSection({ patient, patientId, arrivalTime, onConfirm, onOpenEduc
           <span className="text-xs text-stroke-textMuted font-mono tabular-nums">DNI {patient.dni}</span>
           {arrivalTime && (
             <span className="text-xs text-stroke-textMuted font-mono tabular-nums">
-              {arrivalTime.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}
+              {arrivalTime.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false })}
             </span>
           )}
           {patientId && (
