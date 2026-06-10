@@ -318,7 +318,7 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
                   value={weightStr} onChange={(e) => setWeightStr(e.target.value)}
                   onKeyDown={(e) => { if (e.key === 'Enter' && validWeight) setWeightLocked(true) }}
                   autoFocus
-                  className="w-full min-w-0 border border-stroke-line rounded-xl px-2 py-2 text-stroke-text text-lg font-bold text-center focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent placeholder-stroke-textMuted/50"
+                  className="w-full min-w-0 border border-stroke-line bg-stroke-navy rounded-xl px-2 py-2 text-stroke-text text-lg font-bold text-center focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent placeholder-stroke-textMuted/50"
                 />
                 {[1, 5].map((d) => (
                   <button key={d} type="button" onClick={() => adjust(d)}
@@ -549,7 +549,7 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
                   onChange={(e) => { setNihssEntry(e.target.value); setNihssEntrySource('manual') }}
                   onKeyDown={(e) => { if (e.key === 'Enter' && nihssValid) handleSaveNihss() }}
                   autoFocus
-                  className="flex-1 border border-emerald-300 rounded-xl px-3 py-2 text-stroke-text text-base font-bold text-center focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                  className="flex-1 border border-emerald-300 bg-stroke-navy rounded-xl px-3 py-2 text-stroke-text text-base font-bold text-center focus:outline-none focus:ring-2 focus:ring-emerald-400"
                 />
                 <button type="button" onClick={() => setShowNihssCalc(true)}
                   className="px-3 py-2 border border-stroke-line rounded-xl text-xs text-stroke-iconActive font-medium">
