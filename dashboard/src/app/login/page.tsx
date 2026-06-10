@@ -14,10 +14,19 @@ export default function LoginPage() {
   const router = useRouter();
   const supabase = createClient();
 
+  const authBypass = process.env.NEXT_PUBLIC_AUTH_BYPASS === "true";
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError(null);
+
+    // Modo mock: cualquier ingreso entra directo, sin validar credenciales.
+    if (authBypass) {
+      router.push("/dashboard");
+      router.refresh();
+      return;
+    }
 
     if (!supabase) {
       setError("Supabase no configurado. Completá NEXT_PUBLIC_SUPABASE_URL en .env.local.");
@@ -47,6 +56,11 @@ export default function LoginPage() {
           </span>
           <h1 className="mt-4 text-xl font-bold text-[#132B58]">Código Stroke</h1>
           <p className="text-sm text-[#A8B6D6] mt-1">Analytics — Acceso admin</p>
+          {authBypass && (
+            <p className="mt-3 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+              Modo demo: cualquier ingreso entra sin validar credenciales.
+            </p>
+          )}
         </div>
 
         {/* Card */}
@@ -62,7 +76,7 @@ export default function LoginPage() {
               id="email"
               type="email"
               autoComplete="email"
-              required
+              required={!authBypass}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full rounded-lg border border-[#F0F0F0] bg-[#FAFAFA] px-3 py-2.5 text-sm text-[#132B58] placeholder:text-[#A8B6D6] outline-none focus:border-[#244B99] focus:ring-2 focus:ring-[#244B99]/20 transition"
@@ -78,7 +92,7 @@ export default function LoginPage() {
               id="password"
               type="password"
               autoComplete="current-password"
-              required
+              required={!authBypass}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full rounded-lg border border-[#F0F0F0] bg-[#FAFAFA] px-3 py-2.5 text-sm text-[#132B58] placeholder:text-[#A8B6D6] outline-none focus:border-[#244B99] focus:ring-2 focus:ring-[#244B99]/20 transition"

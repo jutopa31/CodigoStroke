@@ -7,6 +7,17 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // Bypass de auth para datos mock: con NEXT_PUBLIC_AUTH_BYPASS=true se entra sin login.
+  // Apagar (quitar la var o ponerla en false) cuando haya datos/usuarios reales.
+  if (process.env.NEXT_PUBLIC_AUTH_BYPASS === "true") {
+    return (
+      <div className="flex h-screen bg-[#F0F2F5] overflow-hidden">
+        <Sidebar userName="Demo (mock)" />
+        <main className="flex-1 overflow-y-auto">{children}</main>
+      </div>
+    );
+  }
+
   const supabase = await createServerSupabaseClient();
 
   const {
