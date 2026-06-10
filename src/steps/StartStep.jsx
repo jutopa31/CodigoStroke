@@ -2,9 +2,9 @@ import { useState } from 'react'
 import { RotateCcw, BookOpen, User, History } from 'lucide-react'
 import { loadSession, getSessions } from '../lib/storage'
 
-// Maximum IV thrombolysis window: 4h 30min = 16 200 s
+// Maximum IV thrombolysis window: 4h 29min
 const WINDOW_HH = 4
-const WINDOW_MM = 30
+const WINDOW_MM = 29
 
 function pad(n) {
   return String(n).padStart(2, '0')
@@ -121,7 +121,7 @@ export default function StartStep({ onStart, onResume, onOpenEducational, authUs
           style={{ fontSize: 'clamp(3rem, 15vw, 3.75rem)', letterSpacing: '-0.01em' }}
           aria-label={`Ventana terapéutica: ${WINDOW_HH} horas ${WINDOW_MM} minutos`}
         >
-          {pad(WINDOW_HH)}&nbsp;:&nbsp;{pad(WINDOW_MM)}&nbsp;:&nbsp;00
+          {pad(WINDOW_HH)}&nbsp;:&nbsp;{pad(WINDOW_MM)}
         </div>
         <p className="text-stroke-textMuted text-sm mt-3">ventana terapéutica disponible</p>
       </div>
@@ -205,10 +205,6 @@ export default function StartStep({ onStart, onResume, onOpenEducational, authUs
         </div>
       )}
 
-      {/* ── Footer ── */}
-      <p className="mt-10 text-xs text-stroke-textMuted/40 text-center">
-        Cada minuto importa · 1.9M neuronas/min
-      </p>
     </div>
   )
 }
