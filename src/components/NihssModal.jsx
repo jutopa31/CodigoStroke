@@ -3,7 +3,9 @@ import { X, ChevronRight, ChevronLeft } from 'lucide-react'
 import { nihssItems, getNihssSeverity } from '../content/nihss'
 
 export default function NihssModal({ onLoad, onClose }) {
-  const [scores, setScores] = useState({})
+  const [scores, setScores] = useState(
+    () => Object.fromEntries(nihssItems.map((item) => [item.id, 0]))
+  )
   const [current, setCurrent] = useState(0)
 
   const item = nihssItems[current]
