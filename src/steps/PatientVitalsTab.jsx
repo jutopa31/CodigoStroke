@@ -92,7 +92,7 @@ function PatientCardPreview({ name, dni, arrivalTime, patientId, confirmed }) {
       {/* Label row */}
       <div className="flex items-center justify-between">
         <p className="text-[10px] font-bold uppercase tracking-widest text-stroke-textMuted">
-          Patient Card
+          Ficha del paciente
         </p>
         {confirmed && (
           <span className="flex items-center gap-1 text-[10px] font-bold text-emerald-300 bg-emerald-500/15 border border-emerald-500/25 px-2 py-0.5 rounded-full">
@@ -200,7 +200,7 @@ function PatientSection({ patient, patientId, arrivalTime, onConfirm, onOpenEduc
         {/* Col 1: Form Inputs */}
         <div className="bg-stroke-bg rounded-2xl border border-stroke-line p-4 space-y-4">
           <div className="flex items-center justify-between">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-stroke-textMuted">Form Inputs</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-stroke-textMuted">Datos del paciente</p>
             <button type="button" onClick={() => setShowScanner(true)}
               className="flex items-center gap-1.5 text-[11px] font-semibold text-stroke-iconActive bg-stroke-iconActive/10 hover:bg-stroke-iconActive/20 border border-stroke-iconActive/30 px-2.5 py-1.5 rounded-lg transition-colors">
               <ScanLine size={12} strokeWidth={2} /> Escanear DNI
