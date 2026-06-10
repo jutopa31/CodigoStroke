@@ -292,6 +292,14 @@ function VitalsSection({ vitals, onConfirm, draftVitals, onDraftChange, nihssSco
     }, 200)
   }
 
+  // Diastolic: advance after 2 digits if first digit is 3-9, after 3 if first is 1-2
+  function handleDiaChange(raw) {
+    const v = raw.replace(/\D/g, '').slice(0, 3)
+    setDia(v)
+    const limit = v[0] === '1' || v[0] === '2' ? 3 : 2
+    if (v.length === limit) scheduleAdvance()
+  }
+
   useEffect(() => {
     if (!vitals) {
       const t = setTimeout(() => sysRef.current?.focus(), 80)
@@ -407,7 +415,7 @@ function VitalsSection({ vitals, onConfirm, draftVitals, onDraftChange, nihssSco
               <span className="font-bold text-stroke-textMuted">/</span>
               <input ref={diaRef} type="text" inputMode="numeric" maxLength={3} placeholder="—"
                 value={dia}
-                onChange={(e) => { const v = e.target.value.replace(/\D/g, '').slice(0, 3); setDia(v); if (v.length === 3) scheduleAdvance() }}
+                onChange={(e) => handleDiaChange(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); glucoseRef.current?.focus() } }}
                 aria-label="Presión diastólica"
                 className={`${miniInputCls(diaCrit, !!dia)} flex-1 min-w-0`} />
@@ -507,7 +515,7 @@ function VitalsSection({ vitals, onConfirm, draftVitals, onDraftChange, nihssSco
               <span className="font-bold text-stroke-textMuted">/</span>
               <input ref={diaRef} type="text" inputMode="numeric" maxLength={3} placeholder="—"
                 value={dia}
-                onChange={(e) => { const v = e.target.value.replace(/\D/g, '').slice(0, 3); setDia(v); if (v.length === 3) scheduleAdvance() }}
+                onChange={(e) => handleDiaChange(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); glucoseRef.current?.focus() } }}
                 aria-label="Presión diastólica"
                 className={`${miniInputCls(diaCrit, !!dia)} flex-1 min-w-0`} />
