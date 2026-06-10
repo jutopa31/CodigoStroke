@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { ChevronRight, Calculator, ChevronDown, ChevronUp } from 'lucide-react'
 import StepCard from '../components/StepCard'
-import NihssModal from '../components/NihssModal'
+import NihssGuided from '../components/NihssGuided'
 import { getNihssSeverity } from '../content/nihss'
 import { PrimaryAction, SectionPrompt, SelectableButton } from '../components/GuidedControls'
 
@@ -43,6 +43,17 @@ export default function NihssStep({ onConfirm }) {
   function handleLoad(result) {
     setScore(String(result))
     setShowModal(false)
+  }
+
+  if (showModal) {
+    return (
+      <div className="px-4 pb-4 space-y-3">
+        <NihssGuided
+          onLoad={handleLoad}
+          onClose={() => setShowModal(false)}
+        />
+      </div>
+    )
   }
 
   function handleScoreKeyDown(event) {
@@ -175,7 +186,6 @@ export default function NihssStep({ onConfirm }) {
         Continuar <ChevronRight size={18} />
       </PrimaryAction>
 
-      {showModal && <NihssModal onLoad={handleLoad} onClose={() => setShowModal(false)} />}
     </div>
   )
 }
