@@ -439,7 +439,7 @@ function VitalsSection({ vitals, onConfirm, draftVitals, onDraftChange, nihssSco
 
         {/* ── Col 1: Form Inputs ── */}
         <div className="bg-stroke-bg rounded-2xl border border-stroke-line p-4 space-y-4">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-stroke-textMuted">Form Inputs</p>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-stroke-textMuted">Datos vitales</p>
 
           {/* TA — PAS / PAD inline */}
           <div>
