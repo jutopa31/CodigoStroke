@@ -14,7 +14,8 @@ export default function LoginPage() {
   const router = useRouter();
   const supabase = createClient();
 
-  const authBypass = process.env.NEXT_PUBLIC_AUTH_BYPASS === "true";
+  // Mismo flag que el resto del dashboard: mock por defecto, salvo USE_MOCK="false".
+  const authBypass = process.env.NEXT_PUBLIC_USE_MOCK !== "false";
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
