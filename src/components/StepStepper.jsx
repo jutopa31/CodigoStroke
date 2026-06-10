@@ -25,9 +25,9 @@ const SUB_LABELS = {
 }
 
 // Roll a step's underlying tab completion up to a single status.
-function stepStatus(step, { completion, postUnlocked }) {
+function stepStatus(step, { completion, postUnlocked, summaryUnlocked }) {
   if (step.key === 'decision') return postUnlocked ? 'complete' : 'empty'
-  if (step.key === 'tratamiento') return 'empty'
+  if (step.key === 'tratamiento') return summaryUnlocked ? 'complete' : 'empty'
   if (step.key === 'resumen') return 'empty'
   const states = step.tabs.map((t) => completion[t] ?? 'empty')
   if (states.every((s) => s === 'complete')) return 'complete'
@@ -50,7 +50,7 @@ export default function StepStepper({ phase, activeTab, completion = {}, postUnl
   const [popping, setPopping] = useState({})
   useEffect(() => {
     const next = {}
-    STEPS.forEach((s) => { next[s.key] = stepStatus(s, { completion, postUnlocked }) })
+    STEPS.forEach((s) => { next[s.key] = stepStatus(s, { completion, postUnlocked, summaryUnlocked }) })
     const justCompleted = STEPS.filter(
       (s) => next[s.key] === 'complete' && prevStatuses.current[s.key] && prevStatuses.current[s.key] !== 'complete',
     ).map((s) => s.key)
@@ -63,7 +63,7 @@ export default function StepStepper({ phase, activeTab, completion = {}, postUnl
       return () => timers.forEach(clearTimeout)
     }
     prevStatuses.current = next
-  }, [completion, postUnlocked])
+  }, [completion, postUnlocked, summaryUnlocked])
 
   function go(step) {
     const reachable = step.phase === 'pre' || (postUnlocked && (step.key !== 'resumen' || summaryUnlocked))
@@ -84,7 +84,7 @@ export default function StepStepper({ phase, activeTab, completion = {}, postUnl
       <div className="relative flex items-center justify-between">
         <div className="absolute left-4 right-4 top-1/2 h-px -translate-y-1/2 bg-stroke-line" aria-hidden="true" />
         {STEPS.map((step) => {
-          const status = stepStatus(step, { completion, postUnlocked })
+          const status = stepStatus(step, { completion, postUnlocked, summaryUnlocked })
           const active = activeStep?.n === step.n
           const reachable = step.phase === 'pre' || (postUnlocked && (step.key !== 'resumen' || summaryUnlocked))
           return (
