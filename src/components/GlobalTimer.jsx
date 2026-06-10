@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Clock, Activity, RotateCcw, BookOpen, User } from 'lucide-react'
+import { Clock, Activity, RotateCcw, BookOpen, User, Sun, Moon } from 'lucide-react'
 
 function getInitials(user) {
   const name = user?.user_metadata?.display_name || user?.email || '?'
@@ -65,13 +65,22 @@ function HeaderStrip({ stepLabel }) {
   )
 }
 
-function HeaderActions({ authUser, onAuthClick, onEducationalOpen, onReset, size = 'mobile' }) {
+function HeaderActions({ authUser, onAuthClick, onEducationalOpen, onReset, onToggleTheme, theme, size = 'mobile' }) {
   const base = size === 'mobile'
     ? 'w-10 h-10 rounded-xl'
     : 'w-7 h-7 rounded-lg'
-  const cls = `${base} border border-stroke-line bg-stroke-bg flex items-center justify-center text-white md:text-stroke-textMuted hover:bg-stroke-panel/40 transition-colors shrink-0`
+  // Timer bar is always dark — buttons use hardcoded dark styles
+  const cls = `${base} border border-[#29416D] bg-[#0F1C38] flex items-center justify-center text-white hover:bg-[#1E3356] transition-colors shrink-0`
   return (
     <div className="flex items-center gap-2 shrink-0">
+      {onToggleTheme && (
+        <button type="button" onClick={onToggleTheme} className={cls}
+          title={theme === 'light' ? 'Modo oscuro' : 'Modo claro'} aria-label={theme === 'light' ? 'Cambiar a modo oscuro' : 'Cambiar a modo claro'}>
+          {theme === 'light'
+            ? <Moon size={14} strokeWidth={2} />
+            : <Sun size={14} strokeWidth={2} />}
+        </button>
+      )}
       {onAuthClick && (
         <button type="button" onClick={onAuthClick} className={cls}
           title={authUser ? 'Tu cuenta' : 'Iniciar sesión'} aria-label={authUser ? 'Tu cuenta' : 'Iniciar sesión'}>
@@ -96,7 +105,7 @@ function HeaderActions({ authUser, onAuthClick, onEducationalOpen, onReset, size
   )
 }
 
-export default function GlobalTimer({ startTime, timestamps = {}, patient, onReset, progressPct, stepLabel, onEducationalOpen, authUser, onAuthClick }) {
+export default function GlobalTimer({ startTime, timestamps = {}, patient, onReset, progressPct, stepLabel, onEducationalOpen, authUser, onAuthClick, theme, onToggleTheme }) {
   const [elapsed, setElapsed] = useState(0)
 
   useEffect(() => {
@@ -113,8 +122,9 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
 
   return (
     <div
-      className="fixed top-0 left-0 right-0 z-50 bg-stroke-bg md:border-b md:border-stroke-line md:bg-stroke-navy"
-      style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
+      data-theme="dark"
+      className="fixed top-0 left-0 right-0 z-50 md:border-b"
+      style={{ paddingTop: 'env(safe-area-inset-top, 0px)', backgroundColor: '#0F1C38', borderColor: '#29416D' }}
     >
       {/* ───────── MOBILE: Timer Hero ───────── */}
       <div className="md:hidden">
@@ -125,7 +135,8 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
               <HeaderStrip stepLabel={stepLabel} />
               <HeaderActions
                 authUser={authUser} onAuthClick={onAuthClick}
-                onEducationalOpen={onEducationalOpen} onReset={onReset} size="mobile"
+                onEducationalOpen={onEducationalOpen} onReset={onReset}
+                onToggleTheme={onToggleTheme} theme={theme} size="mobile"
               />
             </div>
             {/* Timer row */}
@@ -147,7 +158,8 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
             </div>
             <HeaderActions
               authUser={authUser} onAuthClick={onAuthClick}
-              onEducationalOpen={onEducationalOpen} onReset={onReset} size="mobile"
+              onEducationalOpen={onEducationalOpen} onReset={onReset}
+              onToggleTheme={onToggleTheme} theme={theme} size="mobile"
             />
           </div>
         )}
@@ -208,16 +220,17 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
           )}
           <HeaderActions
             authUser={authUser} onAuthClick={onAuthClick}
-            onEducationalOpen={onEducationalOpen} onReset={onReset} size="desktop"
+            onEducationalOpen={onEducationalOpen} onReset={onReset}
+            onToggleTheme={onToggleTheme} theme={theme} size="desktop"
           />
         </div>
       </div>
 
       {/* Progress bar (protocol completion; color tracks time phase) */}
       {progressPct > 0 && (
-        <div className="h-1.5 bg-stroke-bg md:bg-stroke-line">
+        <div className="h-1.5" style={{ backgroundColor: '#132B58' }}>
           <div
-            className={`h-full rounded-r-full transition-all duration-500 md:bg-stroke-iconActive ${tone.bar}`}
+            className={`h-full rounded-r-full transition-all duration-500 ${tone.bar}`}
             style={{ width: `${progressPct}%` }}
           />
         </div>
