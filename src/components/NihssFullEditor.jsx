@@ -13,6 +13,38 @@ const SEV_BADGE = {
   'Muy grave':      'bg-red-200 text-red-300 border-red-400',
 }
 
+// ── Guided-inline design tokens (variant B) ──────────────────────────────────
+
+const NIHSS_CATEGORY = {
+  '1a': 'NIVEL DE CONCIENCIA', '1b': 'NIVEL DE CONCIENCIA', '1c': 'NIVEL DE CONCIENCIA',
+  '2':  'MOTILIDAD OCULAR', '3': 'CAMPOS VISUALES', '4': 'PARESIA FACIAL',
+  '5a': 'MOTOR · BRAZO IZQ.', '5b': 'MOTOR · BRAZO DER.',
+  '6a': 'MOTOR · PIERNA IZQ.', '6b': 'MOTOR · PIERNA DER.',
+  '7':  'ATAXIA DE MIEMBROS', '8': 'SENSIBILIDAD', '9': 'LENGUAJE',
+  '10': 'DISARTRIA', '11': 'EXTINCIÓN / INATENCIÓN',
+}
+
+const GRID_COLS = { 2: 'grid-cols-2', 3: 'grid-cols-3', 4: 'grid-cols-4', 5: 'grid-cols-5' }
+
+function pillStyle(score) {
+  if (score === 0) return 'border border-stroke-iconActive text-stroke-iconActive bg-stroke-iconActive/10'
+  if (score <= 3)  return 'border border-amber-400 text-amber-300 bg-amber-500/10'
+  return 'border border-red-500 text-red-400 bg-red-500/10'
+}
+
+function optionStyle(selected, score) {
+  if (!selected) return 'border border-stroke-line bg-stroke-navy text-stroke-textMuted hover:border-stroke-iconActive/40'
+  if (score === 0) return 'border border-stroke-iconActive bg-stroke-iconActive text-stroke-bg'
+  if (score <= 3)  return 'border-2 border-amber-400 bg-amber-500/10 text-amber-300'
+  return 'border-2 border-red-500 bg-red-500/10 text-red-400'
+}
+
+function scoreNumColor(score) {
+  if (score === 0) return 'text-stroke-textMuted'
+  if (score <= 3)  return 'text-amber-300'
+  return 'text-red-400'
+}
+
 // ── Guided wizard modal ──────────────────────────────────────────────────────
 
 function GuidedWizard({ onSave, onClose }) {
@@ -142,101 +174,147 @@ function GuidedWizard({ onSave, onClose }) {
   )
 }
 
-// ── Inline scroll — full NIHSS editor embedded (no modal overlay) ─────────────
+// ── Inline guided — one item at a time, embedded (variant B) ──────────────────
 
 function InlineScroll({ scores: initialScores, onSave, onClose }) {
-  const [scores, setScores] = useState(() =>
-    Object.fromEntries(nihssItems.map((i) => [i.id, initialScores?.[i.id] ?? 0]))
-  )
+  const [scores, setScores] = useState(() => ({ ...(initialScores ?? {}) }))
+  const [current, setCurrent] = useState(0)
 
+  const item = nihssItems[current]
+  const label = item.label.replace(/^\d+[abc]?\.\s*/i, '').trim()
+  const isLast = current === nihssItems.length - 1
+  const answered = Object.keys(scores).length
   const total = nihssItems.reduce((s, i) => s + (scores[i.id] ?? 0), 0)
   const severity = getNihssSeverity(total)
-  const badgeClass = SEV_BADGE[severity.label] ?? 'bg-stroke-panel text-stroke-textMuted border-stroke-line'
+  const colsClass = GRID_COLS[Math.min(item.options.length, 5)] ?? 'grid-cols-4'
+  const completedItems = nihssItems.filter((i, idx) => idx < current && i.id in scores)
+  const allAnswered = nihssItems.every((i) => i.id in scores)
+
+  function select(score) {
+    setScores((prev) => ({ ...prev, [item.id]: score }))
+    if (!isLast) setTimeout(() => setCurrent((c) => c + 1), 220)
+  }
 
   return (
-    <div className="rounded-2xl border-2 border-stroke-line overflow-hidden bg-stroke-navy animate-fade-in">
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 bg-stroke-bg border-b border-stroke-line">
+    <div className="rounded-2xl border-2 border-stroke-line bg-stroke-navy animate-fade-in flex flex-col gap-3 p-4">
+
+      {/* Progress header */}
+      <div className="flex items-center gap-3">
+        <span className="text-[11px] font-semibold text-stroke-textMuted whitespace-nowrap">
+          Ítem {current + 1}/{nihssItems.length}
+        </span>
+        <div className="flex-1 flex gap-0.5">
+          {nihssItems.map((i, idx) => (
+            <div
+              key={i.id}
+              className={`flex-1 h-1.5 rounded-full transition-colors duration-200 ${
+                i.id in scores ? 'bg-amber-400' : idx === current ? 'bg-stroke-iconActive' : 'bg-stroke-line'
+              }`}
+            />
+          ))}
+        </div>
+        <span className="font-mono text-sm font-bold text-amber-300 tabular-nums">{total} pts</span>
+      </div>
+
+      {/* Completed pills */}
+      {completedItems.length > 0 && (
+        <div className="flex gap-1.5 flex-wrap">
+          {completedItems.map((i) => (
+            <button
+              key={i.id}
+              type="button"
+              onClick={() => setCurrent(nihssItems.indexOf(i))}
+              className={`text-[11px] font-mono px-2 py-0.5 rounded-full transition-transform active:scale-95 ${pillStyle(scores[i.id])}`}
+            >
+              {i.id}:{scores[i.id]}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Item card */}
+      <div className="flex flex-col gap-3">
         <div>
-          <p className="text-xs font-bold text-stroke-text">Escala NIHSS — ingreso manual</p>
-          <p className="text-[10px] text-stroke-textMuted mt-0.5">15 ítems · seleccioná una opción por ítem</p>
+          <p className="text-[10px] font-semibold text-stroke-textMuted tracking-widest uppercase mb-1">
+            {NIHSS_CATEGORY[item.id]}
+          </p>
+          <p className="font-sans text-lg font-bold text-stroke-text leading-snug">{label}</p>
+          {item.prompt && (
+            <p className="text-[11px] text-amber-300 mt-1.5 leading-relaxed bg-amber-500/10 rounded-lg px-2.5 py-1.5 border border-amber-500/30">
+              {item.prompt}
+            </p>
+          )}
         </div>
-        {onClose && (
-          <button
-            onClick={onClose}
-            className="w-7 h-7 flex items-center justify-center rounded-lg bg-stroke-panel text-stroke-textMuted hover:bg-stroke-panel transition-colors"
-          >
-            <X size={13} />
-          </button>
-        )}
-      </div>
 
-      {/* Items */}
-      <div className="max-h-[60vh] overflow-y-auto px-4 py-3 space-y-5">
-        {nihssItems.map((item) => {
-          const label = item.label.replace(/^\d+[abc]?\.\s*/i, '').trim()
-          const itemScore = scores[item.id] ?? 0
-          return (
-            <div key={item.id}>
-              {/* Item label + score */}
-              <div className="flex items-start gap-2 mb-2">
-                <span className="text-[10px] font-mono font-bold text-stroke-textMuted mt-0.5 shrink-0 w-6 text-right">{item.id}</span>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold text-stroke-text leading-snug">{label}</p>
-                  {item.prompt && (
-                    <p className="text-[11px] text-amber-300 mt-1 leading-relaxed bg-amber-500/10 rounded-lg px-2.5 py-1.5 border border-amber-500/30">
-                      {item.prompt}
-                    </p>
-                  )}
-                </div>
-                <span className={`text-sm font-black tabular-nums shrink-0 min-w-[1.5rem] text-right ${itemScore > 0 ? 'text-amber-400' : 'text-stroke-textMuted'}`}>
-                  {itemScore}
-                </span>
-              </div>
-
-              {/* Options */}
-              <div className="space-y-1.5 pl-8">
-                {item.options.map((opt) => {
-                  const active = scores[item.id] === opt.score
-                  return (
-                    <button
-                      key={opt.score}
-                      type="button"
-                      onClick={() => setScores((prev) => ({ ...prev, [item.id]: opt.score }))}
-                      className={`w-full text-left px-3 py-2.5 rounded-xl border-2 text-sm flex items-center gap-3 transition-all active:scale-[0.99] ${
-                        active
-                          ? 'border-stroke-iconActive bg-stroke-iconActive text-stroke-bg'
-                          : 'border-stroke-line text-stroke-text hover:border-stroke-iconActive/40 hover:bg-stroke-iconActive/10'
-                      }`}
-                    >
-                      <span className={`font-mono text-xs font-black w-4 shrink-0 ${active ? 'text-white/50' : 'text-stroke-textMuted'}`}>
-                        {opt.score}
-                      </span>
-                      <span className="leading-snug">{opt.text}</span>
-                    </button>
-                  )
-                })}
-              </div>
+        {/* Scoring guide */}
+        <div className="bg-stroke-bg/60 rounded-xl px-3 py-2.5 flex flex-col gap-1.5">
+          {item.options.map((opt) => (
+            <div key={opt.score} className="flex items-start gap-2.5 text-xs">
+              <span className={`font-mono font-bold shrink-0 w-3 ${scoreNumColor(opt.score)}`}>{opt.score}</span>
+              <span className="text-stroke-textMuted leading-snug">{opt.text}</span>
             </div>
-          )
-        })}
+          ))}
+        </div>
+
+        {/* Option grid */}
+        <div className={`grid ${colsClass} gap-2`}>
+          {item.options.map((opt) => {
+            const selected = scores[item.id] === opt.score
+            return (
+              <button
+                key={opt.score}
+                type="button"
+                onClick={() => select(opt.score)}
+                className={`flex flex-col items-center justify-center rounded-xl py-3 gap-1 transition-all duration-150 active:scale-95 ${optionStyle(selected, opt.score)}`}
+              >
+                <span className="font-mono text-lg font-bold leading-none">{opt.score}</span>
+                <span className="text-[9px] leading-tight text-center px-0.5 opacity-80">
+                  {opt.text.split(/[\s,(]/)[0]}
+                </span>
+              </button>
+            )
+          })}
+        </div>
       </div>
 
-      {/* Sticky footer with total */}
-      <div className={`border-t-2 px-4 py-3 flex items-center gap-3 ${severity.bg} ${severity.border}`}>
-        <div className="flex items-baseline gap-2 flex-1">
-          <span className={`text-2xl font-black tabular-nums ${severity.color}`}>{total}</span>
-          <span className={`px-2 py-0.5 rounded-full border text-xs font-bold ${badgeClass}`}>
-            {severity.label}
-          </span>
-        </div>
+      {/* Navigation + save */}
+      <div className="flex items-center gap-2 pt-1">
         <button
           type="button"
-          onClick={() => onSave(scores)}
-          className="px-5 py-2.5 bg-stroke-iconActive text-stroke-bg rounded-xl font-bold text-sm hover:bg-[#4D6CD6] active:scale-95 transition-all shadow-sm"
+          onClick={() => setCurrent((c) => Math.max(0, c - 1))}
+          disabled={current === 0}
+          className="w-10 h-10 flex items-center justify-center rounded-xl border border-stroke-line text-stroke-textMuted disabled:opacity-30 transition-colors hover:border-stroke-iconActive/40 shrink-0"
         >
-          Guardar · {total} pts
+          <ChevronLeft size={16} />
         </button>
+
+        {!isLast ? (
+          <button
+            type="button"
+            onClick={() => setCurrent((c) => c + 1)}
+            className="flex-1 flex items-center justify-center gap-1.5 h-10 rounded-xl border border-stroke-line text-stroke-textMuted text-sm font-semibold hover:bg-stroke-bg transition-colors"
+          >
+            Siguiente <ChevronRight size={15} />
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={() => onSave(scores)}
+            className={`flex-1 h-10 rounded-xl font-bold text-sm transition-all active:scale-[0.98] ${severity.bg} ${severity.color} border-2 ${severity.border}`}
+          >
+            Guardar · {total} pts {allAnswered ? '' : `(${answered}/${nihssItems.length})`}
+          </button>
+        )}
+
+        {onClose && (
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-10 h-10 flex items-center justify-center rounded-xl text-stroke-textMuted hover:bg-stroke-bg transition-colors shrink-0"
+          >
+            <X size={15} />
+          </button>
+        )}
       </div>
     </div>
   )
