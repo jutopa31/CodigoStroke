@@ -80,8 +80,8 @@ function PatientCardPreview({ name, dni, arrivalTime, patientId, confirmed }) {
   const hasName = name?.trim().length >= 2
   const hasDni  = dni?.trim().length >= 7
   const now     = arrivalTime
-    ? arrivalTime.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
-    : new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
+    ? arrivalTime.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false })
+    : new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false })
 
   return (
     <div className={`rounded-2xl border p-5 space-y-4 transition-all ${
