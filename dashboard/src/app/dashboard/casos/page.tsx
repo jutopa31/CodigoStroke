@@ -20,7 +20,7 @@ export default async function CasosPage({ searchParams }: Props) {
   const { data, count } = await getRecentCases(page, filters);
 
   return (
-    <div className="px-8 py-6 space-y-4">
+    <div className="px-4 py-5 sm:px-8 sm:py-6 space-y-4">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold text-[#132B58]">Casos</h1>
