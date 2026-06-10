@@ -75,65 +75,6 @@ const MRS_OPTIONS = [
 
 // ── Patient section ──────────────────────────────────────────────────────────
 
-// Flat patient card (replaces the gradient card)
-function PatientCardPreview({ name, dni, arrivalTime, patientId, confirmed }) {
-  const hasName = name?.trim().length >= 2
-  const hasDni  = dni?.trim().length >= 7
-  const now     = arrivalTime
-    ? arrivalTime.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false })
-    : new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false })
-
-  return (
-    <div className={`rounded-2xl border p-5 space-y-4 transition-all ${
-      confirmed
-        ? 'bg-emerald-500/5 border-emerald-500/25'
-        : 'bg-stroke-bg border-stroke-line'
-    }`}>
-      {/* Label row */}
-      <div className="flex items-center justify-between">
-        <p className="text-[10px] font-bold uppercase tracking-widest text-stroke-textMuted">
-          Ficha del paciente
-        </p>
-        {confirmed && (
-          <span className="flex items-center gap-1 text-[10px] font-bold text-emerald-300 bg-emerald-500/15 border border-emerald-500/25 px-2 py-0.5 rounded-full">
-            <CheckCircle2 size={10} /> Registrado
-          </span>
-        )}
-      </div>
-
-      {/* Name */}
-      <div>
-        <p className="text-[9px] uppercase tracking-wider font-semibold text-stroke-textMuted mb-1">Nombre</p>
-        <p className={`text-lg font-bold leading-tight ${hasName ? 'text-stroke-text' : 'text-stroke-textMuted/30 italic text-sm font-normal'}`}>
-          {hasName ? name.trim() : 'Nombre del paciente'}
-        </p>
-      </div>
-
-      {/* DNI + Llegada row */}
-      <div className="grid grid-cols-2 gap-3">
-        <div className="bg-stroke-navy rounded-xl px-3 py-2.5 border border-stroke-line">
-          <p className="text-[9px] uppercase tracking-wider font-semibold text-stroke-textMuted mb-1">DNI</p>
-          <p className={`text-sm font-bold font-mono tabular-nums ${hasDni ? 'text-stroke-text' : 'text-stroke-textMuted/30'}`}>
-            {hasDni ? dni.trim() : '——'}
-          </p>
-        </div>
-        <div className="bg-stroke-navy rounded-xl px-3 py-2.5 border border-stroke-line">
-          <p className="text-[9px] uppercase tracking-wider font-semibold text-stroke-textMuted mb-1">Llegada</p>
-          <p className="text-sm font-bold font-mono tabular-nums text-stroke-text">{now}</p>
-        </div>
-      </div>
-
-      {/* Case ID (only when confirmed) */}
-      {patientId && (
-        <div className="bg-stroke-navy rounded-xl px-3 py-2.5 border border-stroke-iconActive/25 animate-fade-in">
-          <p className="text-[9px] uppercase tracking-wider font-semibold text-stroke-textMuted mb-1">ID del caso</p>
-          <p className="text-sm font-bold font-mono text-stroke-iconActive tabular-nums">{patientId}</p>
-        </div>
-      )}
-    </div>
-  )
-}
-
 function PatientSection({ patient, patientId, arrivalTime, onConfirm, onOpenEducational }) {
   const [dni, setDni]               = useState(patient?.dni  ?? '')
   const [name, setName]             = useState(patient?.name ?? '')
@@ -194,10 +135,10 @@ function PatientSection({ patient, patientId, arrivalTime, onConfirm, onOpenEduc
     <>
       {showScanner && <DniQrScanner onScan={handleScan} onClose={() => setShowScanner(false)} />}
 
-      {/* ══ DESKTOP: 2-column ══ */}
-      <div className="hidden md:grid md:grid-cols-2 md:gap-4">
+      {/* ══ DESKTOP ══ */}
+      <div className="hidden md:block md:max-w-md md:mx-auto">
 
-        {/* Col 1: Form Inputs */}
+        {/* Form Inputs */}
         <div className="bg-stroke-bg rounded-2xl border border-stroke-line p-4 space-y-4">
           <div className="flex items-center justify-between">
             <p className="text-[10px] font-bold uppercase tracking-widest text-stroke-textMuted">Datos del paciente</p>
@@ -260,8 +201,6 @@ function PatientSection({ patient, patientId, arrivalTime, onConfirm, onOpenEduc
           )}
         </div>
 
-        {/* Col 2: Live patient card preview */}
-        <PatientCardPreview name={name} dni={dni} arrivalTime={null} patientId={null} confirmed={false} />
       </div>
 
       {/* ══ MOBILE: stacked ══ */}
@@ -279,9 +218,6 @@ function PatientSection({ patient, patientId, arrivalTime, onConfirm, onOpenEduc
             </button>
           )}
         </div>
-
-        {/* Mobile card preview */}
-        <PatientCardPreview name={name} dni={dni} arrivalTime={null} patientId={null} confirmed={false} />
 
         {/* Mobile form */}
         <form onSubmit={handleSubmit} className="space-y-3">
@@ -340,9 +276,15 @@ function VitalsSection({ vitals, onConfirm, draftVitals, onDraftChange, nihssSco
   const [dia,     setDia]     = useState(vitals ? String(vitals.diastolic) : (draftVitals?.dia ?? ''))
   const [glucose, setGlucose] = useState(vitals ? String(vitals.glucose)  : (draftVitals?.glucose ?? ''))
   const [mrs,     setMrs]     = useState(vitals?.modifiedRankinScale?.score ?? draftVitals?.mrs ?? null)
-  const sysRef     = useRef(null)
-  const diaRef     = useRef(null)
-  const glucoseRef = useRef(null)
+  const sysRef      = useRef(null)
+  const diaRef      = useRef(null)
+  const glucoseRef  = useRef(null)
+  const advanceTimer = useRef(null)
+
+  function scheduleAdvance(nextRef) {
+    clearTimeout(advanceTimer.current)
+    advanceTimer.current = setTimeout(() => nextRef.current?.focus(), 200)
+  }
 
   useEffect(() => {
     if (!vitals) {
