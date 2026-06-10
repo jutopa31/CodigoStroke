@@ -5,6 +5,7 @@ import {
   SOURCE_LABEL,
   DESTINATION_LABEL,
   TOAST_LABEL,
+  LVO_SITE_LABEL,
 } from "@/lib/types";
 
 // Export de-identificado del dataset (alias, sin DNI) para análisis estadístico.
@@ -18,7 +19,10 @@ const COLUMNS = [
   "fuente",
   "nihss",
   "aspects",
+  "ogv",
+  "ogv_vaso",
   "wake_up",
+  "hora_inicio_sintomas",
   "door_to_needle_min",
   "onset_to_needle_min",
   "door_to_ct_min",
@@ -75,7 +79,12 @@ export async function GET(request: Request) {
       SOURCE_LABEL[c.source],
       c.nihssScore ?? "",
       c.aspectsScore ?? "",
+      yn(c.hasLvo),
+      c.lvoSite ? LVO_SITE_LABEL[c.lvoSite] : "",
       yn(c.isWakeUpStroke),
+      c.symptomOnset
+        ? new Date(c.symptomOnset).toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit", hour12: false })
+        : "",
       d.doorToNeedleMin ?? "",
       d.onsetToNeedleMin ?? "",
       d.doorToCtMin ?? "",

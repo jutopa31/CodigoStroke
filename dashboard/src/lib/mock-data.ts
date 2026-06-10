@@ -13,6 +13,7 @@ import {
   type MrsScore,
   type DischargeDestination,
   type ToastEtiology,
+  type LvoSite,
   type Sex,
   deriveTimes,
   isFavorableMrs,
@@ -56,6 +57,8 @@ function addMin(iso: string, min: number): string {
 
 const DESTINATIONS: DischargeDestination[] = ["home", "home", "rehab", "rehab", "other_facility", "death"];
 const TOASTS: ToastEtiology[] = ["laa", "cardioembolic", "cardioembolic", "lacunar", "other", "undetermined"];
+// M1 es el sitio de OGV más frecuente; ponderado.
+const LVO_SITES: LvoSite[] = ["m1", "m1", "m1", "ica", "ica", "m2", "m2", "basilar", "tandem", "aca", "pca"];
 
 /** Genera un caso clínicamente coherente para `monthOffset` meses atrás. */
 function makeCase(i: number, monthsAgo: number): StrokeCase {
@@ -83,11 +86,18 @@ function makeCase(i: number, monthsAgo: number): StrokeCase {
   const dtn = gaussian(48, 16, 18, 110);
   const thrombolyticStart = thrombolysisGiven ? addMin(doorTime, dtn) : null;
 
-  // ~22% van a trombectomía
-  const thrombectomyDone = !inProgress && !hasBleeding && chance(0.22);
+  // ASPECTS se evalúa en la TC inicial de todo ACV isquémico (peor con NIHSS alto).
+  const aspectsScore = inProgress ? null : gaussian(nihss > 15 ? 7 : 9, 1.6, 3, 10);
+
+  // OGV (oclusión de gran vaso): probable con NIHSS alto; la trombectomía la implica.
+  const lvoProb = nihss >= 15 ? 0.6 : nihss >= 10 ? 0.32 : nihss >= 6 ? 0.12 : 0.03;
+  const hasLvo = inProgress ? null : chance(lvoProb);
+  const lvoSite: LvoSite | null = hasLvo ? pick(LVO_SITES) : null;
+
+  // ~22% van a trombectomía — sólo casos con OGV.
+  const thrombectomyDone = !inProgress && !hasBleeding && hasLvo === true && chance(0.7);
   const angioRequestTime = thrombectomyDone ? addMin(doorTime, randInt(30, 90)) : null;
   const thrombectomyActivation = thrombectomyDone ? addMin(doorTime, randInt(60, 140)) : null;
-  const aspectsScore = thrombectomyDone ? gaussian(8, 1.5, 4, 10) : null;
 
   // ── Outcomes retrospectivos (origen C) — solo en casos completados ──
   const mrsBaseline: MrsScore | null = inProgress ? null : (chance(0.7) ? 0 : (pick([0, 1, 1, 2, 3]) as MrsScore));
@@ -125,6 +135,8 @@ function makeCase(i: number, monthsAgo: number): StrokeCase {
     nihssScore: nihss,
     aspectsScore,
     isWakeUpStroke,
+    hasLvo,
+    lvoSite,
     symptomOnset,
     doorTime,
     ctRequestTime,

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCaseById } from "@/lib/queries";
-import { deriveTimes, DRUG_LABEL, SOURCE_LABEL } from "@/lib/types";
+import { deriveTimes, DRUG_LABEL, SOURCE_LABEL, LVO_SITE_LABEL } from "@/lib/types";
 import RetrospectiveForm from "@/components/dashboard/RetrospectiveForm";
 
 interface Props {
@@ -79,6 +79,18 @@ export default async function CaseDetailPage({ params }: Props) {
             <Stat label="NIHSS" value={c.nihssScore ?? "—"} />
             <Stat label="ASPECTS" value={c.aspectsScore ?? "—"} />
             <Stat label="Wake-up" value={c.isWakeUpStroke === null ? "—" : c.isWakeUpStroke ? "Sí" : "No"} />
+            <Stat
+              label="OGV"
+              value={
+                c.hasLvo === null
+                  ? "—"
+                  : c.hasLvo
+                  ? c.lvoSite
+                    ? LVO_SITE_LABEL[c.lvoSite]
+                    : "Sí"
+                  : "No"
+              }
+            />
             <Stat label="Edad" value={c.age ?? "—"} />
             <Stat label="Sexo" value={c.sex ?? "—"} />
             <Stat label="Hemorragia TC" value={c.hasBleeding === null ? "—" : c.hasBleeding ? "Sí" : "No"} />

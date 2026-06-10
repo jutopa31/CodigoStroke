@@ -33,6 +33,16 @@ export type ToastEtiology =
   | "other" // otra causa determinada
   | "undetermined"; // indeterminado
 
+/** Sitio de oclusión de gran vaso (OGV / LVO) en angio-TC. */
+export type LvoSite =
+  | "ica" // carótida interna (incl. carótida-T)
+  | "m1" // ACM segmento M1
+  | "m2" // ACM segmento M2
+  | "aca" // cerebral anterior
+  | "pca" // cerebral posterior
+  | "basilar" // basilar
+  | "tandem"; // lesión en tándem (extra + intracraneal)
+
 export interface StrokeCase {
   // ── Identidad ──────────────────────────────────────────────────────────────
   id: string;
@@ -49,6 +59,8 @@ export interface StrokeCase {
   nihssScore: number | null;
   aspectsScore: number | null;
   isWakeUpStroke: boolean | null;
+  hasLvo: boolean | null; // oclusión de gran vaso (OGV) en angio-TC
+  lvoSite: LvoSite | null; // vaso ocluido (si hasLvo)
 
   // ── Tiempos del protocolo (ISO) ────────────────────────────────────────────── (A)
   symptomOnset: string | null; // último visto sano / inicio
@@ -129,6 +141,36 @@ export const TOAST_LABEL: Record<ToastEtiology, string> = {
   lacunar: "Lacunar",
   other: "Otra causa",
   undetermined: "Indeterminado",
+};
+
+/** Abreviaturas TOAST para tablas densas. */
+export const TOAST_SHORT: Record<ToastEtiology, string> = {
+  laa: "LAA",
+  cardioembolic: "CE",
+  lacunar: "Lacunar",
+  other: "Otra",
+  undetermined: "Indet.",
+};
+
+export const LVO_SITE_LABEL: Record<LvoSite, string> = {
+  ica: "Carótida interna (ACI)",
+  m1: "ACM M1",
+  m2: "ACM M2",
+  aca: "Cerebral anterior (ACA)",
+  pca: "Cerebral posterior (ACP)",
+  basilar: "Basilar",
+  tandem: "Tándem",
+};
+
+/** Abreviaturas de sitio OGV para tablas densas. */
+export const LVO_SITE_SHORT: Record<LvoSite, string> = {
+  ica: "ACI",
+  m1: "M1",
+  m2: "M2",
+  aca: "ACA",
+  pca: "ACP",
+  basilar: "Basilar",
+  tandem: "Tándem",
 };
 
 export const MRS_LABEL: Record<MrsScore, string> = {

@@ -75,6 +75,8 @@ function mapRowToCase(row: any): StrokeCase {
     nihssScore: row.nihss_score ?? null,
     aspectsScore: row.aspects_score ?? null,
     isWakeUpStroke: row.is_wake_up_stroke ?? null,
+    hasLvo: row.has_lvo ?? null,
+    lvoSite: row.lvo_site ?? null,
     symptomOnset: row.symptom_onset_time ?? null,
     doorTime: row.door_time ?? null,
     ctRequestTime: row.ct_request_time ?? null,
