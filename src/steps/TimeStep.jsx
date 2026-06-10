@@ -20,7 +20,15 @@ function toLocalTimeInput(date) {
 
 function combineDateTime(datePart, timePart) {
   if (!datePart || !timePart) return ''
-  return `${datePart}T${timePart}`
+  // Build as local-time Date then export as UTC ISO to avoid browser-specific
+  // parsing of "YYYY-MM-DDTHH:mm" (no seconds, no tz) which Chrome treats as
+  // local but some Safari versions and Node treat as UTC, causing ~TZ-offset
+  // errors (e.g. 570 min for UTC-9:30) in getElapsedMinutes.
+  const [year, month, day] = datePart.split('-').map(Number)
+  const [h, m] = timePart.split(':').map(Number)
+  const d = new Date(year, month - 1, day, h, m)
+  if (isNaN(d.getTime())) return ''
+  return d.toISOString()
 }
 
 function useInterval(ms) {
