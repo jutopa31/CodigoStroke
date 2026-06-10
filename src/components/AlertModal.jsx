@@ -3,6 +3,11 @@ import { AlertTriangle } from 'lucide-react'
 
 export default function AlertModal({ patient, onConfirm, onClose }) {
   useEffect(() => {
+    // Dismiss mobile keyboard that may be open from a previous input field
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur()
+    }
+
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') onClose()
     }
@@ -48,7 +53,6 @@ export default function AlertModal({ patient, onConfirm, onClose }) {
           </button>
           <button
             type="button"
-            autoFocus
             onClick={onConfirm}
             className="flex-[2] py-3 bg-stroke-iconActive hover:bg-[#4D6CD6] text-stroke-bg rounded-xl font-semibold text-sm active:scale-[0.98] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-stroke-iconActive focus-visible:ring-offset-2"
           >
