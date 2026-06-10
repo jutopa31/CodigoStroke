@@ -97,17 +97,70 @@ fontFamily: {
 
 **Rationale for red critical (changed from dark navy `#1E3A8A`):** On a dark background, navy-on-navy critical alerts have insufficient contrast. Red (`#EF4444`) is unambiguous and immediately readable. Clinical note: verify with ER staff that red reads as "hard stop / contraindication" not "patient crashing."
 
-**Light mode:** When a light-mode variant is needed, invert:
+**Light mode:** Full system — white background, navy text, deep blue accent. Status
+colors recalibrated for white backgrounds (muted versions use Tailwind semantic
+swatches instead of translucent rgba, which look washed out on white).
+
 ```css
 [data-theme="light"] {
-  --bg:      #F5F7FF;
-  --surface: #FFFFFF;
-  --panel:   #EEF1FA;
-  --line:    #D0D7EE;
-  --accent:  #244B99;
-  --text:    #0F1C38;
-  --text-muted: #4A5C7A;
+  /* Backgrounds */
+  --bg:           #F0F4FF;  /* subtle blue tint — softer than stark white under ER lighting */
+  --surface:      #FFFFFF;  /* cards, step containers */
+  --panel:        #EBF0FA;  /* inputs, nested panels, secondary surfaces */
+  --line:         #C8D4EC;  /* borders, dividers */
+
+  /* Brand / accent — the "identifying blue" */
+  --accent:       #1D4ED8;  /* brand-600 — CTAs, links, active nav, step indicators */
+  --accent-dim:   #1E40AF;  /* hover state */
+  --accent-bg:    #EFF6FF;  /* selected/active state backgrounds */
+
+  /* Text hierarchy */
+  --text:         #0F1C38;  /* dark navy — WCAG AAA on white (contrast ~17:1) */
+  --text-muted:   #3D5080;  /* secondary text — subtitles, labels */
+  --text-dim:     #7089B8;  /* tertiary — placeholders, disabled */
+
+  /* Status colors — recalibrated for white */
+  /* On dark navy, rgba muted backgrounds work. On white, they look washed out.
+     Use solid semantic Tailwind swatches instead. */
+  --warning:        #D97706;  /* amber-600 — darker than dark-mode amber for white contrast */
+  --warning-text:   #92400E;  /* amber-800 — text within warning alerts */
+  --warning-muted:  #FEF3C7;  /* amber-100 — background for warning blocks */
+  --warning-border: #F59E0B;  /* amber-500 */
+
+  --critical:       #EF4444;  /* red-500 — unchanged, reads on white */
+  --critical-text:  #991B1B;  /* red-800 — text within critical alerts */
+  --critical-muted: #FEE2E2;  /* red-100 — background for critical blocks */
+
+  --glucose:        #7C3AED;  /* violet-600 — unchanged */
+  --glucose-text:   #4C1D95;  /* violet-900 — text within glucose alerts */
+  --glucose-muted:  #F5F3FF;  /* violet-50 — background for glucose blocks */
+  --glucose-border: #7C3AED;
+
+  --success:        #10B981;  /* emerald-500 — unchanged */
+  --success-text:   #065F46;  /* emerald-800 — text within success alerts */
+  --success-muted:  #ECFDF5;  /* emerald-50 — background for success blocks */
+
+  --info:           #EFF6FF;  /* blue-50 — informational bg */
+  --info-border:    #3B82F6;  /* blue-500 */
+  --info-text:      #1E40AF;  /* blue-800 */
 }
+```
+
+**Timer in light mode:** The timer block keeps its dark navy card background
+(`#0F1C38`) even in light mode. A deliberate island of darkness in a white page —
+signals urgency and prevents the timer from reading as ordinary content. The amber/
+orange/red text escalation, pulsing dot, and all existing timer colors remain unchanged.
+The `[data-theme="light"]` override must NOT reset `--bg` on the timer's own
+container (use `bg-[#0F1C38]` hardcoded, not `bg-[--bg]`, on that element).
+
+**Implementation note:** Toggle the theme by setting `data-theme="light"` on
+`<html>` or `<body>`. All CSS custom properties cascade automatically. Persist
+preference to `localStorage` under `codigostroke_theme`.
+
+```js
+// Toggle pattern
+const theme = localStorage.getItem('codigostroke_theme') ?? 'dark'
+document.documentElement.dataset.theme = theme
 ```
 
 ---
@@ -212,3 +265,4 @@ Left-border accent matching status color, muted background, icon + bold lead + m
 | 2026-06-07 | Initial design system created | Created by /design-consultation based on codebase audit + clinical context |
 | 2026-06-08 | Timer Hero: amber→orange→red text phases + CÓDIGO STROKE eyebrow + PASO X/Y pill + "desde inicio" | Implemented HANDOFF_SPEC Phase 1 adapted to the tab architecture (no stepper migration) |
 | 2026-06-08 | Added `ClinicalAlert` component | Consolidates scattered inline warning banners into one channel-aware component (HANDOFF_SPEC Phase 3) |
+| 2026-06-09 | Light mode system completed | White (#F0F4FF bg, #FFFFFF surface) + deep blue accent (#1D4ED8). Status colors recalibrated from rgba to solid semantic swatches (rgba looks washed on white). Timer keeps dark navy card even in light mode — preserves urgency signal. |

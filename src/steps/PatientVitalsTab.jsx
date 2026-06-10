@@ -281,9 +281,15 @@ function VitalsSection({ vitals, onConfirm, draftVitals, onDraftChange, nihssSco
   const glucoseRef  = useRef(null)
   const advanceTimer = useRef(null)
 
-  function scheduleAdvance(nextRef) {
+  function scheduleAdvance() {
+    const activeEl = document.activeElement
     clearTimeout(advanceTimer.current)
-    advanceTimer.current = setTimeout(() => nextRef.current?.focus(), 200)
+    advanceTimer.current = setTimeout(() => {
+      const inputs = Array.from(document.querySelectorAll('input[inputmode="numeric"]'))
+      const visible = inputs.filter(el => el.offsetParent !== null)
+      const idx = visible.indexOf(activeEl)
+      if (idx >= 0 && idx < visible.length - 1) visible[idx + 1].focus()
+    }, 200)
   }
 
   useEffect(() => {
@@ -394,14 +400,15 @@ function VitalsSection({ vitals, onConfirm, draftVitals, onDraftChange, nihssSco
             <div className="flex items-center gap-2">
               <input ref={sysRef} type="text" inputMode="numeric" maxLength={3} placeholder="—"
                 value={sys}
-                onChange={(e) => setSys(e.target.value.replace(/\D/g, '').slice(0, 3))}
+                onChange={(e) => { const v = e.target.value.replace(/\D/g, '').slice(0, 3); setSys(v); if (v.length === 3) scheduleAdvance() }}
                 onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); diaRef.current?.focus() } }}
                 aria-label="Presión sistólica"
                 className={`${miniInputCls(taCrit, !!sys)} flex-1 min-w-0`} />
               <span className="font-bold text-stroke-textMuted">/</span>
               <input ref={diaRef} type="text" inputMode="numeric" maxLength={3} placeholder="—"
                 value={dia}
-                onChange={(e) => setDia(e.target.value.replace(/\D/g, '').slice(0, 3))}
+                onChange={(e) => { const v = e.target.value.replace(/\D/g, '').slice(0, 3); setDia(v); if (v.length === 3) scheduleAdvance() }}
+                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); glucoseRef.current?.focus() } }}
                 aria-label="Presión diastólica"
                 className={`${miniInputCls(diaCrit, !!dia)} flex-1 min-w-0`} />
             </div>
@@ -493,14 +500,14 @@ function VitalsSection({ vitals, onConfirm, draftVitals, onDraftChange, nihssSco
             <div className="flex items-center gap-1.5">
               <input ref={sysRef} type="text" inputMode="numeric" maxLength={3} placeholder="—"
                 value={sys}
-                onChange={(e) => setSys(e.target.value.replace(/\D/g, '').slice(0, 3))}
+                onChange={(e) => { const v = e.target.value.replace(/\D/g, '').slice(0, 3); setSys(v); if (v.length === 3) scheduleAdvance() }}
                 onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); diaRef.current?.focus() } }}
                 aria-label="Presión sistólica"
                 className={`${miniInputCls(taCrit, !!sys)} flex-1 min-w-0`} />
               <span className="font-bold text-stroke-textMuted">/</span>
               <input ref={diaRef} type="text" inputMode="numeric" maxLength={3} placeholder="—"
                 value={dia}
-                onChange={(e) => setDia(e.target.value.replace(/\D/g, '').slice(0, 3))}
+                onChange={(e) => { const v = e.target.value.replace(/\D/g, '').slice(0, 3); setDia(v); if (v.length === 3) scheduleAdvance() }}
                 onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); glucoseRef.current?.focus() } }}
                 aria-label="Presión diastólica"
                 className={`${miniInputCls(diaCrit, !!dia)} flex-1 min-w-0`} />
