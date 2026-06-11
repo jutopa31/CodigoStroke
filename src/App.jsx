@@ -6,7 +6,7 @@ import AlertModal from './components/AlertModal'
 import StepStepper from './components/StepStepper'
 import DecisionButton from './components/DecisionButton'
 import QuickAddFAB from './components/QuickAddFAB'
-import TimestampPanel from './components/TimestampPanel'
+import Cronologia from './components/Cronologia'
 import OutOfWindowModal from './components/OutOfWindowModal'
 import EducationalOverlay from './components/EducationalOverlay'
 import EducationalMode from './components/EducationalMode'
@@ -805,6 +805,16 @@ export default function App() {
 
               {/* Scrollable content */}
               <div className="flex-1 overflow-y-auto flex flex-col gap-2 pb-2" style={{ scrollbarWidth: 'none' }}>
+                {timerStart && (
+                  <Cronologia
+                    codeStart={timerStart}
+                    symptomOnset={symptoms?.lastSeenNormal}
+                    ct={ctRequestTime}
+                    thrombolytic={thrombolyticStartTime}
+                    hemo={angioRequestTime}
+                  />
+                )}
+
                 <div className="rounded-lg border border-stroke-line bg-stroke-navy p-2.5">
                   {patient ? (
                     <>
@@ -863,14 +873,6 @@ export default function App() {
                     />
                   </div>
                 )}
-
-                <TimestampPanel
-                  variant="desktop"
-                  codeStart={timerStart}
-                  ct={ctRequestTime}
-                  thrombolytic={thrombolyticStartTime}
-                  hemo={angioRequestTime}
-                />
 
                 {/* Trombolisis shortcut (desktop sidebar, Phase 2) */}
                 {showTrombolisisFAB && (

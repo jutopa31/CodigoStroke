@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Clock, Activity, RotateCcw, BookOpen, User, Sun, Moon } from 'lucide-react'
+import { getTimerTone } from '../lib/timerTone'
 
 function getInitials(user) {
   const name = user?.user_metadata?.display_name || user?.email || '?'
@@ -21,13 +22,6 @@ function formatElapsed(seconds) {
 function fmtClock(ts) {
   const d = ts instanceof Date ? ts : new Date(ts)
   return d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false })
-}
-
-// Timer color escalates with elapsed time (HANDOFF_SPEC: amber → orange → red)
-function getTimerTone(minutes) {
-  if (minutes >= 60) return { text: 'text-status-critical', dot: 'bg-status-critical', bar: 'bg-status-critical' }
-  if (minutes >= 30) return { text: 'text-orange-500',      dot: 'bg-orange-500',      bar: 'bg-orange-500' }
-  return { text: 'text-status-warning', dot: 'bg-status-warning', bar: 'bg-stroke-iconActive' }
 }
 
 function EventBadge({ label, time, badgeClass, compact = false }) {
@@ -204,15 +198,6 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
             <span className="text-white font-semibold text-sm tracking-wide">Código Stroke</span>
           )}
         </div>
-
-        {startTime && (
-          <div className="flex items-center justify-center gap-1.5 mx-2 overflow-x-auto shrink min-w-0" style={{ scrollbarWidth: 'none' }}>
-            {eventBadges.map((event) => (
-              <EventBadge key={event.label} label={event.label} time={event.time}
-                badgeClass="bg-stroke-bg text-stroke-textMuted" />
-            ))}
-          </div>
-        )}
 
         <div className="flex items-center gap-2 shrink-0">
           {startTime && patient && (
