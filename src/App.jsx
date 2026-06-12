@@ -346,7 +346,7 @@ export default function App() {
   }
 
   function handleNihssConfirm(data) {
-    const nihssData = { nihssScore: data.nihssScore, hasDisablingSymptoms: data.hasDisablingSymptoms }
+    const nihssData = { nihssScore: data.nihssScore, scores: data.scores, hasDisablingSymptoms: data.hasDisablingSymptoms }
     setNihss(nihssData)
     setSymptoms((prev) => ({ ...prev, symptoms: data.symptoms, modifiedRankinScale: data.modifiedRankinScale }))
     advanceToNext('clinica')
@@ -612,7 +612,14 @@ export default function App() {
             />
           )
         case 'tiempo':
-          return <TimeStep onConfirm={handleTimeConfirm} isCollapsed={false} />
+          return (
+            <TimeStep
+              onConfirm={handleTimeConfirm}
+              isCollapsed={false}
+              initialLastSeen={symptoms?.lastSeenNormal ?? null}
+              initialIsWakeUp={symptoms?.isWakeUpStroke ?? false}
+            />
+          )
         case 'clinica':
           return (
             <ClinicalTab
@@ -667,6 +674,7 @@ export default function App() {
         return (
           <DosageStep
             onConfirm={handleDosageConfirm}
+            initialDosage={dosage}
             thrombolyticStartTime={thrombolyticStartTime}
             onThrombolyticStart={handleThrombolyticStart}
             onAddNihss={handleAddNihss}
@@ -687,7 +695,7 @@ export default function App() {
             onAngioRequest={handleAngioRequest}
             thrombectomyActivationTime={thrombectomyActivationTime}
             onThrombectomyActivation={handleThrombectomyActivation}
-            initialAspectScore={null}
+            initialAspectScore={thrombectomy?.aspectScore ?? null}
           />
         )
       case 'cuidados':
