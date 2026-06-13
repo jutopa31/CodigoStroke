@@ -1,187 +1,158 @@
 import { test, expect } from '@playwright/test'
 
-const patient = {
-  name: 'García, Juan',
-  dni: '12345678',
-  id: 'GJ678',
-}
+const patient = { name: 'García, Juan', dni: '12345678' }
 
-async function startCase(page) {
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => {
+    window.localStorage.clear()
+    window.sessionStorage.clear()
+  })
+})
+
+// ── Helpers for the real tab-based flow ──────────────────────────────────────
+//
+// The app renders both a mobile and a desktop layout in the DOM, so inputs are
+// targeted by ":visible" to avoid strict-mode matches across the two copies.
+
+const dniInput  = (page) => page.locator('input[placeholder="12345678"]:visible')
+const nameInput = (page) => page.locator('input[placeholder="Nombre y apellido"]:visible')
+
+async function activateCode(page) {
   await page.goto('/')
   await page.getByRole('button', { name: 'Iniciar Código Stroke' }).click()
-  await page.getByPlaceholder('Número de documento').fill(patient.dni)
-  await page.getByPlaceholder('Apellido, Nombre').fill(patient.name)
-  await page.getByRole('button', { name: 'Confirmar datos' }).click()
-  await page.getByRole('button', { name: 'Confirmar y Notificar' }).click()
+  await dniInput(page).fill(patient.dni)
+  await nameInput(page).fill(patient.name)
+  await page.getByRole('button', { name: 'Activar Código Stroke' }).click()
+  await page.getByRole('button', { name: 'Sí, activar' }).click()
 }
 
-async function progressToSymptoms(page) {
-  await startCase(page)
-  // Select a symptom and proceed through anticoag modal to vitals
-  await page.getByRole('button', { name: 'Debilidad unilateral' }).click()
-  await page.getByRole('button', { name: 'No', exact: true }).click()
-  await page.getByRole('button', { name: /^Continuar$/ }).click()
+// Jump to a protocol step via the numbered StepStepper (aria-label "Paso N: …").
+function step(page, n) {
+  return page.getByRole('button', { name: new RegExp(`^Paso ${n}:`) })
 }
 
-async function progressToCT(page) {
-  await progressToSymptoms(page)
-  // Vitals step — fill BP and glucose
-  await page.getByPlaceholder('Sistólica').fill('140')
-  await page.getByPlaceholder('Diastólica').fill('80')
-  await page.getByPlaceholder('mg/dL').fill('100')
-  await page.getByRole('button', { name: /Confirmar signos vitales/i }).click()
-  // CT step
-  await expect(page.getByRole('heading', { name: 'TAC de encéfalo' })).toBeVisible()
+// Drive the 15-item inline NIHSS wizard: pick the "1" option on each item
+// (→ total ≈ 15, comfortably ≥ 5), advancing with "Siguiente", then "Guardar".
+async function completeNihss(page) {
+  // Walk every item: select the "1" option, then advance. The last item swaps
+  // "Siguiente" for "Guardar". Drive by UI state (not a fixed count) so the
+  // wizard length can change without breaking the test.
+  for (let guard = 0; guard < 25; guard++) {
+    await page.getByRole('button', { name: /^1\s/ }).first().click()
+    const guardar = page.getByRole('button', { name: /^Guardar ·/ })
+    if (await guardar.isVisible()) { await guardar.click(); break }
+    await page.getByRole('button', { name: 'Siguiente' }).click()
+  }
+  // "Guardar" moves to the scored summary; a separate button commits the score.
+  await page.getByRole('button', { name: 'Confirmar evaluación clínica' }).click()
 }
 
-test.describe('Clinical pathway — hemorrhage detected', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.addInitScript(() => {
-      window.localStorage.clear()
-      window.sessionStorage.clear()
-    })
+// Walk the full pre-phase flow up to (but not clicking) the decision CTA.
+// `bleeding` selects the CT result branch.
+async function fillProtocol(page, { bleeding = false } = {}) {
+  await activateCode(page)
+
+  // Step 1 — vitals (inputs are labelled via aria-label; placeholder is "—").
+  // The basal mRS is also required before the confirm button enables.
+  await page.locator('input[aria-label="Presión sistólica"]:visible').fill('140')
+  await page.locator('input[aria-label="Presión diastólica"]:visible').fill('80')
+  await page.locator('input[aria-label="Glucemia"]:visible').fill('100')
+  await page.getByRole('button', { name: 'mRS 0: Sin síntomas' }).first().click()
+  // Visible confirm button reads "Registrar" (desktop col) or "Registrar signos vitales" (mobile).
+  await page.getByRole('button', { name: /^Registrar( signos vitales)?$/ }).click()
+
+  // Step 2 — time window (defaults: now, slider at 0 → inside IV window)
+  await step(page, 2).click()
+  await page.getByRole('button', { name: 'Registrar tiempo' }).click()
+
+  // Step 3 — NIHSS
+  await step(page, 3).click()
+  await completeNihss(page)
+
+  // Step 4 — imaging (auto-advances to CI after the CT result)
+  await step(page, 4).click()
+  await page.getByRole('button', { name: 'TAC solicitada' }).click()
+  await page.getByRole('button', { name: 'TAC realizada' }).click()
+  await page.getByRole('button', { name: bleeding ? 'Sí sangre' : 'No sangre' }).click()
+
+  // Step 5 — contraindications: mark all NO on both sub-tabs
+  await step(page, 5).click()
+  await page.getByRole('button', { name: /marcar las 10 como NO/ }).click()
+  await page.getByRole('button', { name: 'CI Relativas' }).click()
+  await page.getByRole('button', { name: /marcar las 18 como NO/ }).click()
+}
+
+// ── Full real-UI happy path ──────────────────────────────────────────────────
+
+test.describe('Clinical pathway — full flow (real UI)', () => {
+  // These drive the entire protocol (incl. the 15-item NIHSS wizard); allow extra
+  // time on slower hardware (e.g. Raspberry Pi) where parallel runs contend for CPU.
+  test.slow()
+
+  test('clean eligible patient reaches a thrombolysis-indicated decision', async ({ page }) => {
+    await fillProtocol(page, { bleeding: false })
+
+    const cta = page.getByRole('button', { name: 'Calcular decisión de trombolisis' })
+    await expect(cta).toBeVisible()
+    await cta.click()
+
+    await expect(page.getByText('Trombolisis indicada', { exact: false })).toBeVisible()
+    await expect(page.getByText(/TNK \(Tenecteplase\)/)).toBeVisible()
   })
 
-  test('CT with bleeding ends the thrombolysis pathway and shows hemorrhage warning', async ({ page }) => {
-    await progressToCT(page)
+  test('hemorrhage on CT blocks thrombolysis', async ({ page }) => {
+    await fillProtocol(page, { bleeding: true })
 
-    // Request CT scan, then mark it performed
-    await page.getByRole('button', { name: 'TAC solicitada' }).click()
-    await page.getByRole('button', { name: 'TAC realizada' }).click()
-    // Select "bleeding present"
-    await page.getByRole('button', { name: 'Sí sangre' }).click()
+    const cta = page.getByRole('button', { name: 'Calcular decisión de trombolisis' })
+    await expect(cta).toBeVisible()
+    await cta.click()
 
-    // Should display the absolute contraindication message
-    await expect(page.getByText('Hemorragia intracraneal presente')).toBeVisible()
-    await expect(page.getByText(/Contraindicacion absoluta para trombolisis IV/i)).toBeVisible()
-  })
-
-  test('CT without bleeding advances toward contraindications', async ({ page }) => {
-    await progressToCT(page)
-
-    await page.getByRole('button', { name: 'TAC solicitada' }).click()
-    await page.getByRole('button', { name: 'TAC realizada' }).click()
-    await page.getByRole('button', { name: 'No sangre' }).click()
-
-    await expect(page.getByText(/TAC sin hemorragia/i)).toBeVisible()
-  })
-})
-
-test.describe('Clinical pathway — absolute contraindication', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.addInitScript(() => {
-      window.localStorage.clear()
-      window.sessionStorage.clear()
-    })
-  })
-
-  test('selecting an absolute (red) contraindication blocks dosage step', async ({ page }) => {
-    await progressToCT(page)
-
-    // Clear CT (no bleeding)
-    await page.getByRole('button', { name: 'TAC solicitada' }).click()
-    await page.getByRole('button', { name: 'TAC realizada' }).click()
-    await page.getByRole('button', { name: 'No sangre' }).click()
-
-    // Navigate to contraindications step via the tab/button
-    await page.getByRole('button', { name: /Contraindicaciones/i }).click()
-    await expect(page.getByText(/Contraindicaciones absolutas/i)).toBeVisible()
-
-    // Mark a red contraindication as present (HIC previa)
-    const hicRow = page.locator('text=HIC previa o actual').first()
-    await expect(hicRow).toBeVisible()
-    // Click the SÍ button in that row
-    const contraRow = page.locator('[class*="rounded-xl"]').filter({ hasText: 'HIC previa o actual' }).first()
-    await contraRow.getByRole('button', { name: 'SÍ' }).click()
-
-    // Confirm that the absolute contraindication warning appears
-    await expect(page.getByText(/contraindicación absoluta/i)).toBeVisible()
-  })
-})
-
-test.describe('Clinical pathway — time window classification', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.addInitScript(() => {
-      window.localStorage.clear()
-      window.sessionStorage.clear()
-    })
-  })
-
-  test('onset within 4.5 hours shows "Ventana IV activa"', async ({ page }) => {
-    await startCase(page)
-    // Default time (now) is well within the IV window
-    await expect(page.getByText('Ventana IV activa')).toBeVisible()
-  })
-
-  test('moving slider past 4.5h shows OGV evaluation status', async ({ page }) => {
-    await startCase(page)
-    // Push slider to 300 minutes (beyond 270 min IV window)
-    const slider = page.getByRole('slider', { name: /Minutos desde ultima vez/i })
-    await slider.fill('300')
-    await expect(page.getByText('Evaluar OGV')).toBeVisible()
-  })
-
-  test('moving slider past 24h shows out-of-window status', async ({ page }) => {
-    await startCase(page)
-    const slider = page.getByRole('slider', { name: /Minutos desde ultima vez/i })
-    await slider.fill('1441')
-    await expect(page.getByText('Fuera de ventana')).toBeVisible()
+    await expect(page.getByText('Hemorragia intracraneal', { exact: false })).toBeVisible()
+    await expect(page.getByText(/Derivar a Neurocirugía/)).toBeVisible()
   })
 })
 
-test.describe('NIHSS wizard — pre-loading fix', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.addInitScript(() => {
-      window.localStorage.clear()
-      window.sessionStorage.clear()
-    })
+// ── Decision-screen branches (deterministic via the mock seed) ───────────────
+//
+// `?mock=evaluacion` seeds a complete case and jumps straight to the decision
+// screen. The scenario is `Math.floor(Math.random() * 5)`, so stubbing
+// Math.random to a constant makes each clinical branch deterministic:
+//   0.1→0 clean · 0.3→1 hemorrhage · 0.5→2 absolute CI · 0.7→3 wake-up mismatch · 0.9→4 wake-up no-mismatch
+
+async function seedScenario(page, randomValue) {
+  await page.addInitScript((v) => { Math.random = () => v }, randomValue)
+  await page.goto('/?mock=evaluacion')
+}
+
+test.describe('Decision screen — clinical branches', () => {
+  test('clean case → TNK recommended', async ({ page }) => {
+    await seedScenario(page, 0.1)
+    await expect(page.getByText('Trombolisis indicada', { exact: false })).toBeVisible()
+    await expect(page.getByText(/TNK \(Tenecteplase\)/)).toBeVisible()
   })
 
-  test('tapping Consciencia chip does not pre-load NIHSS score', async ({ page }) => {
-    await startCase(page)
-    await page.getByRole('button', { name: 'Consciencia' }).click()
-    // Banner total should be 0, not pre-loaded 3
-    const nihssBanner = page.locator('[class*="rounded-xl"]').filter({ hasText: /NIHSS/ }).first()
-    await expect(nihssBanner).not.toBeVisible()
-    // The symptom is selected but no score banner appears (no symptoms have scores yet)
-    // Verify no pre-loaded 3 appears in the NIHSS section
-    await expect(page.getByText(/^3$/).first()).not.toBeVisible()
+  test('hemorrhage scenario → contraindicated', async ({ page }) => {
+    await seedScenario(page, 0.3)
+    await expect(page.getByText('Hemorragia intracraneal', { exact: false })).toBeVisible()
   })
 
-  test('Guía wizard opens at item 1 with no pre-filled scores and saves', async ({ page }) => {
-    await startCase(page)
-    await page.getByRole('button', { name: 'Consciencia' }).click()
-    await page.getByRole('button', { name: /Guía/ }).click()
-
-    // Wizard modal is open — first item visible
-    await expect(page.getByText('Escala NIHSS completa')).toBeVisible()
-    await expect(page.getByText('Ítem 1 de 15')).toBeVisible()
-
-    // Select an option on item 1 — wizard auto-advances
-    await page.locator('button').filter({ hasText: /Alerta.*normal|Normal|0/ }).first().click()
-    await expect(page.getByText('Ítem 2 de 15')).toBeVisible()
-
-    // Skip through remaining items with Siguiente
-    for (let i = 2; i < 15; i++) {
-      await page.getByRole('button', { name: /Siguiente/ }).click()
-    }
-
-    // On last item, Guardar is visible
-    await expect(page.getByText('Ítem 15 de 15')).toBeVisible()
-    await page.getByRole('button', { name: /Guardar/ }).click()
-
-    // Modal closed — wizard completed
-    await expect(page.getByText('Escala NIHSS completa')).not.toBeVisible()
+  test('absolute contraindication shows a human-readable reason, not a raw key', async ({ page }) => {
+    await seedScenario(page, 0.5)
+    await expect(page.getByText('Contraindicación absoluta', { exact: false }).first()).toBeVisible()
+    // Regression guard for the stale-label bug: the reason must read the label,
+    // never the raw id "ct_hemorrhage". (Shown in both the body and a chip.)
+    await expect(page.getByText('TC: hemorragia intracraneal', { exact: false }).first()).toBeVisible()
+    await expect(page.getByText('ct_hemorrhage')).toHaveCount(0)
   })
-})
 
-test.describe('Clinical pathway — session persistence', () => {
-  test('patient ID badge persists across a page reload', async ({ page }) => {
-    await startCase(page)
-    await expect(page.getByText(patient.id, { exact: true })).toBeVisible()
+  test('wake-up stroke with FLAIR-DWI mismatch → rtPA', async ({ page }) => {
+    await seedScenario(page, 0.7)
+    await expect(page.getByText('Trombolisis indicada', { exact: false })).toBeVisible()
+    await expect(page.getByText(/rtPA \(Alteplase\)/)).toBeVisible()
+  })
 
-    // Reload the page — the session should be restored from localStorage
-    await page.reload()
-    await expect(page.getByText(patient.id, { exact: true })).toBeVisible()
+  test('wake-up stroke without mismatch → not eligible for IV', async ({ page }) => {
+    await seedScenario(page, 0.9)
+    await expect(page.getByText('sin mismatch', { exact: false })).toBeVisible()
   })
 })

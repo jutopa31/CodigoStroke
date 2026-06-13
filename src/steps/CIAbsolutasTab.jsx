@@ -1,18 +1,6 @@
 import { useState } from 'react'
 import { ShieldCheck, Info, ChevronDown, CheckCircle2, AlertTriangle } from 'lucide-react'
-
-const RED_CONTRAS = [
-  { id: 'ct_hypodensity',    short: 'TC: hipodensidad extensa',     label: 'TC con hipodensidad extensa',                        sub: 'Hipodensidad clara responsable de los síntomas, mayor que la sustancia blanca contralateral' },
-  { id: 'ct_hemorrhage',     short: 'TC: hemorragia intracraneal',  label: 'TC con hemorragia intracraneal aguda',               sub: 'Cualquier hemorragia intracraneal aguda en neuroimagen' },
-  { id: 'tce_14d',           short: 'TCE moderado-grave < 14 días', label: 'TCE moderado a grave en los últimos 14 días',        sub: '> 30 min de pérdida de consciencia y GCS < 13, O hemorragia/contusión/fractura en neuroimagen' },
-  { id: 'neurosurgery_14d',  short: 'Neurocirugía < 14 días',       label: 'Neurocirugía o cirugía espinal en los últimos 14 días', sub: 'Cirugía intracraneal o raquimedular reciente' },
-  { id: 'spinal_cord',       short: 'Lesión medular aguda < 3m',    label: 'Lesión medular aguda en los últimos 3 meses',        sub: '' },
-  { id: 'axial_tumor',       short: 'Neoplasia intra-axial',        label: 'Neoplasia intracraneal intra-axial',                 sub: '' },
-  { id: 'endocarditis',      short: 'Endocarditis infecciosa',      label: 'Endocarditis infecciosa activa',                     sub: '' },
-  { id: 'coagulopathy',      short: 'Coagulopatía severa',          label: 'Coagulopatía severa o trombocitopenia',              sub: 'Plaq. < 100.000/mm³ · RIN > 1.7 · KPTT > 40s · TP > 15s' },
-  { id: 'aortic_dissection', short: 'Disección de arco aórtico',    label: 'Disección de arco aórtico conocida o sospechada',   sub: '' },
-  { id: 'aria',              short: 'ARIA',                         label: 'Anomalías de imagen relacionadas con amiloide (ARIA)', sub: 'Inmunoterapia anti-amiloide o ARIA conocida — evitar trombolisis IV' },
-]
+import { RED_CONTRAS } from '../lib/contraindications'
 
 function ContraRow({ item, value, onChange }) {
   const [expanded, setExpanded] = useState(false)
