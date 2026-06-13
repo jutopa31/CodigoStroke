@@ -27,6 +27,7 @@ import { saveStrokeEvent, generatePatientId, saveSession, syncPendingEvents, sav
 import { getNihssSeverity } from './content/nihss'
 import { sendStrokeAlert } from './lib/emailService'
 import { computeStrokeDecision } from './lib/strokeAlgorithm'
+import { RED_IDS, ORANGE_IDS } from './lib/contraindications'
 import { useAuth } from './auth/useAuth'
 import LoginModal from './auth/LoginModal'
 
@@ -265,8 +266,6 @@ export default function App() {
       const weight = 60 + Math.floor(Math.random() * 31)
       const ctReqTime = ago(22 + Math.floor(Math.random() * 10))
 
-      const RED_IDS   = ['ct_hypodensity','ct_hemorrhage','tce_14d','neurosurgery_14d','spinal_cord','axial_tumor','endocarditis','coagulopathy','aortic_dissection','aria']
-      const ORANGE_IDS = ['disability','doac','prev_stroke','prior_ich','trauma_14d_3m','major_surgery','gi_bleed','ic_dissection','vascular_malformation','stemi_3m','pericarditis','cardiac_thrombus','malignancy','pregnancy','dural_puncture','arterial_puncture','tbi_moderate','neurosurgery_14d_3m']
       const allNo = (ids) => Object.fromEntries(ids.map((k) => [k, false]))
       const rtpaDose = (w) => { const total = Math.round(w * 0.9 * 10) / 10; const bolo = Math.round(total * 0.1 * 10) / 10; return { total, bolo, infusion: Math.round((total - bolo) * 10) / 10 } }
 
@@ -317,17 +316,15 @@ export default function App() {
       setCtResult(ctResultData)
       // Sync split CI state for mock
       if (contraindicationsData) {
-        const RED_IDS_LIST   = ['ct_hypodensity','ct_hemorrhage','tce_14d','neurosurgery_14d','spinal_cord','axial_tumor','endocarditis','coagulopathy','aortic_dissection','aria']
-        const ORANGE_IDS_LIST = ['disability','doac','prev_stroke','prior_ich','trauma_14d_3m','major_surgery','gi_bleed','ic_dissection','vascular_malformation','stemi_3m','pericarditis','cardiac_thrombus','malignancy','pregnancy','dural_puncture','arterial_puncture','tbi_moderate','neurosurgery_14d_3m']
         setContraAbsolutes({
           answers: contraindicationsData.red,
-          allAnswered: RED_IDS_LIST.every((k) => contraindicationsData.red[k] !== undefined),
+          allAnswered: RED_IDS.every((k) => contraindicationsData.red[k] !== undefined),
           hasAbsolute: contraindicationsData.hasAbsolute,
         })
         setContraRelatives({
           answers: contraindicationsData.orange,
           anticoag: { active: false, type: '' },
-          allAnswered: ORANGE_IDS_LIST.every((k) => contraindicationsData.orange[k] !== undefined),
+          allAnswered: ORANGE_IDS.every((k) => contraindicationsData.orange[k] !== undefined),
           hasRelative: contraindicationsData.hasRelative,
         })
       }

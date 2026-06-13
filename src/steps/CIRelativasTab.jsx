@@ -1,32 +1,6 @@
 import { useState } from 'react'
 import { ShieldCheck, Info, ChevronDown, CheckCircle2, AlertTriangle, ShieldAlert } from 'lucide-react'
-
-const ORANGE_CONTRAS = [
-  { id: 'disability',            short: 'Discapacidad preexistente',    label: 'Discapacidad preexistente o fragilidad',                           sub: 'Riesgo/beneficio incierto. Determinar en forma individual.' },
-  { id: 'doac',                  short: 'DOAC < 48h',                   label: 'Exposición a DOAC en las últimas 48h',                             sub: 'Apixaban, rivaroxaban, dabigatran, edoxaban. Considerar función renal, severidad, disponibilidad de agentes revertidores.' },
-  { id: 'prev_stroke',           short: 'ACV isquémico < 3 meses',      label: 'ACV isquémico en los últimos 3 meses',                             sub: 'Mayor riesgo de hemorragia intracraneal. Ponderar en función del tamaño y tiempo del ACV previo.' },
-  { id: 'prior_ich',             short: 'HIC previa',                   label: 'Hemorragia intracraneal previa',                                   sub: 'Mayor riesgo de hemorragia sintomática. Angiopatía amiloide implica mayor riesgo. Determinar en forma individual.' },
-  { id: 'trauma_14d_3m',         short: 'Trauma mayor no-SNC 14d–3m',  label: 'Trauma mayor no-SNC entre 14 días y 3 meses',                      sub: 'Mayor riesgo de hemorragia sistémica grave. Consultar con especialista quirúrgico.' },
-  { id: 'major_surgery',         short: 'Cirugía mayor no-SNC < 10d',  label: 'Cirugía mayor no-SNC en los últimos 10 días',                      sub: 'Mayor riesgo de daño por trombolisis IV. Considerar área quirúrgica y consultar con especialista.' },
-  { id: 'gi_bleed',              short: 'Sangrado GI/GU < 21 días',     label: 'Sangrado GI/GU en los últimos 21 días',                            sub: 'Considerar si el sangrado fue tratado y el riesgo modificado.' },
-  { id: 'ic_dissection',         short: 'Disección arterial IC',        label: 'Disección arterial intracraneal',                                  sub: 'La seguridad de la trombolisis IV en disección intracraneal es desconocida.' },
-  { id: 'vascular_malformation', short: 'Malformación vascular IC',     label: 'Malformación vascular intracraneal conocida',                      sub: 'MAV, aneurisma no tratado. La seguridad de la trombolisis IV es desconocida.' },
-  { id: 'stemi_3m',              short: 'STEMI reciente < 3 meses',     label: 'STEMI reciente en los últimos 3 meses',                            sub: 'Considerar hemopericardio en STEMI muy reciente. Consultar cardiología de urgencia.' },
-  { id: 'pericarditis',          short: 'Pericarditis aguda',           label: 'Pericarditis aguda',                                               sub: 'Puede ser razonable en ACV mayor con discapacidad severa. Consultar cardiología de urgencia.' },
-  { id: 'cardiac_thrombus',      short: 'Trombo AI/VI izquierdo',       label: 'Trombo auricular o ventricular izquierdo conocido',                sub: 'Puede ser razonable en ACV mayor con discapacidad severa. Consultar cardiología de urgencia.' },
-  { id: 'malignancy',            short: 'Neoplasia activa sistémica',   label: 'Neoplasia sistémica activa',                                       sub: 'Considerar tipo, estadio y complicaciones activas. Consultar oncología de urgencia.' },
-  { id: 'pregnancy',             short: 'Embarazo / puerperio',         label: 'Embarazo o período posparto',                                      sub: 'Puede considerarse si el beneficio supera el riesgo de sangrado uterino. Consultar obstetricia de urgencia.' },
-  { id: 'dural_puncture',        short: 'Punción dural < 7 días',       label: 'Punción dural en los últimos 7 días',                              sub: 'Puede considerarse incluso si hubo punción lumbar en los 7 días previos.' },
-  { id: 'arterial_puncture',     short: 'Punción arterial < 7 días',    label: 'Punción arterial en vaso no compresible en los últimos 7 días',    sub: 'Ej: línea de arteria subclavia. La seguridad de la trombolisis IV es desconocida.' },
-  { id: 'tbi_moderate',          short: 'TCE moderado-grave 14d–3m',    label: 'TCE moderado a grave entre 14 días y 3 meses',                     sub: 'Consultar con neurocirugía y cuidados neurocríticos.' },
-  { id: 'neurosurgery_14d_3m',   short: 'Neurocirugía 14d–3m',         label: 'Neurocirugía o cirugía espinal entre 14 días y 3 meses',           sub: 'Puede considerarse en forma individual.' },
-]
-
-const ANTICOAG_TYPES = [
-  { id: 'doac',          label: 'DOAC' },
-  { id: 'heparina',      label: 'Heparina' },
-  { id: 'acenocumarol',  label: 'Acenocumarol' },
-]
+import { ORANGE_CONTRAS, ANTICOAG_TYPES } from '../lib/contraindications'
 
 function ContraRow({ item, value, onChange }) {
   const [expanded, setExpanded] = useState(false)

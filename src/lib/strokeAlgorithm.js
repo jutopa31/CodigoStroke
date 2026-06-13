@@ -1,25 +1,5 @@
 import { getElapsedMinutes, IV_WINDOW_MINUTES } from './calculations'
-
-const RED_CONTRA_LABELS = {
-  prior_ich:         'Hemorragia intracraneal previa o actual',
-  large_infarct:     'Infarto extenso en TC (ASPECTS < 3)',
-  tce:               'TCE grave o cirugía intracraneal reciente',
-  axial_tumor:       'Tumor intra-axial',
-  coagulopathy:      'Coagulopatía severa',
-  aortic_dissection: 'Disección aórtica',
-  endocarditis:      'Endocarditis infecciosa activa',
-}
-
-const ORANGE_CONTRA_LABELS = {
-  prev_stroke:       'ACV isquémico en los últimos 3 meses',
-  major_surgery:     'Cirugía mayor o trauma grave reciente',
-  acod:              'ACODs en las últimas 48h',
-  gi_bleed:          'Sangrado GI/GU reciente',
-  arterial_puncture: 'Punción arterial reciente no compresible',
-  avm:               'MAV conocida',
-  aneurysm:          'Aneurisma no roto > 10 mm',
-  ic_dissection:     'Disección arterial intracraneal',
-}
+import { CONTRA_LABELS } from './contraindications'
 
 /**
  * Computes the stroke thrombolysis decision.
@@ -118,7 +98,7 @@ export function computeStrokeDecision({ symptoms, nihss, ctResult, contraindicat
   if (contraindications?.hasAbsolute) {
     const details = Object.entries(contraindications.red || {})
       .filter(([, v]) => v)
-      .map(([k]) => RED_CONTRA_LABELS[k] ?? k)
+      .map(([k]) => CONTRA_LABELS[k] ?? k)
       .filter(Boolean)
     return {
       thrombolyze: false,
@@ -137,7 +117,7 @@ export function computeStrokeDecision({ symptoms, nihss, ctResult, contraindicat
   if (contraindications?.decidedNotToThrombolyze) {
     const details = Object.entries(contraindications.orange || {})
       .filter(([, v]) => v)
-      .map(([k]) => ORANGE_CONTRA_LABELS[k] ?? k)
+      .map(([k]) => CONTRA_LABELS[k] ?? k)
       .filter(Boolean)
     return {
       thrombolyze: false,
@@ -155,7 +135,7 @@ export function computeStrokeDecision({ symptoms, nihss, ctResult, contraindicat
   // 7. Thrombolysis indicated
   const relativeDetails = Object.entries(contraindications?.orange || {})
     .filter(([, v]) => v)
-    .map(([k]) => ORANGE_CONTRA_LABELS[k] ?? k)
+    .map(([k]) => CONTRA_LABELS[k] ?? k)
     .filter(Boolean)
   const hasRelative = !!(contraindications?.hasRelative || relativeDetails.length > 0)
   // Prefer TNK for standard window; rtPA for wake-up (no formal TNK wake-up data)
