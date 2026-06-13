@@ -44,12 +44,13 @@ function formatClock(dateStr) {
   return new Date(dateStr).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false })
 }
 
-export default function TimeStep({ onConfirm, isCollapsed = false }) {
-  const [lastSeenDate, setLastSeenDate] = useState(() => toLocalDateInput(new Date()))
-  const [lastSeenTime, setLastSeenTime] = useState(() => toLocalTimeInput(new Date()))
+export default function TimeStep({ onConfirm, isCollapsed = false, initialLastSeen = null, initialIsWakeUp = false }) {
+  const initialDate = initialLastSeen ? new Date(initialLastSeen) : new Date()
+  const [lastSeenDate, setLastSeenDate] = useState(() => toLocalDateInput(initialDate))
+  const [lastSeenTime, setLastSeenTime] = useState(() => toLocalTimeInput(initialDate))
   const [offsetMinutes, setOffsetMinutes] = useState(0)
-  const [confirmed, setConfirmed] = useState(false)
-  const [isIncierto, setIsIncierto] = useState(false)
+  const [confirmed, setConfirmed] = useState(!!initialLastSeen)
+  const [isIncierto, setIsIncierto] = useState(!!initialIsWakeUp)
   const [editingTime, setEditingTime] = useState(false)
 
   useInterval(1000)

@@ -174,11 +174,11 @@ function PreThrombolysisGate({ latestVitals, latestGlucose, gate, onAddVitals, o
   )
 }
 
-export default function DosageStep({ onConfirm, thrombolyticStartTime = null, onThrombolyticStart, onAddNihss, latestVitals = null, latestGlucose = null, onAddVitals, onAddGlucose }) {
+export default function DosageStep({ onConfirm, thrombolyticStartTime = null, onThrombolyticStart, onAddNihss, latestVitals = null, latestGlucose = null, onAddVitals, onAddGlucose, initialDosage = null }) {
   const [view, setView]           = useState('dose')   // 'dose' | 'post'
-  const [drug, setDrug]           = useState('tnk')
+  const [drug, setDrug]           = useState(initialDosage?.drug ?? 'tnk')
   const [drugLocked, setDrugLocked]     = useState(false)
-  const [weightStr, setWeightStr] = useState('')
+  const [weightStr, setWeightStr] = useState(initialDosage?.weight ? String(initialDosage.weight) : '')
   const [weightLocked, setWeightLocked] = useState(false)
   const [checked, setChecked]     = useState({})
   const [nihssEntry, setNihssEntry]   = useState('')

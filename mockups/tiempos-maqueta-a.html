@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maqueta A — Cronología en el header</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=Source+Sans+3:wght@300;400;500;600&family=Geist+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0F1C38; --surface: #132B58; --panel: #1E3356; --line: #29416D;
+    --accent: #5C7AEA; --text: #F0F4FF; --muted: #A8B6D6; --dim: #7089B8;
+    --warning: #FBBF24; --critical: #EF4444; --success: #10B981;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; }
+  .mono { font-family: 'Geist Mono', monospace; font-variant-numeric: tabular-nums; }
+
+  /* ───── HEADER row 1 ───── */
+  header { background: #0F1C38; border-bottom: 1px solid var(--line); }
+  .hrow { display: flex; align-items: center; gap: 16px; height: 54px; padding: 0 20px; }
+
+  .timer-block { display: flex; align-items: baseline; gap: 10px; }
+  .timer-main { font-family: 'Geist Mono', monospace; font-variant-numeric: tabular-nums; font-size: 30px; font-weight: 700; color: #F97316; letter-spacing: -0.5px; line-height: 1; }
+  .timer-dot { width: 8px; height: 8px; border-radius: 99px; background: #F97316; align-self: center; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1 } 50% { opacity: .4 } }
+  .timer-label { display: flex; flex-direction: column; gap: 1px; line-height: 1.1; }
+  .timer-label .l1 { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
+  .timer-label .l2 { font-size: 11px; color: var(--dim); font-family: 'Geist Mono', monospace; }
+
+  .vdiv { width: 1px; height: 28px; background: var(--line); }
+
+  /* Symptoms chip — hover reveals second running timer */
+  .sx-chip { display: flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); cursor: default; transition: all .25s cubic-bezier(0.16,1,0.3,1); }
+  .sx-chip .lbl { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
+  .sx-chip .clock { font-family: 'Geist Mono', monospace; font-size: 14px; font-weight: 600; color: var(--text); }
+  .sx-chip .live { display: none; align-items: baseline; gap: 6px; }
+  .sx-chip .live .t { font-family: 'Geist Mono', monospace; font-variant-numeric: tabular-nums; font-size: 18px; font-weight: 700; color: #818CF8; line-height: 1; }
+  .sx-chip .live .s { font-size: 10px; color: #818CF8; opacity: .8; }
+  .sx-chip:hover, .sx-chip.force-hover { border-color: rgba(129,140,248,.5); background: rgba(99,102,241,.12); }
+  .sx-chip:hover .live, .sx-chip.force-hover .live { display: flex; }
+
+  .spacer { flex: 1; }
+  .step-pill { font-size: 10px; font-weight: 600; color: var(--accent); border: 1px solid rgba(92,122,234,.3); background: rgba(92,122,234,.15); border-radius: 99px; padding: 3px 10px; }
+  .patient-name { font-size: 13px; font-weight: 500; color: var(--text); }
+  .icon-btn { width: 28px; height: 28px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); display: flex; align-items: center; justify-content: center; color: var(--text); font-size: 12px; }
+
+  /* ───── HEADER row 2: therapeutic window strip ───── */
+  .window-strip { position: relative; height: 44px; padding: 6px 20px 0; background: #0C172E; border-top: 1px solid #182B52; }
+  .ws-track { position: relative; height: 8px; border-radius: 99px; overflow: hidden; display: flex; margin-top: 14px; }
+  .ws-iv  { width: 75%; background: linear-gradient(90deg, #0E9F6E, #10B981); }
+  .ws-ogv { flex: 1; background: #B45309; }
+  .ws-pin { position: absolute; top: 10px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; }
+  .ws-pin .tick { width: 2px; height: 16px; background: rgba(240,244,255,.5); border-radius: 2px; }
+  .ws-pin .lab { position: absolute; top: -12px; font-size: 9px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+  .ws-pin .lab .t { font-family: 'Geist Mono', monospace; color: var(--text); margin-left: 3px; }
+  .ws-now { position: absolute; top: 6px; transform: translateX(-50%); z-index: 2; display: flex; flex-direction: column; align-items: center; }
+  .ws-now .line { width: 3px; height: 22px; background: #F97316; border-radius: 2px; box-shadow: 0 0 8px rgba(249,115,22,.8); }
+  .ws-now .lab { position: absolute; top: -13px; font-size: 9px; font-weight: 800; letter-spacing: .08em; color: #F97316; white-space: nowrap; }
+  .ws-limit { position: absolute; top: 20px; transform: translateX(-50%); font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 4px; }
+  .ws-limit.l45 { color: #FCD34D; background: rgba(245,158,11,.15); border: 1px solid rgba(245,158,11,.3); }
+  .ws-limit.l24 { color: #93C5FD; background: rgba(59,130,246,.15); border: 1px solid rgba(59,130,246,.3); }
+  .ws-remaining { position: absolute; right: 20px; top: 7px; font-size: 10px; color: var(--muted); }
+  .ws-remaining b { font-family: 'Geist Mono', monospace; color: #34D399; font-weight: 700; font-size: 12px; }
+
+  /* ───── Stepper ───── */
+  .stepper { display: flex; align-items: center; justify-content: center; gap: 0; padding: 10px 0; background: var(--surface); border-bottom: 1px solid var(--line); }
+  .sc { width: 26px; height: 26px; border-radius: 99px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
+  .sc.done { background: var(--warning); color: #0F1C38; }
+  .sc.active { border: 2px solid var(--accent); color: var(--accent); background: rgba(92,122,234,.15); }
+  .sc.pend { background: var(--surface); border: 1px solid var(--line); color: var(--dim); }
+  .sline { width: 34px; height: 1px; background: var(--line); }
+
+  /* ───── Body ───── */
+  .body { display: flex; gap: 16px; padding: 14px 20px; }
+  aside { width: 270px; flex-shrink: 0; display: flex; flex-direction: column; gap: 10px; }
+  .card { border: 1px solid var(--line); background: var(--surface); border-radius: 10px; padding: 12px; }
+  .card h3 { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); margin-bottom: 8px; }
+  .pname { font-size: 15px; font-weight: 600; display: flex; justify-content: space-between; align-items: baseline; }
+  .pid { font-family: 'Geist Mono', monospace; font-size: 10px; color: var(--muted); }
+  .pdni { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .vit { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); }
+  .vit > div { background: var(--bg); border-radius: 8px; padding: 6px 4px; text-align: center; }
+  .vit .k { font-size: 9px; font-weight: 700; letter-spacing: .08em; color: var(--muted); }
+  .vit .v { font-family: 'Geist Mono', monospace; font-size: 14px; font-weight: 700; margin-top: 2px; }
+  .vit .nih { color: var(--warning); } .vit .ta { color: var(--critical); } .vit .glc { color: #A78BFA; }
+  .qbtns { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .qb { border: 1px solid var(--line); background: var(--bg); border-radius: 10px; padding: 8px 2px; text-align: center; font-size: 9px; font-weight: 600; color: var(--muted); }
+  .qb .ic { font-size: 13px; display: block; margin-bottom: 3px; }
+  .abtn { width: 100%; padding: 9px; border-radius: 8px; font-size: 12px; font-weight: 600; text-align: center; border: 1px solid var(--line); background: var(--bg); color: var(--muted); margin-top: 6px; }
+  .abtn.wa { border-color: rgba(16,185,129,.3); background: rgba(16,185,129,.12); color: #6EE7B7; }
+
+  main { flex: 1; }
+  .step-card { border: 1px solid var(--line); border-left: 3px solid var(--success); background: var(--surface); border-radius: 12px; padding: 18px; max-width: 720px; }
+  .step-card h2 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+  .step-card p { font-family: 'Source Sans 3', sans-serif; font-size: 14px; color: var(--muted); }
+  .banner { margin-top: 14px; border: 1px solid rgba(16,185,129,.3); border-left: 3px solid var(--success); background: rgba(16,185,129,.1); border-radius: 10px; padding: 12px; }
+  .banner b { color: #6EE7B7; font-size: 15px; }
+  .banner span { display: block; font-size: 12px; color: #34D399; margin-top: 3px; }
+
+  .tag { position: fixed; bottom: 12px; right: 16px; font-size: 11px; font-weight: 700; color: var(--accent); background: rgba(92,122,234,.12); border: 1px solid rgba(92,122,234,.35); padding: 4px 10px; border-radius: 99px; }
+</style>
+</head>
+<body>
+
+<header>
+  <!-- Row 1: timers -->
+  <div class="hrow">
+    <div class="timer-block">
+      <span class="timer-main mono" id="t-code">46:01</span>
+      <span class="timer-dot"></span>
+      <span class="timer-label"><span class="l1">desde código</span><span class="l2">19:48</span></span>
+    </div>
+
+    <div class="vdiv"></div>
+
+    <!-- Hover ⇒ segundo timer corriendo desde síntomas -->
+    <div class="sx-chip" id="sx">
+      <span class="lbl">Síntomas</span>
+      <span class="clock">18:30</span>
+      <span class="live"><span class="t mono" id="t-sx">02:04:12</span><span class="s">desde síntomas</span></span>
+    </div>
+
+    <span class="step-pill">PASO 6/8</span>
+    <div class="spacer"></div>
+    <span class="patient-name">Paciente Test</span>
+    <div class="icon-btn">☼</div><div class="icon-btn">👤</div><div class="icon-btn">📖</div><div class="icon-btn">↺</div>
+  </div>
+
+  <!-- Row 2: ventana terapéutica (escala 0–6h, reemplaza la barra de progreso) -->
+  <div class="window-strip">
+    <div class="ws-track">
+      <div class="ws-iv"></div>
+      <div class="ws-ogv"></div>
+    </div>
+    <!-- pins de eventos (posición = minutos desde síntomas / 360) -->
+    <div class="ws-pin" style="left: calc(20px + (100% - 40px) * 0.217)"><span class="lab">Código<span class="t">19:48</span></span><span class="tick"></span></div>
+    <div class="ws-pin" style="left: calc(20px + (100% - 40px) * 0.267)"><span class="lab">TC<span class="t">20:06</span></span><span class="tick"></span></div>
+    <div class="ws-now" id="ws-now" style="left: calc(20px + (100% - 40px) * 0.345)"><span class="lab">AHORA</span><span class="line"></span></div>
+    <div class="ws-limit l45" style="left: calc(20px + (100% - 40px) * 0.75)">4.5h</div>
+    <div class="ws-limit l24" style="left: calc(100% - 44px)">→ 24h</div>
+    <div class="ws-remaining">Ventana IV: quedan <b class="mono" id="t-rem">2:26</b></div>
+  </div>
+</header>
+
+<div class="stepper">
+  <div class="sc done">1</div><div class="sline"></div><div class="sc done">2</div><div class="sline"></div>
+  <div class="sc done">3</div><div class="sline"></div><div class="sc done">4</div><div class="sline"></div>
+  <div class="sc done">5</div><div class="sline"></div><div class="sc active">6</div><div class="sline"></div>
+  <div class="sc pend">7</div><div class="sline"></div><div class="sc pend">8</div>
+</div>
+
+<div class="body">
+  <aside>
+    <!-- Sidebar SIN panel "Tiempos registrados" (ahora vive en el header) -->
+    <div class="card">
+      <div class="pname">Paciente Test <span class="pid">ID PT123</span></div>
+      <div class="pdni">DNI 38999123</div>
+      <div class="vit">
+        <div><div class="k">NIHSS</div><div class="v nih">2</div></div>
+        <div><div class="k">TA</div><div class="v ta">166/105</div></div>
+        <div><div class="k">GLC</div><div class="v glc">131</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Registros rápidos</h3>
+      <div class="qbtns">
+        <div class="qb"><span class="ic">🧠</span>NIHSS</div>
+        <div class="qb"><span class="ic">🫀</span>TA</div>
+        <div class="qb"><span class="ic">🩸</span>GLC</div>
+        <div class="qb"><span class="ic">🕐</span>F. Vent</div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Resumen</h3>
+      <div class="abtn">⧉ Copiar resumen</div>
+      <div class="abtn wa">WhatsApp</div>
+    </div>
+  </aside>
+
+  <main>
+    <div class="step-card">
+      <h2>Decisión clínica</h2>
+      <p>Resultado del algoritmo según tiempos, NIHSS e imagen.</p>
+      <div class="banner">
+        <b>✓ Candidato a Trombolisis</b>
+        <span>Dentro de ventana IV (&lt; 4.5 h) · sin contraindicaciones absolutas</span>
+      </div>
+    </div>
+  </main>
+</div>
+
+<span class="tag">MAQUETA A · Cronología en el header</span>
+
+<script>
+  // Escenario: síntomas 18:30, código 19:48, ahora ≈ 20:34 — timers corren en vivo
+  const now0 = Date.now();
+  const codeStart = now0 - (46*60+1)*1000;
+  const sxStart   = now0 - (124*60+12)*1000;
+  const ivEnd     = sxStart + 270*60*1000;
+  const pad = n => String(n).padStart(2,'0');
+  function fmt(s){ const h=Math.floor(s/3600), m=Math.floor(s%3600/60), x=s%60;
+    return h>0 ? `${pad(h)}:${pad(m)}:${pad(x)}` : `${pad(m)}:${pad(x)}`; }
+  setInterval(() => {
+    const t = Date.now();
+    document.getElementById('t-code').textContent = fmt(Math.floor((t-codeStart)/1000));
+    document.getElementById('t-sx').textContent   = fmt(Math.floor((t-sxStart)/1000));
+    const rem = Math.max(0, Math.floor((ivEnd-t)/60000));
+    document.getElementById('t-rem').textContent  = `${Math.floor(rem/60)}:${pad(rem%60)}`;
+    const pct = Math.min(((t-sxStart)/60000)/360, 1);
+    document.getElementById('ws-now').style.left = `calc(20px + (100% - 40px) * ${pct.toFixed(4)})`;
+  }, 1000);
+</script>
+</body>
+</html>
