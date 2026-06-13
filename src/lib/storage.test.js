@@ -7,6 +7,9 @@ import {
   saveSession,
   getSessions,
   loadSession,
+  saveCaseDraft,
+  loadCaseDraft,
+  clearCaseDraft,
 } from './storage'
 
 // localStorage stub (vitest/node doesn't have it)
@@ -162,5 +165,46 @@ describe('loadSession', () => {
   it('returns null for null/undefined input', () => {
     expect(loadSession(null)).toBeNull()
     expect(loadSession(undefined)).toBeNull()
+  })
+})
+
+// ── caso activo (borrador crash-safe) ─────────────────────────────────────────
+
+describe('case draft (saveCaseDraft / loadCaseDraft / clearCaseDraft)', () => {
+  it('round-trips a saved case draft', () => {
+    saveCaseDraft({ phase: 'pre', activeTab: 'clinica', nihss: { nihssScore: 5 } })
+    const loaded = loadCaseDraft()
+    expect(loaded.phase).toBe('pre')
+    expect(loaded.activeTab).toBe('clinica')
+    expect(loaded.nihss.nihssScore).toBe(5)
+  })
+
+  it('stamps _savedAt on save', () => {
+    saveCaseDraft({ phase: 'pre' })
+    expect(loadCaseDraft()._savedAt).toBeTruthy()
+  })
+
+  it('returns null when there is no draft', () => {
+    expect(loadCaseDraft()).toBeNull()
+  })
+
+  it('clearCaseDraft removes the draft', () => {
+    saveCaseDraft({ phase: 'pre' })
+    clearCaseDraft()
+    expect(loadCaseDraft()).toBeNull()
+  })
+
+  it('discards (and clears) a draft older than 12 h — avoids resuming a stale/other-patient case', () => {
+    const old = new Date(Date.now() - 13 * 60 * 60 * 1000).toISOString()
+    localStorage.setItem('codigo_stroke_active_case', JSON.stringify({ phase: 'pre', _savedAt: old }))
+    expect(loadCaseDraft()).toBeNull()
+    // the stale entry was purged, not just ignored
+    expect(localStorage.getItem('codigo_stroke_active_case')).toBeNull()
+  })
+
+  it('keeps a recent draft (within 12 h)', () => {
+    const recent = new Date(Date.now() - 60 * 60 * 1000).toISOString()
+    localStorage.setItem('codigo_stroke_active_case', JSON.stringify({ phase: 'pre', _savedAt: recent }))
+    expect(loadCaseDraft()?.phase).toBe('pre')
   })
 })

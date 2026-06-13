@@ -163,3 +163,43 @@ export function getSessions() {
 export function loadSession(patientId) {
   return getSessions()[patientId?.toUpperCase().trim()] || null
 }
+
+// ── Caso activo (borrador para sobrevivir recargas / crash) ───────────────────
+// Un solo caso activo a la vez (contexto de guardia: un ACV agudo por vez).
+// Se autoguarda en cada cambio y se LIMPIA al reiniciar el protocolo o iniciar
+// un paciente nuevo, para no arrastrar datos de un paciente a otro.
+const ACTIVE_CASE_KEY = 'codigo_stroke_active_case'
+
+// Borradores más viejos que esto se descartan: probablemente de un turno
+// anterior / otro paciente. Evita ofrecer "retomar" un caso ajeno.
+const CASE_DRAFT_MAX_AGE_MS = 12 * 60 * 60 * 1000 // 12 h
+
+export function saveCaseDraft(snapshot) {
+  try {
+    localStorage.setItem(
+      ACTIVE_CASE_KEY,
+      JSON.stringify({ ...snapshot, _savedAt: new Date().toISOString() }),
+    )
+  } catch { /* cuota excedida / modo privado — best effort */ }
+}
+
+export function loadCaseDraft() {
+  try {
+    const draft = JSON.parse(localStorage.getItem(ACTIVE_CASE_KEY) || 'null')
+    if (!draft) return null
+    const savedAt = draft._savedAt ? new Date(draft._savedAt).getTime() : 0
+    if (!savedAt || Date.now() - savedAt > CASE_DRAFT_MAX_AGE_MS) {
+      clearCaseDraft()
+      return null
+    }
+    return draft
+  } catch {
+    return null
+  }
+}
+
+export function clearCaseDraft() {
+  try {
+    localStorage.removeItem(ACTIVE_CASE_KEY)
+  } catch { /* ignore */ }
+}
