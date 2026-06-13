@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { Copy, Check, Syringe, Brain, ChevronRight } from 'lucide-react'
 import GlobalTimer from './components/GlobalTimer'
 import AlertModal from './components/AlertModal'
+import RestoreCaseModal from './components/RestoreCaseModal'
 import StepStepper from './components/StepStepper'
 import DecisionButton from './components/DecisionButton'
 import QuickAddFAB from './components/QuickAddFAB'
@@ -22,7 +23,7 @@ import DosageStep from './steps/DosageStep'
 import ThrombectomyStep from './steps/ThrombectomyStep'
 import CareTab from './steps/CareTab'
 import SummaryTab from './steps/SummaryTab'
-import { saveStrokeEvent, generatePatientId, saveSession, syncPendingEvents } from './lib/storage'
+import { saveStrokeEvent, generatePatientId, saveSession, syncPendingEvents, saveCaseDraft, loadCaseDraft, clearCaseDraft } from './lib/storage'
 import { getNihssSeverity } from './content/nihss'
 import { sendStrokeAlert } from './lib/emailService'
 import { computeStrokeDecision } from './lib/strokeAlgorithm'
@@ -135,7 +136,15 @@ export default function App() {
   const [vitalsReadings, setVitalsReadings] = useState([])
   const [glucoseReadings, setGlucoseReadings] = useState([])
 
-  const [eventId] = useState(uuidv4)
+  const [eventId, setEventId] = useState(uuidv4)
+  // Caso sin terminar detectado en localStorage al abrir (recarga / crash).
+  // Se evalúa en el primer render para no mostrar un parpadeo de la pantalla inicial.
+  const [restoreCandidate, setRestoreCandidate] = useState(() => {
+    const draft = loadCaseDraft()
+    return draft && draft.phase && draft.phase !== 'start' && (draft.patient || draft.patientId)
+      ? draft
+      : null
+  })
   const { user } = useAuth()
 
   const [theme, setTheme] = useState(() => {
@@ -150,6 +159,73 @@ export default function App() {
   function handleToggleTheme() {
     setTheme(t => t === 'dark' ? 'light' : 'dark')
   }
+
+  // ── Persistencia del caso activo (sobrevive recargas / crash) ─────────────────
+  // Junta todo el estado del caso en un objeto serializable. JSON.stringify
+  // convierte los Date a ISO automáticamente.
+  function buildCaseSnapshot() {
+    return {
+      phase, activeTab, eventId,
+      timerStart, patientArrivalTime, ctRequestTime, angioRequestTime,
+      thrombolyticStartTime, thrombectomyActivationTime,
+      patient, patientId, symptoms, vitals, draftVitals, nihss, ctResult,
+      dosage, thrombectomy, decisionResult, contraAbsolutes, contraRelatives,
+      nihssReadings, vitalsReadings, glucoseReadings,
+    }
+  }
+
+  // Re-hidrata todo el estado desde un borrador. Los Date se reconstruyen desde
+  // sus ISO; las lecturas seriadas conservan su timestamp.
+  function restoreCaseFromDraft(d) {
+    const date = (v) => (v ? new Date(v) : null)
+    const revive = (arr) =>
+      Array.isArray(arr) ? arr.map((r) => ({ ...r, timestamp: date(r.timestamp) })) : []
+    if (d.eventId) setEventId(d.eventId)
+    setTimerStart(date(d.timerStart))
+    setPatientArrivalTime(date(d.patientArrivalTime))
+    setCtRequestTime(date(d.ctRequestTime))
+    setAngioRequestTime(date(d.angioRequestTime))
+    setThrombolyticStartTime(date(d.thrombolyticStartTime))
+    setThrombectomyActivationTime(date(d.thrombectomyActivationTime))
+    setPatient(d.patient ?? null)
+    setPatientId(d.patientId ?? '')
+    setSymptoms(d.symptoms ?? null)
+    setVitals(d.vitals ?? null)
+    setDraftVitals(d.draftVitals ?? { sys: '', dia: '', glucose: '', mrs: null })
+    setNihss(d.nihss ?? null)
+    setCtResult(d.ctResult ?? null)
+    setDosage(d.dosage ?? null)
+    setThrombectomy(d.thrombectomy ?? null)
+    setDecisionResult(d.decisionResult ?? null)
+    setContraAbsolutes(d.contraAbsolutes ?? null)
+    setContraRelatives(d.contraRelatives ?? null)
+    setNihssReadings(revive(d.nihssReadings))
+    setVitalsReadings(revive(d.vitalsReadings))
+    setGlucoseReadings(revive(d.glucoseReadings))
+    setActiveTab(d.activeTab ?? 'paciente')
+    setPhase(d.phase ?? 'pre')
+    setRestoreCandidate(null)
+  }
+
+  function handleDiscardRestore() {
+    clearCaseDraft()
+    setRestoreCandidate(null)
+  }
+
+  // Autoguardado: cada cambio del caso se persiste (con un pequeño debounce).
+  // No guarda en 'start' (sin caso) ni mientras se muestra el prompt de restaurar.
+  useEffect(() => {
+    if (phase === 'start' || restoreCandidate) return
+    const t = setTimeout(() => saveCaseDraft(buildCaseSnapshot()), 400)
+    return () => clearTimeout(t)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    phase, activeTab, eventId, timerStart, patientArrivalTime, ctRequestTime,
+    angioRequestTime, thrombolyticStartTime, thrombectomyActivationTime,
+    patient, patientId, symptoms, vitals, draftVitals, nihss, ctResult,
+    dosage, thrombectomy, decisionResult, contraAbsolutes, contraRelatives,
+    nihssReadings, vitalsReadings, glucoseReadings, restoreCandidate,
+  ])
 
   // ── Sync + mock ─────────────────────────────────────────────────────────────
 
@@ -293,6 +369,7 @@ export default function App() {
   // ── Patient + alert ─────────────────────────────────────────────────────────
 
   function handleStart() {
+    clearCaseDraft() // caso nuevo: descartar cualquier borrador viejo
     setPhase('pre')
     setActiveTab('paciente')
   }
@@ -484,6 +561,7 @@ export default function App() {
   function handleReset() {
     const confirmed = window.confirm('¿Reiniciar el protocolo? Se perderán todos los datos del caso actual.')
     if (!confirmed) return
+    clearCaseDraft() // si no, la recarga restauraría el caso y no reiniciaría nada
     window.location.reload()
   }
 
@@ -586,6 +664,13 @@ export default function App() {
         {showLoginModal && <LoginModal onClose={() => setShowLoginModal(false)} />}
         {showEducationalMode && (
           <EducationalMode initialSection={educationalSection} onClose={() => setShowEducationalMode(false)} />
+        )}
+        {restoreCandidate && (
+          <RestoreCaseModal
+            draft={restoreCandidate}
+            onResume={() => restoreCaseFromDraft(restoreCandidate)}
+            onDiscard={handleDiscardRestore}
+          />
         )}
       </>
     )
