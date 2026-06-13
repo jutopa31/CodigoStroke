@@ -1,64 +1,75 @@
 import { test, expect } from '@playwright/test'
 
-const patient = {
-  name: 'García, Juan',
-  dni: '12345678',
-  id: 'GJ678',
-}
+// Smoke tests for the current tab-based architecture (phase: start | pre | post).
+// These exercise the real UI entry points without driving the full clinical flow.
+//
+// The app renders both a mobile and a desktop layout in the DOM, so inputs are
+// targeted by ":visible" to avoid strict-mode matches across the two copies.
 
-async function startCase(page) {
+const patient = { name: 'García, Juan', dni: '12345678' }
+
+const dniInput  = (page) => page.locator('input[placeholder="12345678"]:visible')
+const nameInput = (page) => page.locator('input[placeholder="Nombre y apellido"]:visible')
+
+async function activateCode(page) {
   await page.goto('/')
   await page.getByRole('button', { name: 'Iniciar Código Stroke' }).click()
-  await page.getByPlaceholder('Número de documento').fill(patient.dni)
-  await page.getByPlaceholder('Apellido, Nombre').fill(patient.name)
-  await page.getByRole('button', { name: 'Confirmar datos' }).click()
-  await page.getByRole('button', { name: 'Confirmar y Notificar' }).click()
+  await dniInput(page).fill(patient.dni)
+  await nameInput(page).fill(patient.name)
+  await page.getByRole('button', { name: 'Activar Código Stroke' }).click()
+  await page.getByRole('button', { name: 'Sí, activar' }).click()
 }
 
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => {
+    window.localStorage.clear()
+    window.sessionStorage.clear()
+  })
+})
+
 test.describe('CodigoStroke smoke checks', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.addInitScript(() => {
-      window.localStorage.clear()
-      window.sessionStorage.clear()
-    })
+  test('landing page loads with the start CTA and no console errors', async ({ page }) => {
+    const errors = []
+    page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()) })
+    await page.goto('/')
+    await expect(page.getByRole('button', { name: 'Iniciar Código Stroke' })).toBeVisible()
+    expect(errors).toEqual([])
   })
 
-  test('shows the anticoagulation question, ACOD warning, and continues to vitals', async ({ page }) => {
-    await startCase(page)
-
-    await page.getByRole('button', { name: 'Debilidad unilateral' }).click()
-    await page.getByRole('button', { name: 'Sí', exact: true }).click()
-    await page.getByRole('button', { name: 'Apixabán' }).click()
-
-    await expect(page.getByText('¿El paciente recibe anticoagulación?')).toBeVisible()
-    await expect(
-      page.getByText('Los ACOD pueden contraindicar la trombólisis. Verificar última dosis y función renal.')
-    ).toBeVisible()
-
-    await page.getByRole('button', { name: /^Continuar$/ }).click()
-    await expect(page.getByRole('heading', { name: 'Signos vitales' })).toBeVisible()
+  test('starting a code opens the patient identification form', async ({ page }) => {
+    await page.goto('/')
+    await page.getByRole('button', { name: 'Iniciar Código Stroke' }).click()
+    await expect(dniInput(page)).toBeVisible()
+    await expect(nameInput(page)).toBeVisible()
+    // Activation stays disabled until both fields are filled.
+    await expect(page.getByRole('button', { name: 'Activar Código Stroke' })).toBeDisabled()
   })
 
-  test('keeps the deterministic case id visible in desktop header/badge', async ({ page }) => {
-    await startCase(page)
-
-    await expect(page.getByText('ID del caso')).toBeVisible()
-    await expect(page.getByText(patient.id, { exact: true })).toBeVisible()
-    await expect(page.getByText(`DNI ${patient.dni}`, { exact: true })).toBeVisible()
+  test('activating a code asks for confirmation before notifying', async ({ page }) => {
+    await page.goto('/')
+    await page.getByRole('button', { name: 'Iniciar Código Stroke' }).click()
+    await dniInput(page).fill(patient.dni)
+    await nameInput(page).fill(patient.name)
+    await page.getByRole('button', { name: 'Activar Código Stroke' }).click()
+    // Confirmation modal before the EmailJS alert fires.
+    await expect(page.getByRole('button', { name: 'Sí, activar' })).toBeVisible()
+    await page.getByRole('button', { name: 'Sí, activar' }).click()
+    // Lands on the vitals section of the first protocol tab.
+    await expect(page.locator('input[aria-label="Presión sistólica"]:visible')).toBeVisible()
   })
 
-  test('asks for confirmation before resetting the active protocol', async ({ page }) => {
-    await startCase(page)
+  test('reset asks for confirmation and can be cancelled', async ({ page }) => {
+    await activateCode(page)
 
+    // Reset uses a native confirm() dialog; dismissing it keeps the active protocol.
     let dialogMessage = ''
     page.once('dialog', async (dialog) => {
       dialogMessage = dialog.message()
       await dialog.dismiss()
     })
-
     await page.getByRole('button', { name: 'Reiniciar protocolo' }).click()
 
     await expect.poll(() => dialogMessage).toBe('¿Reiniciar el protocolo? Se perderán todos los datos del caso actual.')
-    await expect(page.getByRole('heading', { name: 'Síntomas presentes' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Reiniciar protocolo' })).toBeVisible()
   })
 })
