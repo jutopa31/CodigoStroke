@@ -383,7 +383,7 @@ function InlineAdjust({ scores: initialScores, onSave, onClose }) {
                     type="button"
                     title={opt.text}
                     onClick={() => setScores((prev) => ({ ...prev, [item.id]: opt.score }))}
-                    className={`min-w-[26px] h-6 px-1 rounded-lg text-[11px] font-black transition-all active:scale-90 ${
+                    className={`min-w-[44px] h-11 px-1 rounded-lg font-mono text-sm font-black transition-all active:scale-90 ${
                       score === opt.score
                         ? 'btn-primary text-white shadow-sm'
                         : 'bg-stroke-panel text-stroke-textMuted hover:bg-stroke-panel'
