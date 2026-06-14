@@ -107,25 +107,27 @@ function PatientSection({ patient, patientId, arrivalTime, onConfirm, onOpenEduc
   // ── Confirmed display — single compact row, no duplication ──
   if (patient) {
     return (
-      <div className="flex items-center gap-4 px-4 py-3 bg-emerald-500/5 rounded-2xl border border-emerald-500/20">
+      <div className="flex items-center gap-3 px-4 py-3 bg-emerald-500/5 rounded-2xl border border-emerald-500/20">
         <div className="w-9 h-9 rounded-xl bg-emerald-500/15 flex items-center justify-center shrink-0">
           <CheckCircle2 size={16} className="text-emerald-400" />
         </div>
-        <div className="flex-1 min-w-0 grid grid-cols-[1fr_auto_auto_auto] gap-x-6 items-center">
-          <p className="font-semibold text-sm text-stroke-text truncate">{patient.name}</p>
-          <span className="text-xs text-stroke-textMuted font-mono tabular-nums">DNI {patient.dni}</span>
-          {arrivalTime && (
-            <span className="text-xs text-stroke-textMuted font-mono tabular-nums">
-              {arrivalTime.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false })}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <p className="font-semibold text-sm text-stroke-text truncate">{patient.name}</p>
+            <span className="shrink-0 text-[10px] font-bold text-emerald-300 bg-emerald-500/15 border border-emerald-500/25 px-2 py-0.5 rounded-full">
+              Registrado
             </span>
-          )}
-          {patientId && (
-            <span className="text-xs font-bold font-mono text-stroke-iconActive tabular-nums">{patientId}</span>
-          )}
+          </div>
+          <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-stroke-textMuted font-mono tabular-nums">
+            <span>DNI {patient.dni}</span>
+            {arrivalTime && (
+              <span>{arrivalTime.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false })}</span>
+            )}
+            {patientId && (
+              <span className="font-bold text-stroke-iconActive">{patientId}</span>
+            )}
+          </div>
         </div>
-        <span className="shrink-0 text-[10px] font-bold text-emerald-300 bg-emerald-500/15 border border-emerald-500/25 px-2 py-0.5 rounded-full">
-          Registrado
-        </span>
       </div>
     )
   }
