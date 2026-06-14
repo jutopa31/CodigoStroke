@@ -121,7 +121,7 @@ function NihssQuickModal({ onClose, onConfirm }) {
         value={value}
         onChange={(e) => setValue(e.target.value)}
         autoFocus
-        className="w-full border border-stroke-line rounded-xl px-4 py-3 text-2xl font-semibold text-center text-stroke-text focus:outline-none focus:ring-2 focus:ring-stroke-iconActive/40 focus:border-stroke-iconActive/40 transition"
+        className="w-full bg-stroke-bg border border-stroke-line rounded-xl px-4 py-3 text-2xl font-semibold text-center text-stroke-text focus:outline-none focus:ring-2 focus:ring-stroke-iconActive/40 focus:border-stroke-iconActive/40 transition"
       />
 
       {severity && (
@@ -183,7 +183,7 @@ function VitalsQuickModal({ onClose, onConfirm }) {
             value={systolic}
             onChange={(e) => setSystolic(e.target.value)}
             autoFocus
-            className="w-full border border-stroke-line rounded-xl px-3 py-3 text-xl font-semibold text-center text-stroke-text focus:outline-none focus:ring-2 focus:ring-stroke-iconActive/40 focus:border-stroke-iconActive/50 transition"
+            className="w-full bg-stroke-bg border border-stroke-line rounded-xl px-3 py-3 text-xl font-semibold text-center text-stroke-text focus:outline-none focus:ring-2 focus:ring-stroke-iconActive/40 focus:border-stroke-iconActive/50 transition"
           />
         </div>
 
@@ -198,7 +198,7 @@ function VitalsQuickModal({ onClose, onConfirm }) {
             placeholder="80"
             value={diastolic}
             onChange={(e) => setDiastolic(e.target.value)}
-            className="w-full border border-stroke-line rounded-xl px-3 py-3 text-xl font-semibold text-center text-stroke-text focus:outline-none focus:ring-2 focus:ring-stroke-iconActive/40 focus:border-stroke-iconActive/50 transition"
+            className="w-full bg-stroke-bg border border-stroke-line rounded-xl px-3 py-3 text-xl font-semibold text-center text-stroke-text focus:outline-none focus:ring-2 focus:ring-stroke-iconActive/40 focus:border-stroke-iconActive/50 transition"
           />
         </div>
       </div>
@@ -244,7 +244,7 @@ function GlucoseQuickModal({ onClose, onConfirm }) {
             value={value}
             onChange={(e) => setValue(e.target.value)}
             autoFocus
-            className="w-full border border-stroke-line rounded-xl py-3 pl-4 pr-16 text-2xl font-semibold text-center text-stroke-text focus:outline-none focus:ring-2 focus:ring-violet-200 focus:border-status-glucose/40 transition placeholder:text-stroke-textMuted"
+            className="w-full bg-stroke-bg border border-stroke-line rounded-xl py-3 pl-4 pr-16 text-2xl font-semibold text-center text-stroke-text focus:outline-none focus:ring-2 focus:ring-violet-200 focus:border-status-glucose/40 transition placeholder:text-stroke-textMuted"
           />
           <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-sm font-semibold text-stroke-textMuted">
             mg/dL
