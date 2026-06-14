@@ -288,10 +288,7 @@ function InlineScroll({ scores: initialScores, onSave, onClose, current: initial
                 onClick={() => select(opt.score)}
                 className={`flex flex-col items-center justify-center rounded-xl py-3 gap-1 transition-all duration-150 active:scale-95 ${optionStyle(selected, opt.score)}`}
               >
-                <span className="font-mono text-lg font-bold leading-none">{opt.score}</span>
-                <span className="text-[9px] leading-tight text-center px-0.5 opacity-80">
-                  {opt.text.split(/[\s,(]/)[0]}
-                </span>
+                <span className="font-mono text-xl font-bold leading-none">{opt.score}</span>
               </button>
             )
           })}
