@@ -25,13 +25,13 @@ export default function AlertModal({ patient, onConfirm, onClose }) {
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="bg-stroke-iconActive px-5 py-4 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-stroke-bg flex items-center justify-center shrink-0">
-            <AlertTriangle size={20} className="text-white" strokeWidth={2} />
+        <div className="px-5 py-4 flex items-center gap-3 border-b border-stroke-line">
+          <div className="w-10 h-10 rounded-xl bg-stroke-iconActive/15 flex items-center justify-center shrink-0">
+            <AlertTriangle size={20} className="text-stroke-iconActive" strokeWidth={2} />
           </div>
           <div>
-            <p className="text-white font-semibold text-base leading-tight">¿Activar Código Stroke?</p>
-            <p className="text-white/70 text-sm mt-0.5">{patient.name}</p>
+            <p className="text-stroke-text font-semibold text-base leading-tight">¿Activar Código Stroke?</p>
+            <p className="text-stroke-textMuted text-sm mt-0.5">{patient.name}</p>
           </div>
         </div>
 
