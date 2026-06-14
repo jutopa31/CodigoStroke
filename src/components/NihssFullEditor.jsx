@@ -103,8 +103,8 @@ function GuidedWizard({ onSave, onClose }) {
 
         {/* Prompt */}
         {item.prompt && (
-          <div className="mx-5 mb-3 px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/30">
-            <p className="text-[11px] text-amber-300 leading-relaxed">{item.prompt}</p>
+          <div className="mx-5 mb-3 px-3 py-2 rounded-lg bg-blue-500/10 border border-blue-500/30">
+            <p className="text-[11px] text-blue-300 leading-relaxed">{item.prompt}</p>
           </div>
         )}
 
@@ -261,7 +261,7 @@ function InlineScroll({ scores: initialScores, onSave, onClose, current: initial
           </p>
           <p className="font-sans text-lg font-bold text-stroke-text leading-snug">{label}</p>
           {item.prompt && (
-            <p className="text-[11px] text-amber-300 mt-1.5 leading-relaxed bg-amber-500/10 rounded-lg px-2.5 py-1.5 border border-amber-500/30">
+            <p className="text-[11px] text-blue-300 mt-1.5 leading-relaxed bg-blue-500/10 rounded-lg px-2.5 py-1.5 border border-blue-500/30">
               {item.prompt}
             </p>
           )}
