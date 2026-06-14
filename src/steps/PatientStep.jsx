@@ -239,7 +239,7 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
           <button
             type="submit"
             disabled={!valid}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-stroke-iconActive py-3 text-sm font-semibold text-stroke-bg transition-all hover:bg-[#4D6CD6] active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-stroke-panel disabled:text-stroke-textMuted"
+            className="flex w-full items-center justify-center gap-2 rounded-xl btn-primary py-3 text-sm font-semibold text-white transition-all active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-stroke-panel disabled:text-stroke-textMuted"
           >
             Confirmar y activar código <ChevronRight size={16} strokeWidth={2} />
           </button>

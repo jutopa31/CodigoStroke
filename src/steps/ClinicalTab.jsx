@@ -110,7 +110,7 @@ function VitalsSection({ onConfirm, confirmed, initialVitals }) {
           confirmed
             ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-300'
             : valid
-              ? 'bg-stroke-iconActive hover:bg-[#4D6CD6] text-stroke-bg'
+              ? 'btn-primary text-white'
               : 'bg-stroke-panel text-stroke-textMuted cursor-not-allowed'
         }`}
       >
@@ -133,7 +133,7 @@ const DISABLING_LIST = [
   'Ataxia severa: imposibilidad de caminar sin asistencia',
 ]
 
-function NihssSection({ onConfirm, confirmed, initialNihss }) {
+function NihssSection({ onConfirm, confirmed, initialNihss, draft, onDraftChange }) {
   const [subscaleScores, setSubscaleScores] = useState(initialNihss?.scores ?? {})
   const [useFullScores, setUseFullScores] = useState(!!initialNihss)
   const [showAdjust, setShowAdjust] = useState(false)
@@ -145,10 +145,18 @@ function NihssSection({ onConfirm, confirmed, initialNihss }) {
   const showDisablingBlock = useFullScores && total < 5
   const canConfirm = useFullScores && (!showDisablingBlock || hasDisabling !== null)
 
+  const totalOf = (scores) => nihssItems.reduce((sum, item) => sum + (scores[item.id] ?? 0), 0)
+  const allAnswered = (scores) => nihssItems.every((i) => i.id in scores)
+
   function handleSave(scores) {
     setSubscaleScores(scores)
     setUseFullScores(true)
     setShowAdjust(false)
+    // Auto-register the moment the full scale is complete and ≥ 5 (no disabling
+    // question needed). For < 5 the disabling block must still be answered.
+    if (allAnswered(scores) && totalOf(scores) >= 5) {
+      onConfirm({ nihssScore: totalOf(scores), scores: { ...scores }, hasDisablingSymptoms: null })
+    }
   }
 
   function handleReset() {
@@ -156,6 +164,14 @@ function NihssSection({ onConfirm, confirmed, initialNihss }) {
     setUseFullScores(false)
     setShowAdjust(false)
     setHasDisabling(null)
+    onDraftChange?.({ scores: {}, current: 0 })
+  }
+
+  // Answering the disabling-deficit question (only shown when NIHSS < 5) commits
+  // the score directly — no separate confirm tap.
+  function answerDisabling(val) {
+    setHasDisabling(val)
+    onConfirm({ nihssScore: total, scores: { ...subscaleScores }, hasDisablingSymptoms: val })
   }
 
   function handleConfirm() {
@@ -212,9 +228,13 @@ function NihssSection({ onConfirm, confirmed, initialNihss }) {
       {!useFullScores && (
         <div className="mb-4">
           <NihssFullEditor
-            scores={{}}
+            scores={draft?.scores ?? {}}
+            current={draft?.current ?? 0}
             inlineScroll={true}
             onSave={handleSave}
+            onComplete={handleSave}
+            onScoresChange={(scores) => onDraftChange?.((d) => ({ ...(d ?? {}), scores }))}
+            onCurrentChange={(current) => onDraftChange?.((d) => ({ ...(d ?? {}), current }))}
           />
         </div>
       )}
@@ -224,11 +244,11 @@ function NihssSection({ onConfirm, confirmed, initialNihss }) {
         <div className="border-t border-amber-500/30 pt-4 mt-2">
           <p className="text-xs font-semibold text-amber-300 mb-2">¿El déficit es discapacitante?</p>
           <div className="grid grid-cols-2 gap-2 mb-2">
-            <button type="button" onClick={() => setHasDisabling(false)}
+            <button type="button" onClick={() => answerDisabling(false)}
               className={`py-2.5 rounded-xl border-2 font-semibold text-sm transition-all active:scale-[0.98] ${
                 hasDisabling === false ? 'border-stroke-line bg-stroke-panel text-stroke-text' : 'border-stroke-line text-stroke-textMuted hover:border-stroke-line'
               }`}>NO</button>
-            <button type="button" onClick={() => setHasDisabling(true)}
+            <button type="button" onClick={() => answerDisabling(true)}
               className={`py-2.5 rounded-xl border-2 font-semibold text-sm transition-all active:scale-[0.98] ${
                 hasDisabling === true ? 'border-amber-400 bg-amber-500/10 text-amber-300' : 'border-stroke-line text-stroke-textMuted hover:border-amber-500/30'
               }`}>SÍ</button>
@@ -256,7 +276,7 @@ function NihssSection({ onConfirm, confirmed, initialNihss }) {
             confirmed
               ? 'bg-emerald-500/10 border-2 border-emerald-500/30 text-emerald-300'
               : canConfirm
-                ? 'bg-stroke-iconActive hover:bg-[#4D6CD6] text-stroke-bg shadow-sm'
+                ? 'btn-primary text-white shadow-sm'
                 : 'bg-stroke-panel text-stroke-textMuted cursor-not-allowed'
           }`}>
           {confirmed
@@ -273,7 +293,7 @@ function NihssSection({ onConfirm, confirmed, initialNihss }) {
 
 // ── ClinicalTab (exported) ───────────────────────────────────────────────────
 
-export default function ClinicalTab({ onNihssConfirm, nihss }) {
+export default function ClinicalTab({ onNihssConfirm, nihss, nihssDraft, onNihssDraftChange }) {
   const nihssConfirmed = nihss !== null
 
   return (
@@ -288,6 +308,8 @@ export default function ClinicalTab({ onNihssConfirm, nihss }) {
         onConfirm={onNihssConfirm}
         confirmed={nihssConfirmed}
         initialNihss={nihss}
+        draft={nihssDraft}
+        onDraftChange={onNihssDraftChange}
       />
     </div>
   )

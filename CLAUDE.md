@@ -69,7 +69,7 @@ Every step in `src/steps/` follows the same contract:
 
 ### Key Components (`src/components/`)
 
-- **GlobalTimer** — Fixed countdown timer. Color phases: green (0–30 min) → yellow (30–60 min) → blue (>60 min). Shows clinical milestones at 25, 45, and 60 min.
+- **GlobalTimer** — Persistent countdown header (a `shrink-0` flex child, not `position: fixed`). Color phases escalate via `getTimerTone()` (`src/lib/timerTone.js`, single source of truth): amber (0–30 min) → orange (30–60 min) → red (>60 min).
 - **NihssModal** — 15-item guided NIHSS calculator. Item definitions and severity thresholds live in `src/content/nihss.js`.
 - **StepProgressProvider / StepProgressContext** — Drives sidebar step highlighting via `DISPLAY_TO_STEP` map.
 - **EducationalMode / EducationalOverlay** — Toggleable clinical rationale panels; toggled via info icons on each step.

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ChevronRight, ChevronDown, ChevronUp, Bell, Calculator, Clock, Brain, CheckCircle2, Activity, AlertCircle, CheckCircle } from 'lucide-react'
+import { ChevronRight, ChevronDown, ChevronUp, Bell, Calculator, Clock, Brain, CheckCircle2, Activity, AlertCircle, CheckCircle, AlertTriangle } from 'lucide-react'
 import StepCard from '../components/StepCard'
 import AspectModal from '../components/AspectModal'
 
@@ -61,6 +61,7 @@ export default function ThrombectomyStep({
   )
   const [showAspectModal, setShowAspectModal] = useState(false)
   const [showErrors, setShowErrors] = useState(false)
+  const [showAngioWarning, setShowAngioWarning] = useState(false)
 
   const highNihss = nihssScore >= 6
   const angioLabel = isWakeUpStroke ? 'AngioRMN/TOF' : 'AngioTAC'
@@ -68,14 +69,13 @@ export default function ThrombectomyStep({
   const aspectValid = aspectNum !== null && aspectNum >= 0 && aspectNum <= 10
   const needsOGVAnswer = angioRequested === true
   const needsThrombectomyTime = angioRequested === true && ogvFound === true
+  // Solicitar AngioTAC es opcional: se puede finalizar sin pedirla (con aviso).
   const canContinue =
-    angioRequested !== null &&
     aspectValid &&
     (!needsOGVAnswer || ogvFound !== null) &&
     (!needsThrombectomyTime || thrombectomyActivationTime)
 
   const missingItems = []
-  if (angioRequested === null) missingItems.push(`Indicar si se solicitó ${angioLabel}`)
   if (angioRequested === true && ogvFound === null) missingItems.push('Indicar resultado de OGV')
   if (needsThrombectomyTime && !thrombectomyActivationTime) missingItems.push('Registrar hora de activación de trombectomía')
 
@@ -87,12 +87,6 @@ export default function ThrombectomyStep({
     setOgvFound(null)
     setNotified(false)
     onAngioRequest?.(now)
-  }
-
-  function handleAngioNo() {
-    setAngioRequested(false)
-    setOgvFound(null)
-    setNotified(false)
   }
 
   function handleThrombectomyActivation() {
@@ -110,9 +104,19 @@ export default function ThrombectomyStep({
       setShowErrors(true)
       return
     }
+    // Avisar (popup) si no se solicitó AngioTAC, pero permitir finalizar igual.
+    if (angioRequested === null) {
+      setShowAngioWarning(true)
+      return
+    }
+    doConfirm()
+  }
+
+  function doConfirm() {
+    setShowAngioWarning(false)
     onConfirm({
-      angioRequested,
-      angioRequestTime: angioRequested ? angioRequestTime?.toISOString() : null,
+      angioRequested: angioRequested === true,
+      angioRequestTime: angioRequested === true ? angioRequestTime?.toISOString() : null,
       ogvFound,
       hemodinamisNotified: notified,
       aspectScore: aspectNum,
@@ -138,22 +142,13 @@ export default function ThrombectomyStep({
         {angioRequested === null ? (
           <div className="flex items-center justify-between gap-3 py-2">
             <span className="text-sm font-medium text-stroke-text">{angioLabel}</span>
-            <div className="flex gap-2 shrink-0">
-              <button
-                type="button"
-                onClick={handleAngioNo}
-                className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-stroke-line bg-stroke-navy text-stroke-textMuted hover:bg-stroke-bg active:scale-[0.98] transition-all"
-              >
-                No
-              </button>
-              <button
-                type="button"
-                onClick={handleAngioYes}
-                className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-stroke-iconActive text-stroke-bg hover:bg-[#4D6CD6] active:scale-[0.98] transition-all"
-              >
-                Sí, solicitar
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={handleAngioYes}
+              className="px-3 py-1.5 text-xs font-semibold rounded-lg btn-primary text-white active:scale-[0.98] transition-all shrink-0"
+            >
+              Solicitar {angioLabel}
+            </button>
           </div>
         ) : (
           <ConfirmedRow
@@ -261,7 +256,7 @@ export default function ThrombectomyStep({
               className={`flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg transition-all active:scale-[0.98] ${
                 notified
                   ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/30'
-                  : 'bg-stroke-iconActive text-stroke-bg hover:bg-[#4D6CD6]'
+                  : 'btn-primary text-white'
               }`}
             >
               <Bell size={13} />
@@ -312,7 +307,7 @@ export default function ThrombectomyStep({
               onClick={handleSubmit}
               className={`flex w-full items-center justify-center gap-2 rounded-lg py-3 text-sm font-semibold transition-all active:scale-[0.98] md:w-auto md:px-5 ${
                 canContinue
-                  ? 'bg-stroke-iconActive text-stroke-bg hover:bg-[#4D6CD6]'
+                  ? 'btn-primary text-white'
                   : 'bg-stroke-panel text-stroke-textMuted cursor-pointer'
               }`}
             >
@@ -343,6 +338,46 @@ export default function ThrombectomyStep({
           onLoad={(score) => { setAspectScore(String(score)); setShowAspectModal(false) }}
           onClose={() => setShowAspectModal(false)}
         />
+      )}
+
+      {showAngioWarning && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-fade-in"
+          onClick={() => setShowAngioWarning(false)}
+        >
+          <div
+            className="bg-stroke-navy w-full max-w-sm rounded-2xl shadow-modal overflow-hidden animate-scale-in"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="bg-stroke-iconActive px-5 py-4 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-stroke-bg flex items-center justify-center shrink-0">
+                <AlertTriangle size={20} className="text-white" strokeWidth={2} />
+              </div>
+              <p className="text-white font-semibold text-base leading-tight">No se solicitó {angioLabel}</p>
+            </div>
+            <div className="px-5 py-5">
+              <p className="text-sm text-stroke-textMuted leading-relaxed">
+                Podés finalizar el protocolo igual. Quedará registrado que no se solicitó {angioLabel}.
+              </p>
+            </div>
+            <div className="px-5 pb-5 flex gap-3">
+              <button
+                type="button"
+                onClick={() => setShowAngioWarning(false)}
+                className="flex-1 py-3 border border-stroke-line rounded-xl text-stroke-textMuted font-medium text-sm hover:bg-stroke-bg active:scale-[0.98] transition-all"
+              >
+                Volver
+              </button>
+              <button
+                type="button"
+                onClick={doConfirm}
+                className="flex-[2] py-3 btn-primary text-white rounded-xl font-semibold text-sm active:scale-[0.98] transition-all"
+              >
+                Finalizar igual
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )

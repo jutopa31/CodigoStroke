@@ -213,7 +213,7 @@ function AnticoagulationModal({ onClose, onConfirm }) {
             type="button"
             onClick={submit}
             disabled={!canContinue}
-            className="flex-[1.6] rounded-lg bg-stroke-iconActive px-4 py-3 text-sm font-bold text-stroke-bg transition hover:bg-[#4D6CD6] active:scale-[0.99] disabled:bg-stroke-panel disabled:text-stroke-textMuted"
+            className="flex-[1.6] rounded-lg btn-primary px-4 py-3 text-sm font-bold text-white transition active:scale-[0.99] disabled:bg-stroke-panel disabled:text-stroke-textMuted"
           >
             Continuar
           </button>
@@ -578,7 +578,7 @@ export default function SymptomsStep({ onConfirm }) {
         ref={continueButtonRef}
         onClick={handleSubmit}
         disabled={!valid}
-        className="w-full flex items-center justify-center gap-2 bg-stroke-iconActive hover:bg-[#4D6CD6] active:scale-95 text-stroke-bg font-semibold py-3.5 rounded-lg transition-all disabled:bg-stroke-panel disabled:text-stroke-textMuted disabled:opacity-100 disabled:cursor-not-allowed"
+        className="w-full flex items-center justify-center gap-2 btn-primary active:scale-95 text-white font-semibold py-3.5 rounded-lg transition-all disabled:bg-stroke-panel disabled:text-stroke-textMuted disabled:opacity-100 disabled:cursor-not-allowed"
       >
         {valid ? 'Continuar' : 'Completa lo pendiente para continuar'} <ChevronRight size={18} />
       </button>

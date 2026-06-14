@@ -47,7 +47,7 @@ export default function ContactFAB({ getSummary, patient }) {
     <>
       <button
         onClick={handleOpen}
-        className="fixed bottom-[calc(6.25rem+env(safe-area-inset-bottom,0px))] left-3 z-50 flex h-11 w-11 items-center justify-center rounded-full bg-stroke-iconActive text-stroke-bg shadow-elevated transition-transform hover:scale-105 active:scale-95 md:bottom-6 md:left-6"
+        className="fixed bottom-[calc(6.25rem+env(safe-area-inset-bottom,0px))] left-3 z-50 flex h-11 w-11 items-center justify-center rounded-full btn-primary text-white shadow-elevated transition-transform hover:scale-105 active:scale-95 md:bottom-6 md:left-6"
         title="Interconsulta"
         aria-label="Enviar interconsulta por email"
       >
@@ -119,7 +119,7 @@ export default function ContactFAB({ getSummary, patient }) {
             <div className="border-t border-stroke-line px-5 pb-6 pt-4">
               <button
                 onClick={handleSend}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-stroke-iconActive px-4 py-3 text-sm font-semibold text-stroke-bg transition-all hover:bg-[#4D6CD6] active:scale-[0.98]"
+                className="flex w-full items-center justify-center gap-2 rounded-xl btn-primary px-4 py-3 text-sm font-semibold text-white transition-all active:scale-[0.98]"
               >
                 <Send size={16} />
                 Abrir en cliente de email

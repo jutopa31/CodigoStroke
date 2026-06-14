@@ -60,9 +60,11 @@ function HeaderStrip({ stepLabel }) {
 }
 
 function HeaderActions({ authUser, onAuthClick, onEducationalOpen, onReset, onToggleTheme, theme, size = 'mobile' }) {
+  // Same role (icon button) → same radius token on mobile & desktop.
+  // Only the touch-target size scales down on desktop (pointer vs finger).
   const base = size === 'mobile'
     ? 'w-10 h-10 rounded-xl'
-    : 'w-7 h-7 rounded-lg'
+    : 'w-7 h-7 rounded-xl'
   // Timer bar is always dark — buttons use hardcoded dark styles
   const cls = `${base} border border-[#29416D] bg-[#0F1C38] flex items-center justify-center text-white hover:bg-[#1E3356] transition-colors shrink-0`
   return (
@@ -117,7 +119,7 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
   return (
     <div
       data-theme="dark"
-      className="fixed top-0 left-0 right-0 z-50 md:border-b"
+      className="shrink-0 relative z-30 md:border-b"
       style={{ paddingTop: 'env(safe-area-inset-top, 0px)', backgroundColor: '#0F1C38', borderColor: '#29416D' }}
     >
       {/* ───────── MOBILE: Timer Hero ───────── */}

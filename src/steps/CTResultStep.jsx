@@ -69,7 +69,7 @@ export default function CTResultStep({ onConfirm, initialCtRequestTime = null, o
         }`}>
           <div className="flex items-start gap-3 px-3 py-3">
             <span className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors ${
-              tacConfirmed ? 'bg-emerald-500/100 text-stroke-bg' : 'bg-stroke-iconActive text-stroke-bg'
+              tacConfirmed ? 'bg-emerald-500/100 text-stroke-bg' : 'bg-brand-600 text-white'
             }`}>
               {tacConfirmed ? <CheckCircle2 size={21} strokeWidth={2.4} /> : <Scan size={21} strokeWidth={2.4} />}
             </span>
@@ -94,7 +94,7 @@ export default function CTResultStep({ onConfirm, initialCtRequestTime = null, o
               <button
                 type="button"
                 onClick={handleCtRequest}
-                className="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg bg-stroke-iconActive px-4 py-2.5 text-sm font-bold text-stroke-bg transition-all hover:bg-[#4D6CD6] active:scale-[0.98]"
+                className="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg btn-primary px-4 py-2.5 text-sm font-bold text-white transition-all active:scale-[0.98]"
               >
                 <Scan size={17} strokeWidth={2.5} />
                 TAC solicitada

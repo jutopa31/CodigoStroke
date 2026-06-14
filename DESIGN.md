@@ -181,23 +181,99 @@ Scale: `2(2px) 4(4px) 8(8px) 12(12px) 16(16px) 20(20px) 24(24px) 32(32px) 40(40p
 - **Approach:** Mobile-first single column, linear step progression
 - **Timer is the hero element:** The countdown timer must be persistently visible at the top of every active step screen. Large (40px+, Geist Mono), amber color, with a subtle pulsing dot. Not a widget — a vital sign.
 - **Max content width:** 480px (phone-optimized, centered on larger screens)
-- **Border radius scale:** sm(6px) md(10px) lg(14px) xl(20px) full(9999px)
-- **Step progress:** Visual 5-dot progress indicator visible at all times during active code
+- **Step progress:** Visual numbered stepper (8 circles) visible at all times during active code.
+
+### Header is a flex child, never `position: fixed`
+
+The app shell is `h-dvh flex flex-col overflow-hidden`. The header (`GlobalTimer`)
+is the first flex child with `shrink-0`; the body is `flex-1` and scrolls inside.
+The flex column absorbs the header's variable height (timer hero, event-timeline
+strip, progress bar), so the body can never be clipped underneath it.
+
+**Banned:** a `fixed` header paired with a hardcoded `pt-[calc(...)]` on the body.
+That padding is a guess at the header's height; when the real height changes (font
+size, event strip wrap, safe-area inset) it desyncs and clips whatever sits first
+in the body (this was the cut-off-stepper-dots bug, fixed 2026-06-13).
+
+### Border radius — role-based scale (single source: `tailwind.config.js`)
+
+Wired into Tailwind so the token names below ARE the values. Apply by role; the
+**same role uses the same token on mobile and desktop**.
+
+| Token | Value | Role |
+|-------|-------|------|
+| `rounded-md`   | 6px  | badges, chips, small status tags |
+| `rounded-lg`   | 8px  | inputs, nested panels, list rows |
+| `rounded-xl`   | 12px | cards, buttons, primary containers (dominant) |
+| `rounded-2xl`  | 16px | large surfaces, FABs, modals |
+| `rounded-full` | —    | circles, pills, avatars, icon-toggle buttons |
+
+Icon buttons (header actions) use `rounded-xl` on both breakpoints; only the
+touch-target *size* scales down on desktop (`w-10 h-10` → `w-7 h-7`), never the
+radius.
+
+### Mobile / desktop parity
+
+One visual language per element. Layout dimensions may change across breakpoints
+(a stack becomes a row, a hero becomes a compact bar), but **color, radius, font
+weight, and semantic meaning stay identical**. Never let the same clinical state
+read as a different color depending on screen width. When a component needs two
+layout branches (e.g. `GlobalTimer` mobile hero vs desktop bar), both branches
+must pull the same tokens; only spacing and dimensions differ.
 
 ---
 
 ## Motion
 
-- **Approach:** Intentional — existing animations are well-calibrated, keep them
-- **Keep:** `slide-down`, `slide-up` (step transitions), `fade-in` (content appears), `pulse-subtle` (timer dot)
-- **Step completion:** `step-pop` — a one-shot scale 1→1.18→1 over 300ms on the stepper circle as it transitions into the completed (amber) state. Color tweens via `transition-all duration-300`.
-- **Dynamic alerts:** `ClinicalAlert` that appears in response to input (TA/glucemia out of range) slides in with `animate-slide-down`.
-- **Easing:** enter `cubic-bezier(0.16, 1, 0.3, 1)` / exit `ease-in` / move `ease-in-out`
-- **Duration:** micro 50-100ms / short 150-250ms / medium 250-400ms (step transitions)
+- **Approach:** Intentional. Finer over flashier — transition only what changes.
+
+### Tokens (single source: `tailwind.config.js`)
+
+The app's signature curve and base duration are wired as Tailwind defaults, so
+**every `transition-*` without an explicit value already uses them** — no
+per-component easing needed.
+
+| Token | Value | Use |
+|-------|-------|-----|
+| easing `DEFAULT` / `ease-expo-out` | `cubic-bezier(0.16, 1, 0.3, 1)` | enters, state changes (the signature feel) |
+| easing `ease-snappy` | `cubic-bezier(0.4, 0, 0.2, 1)` | exits, quick toggles |
+| `duration-fast` | 150ms | micro feedback (hover, press) |
+| `duration` (DEFAULT) | 200ms | most state changes |
+| `duration-base` | 250ms | step / panel transitions |
+| `duration-slow` | 350ms | large entrances |
+
+### Rules
+
+- **Never `transition-all`.** It animates layout (width/height/margin) and causes
+  jank. Use `transition` (curated visual props, no layout), or be specific
+  (`transition-colors`, `transition-transform`).
+- **Keep** the named keyframes: `slide-down`, `slide-up` (step/panel entrances),
+  `fade-in` (content appears), `pulse-subtle` (timer dot).
+- **Step completion:** `step-pop` — one-shot scale 1→1.18→1 over 300ms on the
+  stepper circle as it transitions into the completed (amber) state. Color tweens
+  via `transition duration-base`.
+- **Dynamic alerts:** `ClinicalAlert` (TA/glucemia out of range) enters with
+  `animate-slide-down`.
 
 ---
 
 ## Component Conventions
+
+### Buttons
+
+**Primary action → `.btn-primary`** (defined in `src/index.css`). Solid royal blue
+(`brand-600` → `brand-700` on hover) with **white** label, identical in both themes
+(~6.6:1 contrast). This is the single source for the filled-blue CTA; the element
+keeps its own layout/size classes, the class owns only color + hover.
+
+> Do **not** use `bg-stroke-iconActive` + `text-stroke-bg` for buttons. That
+> paints dark page-bg text on the mid-tone accent (~4.3:1 in dark mode, muddy) —
+> the bug fixed 2026-06-13. `stroke-iconActive` stays a **foreground** color
+> (icons, active text, rings on dark surfaces), not a button background.
+
+**Status-colored buttons keep dark text:** `bg-amber-500`/`bg-status-warning` and
+`bg-emerald-500` pair with `text-stroke-bg` (dark) on purpose — dark-on-amber and
+dark-on-green are the high-contrast direction. Only the blue CTA flips to white.
 
 ### Timer display (Hero)
 The timer is a hero block, not a widget. Mobile: `CÓDIGO STROKE` eyebrow (accent
@@ -266,3 +342,8 @@ Left-border accent matching status color, muted background, icon + bold lead + m
 | 2026-06-08 | Timer Hero: amber→orange→red text phases + CÓDIGO STROKE eyebrow + PASO X/Y pill + "desde inicio" | Implemented HANDOFF_SPEC Phase 1 adapted to the tab architecture (no stepper migration) |
 | 2026-06-08 | Added `ClinicalAlert` component | Consolidates scattered inline warning banners into one channel-aware component (HANDOFF_SPEC Phase 3) |
 | 2026-06-09 | Light mode system completed | White (#F0F4FF bg, #FFFFFF surface) + deep blue accent (#1D4ED8). Status colors recalibrated from rgba to solid semantic swatches (rgba looks washed on white). Timer keeps dark navy card even in light mode — preserves urgency signal. |
+| 2026-06-13 | Coherence pass: wired the system into Tailwind | Radius scale and motion tokens (easing + duration) defined in `tailwind.config.js`. The doc's rules existed only on paper; now they're code. Radius scale corrected to match de-facto usage (xl=12 is the real card/button token, not the doc's aspirational 20). |
+| 2026-06-13 | Header `fixed` → flex child | Removed `position: fixed` + the magic `pt-[calc(...)]` body offset. Header is now a `shrink-0` flex child; body is `flex-1`. Fixes the cut-off stepper dots (esp. mobile) and makes header height changes self-correcting. |
+| 2026-06-13 | Mobile/desktop parity rule established | Same role = same color/radius/weight on both breakpoints; only layout dimensions scale. Unified header icon-button radius (`rounded-xl` both). |
+| 2026-06-13 | Banned `transition-all`; deleted dead `TabBar.jsx` | `transition-all` animates layout (jank) → use `transition`/specific. `TabBar` was unused since the numbered `StepStepper` replaced it. |
+| 2026-06-13 | Primary buttons → `.btn-primary` (white on royal blue) | The `bg-stroke-iconActive text-stroke-bg` pattern painted dark text on the mid-tone accent (~4.3:1, muddy in dark mode). Swept ~49 button instances across 26 files to a single `.btn-primary` class (brand-600 + white, 6.6:1, both themes). Amber/green buttons keep dark text (correct direction). |

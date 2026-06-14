@@ -427,7 +427,7 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
           <button
             type="button" onClick={() => setView('post')}
             disabled={!validWeight || !thrombolyticStartTime}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-stroke-iconActive py-3 text-sm font-semibold text-stroke-bg transition-all hover:bg-[#4D6CD6] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40 md:w-auto md:px-5"
+            className="flex w-full items-center justify-center gap-2 rounded-xl btn-primary py-3 text-sm font-semibold text-white transition-all active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40 md:w-auto md:px-5"
           >
             Continuar — post-trombolisis <ChevronRight size={16} />
           </button>
@@ -580,7 +580,7 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
           type="button"
           onClick={() => onConfirm({ drug, weight, dose, checklist: checked, thrombolyticStartTime: thrombolyticStartTime?.toISOString() })}
           disabled={!canContinue}
-          className="flex w-full items-center justify-center gap-2 rounded-xl bg-stroke-iconActive py-3 text-sm font-semibold text-stroke-bg transition-all hover:bg-[#4D6CD6] active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 md:w-auto md:px-5"
+          className="flex w-full items-center justify-center gap-2 rounded-xl btn-primary py-3 text-sm font-semibold text-white transition-all active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 md:w-auto md:px-5"
         >
           Continuar → Cuidados <ChevronRight size={18} />
         </button>

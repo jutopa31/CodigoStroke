@@ -163,7 +163,7 @@ export default function LoginModal({ onClose }) {
           <button
             type="button"
             onClick={onClose}
-            className="mt-2 px-6 py-2.5 rounded-xl bg-stroke-iconActive text-stroke-bg text-sm font-medium hover:bg-[#4D6CD6] active:scale-[0.98] transition-all"
+            className="mt-2 px-6 py-2.5 rounded-xl btn-primary text-white text-sm font-medium active:scale-[0.98] transition-all"
           >
             Entendido
           </button>
@@ -216,7 +216,7 @@ export default function LoginModal({ onClose }) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-stroke-iconActive hover:bg-[#4D6CD6] text-stroke-bg rounded-xl font-semibold text-sm active:scale-[0.98] disabled:opacity-60 transition-all flex items-center justify-center gap-2 mt-1"
+            className="w-full py-3 btn-primary text-white rounded-xl font-semibold text-sm active:scale-[0.98] disabled:opacity-60 transition-all flex items-center justify-center gap-2 mt-1"
           >
             {loading && <Loader2 size={15} className="animate-spin" />}
             Crear cuenta
@@ -282,7 +282,7 @@ export default function LoginModal({ onClose }) {
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-3 bg-stroke-iconActive hover:bg-[#4D6CD6] text-stroke-bg rounded-xl font-semibold text-sm active:scale-[0.98] disabled:opacity-60 transition-all flex items-center justify-center gap-2 mt-1"
+          className="w-full py-3 btn-primary text-white rounded-xl font-semibold text-sm active:scale-[0.98] disabled:opacity-60 transition-all flex items-center justify-center gap-2 mt-1"
         >
           {loading && <Loader2 size={15} className="animate-spin" />}
           {mode === 'admin' ? 'Enviar link de acceso' : 'Ingresar'}

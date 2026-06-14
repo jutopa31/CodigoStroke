@@ -150,13 +150,13 @@ function CTSection({
       <div className="mt-4">
         {step === 0 && (
           <button type="button" onClick={handleRequest}
-            className={`${btnBase} animate-fade-in bg-stroke-iconActive text-stroke-bg hover:bg-[#4D6CD6]`}>
+            className={`${btnBase} animate-fade-in btn-primary text-white`}>
             <Scan size={17} strokeWidth={2.5} /> TAC solicitada
           </button>
         )}
         {step === 1 && (
           <button type="button" onClick={handlePerformed}
-            className={`${btnBase} animate-fade-in bg-stroke-iconActive text-stroke-bg hover:bg-[#4D6CD6]`}>
+            className={`${btnBase} animate-fade-in btn-primary text-white`}>
             <Activity size={17} strokeWidth={2.5} /> TAC realizada
           </button>
         )}
@@ -230,7 +230,7 @@ function MRISection({ onConfirm, initialMriRequestTime, initialMismatch }) {
           <div className="grid grid-cols-2 gap-2">
             <button type="button" onClick={() => handleMismatch(false)}
               className={`py-2.5 rounded-lg border font-bold text-sm transition-all active:scale-[0.98] ${
-                mismatch === false ? 'border-stroke-iconActive bg-stroke-iconActive text-stroke-bg' : 'border-stroke-line bg-stroke-navy text-stroke-text hover:bg-stroke-bg'
+                mismatch === false ? 'border-stroke-iconActive btn-primary text-white' : 'border-stroke-line bg-stroke-navy text-stroke-text hover:bg-stroke-bg'
               }`}>
               NO mismatch
             </button>
@@ -289,7 +289,7 @@ export default function ImagingTab({
           ].map(({ id, label }) => (
             <button key={id} type="button" onClick={() => setSelectedMode(id)}
               className={`flex-1 py-2.5 transition-all ${
-                mode === id ? 'bg-stroke-iconActive text-stroke-bg font-semibold' : 'bg-stroke-navy text-stroke-textMuted hover:bg-stroke-iconActive/10'
+                mode === id ? 'btn-primary text-white font-semibold' : 'bg-stroke-navy text-stroke-textMuted hover:bg-stroke-iconActive/10'
               }`}>
               {label}
               {id === 'ct' && ctConfirmed  && <span className="ml-1.5 inline-block w-2 h-2 rounded-full bg-emerald-400" />}
