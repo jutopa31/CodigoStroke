@@ -227,11 +227,11 @@ export default function TimeStep({ onConfirm, isCollapsed = false, initialLastSe
 
           {/* Left: elapsed time + window bar */}
           <div className="px-3 py-3">
-            <div className="font-mono text-[2.4rem] font-black text-status-warning leading-none tracking-tight tabular-nums">
-              {formatElapsed(elapsedMinutes)}
+            <div className="text-[10px] text-stroke-textMuted mb-1 uppercase tracking-[0.14em] font-bold">
+              Desde síntomas
             </div>
-            <div className="text-[9px] text-stroke-textMuted mt-1 uppercase tracking-wider font-semibold">
-              desde síntomas
+            <div className={`font-mono text-[2.4rem] font-black ${candidacyBanner.text} leading-none tracking-tight tabular-nums`}>
+              {formatElapsed(elapsedMinutes)}
             </div>
 
             <div className="mt-4">
