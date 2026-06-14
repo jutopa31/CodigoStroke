@@ -114,16 +114,22 @@ export default function StartStep({ onStart, onResume, onOpenEducational, authUs
         Protocolo ACV Isquémico · AHA/ASA 2026
       </p>
 
-      {/* ── Hero: therapeutic window ── */}
+      {/* ── Hero: IV thrombolysis window (static reference, NOT a live clock) ── */}
       <div className="text-center mb-10">
+        <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-stroke-textMuted mb-2">
+          Ventana de trombólisis IV
+        </p>
         <div
-          className="font-mono font-bold text-status-warning tabular-nums leading-none"
-          style={{ fontSize: 'clamp(3rem, 15vw, 3.75rem)', letterSpacing: '-0.01em' }}
-          aria-label={`Ventana terapéutica: ${WINDOW_HH} horas ${WINDOW_MM} minutos`}
+          className="font-mono font-bold text-stroke-text tabular-nums leading-none flex items-baseline justify-center gap-1"
+          style={{ fontSize: 'clamp(2.5rem, 12vw, 3.25rem)', letterSpacing: '-0.01em' }}
+          aria-label={`Ventana de trombólisis intravenosa: ${WINDOW_HH} horas ${WINDOW_MM} minutos`}
         >
-          {pad(WINDOW_HH)}&nbsp;:&nbsp;{pad(WINDOW_MM)}
+          <span>{WINDOW_HH}</span>
+          <span className="font-sans text-xl font-semibold text-stroke-textMuted">h</span>
+          <span>{pad(WINDOW_MM)}</span>
+          <span className="font-sans text-xl font-semibold text-stroke-textMuted">min</span>
         </div>
-        <p className="text-stroke-textMuted text-sm mt-3">ventana terapéutica disponible</p>
+        <p className="text-stroke-textMuted text-xs mt-2">desde el inicio de los síntomas</p>
       </div>
 
       {/* ── Last event card ── */}
