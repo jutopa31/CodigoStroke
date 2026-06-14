@@ -60,6 +60,19 @@ Items deferred during engineering review. Each has context enough to pick up col
 
 **Context:** `src/steps/StartStep.jsx:115-125`. Deferred from /design-review on `a11y/font-size-accessibility` (2026-06-07). Low risk; the divider-with-label pattern is recognizable, so left as-is.
 
+## Design review 2026-06-14 — deferred findings (not in quick-win scope)
+
+Quick wins F3/F4/F5/F6/F7 were fixed and committed this session. Remaining:
+
+- **F1 (HIGH, hierarchy):** Start screen's big amber "04:29" reads as a running timer; it's the static IV window. Reframe ("Ventana IV: 4.5 h") or restyle so it doesn't impersonate the live countdown. `src/steps/StartStep.jsx`.
+- ~~F2 (NIHSS)~~ — **Not a defect.** The guided "variante B" (descriptions + number entry) is the deliberate design, already addressed in the merged PR `fix(nihss): setState-in-render + design polish on NIHSS editor` (#136/#137). Removed from scope.
+- **F8 (MEDIUM, hierarchy):** "desde síntomas" timer competes with the hero "desde inicio" timer (two large amber/orange clocks). Differentiate weight/label so time-since-onset is unmistakable. `src/steps/TimeStep.jsx`.
+- **Modal headers (MEDIUM):** Saturated periwinkle header bands are inconsistent across modals; `VitalsModal.jsx:89` puts low-contrast `text-stroke-iconActive` on the band. Unify to a neutral header (cf. `QuickAddFAB.jsx:49`). Files: `VitalsModal.jsx`, `AlertModal.jsx`, `RestoreCaseModal.jsx`, `ThrombectomyStep.jsx:352`.
+- **F9 (POLISH):** Centered clinical body text hurts scanning. `DecisionTab.jsx:59-60`, `ImagingTab.jsx:165`.
+- **F10 (POLISH):** Source Sans 3 is loaded/declared but unused (only DM Sans + Geist Mono render). Wire it into clinical body copy or remove from the system. `src/index.css:200`, `tailwind.config.js`.
+- **F13 (POLISH, clinical copy):** TA "Elevada" badge fires for 150/90 while the shown threshold is ≤185/110 — possible user confusion. Clinical-copy review.
+- **Stepper/sub-pill touch targets (MEDIUM):** Stepper circles are 32px (`StepStepper.jsx:99`), sub-step pills `py-1` (`:119`), thrombectomy steppers `w-8 h-8`. Below the 44px hit-area rule. (Header icons fixed in F7.)
+
 ## T-D2: ~2344 pre-existing ESLint errors across the branch (chore)
 
 **What:** `pnpm run lint` fails with ~2344 errors in files unrelated to the a11y work (e.g. `SummaryTab.jsx` unused `Zap`, `TimeStep.jsx` unused `isCandidate`, plus a large bulk that looks like an ESLint config/rule mismatch).

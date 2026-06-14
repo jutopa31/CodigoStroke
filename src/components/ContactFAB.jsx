@@ -87,7 +87,7 @@ export default function ContactFAB({ getSummary, patient }) {
                   value={to}
                   onChange={handleToChange}
                   placeholder="neurologia@hospital.com"
-                  className="w-full rounded-xl border border-stroke-line px-3 py-2 text-sm text-stroke-text placeholder-stroke-textMuted/50 focus:border-stroke-iconActive/40 focus:outline-none"
+                  className="w-full rounded-xl bg-stroke-bg border border-stroke-line px-3 py-2 text-sm text-stroke-text placeholder-stroke-textMuted/50 focus:border-stroke-iconActive/40 focus:outline-none"
                 />
                 <p className="mt-1 text-[11px] text-stroke-textMuted">
                   Se guarda automáticamente para la próxima consulta
@@ -111,7 +111,7 @@ export default function ContactFAB({ getSummary, patient }) {
                   value={body}
                   onChange={e => setBody(e.target.value)}
                   rows={9}
-                  className="w-full resize-none rounded-xl border border-stroke-line px-3 py-2 font-mono text-xs text-stroke-text focus:border-stroke-iconActive/40 focus:outline-none"
+                  className="w-full resize-none rounded-xl bg-stroke-bg border border-stroke-line px-3 py-2 font-mono text-xs text-stroke-text focus:border-stroke-iconActive/40 focus:outline-none"
                 />
               </div>
             </div>

@@ -63,7 +63,7 @@ function HeaderActions({ authUser, onAuthClick, onEducationalOpen, onReset, onTo
   // Same role (icon button) → same radius token on mobile & desktop.
   // Only the touch-target size scales down on desktop (pointer vs finger).
   const base = size === 'mobile'
-    ? 'w-10 h-10 rounded-xl'
+    ? 'w-11 h-11 rounded-xl'
     : 'w-7 h-7 rounded-xl'
   // Timer bar is always dark — buttons use hardcoded dark styles
   const cls = `${base} border border-[#29416D] bg-[#0F1C38] flex items-center justify-center text-white hover:bg-[#1E3356] transition-colors shrink-0`
