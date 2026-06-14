@@ -186,7 +186,7 @@ function PatientSection({ patient, patientId, arrivalTime, onConfirm, onOpenEduc
 
             <button type="submit" disabled={!valid}
               className={`flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold transition-all active:scale-[0.98] mt-2 ${
-                valid ? 'bg-stroke-iconActive hover:bg-[#4D6CD6] text-white' : 'bg-stroke-panel text-stroke-textMuted cursor-not-allowed'
+                valid ? 'bg-brand-600 hover:bg-brand-700 text-white' : 'bg-stroke-panel text-stroke-textMuted cursor-not-allowed'
               }`}>
               <Zap size={14} strokeWidth={2.5} />
               Activar Código Stroke
@@ -259,7 +259,7 @@ function PatientSection({ patient, patientId, arrivalTime, onConfirm, onOpenEduc
 
           <button type="submit" disabled={!valid}
             className={`flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold transition-all active:scale-[0.98] ${
-              valid ? 'bg-stroke-iconActive hover:bg-[#4D6CD6] text-white' : 'bg-stroke-panel text-stroke-textMuted cursor-not-allowed'
+              valid ? 'bg-brand-600 hover:bg-brand-700 text-white' : 'bg-stroke-panel text-stroke-textMuted cursor-not-allowed'
             }`}>
             <Zap size={15} strokeWidth={2.5} /> Activar Código Stroke
           </button>
@@ -468,7 +468,7 @@ function VitalsSection({ vitals, onConfirm, draftVitals, onDraftChange, nihssSco
 
           <button type="button" onClick={handleConfirm} disabled={!valid}
             className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-all active:scale-[0.98] ${
-              valid ? 'bg-stroke-iconActive hover:bg-[#4D6CD6] text-white' : 'bg-stroke-panel text-stroke-textMuted cursor-not-allowed'
+              valid ? 'bg-brand-600 hover:bg-brand-700 text-white' : 'bg-stroke-panel text-stroke-textMuted cursor-not-allowed'
             }`}>
             {valid ? <><CheckCircle2 size={14}/> Registrar</> : `Falta: ${missing.join(' · ')}`}
           </button>
@@ -580,7 +580,7 @@ function VitalsSection({ vitals, onConfirm, draftVitals, onDraftChange, nihssSco
 
         <button type="button" onClick={handleConfirm} disabled={!valid}
           className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-all active:scale-[0.98] ${
-            valid ? 'bg-stroke-iconActive hover:bg-[#4D6CD6] text-white' : 'bg-stroke-panel text-stroke-textMuted cursor-not-allowed'
+            valid ? 'bg-brand-600 hover:bg-brand-700 text-white' : 'bg-stroke-panel text-stroke-textMuted cursor-not-allowed'
           }`}>
           {valid ? <><CheckCircle2 size={14}/> Registrar signos vitales</> : `Completá: ${missing.join(' · ')}`}
         </button>
