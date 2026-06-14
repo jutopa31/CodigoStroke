@@ -80,14 +80,14 @@ export default function VitalsModal({ isOpen, onConfirm }) {
     >
       <div className="w-full max-w-md max-h-[calc(var(--visual-viewport-height,100svh)-4.5rem)] overflow-y-auto bg-stroke-navy rounded-2xl shadow-modal animate-scale-in sm:max-h-[calc(100svh-2rem)]">
         {/* Header */}
-        <div className="bg-stroke-iconActive px-5 py-4">
+        <div className="px-5 py-4 border-b border-stroke-line">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-stroke-bg flex items-center justify-center shrink-0">
-              <Activity size={18} className="text-white" strokeWidth={2} />
+            <div className="w-10 h-10 rounded-xl bg-stroke-iconActive/15 flex items-center justify-center shrink-0">
+              <Activity size={18} className="text-stroke-iconActive" strokeWidth={2} />
             </div>
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-stroke-iconActive">Evaluación inicial</p>
-              <h2 className="text-white font-semibold text-base leading-tight">Signos vitales</h2>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-stroke-textMuted">Evaluación inicial</p>
+              <h2 className="text-stroke-text font-semibold text-base leading-tight">Signos vitales</h2>
             </div>
           </div>
         </div>
