@@ -180,13 +180,17 @@ function InlineScroll({ scores: initialScores, onSave, onClose, current: initial
   const [scores, setScores] = useState(() => ({ ...(initialScores ?? {}) }))
   const [current, setCurrentState] = useState(() => Math.min(Math.max(0, initialCurrent ?? 0), nihssItems.length - 1))
 
-  // Wrap navigation so every position change is reported to the parent draft.
-  const setCurrent = (updater) => setCurrentState((c) => {
-    const raw = typeof updater === 'function' ? updater(c) : updater
+  // Navigate + report to the parent draft. Resolved here (event/timeout scope),
+  // not inside a setState updater — calling the parent setState in the updater
+  // ran during render and triggered React's "Cannot update a component while
+  // rendering a different component" warning. setCurrent is only ever called
+  // from click handlers / timeouts, so the closed-over `current` is committed.
+  const setCurrent = (updater) => {
+    const raw = typeof updater === 'function' ? updater(current) : updater
     const clamped = Math.max(0, Math.min(raw, nihssItems.length - 1))
+    setCurrentState(clamped)
     onCurrentChange?.(clamped)
-    return clamped
-  })
+  }
 
   const item = nihssItems[current]
   const label = item.label.replace(/^\d+[abc]?\.\s*/i, '').trim()
