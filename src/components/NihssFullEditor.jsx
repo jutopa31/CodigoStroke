@@ -245,7 +245,7 @@ function InlineScroll({ scores: initialScores, onSave, onClose, current: initial
               key={i.id}
               type="button"
               onClick={() => setCurrent(nihssItems.indexOf(i))}
-              className={`text-[11px] font-mono px-2 py-0.5 rounded-full transition-transform active:scale-95 ${pillStyle(scores[i.id])}`}
+              className={`inline-flex items-center min-h-[44px] text-xs font-mono px-3 rounded-full transition-transform active:scale-95 ${pillStyle(scores[i.id])}`}
             >
               {i.id}:{scores[i.id]}
             </button>
@@ -288,10 +288,7 @@ function InlineScroll({ scores: initialScores, onSave, onClose, current: initial
                 onClick={() => select(opt.score)}
                 className={`flex flex-col items-center justify-center rounded-xl py-3 gap-1 transition-all duration-150 active:scale-95 ${optionStyle(selected, opt.score)}`}
               >
-                <span className="font-mono text-lg font-bold leading-none">{opt.score}</span>
-                <span className="text-[9px] leading-tight text-center px-0.5 opacity-80">
-                  {opt.text.split(/[\s,(]/)[0]}
-                </span>
+                <span className="font-mono text-xl font-bold leading-none">{opt.score}</span>
               </button>
             )
           })}
@@ -383,7 +380,7 @@ function InlineAdjust({ scores: initialScores, onSave, onClose }) {
                     type="button"
                     title={opt.text}
                     onClick={() => setScores((prev) => ({ ...prev, [item.id]: opt.score }))}
-                    className={`min-w-[26px] h-6 px-1 rounded-lg text-[11px] font-black transition-all active:scale-90 ${
+                    className={`min-w-[44px] h-11 px-1 rounded-lg font-mono text-sm font-black transition-all active:scale-90 ${
                       score === opt.score
                         ? 'btn-primary text-white shadow-sm'
                         : 'bg-stroke-panel text-stroke-textMuted hover:bg-stroke-panel'
