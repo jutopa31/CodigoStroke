@@ -245,7 +245,7 @@ function InlineScroll({ scores: initialScores, onSave, onClose, current: initial
               key={i.id}
               type="button"
               onClick={() => setCurrent(nihssItems.indexOf(i))}
-              className={`text-[11px] font-mono px-2 py-0.5 rounded-full transition-transform active:scale-95 ${pillStyle(scores[i.id])}`}
+              className={`inline-flex items-center min-h-[44px] text-xs font-mono px-3 rounded-full transition-transform active:scale-95 ${pillStyle(scores[i.id])}`}
             >
               {i.id}:{scores[i.id]}
             </button>
