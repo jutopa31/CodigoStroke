@@ -215,7 +215,7 @@ export default function EducationalOverlay({ onClose }) {
             <div className="space-y-2">
               {POST_CHECKLIST.map((item, i) => (
                 <div key={i} className="flex items-start gap-2.5 rounded-xl border border-stroke-line bg-stroke-bg px-3 py-2.5">
-                  <span className="mt-0.5 w-5 h-5 rounded-md bg-stroke-iconActive flex items-center justify-center text-stroke-bg text-[10px] font-bold shrink-0">
+                  <span className="mt-0.5 w-5 h-5 rounded-md btn-primary flex items-center justify-center text-white text-[10px] font-bold shrink-0">
                     {i + 1}
                   </span>
                   <p className="text-xs leading-relaxed">{item}</p>

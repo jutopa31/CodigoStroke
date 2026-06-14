@@ -106,7 +106,7 @@ export function PrimaryAction({ valid, children, disabledLabel, className = '', 
     <button
       ref={buttonRef}
       disabled={!valid}
-      className={`w-full flex items-center justify-center gap-2 bg-stroke-iconActive hover:bg-[#4D6CD6] active:scale-[0.98] text-stroke-bg font-semibold py-3 rounded-xl transition-all disabled:bg-stroke-panel disabled:text-stroke-textMuted disabled:cursor-not-allowed ${className}`}
+      className={`w-full flex items-center justify-center gap-2 btn-primary active:scale-[0.98] text-white font-semibold py-3 rounded-xl transition-all disabled:bg-stroke-panel disabled:text-stroke-textMuted disabled:cursor-not-allowed ${className}`}
       {...props}
     >
       {valid ? children : disabledLabel}

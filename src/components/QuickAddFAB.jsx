@@ -72,7 +72,7 @@ function ModalShell({ title, onClose, onConfirm, confirmLabel = 'Registrar', con
           <button
             onClick={onConfirm}
             disabled={confirmDisabled}
-            className="flex-1 py-2.5 bg-stroke-iconActive text-stroke-bg rounded-xl font-semibold text-sm hover:bg-[#4D6CD6] active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+            className="flex-1 py-2.5 btn-primary text-white rounded-xl font-semibold text-sm active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {confirmLabel}
           </button>

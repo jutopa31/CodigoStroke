@@ -123,6 +123,7 @@ export default function App() {
   const [symptoms, setSymptoms] = useState(null)
   const [vitals, setVitals] = useState(null)
   const [draftVitals, setDraftVitals] = useState({ sys: '', dia: '', glucose: '', mrs: null })
+  const [nihssDraft, setNihssDraft] = useState({ scores: {}, current: 0 })
   const [nihss, setNihss] = useState(null)
   const [ctResult, setCtResult] = useState(null)
   const [dosage, setDosage] = useState(null)
@@ -169,7 +170,7 @@ export default function App() {
       phase, activeTab, eventId,
       timerStart, patientArrivalTime, ctRequestTime, angioRequestTime,
       thrombolyticStartTime, thrombectomyActivationTime,
-      patient, patientId, symptoms, vitals, draftVitals, nihss, ctResult,
+      patient, patientId, symptoms, vitals, draftVitals, nihssDraft, nihss, ctResult,
       dosage, thrombectomy, decisionResult, contraAbsolutes, contraRelatives,
       nihssReadings, vitalsReadings, glucoseReadings,
     }
@@ -193,6 +194,7 @@ export default function App() {
     setSymptoms(d.symptoms ?? null)
     setVitals(d.vitals ?? null)
     setDraftVitals(d.draftVitals ?? { sys: '', dia: '', glucose: '', mrs: null })
+    setNihssDraft(d.nihssDraft ?? { scores: {}, current: 0 })
     setNihss(d.nihss ?? null)
     setCtResult(d.ctResult ?? null)
     setDosage(d.dosage ?? null)
@@ -223,7 +225,7 @@ export default function App() {
   }, [
     phase, activeTab, eventId, timerStart, patientArrivalTime, ctRequestTime,
     angioRequestTime, thrombolyticStartTime, thrombectomyActivationTime,
-    patient, patientId, symptoms, vitals, draftVitals, nihss, ctResult,
+    patient, patientId, symptoms, vitals, draftVitals, nihssDraft, nihss, ctResult,
     dosage, thrombectomy, decisionResult, contraAbsolutes, contraRelatives,
     nihssReadings, vitalsReadings, glucoseReadings, restoreCandidate,
   ])
@@ -708,6 +710,8 @@ export default function App() {
               onNihssConfirm={handleNihssConfirm}
               nihss={nihss}
               symptoms={symptoms}
+              nihssDraft={nihssDraft}
+              onNihssDraftChange={setNihssDraft}
             />
           )
         case 'imagenes':
@@ -839,19 +843,12 @@ export default function App() {
     && decisionResult?.thrombolyze === true
     && activeTab !== 'trombolisis'
 
-  // Mobile header height varies: the event-timeline strip appears once there are
-  // registered timestamps (>1 badge), adding a row. Offset the body accordingly.
-  const hasEventStrip = !!(ctRequestTime || thrombolyticStartTime || angioRequestTime)
-  const headerOffsetClass = timerStart
-    ? (hasEventStrip
-        ? 'pt-[calc(8.25rem+env(safe-area-inset-top,0px))] md:pt-[calc(2.75rem+env(safe-area-inset-top,0px))]'
-        : 'pt-[calc(5rem+env(safe-area-inset-top,0px))] md:pt-[calc(2.75rem+env(safe-area-inset-top,0px))]')
-    : 'pt-[calc(3.75rem+env(safe-area-inset-top,0px))] md:pt-[calc(2.75rem+env(safe-area-inset-top,0px))]'
-
   return (
     <div className="h-dvh flex flex-col overflow-hidden bg-stroke-bg">
 
-      {/* Fixed header */}
+      {/* Header — a flex child, not fixed. Its height (timer hero, event strip,
+          progress bar) is absorbed by the flex column, so the body can never be
+          clipped underneath it. No magic padding-top needed. */}
       <GlobalTimer
         startTime={timerStart}
         timestamps={{
@@ -871,7 +868,7 @@ export default function App() {
       />
 
       {/* Body below header */}
-      <div className={`flex-1 flex flex-col overflow-hidden ${headerOffsetClass}`}>
+      <div className="flex-1 flex flex-col overflow-hidden">
 
         {/* Protocol stepper — 7 numbered steps replacing the icon TabBar */}
         <div className="shrink-0 bg-stroke-navy md:border-b md:border-stroke-line md:px-5 md:py-1">
@@ -1007,7 +1004,7 @@ export default function App() {
                   type="button"
                   onClick={handleComputeDecision}
                   className="w-full flex items-center justify-center gap-2.5 py-3.5 rounded-xl font-bold text-sm
-                    bg-stroke-iconActive text-stroke-bg shadow-elevated transition-all active:scale-[0.98] hover:bg-[#4D6CD6] animate-pulse-subtle
+                    btn-primary text-white shadow-elevated transition-all active:scale-[0.98] animate-pulse-subtle
                     md:py-3 md:rounded-lg md:animate-none"
                 >
                   <Brain size={18} strokeWidth={2} />

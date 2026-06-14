@@ -103,10 +103,37 @@ export default {
         'modal': '0 16px 48px rgba(0,0,0,0.12)',
         'timer': '0 2px 8px rgba(0,0,0,0.08)',
       },
+      // Role-based radius scale (single source — see DESIGN.md → Layout).
+      // Same role uses the same token on mobile AND desktop. Values match the
+      // de-facto usage already in the code, so this documents reality, not churn.
+      //   sm  → badges, chips, small status tags
+      //   md  → inputs, small secondary controls
+      //   lg  → nested panels, list rows
+      //   xl  → cards, buttons, primary containers   (dominant token)
+      //   2xl → large surfaces, FABs, modals
+      //   full→ circles, pills, avatars
       borderRadius: {
+        'sm': '4px',
+        'md': '6px',
+        'lg': '8px',
         'xl': '12px',
         '2xl': '16px',
         '3xl': '20px',
+      },
+      // Motion tokens (single source — see DESIGN.md → Motion). Setting DEFAULT
+      // makes every `transition-*` without an explicit value use the app's
+      // signature expo-out curve + a 200ms base, so state changes feel fluid
+      // everywhere with no per-component churn.
+      transitionTimingFunction: {
+        DEFAULT: 'cubic-bezier(0.16, 1, 0.3, 1)', // expo-out — enters & state changes
+        'expo-out': 'cubic-bezier(0.16, 1, 0.3, 1)',
+        'snappy': 'cubic-bezier(0.4, 0, 0.2, 1)',  // exits & quick toggles
+      },
+      transitionDuration: {
+        DEFAULT: '200ms',
+        'fast': '150ms',
+        'base': '250ms',
+        'slow': '350ms',
       },
       animation: {
         'slide-down': 'slideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1)',

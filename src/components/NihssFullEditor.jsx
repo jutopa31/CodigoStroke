@@ -34,7 +34,7 @@ function pillStyle(score) {
 
 function optionStyle(selected, score) {
   if (!selected) return 'border border-stroke-line bg-stroke-navy text-stroke-textMuted hover:border-stroke-iconActive/40'
-  if (score === 0) return 'border border-stroke-iconActive bg-stroke-iconActive text-stroke-bg'
+  if (score === 0) return 'border border-stroke-iconActive btn-primary text-white'
   if (score <= 3)  return 'border-2 border-amber-400 bg-amber-500/10 text-amber-300'
   return 'border-2 border-red-500 bg-red-500/10 text-red-400'
 }
@@ -120,7 +120,7 @@ function GuidedWizard({ onSave, onClose }) {
                   onClick={() => select(opt.score)}
                   className={`w-full text-left px-4 py-3 rounded-xl border-2 text-sm transition-all duration-150 active:scale-[0.99] ${
                     active
-                      ? 'border-stroke-iconActive bg-stroke-iconActive text-stroke-bg shadow-sm'
+                      ? 'border-stroke-iconActive btn-primary text-white shadow-sm'
                       : 'border-stroke-line bg-stroke-navy text-stroke-text hover:border-stroke-iconActive/40 hover:bg-stroke-iconActive/10'
                   }`}
                 >
@@ -163,7 +163,7 @@ function GuidedWizard({ onSave, onClose }) {
             <button
               type="button"
               onClick={() => onSave(scores)}
-              className="flex-1 py-2.5 bg-stroke-iconActive text-stroke-bg rounded-xl font-bold text-sm hover:bg-[#4D6CD6] active:scale-[0.98] transition-all shadow-sm"
+              className="flex-1 py-2.5 btn-primary text-white rounded-xl font-bold text-sm active:scale-[0.98] transition-all shadow-sm"
             >
               Guardar · {total} pts
             </button>
@@ -176,9 +176,17 @@ function GuidedWizard({ onSave, onClose }) {
 
 // ── Inline guided — one item at a time, embedded (variant B) ──────────────────
 
-function InlineScroll({ scores: initialScores, onSave, onClose }) {
+function InlineScroll({ scores: initialScores, onSave, onClose, current: initialCurrent, onCurrentChange, onScoresChange, onComplete }) {
   const [scores, setScores] = useState(() => ({ ...(initialScores ?? {}) }))
-  const [current, setCurrent] = useState(0)
+  const [current, setCurrentState] = useState(() => Math.min(Math.max(0, initialCurrent ?? 0), nihssItems.length - 1))
+
+  // Wrap navigation so every position change is reported to the parent draft.
+  const setCurrent = (updater) => setCurrentState((c) => {
+    const raw = typeof updater === 'function' ? updater(c) : updater
+    const clamped = Math.max(0, Math.min(raw, nihssItems.length - 1))
+    onCurrentChange?.(clamped)
+    return clamped
+  })
 
   const item = nihssItems[current]
   const label = item.label.replace(/^\d+[abc]?\.\s*/i, '').trim()
@@ -191,8 +199,17 @@ function InlineScroll({ scores: initialScores, onSave, onClose }) {
   const allAnswered = nihssItems.every((i) => i.id in scores)
 
   function select(score) {
-    setScores((prev) => ({ ...prev, [item.id]: score }))
-    if (!isLast) setTimeout(() => setCurrent((c) => c + 1), 220)
+    const next = { ...scores, [item.id]: score }
+    setScores(next)
+    onScoresChange?.(next)
+    const allNow = nihssItems.every((i) => i.id in next)
+    if (!isLast) {
+      setTimeout(() => setCurrent((c) => c + 1), 220)
+    } else if (allNow && onComplete) {
+      // Answering the last item with the whole scale filled registers the score
+      // automatically — no extra "Guardar" / "Confirmar" tap.
+      setTimeout(() => onComplete(next), 200)
+    }
   }
 
   return (
@@ -364,7 +381,7 @@ function InlineAdjust({ scores: initialScores, onSave, onClose }) {
                     onClick={() => setScores((prev) => ({ ...prev, [item.id]: opt.score }))}
                     className={`min-w-[26px] h-6 px-1 rounded-lg text-[11px] font-black transition-all active:scale-90 ${
                       score === opt.score
-                        ? 'bg-stroke-iconActive text-stroke-bg shadow-sm'
+                        ? 'btn-primary text-white shadow-sm'
                         : 'bg-stroke-panel text-stroke-textMuted hover:bg-stroke-panel'
                     }`}
                   >
@@ -385,7 +402,7 @@ function InlineAdjust({ scores: initialScores, onSave, onClose }) {
         <button
           type="button"
           onClick={() => onSave(scores)}
-          className="px-4 py-2 bg-stroke-iconActive text-stroke-bg rounded-xl font-bold text-xs hover:bg-[#4D6CD6] active:scale-95 transition-all"
+          className="px-4 py-2 btn-primary text-white rounded-xl font-bold text-xs active:scale-95 transition-all"
         >
           Guardar cambios
         </button>
@@ -396,9 +413,9 @@ function InlineAdjust({ scores: initialScores, onSave, onClose }) {
 
 // ── Public API ───────────────────────────────────────────────────────────────
 
-export default function NihssFullEditor({ scores, onSave, onClose, guided, inlineScroll, inline }) {
+export default function NihssFullEditor({ scores, onSave, onClose, guided, inlineScroll, inline, current, onCurrentChange, onScoresChange, onComplete }) {
   if (guided)       return <GuidedWizard onSave={onSave} onClose={onClose} />
-  if (inlineScroll) return <InlineScroll scores={scores} onSave={onSave} onClose={onClose} />
+  if (inlineScroll) return <InlineScroll scores={scores} onSave={onSave} onClose={onClose} current={current} onCurrentChange={onCurrentChange} onScoresChange={onScoresChange} onComplete={onComplete} />
   if (inline)       return <InlineAdjust scores={scores} onSave={onSave} onClose={onClose} />
   return <ScrollModal scores={scores} onSave={onSave} onClose={onClose} />
 }
@@ -455,7 +472,7 @@ function ScrollModal({ scores: initialScores, onSave, onClose }) {
                         onClick={() => setScores((prev) => ({ ...prev, [item.id]: opt.score }))}
                         className={`w-full text-left px-3 py-2.5 rounded-xl border-2 text-sm flex items-center gap-3 transition-all active:scale-[0.99] ${
                           active
-                            ? 'border-stroke-iconActive bg-stroke-iconActive text-stroke-bg'
+                            ? 'border-stroke-iconActive btn-primary text-white'
                             : 'border-stroke-line text-stroke-text hover:border-stroke-iconActive/40 hover:bg-stroke-iconActive/10'
                         }`}
                       >
@@ -480,7 +497,7 @@ function ScrollModal({ scores: initialScores, onSave, onClose }) {
           <button
             type="button"
             onClick={() => onSave(scores)}
-            className="px-5 py-2.5 bg-stroke-iconActive text-stroke-bg rounded-xl font-bold text-sm hover:bg-[#4D6CD6] active:scale-95 transition-all"
+            className="px-5 py-2.5 btn-primary text-white rounded-xl font-bold text-sm active:scale-95 transition-all"
           >
             Guardar · {total} pts
           </button>

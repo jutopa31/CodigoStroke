@@ -97,7 +97,7 @@ export default function StepStepper({ phase, activeTab, completion = {}, postUnl
               aria-label={`Paso ${step.n}: ${step.name}`}
               title={step.name}
               className={`relative z-10 flex h-8 w-8 items-center justify-center rounded-full font-mono text-[13px] font-semibold
-                transition-all duration-300 ${circleClasses(status, active)} ${popping[step.key] ? 'animate-step-pop' : ''} ${reachable ? 'active:scale-95' : 'opacity-50 cursor-not-allowed'}`}
+                transition duration-base ${circleClasses(status, active)} ${popping[step.key] ? 'animate-step-pop' : ''} ${reachable ? 'active:scale-95' : 'opacity-50 cursor-not-allowed'}`}
             >
               {step.n}
             </button>

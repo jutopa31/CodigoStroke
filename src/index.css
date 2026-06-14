@@ -4,6 +4,18 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Components ─── */
+@layer components {
+  /* Canonical primary action button color treatment (see DESIGN.md → Components).
+     Solid royal-blue + white label gives 6.6:1 contrast in BOTH themes. Replaces
+     the old `bg-stroke-iconActive text-stroke-bg` pattern, which painted dark
+     text on a mid-tone accent (~4.3:1, muddy). Layout/size stays on the element;
+     this owns only color + hover so it can't drift per-component. */
+  .btn-primary {
+    @apply bg-brand-600 text-white hover:bg-brand-700;
+  }
+}
+
 /* ─── Theming: RGB channels (no rgb() wrapper) so Tailwind opacity modifiers work ─── */
 :root,
 [data-theme="dark"] {

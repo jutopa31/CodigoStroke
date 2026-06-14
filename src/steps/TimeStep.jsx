@@ -313,7 +313,7 @@ export default function TimeStep({ onConfirm, isCollapsed = false, initialLastSe
               confirmed
                 ? 'bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 cursor-default'
                 : lastSeen
-                  ? 'bg-stroke-iconActive hover:bg-[#4D6CD6] text-stroke-bg'
+                  ? 'btn-primary text-white'
                   : 'bg-stroke-panel/40 text-stroke-textMuted/60 cursor-not-allowed'
             }`}
           >

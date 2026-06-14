@@ -104,7 +104,7 @@ export default function AvisoModal({ isOpen, onClose }) {
           <button
             type="button"
             onClick={onClose}
-            className="w-full flex items-center justify-center gap-2 py-3.5 bg-stroke-iconActive hover:bg-[#4D6CD6] active:scale-95 text-stroke-bg font-bold rounded-xl transition-all text-sm"
+            className="w-full flex items-center justify-center gap-2 py-3.5 btn-primary active:scale-95 text-white font-bold rounded-xl transition-all text-sm"
           >
             <CheckCircle2 size={16} />
             Avanzar ahora
