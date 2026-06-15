@@ -134,6 +134,33 @@ test.describe('Clinical pathway — full flow (real UI)', () => {
     await expect(page.getByText('Ítem 4/15')).toBeVisible()
     await expect(page.getByText('3 pts')).toBeVisible()
   })
+
+  // Regression: ISSUE-001 — Reiniciar left the App-level score registered
+  // Found by /qa on 2026-06-15
+  // Report: .gstack/qa-reports/qa-report-localhost-2026-06-15.md
+  // Reiniciar reset only the inline editor, so the "NIHSS registrado — N pts"
+  // chip and the "Continuar a Imagen" button lingered with the stale score,
+  // letting the clinician advance with the old value while re-scoring.
+  test('ISSUE-001: Reiniciar clears the registered NIHSS score and Continuar button', async ({ page }) => {
+    await activateCode(page)
+    await step(page, 3).click() // NIHSS
+
+    // Answer all 15 items (score 15, ≥5) → auto-registers.
+    for (let k = 1; k <= 15; k++) {
+      await page.getByRole('button', { name: /^1$/ }).first().click()
+      if (k < 15) await expect(page.getByText(`Ítem ${k + 1}/15`)).toBeVisible()
+    }
+
+    // Registered state: chip + forward button present.
+    await expect(page.getByText(/NIHSS registrado/).first()).toBeVisible()
+    await expect(page.getByRole('button', { name: /Continuar a Imagen/ })).toBeVisible()
+
+    // Reiniciar must clear BOTH (not just the editor) so no stale score lingers.
+    await page.getByRole('button', { name: 'Reiniciar', exact: true }).click()
+    await expect(page.getByText(/NIHSS registrado/)).toHaveCount(0)
+    await expect(page.getByRole('button', { name: /Continuar a Imagen/ })).toHaveCount(0)
+    await expect(page.getByText('Ítem 1/15')).toBeVisible()
+  })
 })
 
 // ── Decision-screen branches (deterministic via the mock seed) ───────────────
