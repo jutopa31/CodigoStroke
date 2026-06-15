@@ -7,6 +7,7 @@ import RestoreCaseModal from './components/RestoreCaseModal'
 import StepStepper from './components/StepStepper'
 import DecisionButton from './components/DecisionButton'
 import QuickAddFAB from './components/QuickAddFAB'
+import ContactFAB from './components/ContactFAB'
 import Cronologia from './components/Cronologia'
 import OutOfWindowModal from './components/OutOfWindowModal'
 import EducationalOverlay from './components/EducationalOverlay'
@@ -1079,6 +1080,11 @@ export default function App() {
             <Syringe size={16} strokeWidth={2} />
             Trombolisis
           </button>
+        )}
+
+        {/* ── Floating Interconsulta FAB (email summary — appears once a case is active) ── */}
+        {timerStart && (
+          <ContactFAB getSummary={buildSummaryText} patient={patient} />
         )}
       </div>
 

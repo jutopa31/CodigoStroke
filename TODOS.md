@@ -80,3 +80,31 @@ Quick wins F3/F4/F5/F6/F7 were fixed and committed this session. Remaining:
 **Why:** Lint failures hide real regressions and block any lint-gated CI.
 
 **Context:** Surfaced (not caused) by /design-review on 2026-06-07. The 4 design fixes from that review lint clean.
+
+## QA pass 2026-06-14 — diff-aware (branch design/quick-wins-20260614)
+
+Tested all F1–F8 design changes end-to-end at 375px mobile. All verified working
+(StartStep F1 static IV window, TimeStep F8 green "desde síntomas" timer,
+NIHSS editor F1/F3/F4, neutral modal headers on Alert/Vitals/Restore, F6 patient
+row no overlap, QuickAddFAB + VitalsModal register correctly). 95/95 unit tests pass.
+
+- **ISSUE-001 (MEDIUM) — FIXED by /qa on 2026-06-14 (commit 6f3a204):** F7's 44px
+  header icons crowded the timer-hero strip; the "PASO X/8" step pill overflowed
+  ~28px and rendered behind the theme-toggle button at 375px. Fix: eyebrow truncates,
+  strip gets `flex-1 min-w-0`, step pill stays fully visible. `src/components/GlobalTimer.jsx:47`.
+  Tradeoff: the "Código Stroke" eyebrow truncates to "CÓDIGO …" on the narrowest
+  phones. Alternative if undesired: drop the redundant eyebrow in the timer-hero
+  (the giant clock + PASO pill already establish context) — design call, deferred.
+- **ContactFAB is dead code (LOW / decision needed):** `src/components/ContactFAB.jsx`
+  (floating "Enviar interconsulta por email") is defined but never imported or rendered
+  anywhere in `src/`. F5 (commit d9cc515) restyled its inputs to dark theme — wasted
+  effort, zero user-visible effect. It has never been wired up (not on main either,
+  since the original "Add ContactFAB" commit d6941e5). Decision: wire it up (it's a
+  useful interconsulta feature) or delete it. Same dead-component class as
+  NihssStep/SymptomsStep.
+
+  - **UPDATE 2026-06-14:** Wired up by /qa (commit d8025da). ContactFAB now mounts
+    when a case is active; modal pre-fills `buildSummaryText()`. Decision was "wire it up".
+    Regression test deferred: project convention is unit tests for pure functions only;
+    a full-App render assertion is off-convention and an E2E exceeds the fix-loop budget.
+    Suggest adding an E2E "interconsulta FAB visible after activation" in a later pass.

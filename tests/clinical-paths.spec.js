@@ -38,7 +38,7 @@ function step(page, n) {
 async function completeNihss(page) {
   const ITEMS = 15
   for (let k = 1; k <= ITEMS; k++) {
-    await page.getByRole('button', { name: /^1\s/ }).first().click()
+    await page.getByRole('button', { name: /^1$/ }).first().click()
     if (k < ITEMS) {
       // Wait for the auto-advance to render the next item before selecting again.
       await expect(page.getByText(`Ítem ${k + 1}/${ITEMS}`)).toBeVisible()
@@ -118,7 +118,7 @@ test.describe('Clinical pathway — full flow (real UI)', () => {
 
     // Answer the first 3 items (each selection auto-advances to the next).
     for (let k = 1; k <= 3; k++) {
-      await page.getByRole('button', { name: /^1\s/ }).first().click()
+      await page.getByRole('button', { name: /^1$/ }).first().click()
       await expect(page.getByText(`Ítem ${k + 1}/15`)).toBeVisible()
     }
 
