@@ -28,6 +28,9 @@ function boolOrNull(v: string): boolean | null {
   return v === "" ? null : v === "true";
 }
 
+// Mismo flag que el resto del dashboard: mock por defecto, salvo USE_MOCK="false".
+const IS_DEMO = process.env.NEXT_PUBLIC_USE_MOCK !== "false";
+
 export default function RetrospectiveForm({ c }: { c: StrokeCase }) {
   const [pending, startTransition] = useTransition();
   const [saved, setSaved] = useState(false);
@@ -65,6 +68,15 @@ export default function RetrospectiveForm({ c }: { c: StrokeCase }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {IS_DEMO && (
+        <div className="flex items-start gap-2 rounded-lg border border-[#F5C97A] bg-[#FEF6E7] px-3 py-2 text-[13px] text-[#8A5A00]">
+          <span aria-hidden className="mt-px">⚠️</span>
+          <span>
+            <strong>Modo demo:</strong> los cambios no se guardan de forma permanente.
+            Se pierden al reiniciar la aplicación.
+          </span>
+        </div>
+      )}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         <div>
           <label className={labelCls}>Edad</label>

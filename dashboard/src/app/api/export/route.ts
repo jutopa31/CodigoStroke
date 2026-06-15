@@ -1,4 +1,4 @@
-import { getAllCompletedCases, type CaseFilters } from "@/lib/queries";
+import { getAllCompletedCases, USE_MOCK, type CaseFilters } from "@/lib/queries";
 import {
   deriveTimes,
   DRUG_LABEL,
@@ -50,6 +50,25 @@ function csvCell(v: unknown): string {
 const yn = (b: boolean | null) => (b === null ? "" : b ? "si" : "no");
 
 export async function GET(request: Request) {
+  // Mismo candado que /api/sync: solo admin logueado puede exportar el dataset.
+  // En modo mock (demo, sin Supabase) se omite el gate, igual que el layout del
+  // dashboard. En modo real exige usuario autenticado con rol admin.
+  if (!USE_MOCK) {
+    const { createServerSupabaseClient } = await import("@/lib/supabase-server");
+    const supabase = await createServerSupabaseClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return new Response("Unauthorized", { status: 401 });
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+    if (profile?.role !== "admin") return new Response("Forbidden", { status: 403 });
+  }
+
   const url = new URL(request.url);
   const filters: CaseFilters = {
     source: url.searchParams.get("source") ?? undefined,

@@ -1,19 +1,26 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { AlertTriangle } from 'lucide-react'
 
 export default function AlertModal({ patient, onConfirm, onClose }) {
+  const dialogRef = useRef(null)
+
   useEffect(() => {
-    // Dismiss mobile keyboard that may be open from a previous input field
-    if (document.activeElement instanceof HTMLElement) {
-      document.activeElement.blur()
-    }
+    // Move focus off the previous text input (closes the mobile keyboard) and into
+    // the dialog container — a non-text, non-button element, so no keyboard reopens
+    // on mobile and Enter below can't double-fire against a focused button.
+    if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
+    dialogRef.current?.focus()
 
     const handleKeyDown = (e) => {
+      // Ignore key repeats so an Enter held down from the activation form submit
+      // can't instantly confirm and skip this safety prompt.
+      if (e.repeat) return
       if (e.key === 'Escape') onClose()
+      else if (e.key === 'Enter') { e.preventDefault(); onConfirm() }
     }
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [onClose])
+  }, [onConfirm, onClose])
 
   return (
     <div
@@ -21,7 +28,12 @@ export default function AlertModal({ patient, onConfirm, onClose }) {
       onClick={onClose}
     >
       <div
-        className="bg-stroke-navy w-full max-w-sm rounded-2xl shadow-modal overflow-hidden animate-scale-in"
+        ref={dialogRef}
+        tabIndex={-1}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="alert-modal-title"
+        className="bg-stroke-navy w-full max-w-sm rounded-2xl shadow-modal overflow-hidden animate-scale-in focus:outline-none"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -30,7 +42,7 @@ export default function AlertModal({ patient, onConfirm, onClose }) {
             <AlertTriangle size={20} className="text-stroke-iconActive" strokeWidth={2} />
           </div>
           <div>
-            <p className="text-stroke-text font-semibold text-base leading-tight">¿Activar Código Stroke?</p>
+            <p id="alert-modal-title" className="text-stroke-text font-semibold text-base leading-tight">¿Activar Código Stroke?</p>
             <p className="text-stroke-textMuted text-sm mt-0.5">{patient.name}</p>
           </div>
         </div>
