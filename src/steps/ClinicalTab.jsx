@@ -133,7 +133,7 @@ const DISABLING_LIST = [
   'Ataxia severa: imposibilidad de caminar sin asistencia',
 ]
 
-function NihssSection({ onConfirm, initialNihss, draft, onDraftChange }) {
+function NihssSection({ onConfirm, onReset, initialNihss, draft, onDraftChange }) {
   const [subscaleScores, setSubscaleScores] = useState(initialNihss?.scores ?? {})
   const [useFullScores, setUseFullScores] = useState(!!initialNihss)
   const [showAdjust, setShowAdjust] = useState(false)
@@ -168,6 +168,10 @@ function NihssSection({ onConfirm, initialNihss, draft, onDraftChange }) {
     setShowAdjust(false)
     setHasDisabling(null)
     onDraftChange?.({ scores: {}, current: 0 })
+    // Also clear the registered score at the App level, otherwise the stale
+    // "NIHSS registrado — N pts" chip and the "Continuar a Imagen" button linger
+    // while the clinician is re-scoring, letting them advance with the old value.
+    onReset?.()
   }
 
   // Answering the disabling-deficit question (only shown when NIHSS < 5) commits
@@ -267,7 +271,7 @@ function NihssSection({ onConfirm, initialNihss, draft, onDraftChange }) {
 
 // ── ClinicalTab (exported) ───────────────────────────────────────────────────
 
-export default function ClinicalTab({ onNihssConfirm, nihss, nihssDraft, onNihssDraftChange, onContinue }) {
+export default function ClinicalTab({ onNihssConfirm, onNihssReset, nihss, nihssDraft, onNihssDraftChange, onContinue }) {
   const nihssConfirmed = nihss !== null
 
   return (
@@ -280,6 +284,7 @@ export default function ClinicalTab({ onNihssConfirm, nihss, nihssDraft, onNihss
       )}
       <NihssSection
         onConfirm={onNihssConfirm}
+        onReset={onNihssReset}
         initialNihss={nihss}
         draft={nihssDraft}
         onDraftChange={onNihssDraftChange}

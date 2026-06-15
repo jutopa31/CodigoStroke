@@ -716,6 +716,7 @@ export default function App() {
           return (
             <ClinicalTab
               onNihssConfirm={handleNihssConfirm}
+              onNihssReset={() => setNihss(null)}
               nihss={nihss}
               symptoms={symptoms}
               nihssDraft={nihssDraft}
