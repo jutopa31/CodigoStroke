@@ -102,3 +102,9 @@ row no overlap, QuickAddFAB + VitalsModal register correctly). 95/95 unit tests 
   since the original "Add ContactFAB" commit d6941e5). Decision: wire it up (it's a
   useful interconsulta feature) or delete it. Same dead-component class as
   NihssStep/SymptomsStep.
+
+  - **UPDATE 2026-06-14:** Wired up by /qa (commit d8025da). ContactFAB now mounts
+    when a case is active; modal pre-fills `buildSummaryText()`. Decision was "wire it up".
+    Regression test deferred: project convention is unit tests for pure functions only;
+    a full-App render assertion is off-convention and an E2E exceeds the fix-loop budget.
+    Suggest adding an E2E "interconsulta FAB visible after activation" in a later pass.
