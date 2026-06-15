@@ -58,6 +58,19 @@ test.describe('CodigoStroke smoke checks', () => {
     await expect(page.locator('input[aria-label="Presión sistólica"]:visible')).toBeVisible()
   })
 
+  test('the activation alert confirms with Enter', async ({ page }) => {
+    await page.goto('/')
+    await page.getByRole('button', { name: 'Iniciar Código Stroke' }).click()
+    await dniInput(page).fill(patient.dni)
+    await nameInput(page).fill(patient.name)
+    await page.getByRole('button', { name: 'Activar Código Stroke' }).click()
+    await expect(page.getByRole('button', { name: 'Sí, activar' })).toBeVisible()
+    // Enter confirms without touching the mouse (no keyboard reopens on mobile
+    // because focus is on the dialog container, not a text field).
+    await page.keyboard.press('Enter')
+    await expect(page.locator('input[aria-label="Presión sistólica"]:visible')).toBeVisible()
+  })
+
   test('reset asks for confirmation and can be cancelled', async ({ page }) => {
     await activateCode(page)
 
