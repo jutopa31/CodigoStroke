@@ -46,8 +46,8 @@ function getEventBadges(startTime, timestamps) {
 // "CÓDIGO STROKE" eyebrow + optional PASO X/Y pill (HANDOFF_SPEC header strip)
 function HeaderStrip({ stepLabel }) {
   return (
-    <div className="flex items-center gap-2 min-w-0">
-      <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-stroke-iconActive shrink-0">
+    <div className="flex items-center gap-2 min-w-0 flex-1">
+      <span className="min-w-0 truncate text-[10px] font-bold uppercase tracking-[0.14em] text-stroke-iconActive">
         Código Stroke
       </span>
       {stepLabel && (
