@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { X, ChevronRight, ChevronLeft } from 'lucide-react'
 import { nihssItems, getNihssSeverity } from '../content/nihss'
 
@@ -26,6 +26,47 @@ export default function NihssModal({ onLoad, onClose }) {
       setTimeout(() => setCurrent((c) => c + 1), 280)
     }
   }
+
+  // Keyboard scoring (desktop): press a digit to score the current item and
+  // auto-advance, arrows to navigate, Enter to load, Escape to close.
+  useEffect(() => {
+    function handleKey(e) {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return
+
+      if (e.key === 'Escape') {
+        onClose()
+        return
+      }
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault()
+        setCurrent((c) => Math.max(0, c - 1))
+        return
+      }
+      if (e.key === 'ArrowRight') {
+        e.preventDefault()
+        setCurrent((c) => Math.min(nihssItems.length - 1, c + 1))
+        return
+      }
+      if (e.key === 'Enter') {
+        e.preventDefault()
+        if (allDone) onLoad(total)
+        else setCurrent((c) => Math.min(nihssItems.length - 1, c + 1))
+        return
+      }
+      if (/^[0-9]$/.test(e.key)) {
+        const score = Number(e.key)
+        if (item.options.some((o) => o.score === score)) {
+          e.preventDefault()
+          select(score)
+        }
+      }
+    }
+    window.addEventListener('keydown', handleKey)
+    return () => window.removeEventListener('keydown', handleKey)
+    // select/onLoad/onClose are recreated each render; the listed deps already
+    // cover every value the handler reads.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [current, scores, item, allDone, total])
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/60 animate-fade-in">
@@ -56,7 +97,20 @@ export default function NihssModal({ onLoad, onClose }) {
           <p className="text-xs text-stroke-textMuted uppercase tracking-wider mb-1">
             Ítem {current + 1} de {nihssItems.length}
           </p>
-          <p className="font-semibold text-stroke-text mb-4 leading-snug">{item.label}</p>
+          <p className="font-semibold text-stroke-text mb-2 leading-snug">{item.label}</p>
+
+          <p className="hidden sm:flex items-center gap-1.5 text-xs text-stroke-textMuted mb-4">
+            <span>Usá el teclado:</span>
+            {item.options.map((opt) => (
+              <kbd
+                key={opt.score}
+                className="font-mono px-1.5 py-0.5 rounded border border-stroke-line bg-stroke-panel text-stroke-text"
+              >
+                {opt.score}
+              </kbd>
+            ))}
+            <span>para puntuar</span>
+          </p>
 
           <div className="space-y-2">
             {item.options.map((opt) => {
