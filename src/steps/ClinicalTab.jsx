@@ -133,7 +133,7 @@ const DISABLING_LIST = [
   'Ataxia severa: imposibilidad de caminar sin asistencia',
 ]
 
-function NihssSection({ onConfirm, confirmed, initialNihss, draft, onDraftChange }) {
+function NihssSection({ onConfirm, initialNihss, draft, onDraftChange }) {
   const [subscaleScores, setSubscaleScores] = useState(initialNihss?.scores ?? {})
   const [useFullScores, setUseFullScores] = useState(!!initialNihss)
   const [showAdjust, setShowAdjust] = useState(false)
@@ -143,7 +143,6 @@ function NihssSection({ onConfirm, confirmed, initialNihss, draft, onDraftChange
   const total = nihssItems.reduce((sum, item) => sum + (subscaleScores[item.id] ?? 0), 0)
   const severity = useFullScores ? getNihssSeverity(total) : null
   const showDisablingBlock = useFullScores && total < 5
-  const canConfirm = useFullScores && (!showDisablingBlock || hasDisabling !== null)
 
   const totalOf = (scores) => nihssItems.reduce((sum, item) => sum + (scores[item.id] ?? 0), 0)
   const allAnswered = (scores) => nihssItems.every((i) => i.id in scores)
@@ -153,9 +152,13 @@ function NihssSection({ onConfirm, confirmed, initialNihss, draft, onDraftChange
     setUseFullScores(true)
     setShowAdjust(false)
     // Auto-register the moment the full scale is complete and ≥ 5 (no disabling
-    // question needed). For < 5 the disabling block must still be answered.
+    // question needed). For < 5 the disabling block must still be answered — but
+    // if it was already answered (e.g. re-adjusting the score), re-register so the
+    // updated score propagates.
     if (allAnswered(scores) && totalOf(scores) >= 5) {
       onConfirm({ nihssScore: totalOf(scores), scores: { ...scores }, hasDisablingSymptoms: null })
+    } else if (allAnswered(scores) && hasDisabling !== null) {
+      onConfirm({ nihssScore: totalOf(scores), scores: { ...scores }, hasDisablingSymptoms: hasDisabling })
     }
   }
 
@@ -172,15 +175,6 @@ function NihssSection({ onConfirm, confirmed, initialNihss, draft, onDraftChange
   function answerDisabling(val) {
     setHasDisabling(val)
     onConfirm({ nihssScore: total, scores: { ...subscaleScores }, hasDisablingSymptoms: val })
-  }
-
-  function handleConfirm() {
-    if (!canConfirm) return
-    onConfirm({
-      nihssScore: total,
-      scores: { ...subscaleScores },
-      hasDisablingSymptoms: hasDisabling,
-    })
   }
 
   return (
@@ -231,7 +225,6 @@ function NihssSection({ onConfirm, confirmed, initialNihss, draft, onDraftChange
             scores={draft?.scores ?? {}}
             current={draft?.current ?? 0}
             inlineScroll={true}
-            onSave={handleSave}
             onComplete={handleSave}
             onScoresChange={(scores) => onDraftChange?.((d) => ({ ...(d ?? {}), scores }))}
             onCurrentChange={(current) => onDraftChange?.((d) => ({ ...(d ?? {}), current }))}
@@ -268,25 +261,6 @@ function NihssSection({ onConfirm, confirmed, initialNihss, draft, onDraftChange
           )}
         </div>
       )}
-
-      {/* ── Confirm button ── */}
-      <div className="pt-4 border-t border-stroke-line mt-3">
-        <button type="button" onClick={handleConfirm} disabled={!canConfirm}
-          className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-all active:scale-[0.98] ${
-            confirmed
-              ? 'bg-emerald-500/10 border-2 border-emerald-500/30 text-emerald-300'
-              : canConfirm
-                ? 'btn-primary text-white shadow-sm'
-                : 'bg-stroke-panel text-stroke-textMuted cursor-not-allowed'
-          }`}>
-          {confirmed
-            ? <><CheckCircle2 size={15} /> NIHSS registrado</>
-            : !useFullScores ? 'Completá la escala NIHSS primero'
-            : showDisablingBlock && hasDisabling === null ? 'Indicar si el déficit es discapacitante'
-            : 'Confirmar evaluación clínica'
-          }
-        </button>
-      </div>
     </StepCard>
   )
 }
@@ -306,7 +280,6 @@ export default function ClinicalTab({ onNihssConfirm, nihss, nihssDraft, onNihss
       )}
       <NihssSection
         onConfirm={onNihssConfirm}
-        confirmed={nihssConfirmed}
         initialNihss={nihss}
         draft={nihssDraft}
         onDraftChange={onNihssDraftChange}

@@ -87,6 +87,9 @@ export default function StepStepper({ phase, activeTab, completion = {}, postUnl
           const status = stepStatus(step, { completion, postUnlocked, summaryUnlocked })
           const active = activeStep?.n === step.n
           const reachable = step.phase === 'pre' || (postUnlocked && (step.key !== 'resumen' || summaryUnlocked))
+          // Persistent gentle pulse on still-incomplete pre-phase steps so it's
+          // obvious what's missing to unlock the thrombolysis decision.
+          const pending = phase === 'pre' && step.phase === 'pre' && status !== 'complete' && !active
           return (
             <button
               key={step.n}
@@ -97,7 +100,7 @@ export default function StepStepper({ phase, activeTab, completion = {}, postUnl
               aria-label={`Paso ${step.n}: ${step.name}`}
               title={step.name}
               className={`relative z-10 flex h-8 w-8 items-center justify-center rounded-full font-mono text-[13px] font-semibold
-                transition duration-base ${circleClasses(status, active)} ${popping[step.key] ? 'animate-step-pop' : ''} ${reachable ? 'active:scale-95' : 'opacity-50 cursor-not-allowed'}`}
+                transition duration-base ${circleClasses(status, active)} ${popping[step.key] ? 'animate-step-pop' : ''} ${pending ? 'animate-pending-pulse motion-reduce:animate-none' : ''} ${reachable ? 'active:scale-95' : 'opacity-50 cursor-not-allowed'}`}
             >
               {step.n}
             </button>
