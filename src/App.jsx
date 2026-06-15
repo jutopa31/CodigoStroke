@@ -426,7 +426,8 @@ export default function App() {
     const nihssData = { nihssScore: data.nihssScore, scores: data.scores, hasDisablingSymptoms: data.hasDisablingSymptoms }
     setNihss(nihssData)
     setSymptoms((prev) => ({ ...prev, symptoms: data.symptoms, modifiedRankinScale: data.modifiedRankinScale }))
-    advanceToNext('clinica')
+    // No auto-advance: the user reviews the registered score and taps "Continuar
+    // a Imagen" (ClinicalTab) when ready, so the result stays on screen.
   }
 
   function handleCtConfirm(data) {
@@ -719,6 +720,7 @@ export default function App() {
               symptoms={symptoms}
               nihssDraft={nihssDraft}
               onNihssDraftChange={setNihssDraft}
+              onContinue={() => setActiveTab('imagenes')}
             />
           )
         case 'imagenes':

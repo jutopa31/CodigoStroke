@@ -34,7 +34,8 @@ function step(page, n) {
 // Drive the 15-item inline NIHSS wizard: pick the "1" option on each item
 // (→ total = 15, comfortably ≥ 5). Selecting an option auto-advances to the next
 // item, so no "Siguiente" tap is needed; answering the last item auto-registers
-// the score and advances to imaging — no Guardar/Confirmar tap.
+// the score (no Guardar/Confirmar tap). The flow then waits on screen showing the
+// registered score until the user taps "Continuar a Imagen".
 async function completeNihss(page) {
   const ITEMS = 15
   for (let k = 1; k <= ITEMS; k++) {
@@ -44,7 +45,9 @@ async function completeNihss(page) {
       await expect(page.getByText(`Ítem ${k + 1}/${ITEMS}`)).toBeVisible()
     }
   }
-  // Auto-registration advances to the imaging step; wait for it to confirm it landed.
+  // Score registers automatically and stays on screen; advance is user-paced.
+  await expect(page.getByText(/NIHSS registrado/).first()).toBeVisible()
+  await page.getByRole('button', { name: /Continuar a Imagen/ }).click()
   await expect(page.getByRole('button', { name: 'TAC solicitada' })).toBeVisible()
 }
 

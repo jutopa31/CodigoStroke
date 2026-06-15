@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { CheckCircle2, AlertTriangle, RotateCcw, ChevronDown } from 'lucide-react'
+import { CheckCircle2, AlertTriangle, RotateCcw, ChevronDown, ChevronRight } from 'lucide-react'
 import { getNihssSeverity, nihssItems } from '../content/nihss'
 import NihssFullEditor from '../components/NihssFullEditor'
 import StepCard from '../components/StepCard'
@@ -267,7 +267,7 @@ function NihssSection({ onConfirm, initialNihss, draft, onDraftChange }) {
 
 // ── ClinicalTab (exported) ───────────────────────────────────────────────────
 
-export default function ClinicalTab({ onNihssConfirm, nihss, nihssDraft, onNihssDraftChange }) {
+export default function ClinicalTab({ onNihssConfirm, nihss, nihssDraft, onNihssDraftChange, onContinue }) {
   const nihssConfirmed = nihss !== null
 
   return (
@@ -284,6 +284,16 @@ export default function ClinicalTab({ onNihssConfirm, nihss, nihssDraft, onNihss
         draft={nihssDraft}
         onDraftChange={onNihssDraftChange}
       />
+      {/* Explicit forward step — the user controls the pace so the registered
+          score stays on screen until they choose to advance. */}
+      {nihssConfirmed && onContinue && (
+        <button
+          type="button" onClick={onContinue}
+          className="flex w-full items-center justify-center gap-2 rounded-xl btn-primary py-3 text-sm font-semibold text-white transition-all active:scale-[0.98] animate-fade-in"
+        >
+          Continuar a Imagen <ChevronRight size={16} strokeWidth={2.5} />
+        </button>
+      )}
     </div>
   )
 }

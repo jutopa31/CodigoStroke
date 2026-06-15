@@ -36,6 +36,9 @@ function stepStatus(step, { completion, postUnlocked, summaryUnlocked }) {
 }
 
 function circleClasses(status, active) {
+  // A step you're standing on AND have completed still gets the amber "done" fill,
+  // with the blue ring layered on so it also reads as "you are here".
+  if (active && status === 'complete') return 'bg-status-warning text-stroke-bg ring-2 ring-stroke-iconActive ring-offset-2 ring-offset-stroke-navy'
   if (active) return 'border-2 border-stroke-iconActive bg-stroke-iconActive/15 text-stroke-iconActive'
   if (status === 'complete') return 'bg-status-warning text-stroke-bg border border-status-warning'
   if (status === 'partial') return 'bg-stroke-navy border border-status-warning text-status-warning'
