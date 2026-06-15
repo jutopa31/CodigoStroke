@@ -426,7 +426,8 @@ export default function App() {
     const nihssData = { nihssScore: data.nihssScore, scores: data.scores, hasDisablingSymptoms: data.hasDisablingSymptoms }
     setNihss(nihssData)
     setSymptoms((prev) => ({ ...prev, symptoms: data.symptoms, modifiedRankinScale: data.modifiedRankinScale }))
-    advanceToNext('clinica')
+    // No auto-advance: the user reviews the registered score and taps "Continuar
+    // a Imagen" (ClinicalTab) when ready, so the result stays on screen.
   }
 
   function handleCtConfirm(data) {
@@ -628,6 +629,12 @@ export default function App() {
 
   const tabCompletion = getTabCompletion({ patient, vitals, symptoms, nihss, ctResult, contraAbsolutes, contraRelatives })
 
+  // Human-readable list of the pre-phase steps still missing, for the decision CTA.
+  const MISSING_LABELS = { paciente: 'Paciente', tiempo: 'Tiempo', clinica: 'NIHSS', imagenes: 'Imagen', ci_abs: 'CI Absolutas', ci_rel: 'CI Relativas' }
+  const missingSteps = ['paciente', 'tiempo', 'clinica', 'imagenes', 'ci_abs', 'ci_rel']
+    .filter((k) => tabCompletion[k] !== 'complete')
+    .map((k) => MISSING_LABELS[k])
+
   // Stepper navigation — jump between protocol steps across phases.
   // Guard: post-phase steps (Decisión, Tratamiento) only reachable once decision is computed.
   function handleStepNavigate(targetPhase, tab) {
@@ -713,6 +720,7 @@ export default function App() {
               symptoms={symptoms}
               nihssDraft={nihssDraft}
               onNihssDraftChange={setNihssDraft}
+              onContinue={() => setActiveTab('imagenes')}
             />
           )
         case 'imagenes':
@@ -1038,6 +1046,7 @@ export default function App() {
                 allComplete={false}
                 onClick={handleComputeDecision}
                 executed={false}
+                missingSteps={missingSteps}
               />
             </div>
           </div>

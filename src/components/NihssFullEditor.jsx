@@ -176,7 +176,7 @@ function GuidedWizard({ onSave, onClose }) {
 
 // ── Inline guided — one item at a time, embedded (variant B) ──────────────────
 
-function InlineScroll({ scores: initialScores, onSave, onClose, current: initialCurrent, onCurrentChange, onScoresChange, onComplete }) {
+function InlineScroll({ scores: initialScores, onClose, current: initialCurrent, onCurrentChange, onScoresChange, onComplete }) {
   const [scores, setScores] = useState(() => ({ ...(initialScores ?? {}) }))
   const [current, setCurrentState] = useState(() => Math.min(Math.max(0, initialCurrent ?? 0), nihssItems.length - 1))
 
@@ -207,12 +207,12 @@ function InlineScroll({ scores: initialScores, onSave, onClose, current: initial
     setScores(next)
     onScoresChange?.(next)
     const allNow = nihssItems.every((i) => i.id in next)
-    if (!isLast) {
-      setTimeout(() => setCurrent((c) => c + 1), 220)
-    } else if (allNow && onComplete) {
-      // Answering the last item with the whole scale filled registers the score
+    if (allNow && onComplete) {
+      // Completing the whole scale (in any order) registers the score
       // automatically — no extra "Guardar" / "Confirmar" tap.
       setTimeout(() => onComplete(next), 200)
+    } else if (!isLast) {
+      setTimeout(() => setCurrent((c) => c + 1), 220)
     }
   }
 
@@ -315,13 +315,14 @@ function InlineScroll({ scores: initialScores, onSave, onClose, current: initial
             Siguiente <ChevronRight size={15} />
           </button>
         ) : (
-          <button
-            type="button"
-            onClick={() => onSave(scores)}
-            className={`flex-1 h-10 rounded-xl font-bold text-sm transition-all active:scale-[0.98] ${severity.bg} ${severity.color} border-2 ${severity.border}`}
-          >
-            Guardar · {total} pts {allAnswered ? '' : `(${answered}/${nihssItems.length})`}
-          </button>
+          // No "Guardar" button: answering the last item auto-registers the score
+          // (handled in select() → onComplete). On the last item we only show a
+          // hint with the running progress so the gesture stays single-step.
+          <div className={`flex-1 h-10 flex items-center justify-center rounded-xl text-xs font-semibold text-center px-2 ${severity.bg} ${severity.color} border-2 ${severity.border}`}>
+            {allAnswered
+              ? `Registrado automáticamente · ${total} pts`
+              : `Completá los ${nihssItems.length} ítems (${answered}/${nihssItems.length})`}
+          </div>
         )}
 
         {onClose && (
@@ -416,7 +417,7 @@ function InlineAdjust({ scores: initialScores, onSave, onClose }) {
 
 export default function NihssFullEditor({ scores, onSave, onClose, guided, inlineScroll, inline, current, onCurrentChange, onScoresChange, onComplete }) {
   if (guided)       return <GuidedWizard onSave={onSave} onClose={onClose} />
-  if (inlineScroll) return <InlineScroll scores={scores} onSave={onSave} onClose={onClose} current={current} onCurrentChange={onCurrentChange} onScoresChange={onScoresChange} onComplete={onComplete} />
+  if (inlineScroll) return <InlineScroll scores={scores} onClose={onClose} current={current} onCurrentChange={onCurrentChange} onScoresChange={onScoresChange} onComplete={onComplete} />
   if (inline)       return <InlineAdjust scores={scores} onSave={onSave} onClose={onClose} />
   return <ScrollModal scores={scores} onSave={onSave} onClose={onClose} />
 }

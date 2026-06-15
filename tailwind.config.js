@@ -142,6 +142,7 @@ export default {
         'pulse-subtle': 'pulseSubtle 2s ease-in-out infinite',
         'scale-in': 'scaleIn 0.2s ease-out',
         'step-pop': 'stepPop 0.3s ease-out',
+        'pending-pulse': 'pendingPulse 1.8s ease-in-out infinite',
       },
       keyframes: {
         slideDown: {
@@ -167,6 +168,10 @@ export default {
         stepPop: {
           '0%, 100%': { transform: 'scale(1)' },
           '50%': { transform: 'scale(1.18)' },
+        },
+        pendingPulse: {
+          '0%, 100%': { boxShadow: '0 0 0 0 rgba(245, 158, 11, 0)' },
+          '50%': { boxShadow: '0 0 0 4px rgba(245, 158, 11, 0.28)' },
         },
       },
       spacing: {
