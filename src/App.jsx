@@ -127,6 +127,7 @@ export default function App() {
   const [educationalSection, setEducationalSection] = useState('intro')
   const [showAlertModal, setShowAlertModal] = useState(false)
   const [showOutOfWindow, setShowOutOfWindow] = useState(false)
+  const [savedToast, setSavedToast] = useState(null)
   const [showLoginModal, setShowLoginModal] = useState(false)
   const [copied, setCopied] = useState(false)
 
@@ -430,6 +431,42 @@ export default function App() {
     setShowAlertModal(false)
   }
 
+  // ── ACV evolucionado / fuera de ventana ──────────────────────────────────────
+  // Carga POR FUERA de la activación del código stroke: no envía alerta, no
+  // arranca el cronómetro, no toca el flujo del protocolo. Solo persiste un
+  // evento con source 'manual' que aparece en el dashboard.
+  function handleOutOfWindowSave(data) {
+    const p = data.paciente || {}
+    const hasIdentity = Boolean(p.nombre && p.dni)
+    const toISO = (v) => (v ? new Date(v).toISOString() : undefined)
+
+    saveStrokeEvent({
+      id: crypto?.randomUUID?.() ?? `manual-${Date.now()}`,
+      source: 'manual',
+      outcome: 'manual', // marca el registro como completado (no in_progress)
+      patient: p.nombre || p.dni ? { name: p.nombre, dni: p.dni } : undefined,
+      patientId: hasIdentity ? generatePatientId(p.nombre, p.dni) : undefined,
+      patientArrivalTime: toISO(data.horarios?.llegada),
+      nihss: data.nihss != null ? { nihssScore: data.nihss } : undefined,
+      symptoms: {
+        lastSeenNormal: toISO(data.horarios?.ultimoVisto),
+        onsetTime: toISO(data.horarios?.sintomas),
+        isWakeUpStroke: false,
+        anticoagulation: {
+          active: Boolean(data.medicacion?.anticoagulante),
+          type: data.medicacion?.anticoagulante || '',
+        },
+      },
+      // Payload completo del formulario (antecedentes, medicación, decisión)
+      outOfWindow: data,
+      registeredAt: data.registeredAt,
+    })
+
+    setShowOutOfWindow(false)
+    setSavedToast('Registro guardado · cargado al dashboard')
+    setTimeout(() => setSavedToast(null), 3500)
+  }
+
   // ── Clinical data handlers ──────────────────────────────────────────────────
 
   function handleTimeConfirm(data) {
@@ -684,10 +721,24 @@ export default function App() {
         <StartStep
           onStart={handleStart}
           onResume={handleResume}
+          onOutOfWindow={() => setShowOutOfWindow(true)}
           onOpenEducational={() => { setEducationalSection('intro'); setShowEducationalMode(true) }}
           authUser={user}
           onAuthClick={() => setShowLoginModal(true)}
         />
+        {showOutOfWindow && (
+          <OutOfWindowModal
+            onClose={() => setShowOutOfWindow(false)}
+            onSave={handleOutOfWindowSave}
+          />
+        )}
+        {savedToast && (
+          <div className="fixed inset-x-0 bottom-0 z-[60] flex justify-center px-4 pb-[calc(1rem+env(safe-area-inset-bottom,0px))]">
+            <div className="rounded-xl bg-emerald-600 px-4 py-3 text-sm font-medium text-white shadow-elevated animate-slide-up">
+              {savedToast}
+            </div>
+          </div>
+        )}
         {showLoginModal && <LoginModal onClose={() => setShowLoginModal(false)} />}
         {showEducationalMode && (
           <EducationalMode initialSection={educationalSection} onClose={() => setShowEducationalMode(false)} />
@@ -1042,7 +1093,6 @@ export default function App() {
                       onAddNihss={handleAddNihss}
                       onAddVitals={handleAddVitals}
                       onAddGlucose={handleAddGlucose}
-                      onOutOfWindow={() => setShowOutOfWindow(true)}
                       latestNihss={latestNihss}
                       latestVitals={latestVitals}
                       latestGlucose={latestGlucose}
@@ -1164,7 +1214,6 @@ export default function App() {
               onAddNihss={handleAddNihss}
               onAddVitals={handleAddVitals}
               onAddGlucose={handleAddGlucose}
-              onOutOfWindow={() => setShowOutOfWindow(true)}
               latestNihss={latestNihss}
               latestVitals={latestVitals}
               latestGlucose={latestGlucose}
@@ -1208,14 +1257,6 @@ export default function App() {
       )}
 
       {showLoginModal && <LoginModal onClose={() => setShowLoginModal(false)} />}
-
-      {showOutOfWindow && (
-        <OutOfWindowModal
-          patient={patient}
-          onClose={() => setShowOutOfWindow(false)}
-          onSave={(data) => console.info('OutOfWindow:', data)}
-        />
-      )}
 
       {showEducationalOverlay && (
         <EducationalOverlay onClose={() => setShowEducationalOverlay(false)} />

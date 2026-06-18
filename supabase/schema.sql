@@ -155,8 +155,16 @@ create policy "institutions: lectura autenticados"
 -- ------------------------------------------------------------
 alter table stroke_events
   add column if not exists source text default 'app'
-    check (source in ('app', 'sheets_import')),
+    check (source in ('app', 'sheets_import', 'manual')),
   add column if not exists external_id text unique;
+
+-- Para bases ya provisionadas: el CHECK original solo permitía
+-- ('app','sheets_import'). Lo recreamos para admitir 'manual' (carga
+-- de ACV evolucionado / fuera de ventana desde fuera del código stroke).
+alter table stroke_events drop constraint if exists stroke_events_source_check;
+alter table stroke_events
+  add constraint stroke_events_source_check
+  check (source in ('app', 'sheets_import', 'manual'));
 
 create index if not exists idx_stroke_events_source on stroke_events (source);
 
