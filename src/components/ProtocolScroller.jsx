@@ -71,10 +71,13 @@ const ProtocolScroller = forwardRef(function ProtocolScroller(
             className="h-full w-full snap-start snap-always overflow-y-auto overflow-x-hidden"
             style={{ scrollbarWidth: 'none' }}
           >
-            {/* pt-14 despeja la StepPill flotante (top-center). pl ajustado al ancho
-                real del riel (~48px) para no desperdiciar espacio: la card ya trae
-                su propio px-4, así que con pl-10 queda ~8-12px de aire al riel. */}
-            <div className="mx-auto w-full max-w-5xl px-0 pb-3 pt-14 pl-10 md:px-5 md:pl-12">
+            {/* pt-14 despeja la StepPill flotante (top-center). En mobile el riel
+                vive sobre el borde izquierdo (la pastilla activa llega a ~38px), así
+                que reservamos un poco más de aire a la izquierda (pl-7) para que no
+                pise el borde de la card; la derecha queda más ajustada (pr-3) para no
+                perder ancho. En desktop la card va centrada (max-w-5xl) y el riel
+                queda lejos al borde, así que padding simétrico (md:px-6). */}
+            <div className="mx-auto w-full max-w-5xl pl-7 pr-3 pb-3 pt-14 md:px-6">
               {renderStep(step, isActive)}
             </div>
           </section>
