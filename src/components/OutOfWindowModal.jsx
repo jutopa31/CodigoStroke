@@ -37,6 +37,8 @@ function SectionTitle({ icon: Icon, label }) {
 }
 
 export default function OutOfWindowModal({ patient, onClose, onSave }) {
+  const [nombre, setNombre] = useState(patient?.name ?? '')
+  const [dni, setDni] = useState(patient?.dni ?? '')
   const [antecedentes, setAntecedentes] = useState({})
   const [antecOtro, setAntecOtro] = useState('')
   const [sintomas, setSintomas] = useState('')
@@ -57,6 +59,10 @@ export default function OutOfWindowModal({ patient, onClose, onSave }) {
 
   function handleSave() {
     onSave?.({
+      paciente: {
+        nombre: nombre.trim() || undefined,
+        dni: dni.trim() || undefined,
+      },
       antecedentes: { ...antecedentes, otro: antecOtro || undefined },
       horarios: { sintomas: sintomas || undefined, ultimoVisto, llegada },
       medicacion: {
@@ -84,8 +90,11 @@ export default function OutOfWindowModal({ patient, onClose, onSave }) {
         {/* Header fijo */}
         <div className="bg-slate-800 text-white px-5 py-4 flex items-center justify-between rounded-t-2xl shrink-0">
           <div>
-            <p className="text-stroke-textMuted text-xs uppercase tracking-wider leading-none mb-0.5">Protocolo alternativo</p>
-            <h2 className="font-semibold text-base leading-tight">ACV fuera de ventana</h2>
+            <h2 className="font-semibold text-base leading-tight">ACV evolucionado</h2>
+            <span className="mt-1.5 inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-[11px] text-stroke-textMuted">
+              <span className="h-1.5 w-1.5 rounded-full bg-stroke-textMuted" />
+              Fuera de ventana · no activa protocolo
+            </span>
           </div>
           <button
             onClick={onClose}
@@ -99,14 +108,27 @@ export default function OutOfWindowModal({ patient, onClose, onSave }) {
         {/* Cuerpo scrolleable */}
         <div className="overflow-y-auto px-5 py-4 space-y-6 flex-1">
 
-          {/* Paciente */}
-          {patient && (
-            <div className="bg-stroke-bg rounded-xl px-4 py-3 border border-slate-100">
-              <p className="text-xs text-stroke-textMuted uppercase tracking-wider mb-0.5">Paciente</p>
-              <p className="font-semibold text-stroke-text text-sm">{patient.name}</p>
-              <p className="text-xs text-stroke-textMuted">DNI {patient.dni}</p>
+          {/* Paciente (opcional) */}
+          <section>
+            <SectionTitle label="Paciente (opcional)" />
+            <div className="space-y-2">
+              <input
+                type="text"
+                placeholder="Nombre y apellido"
+                value={nombre}
+                onChange={(e) => setNombre(e.target.value)}
+                className="w-full border border-stroke-line rounded-xl px-4 py-3 text-sm text-stroke-text focus:outline-none focus:ring-2 focus:ring-slate-400 placeholder-stroke-textMuted/50"
+              />
+              <input
+                type="text"
+                inputMode="numeric"
+                placeholder="DNI"
+                value={dni}
+                onChange={(e) => setDni(e.target.value)}
+                className="w-full border border-stroke-line rounded-xl px-4 py-3 text-sm text-stroke-text focus:outline-none focus:ring-2 focus:ring-slate-400 placeholder-stroke-textMuted/50"
+              />
             </div>
-          )}
+          </section>
 
           {/* Antecedentes */}
           <section>
@@ -141,7 +163,6 @@ export default function OutOfWindowModal({ patient, onClose, onSave }) {
                 value={antecOtro}
                 onChange={(e) => setAntecOtro(e.target.value)}
                 onKeyDown={(event) => focusOnEnter(event, sintomasRef)}
-                autoFocus
                 className="w-full border border-stroke-line rounded-xl px-4 py-3 text-sm text-stroke-text focus:outline-none focus:ring-2 focus:ring-slate-400 placeholder-stroke-textMuted/50"
               />
             </div>

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { RotateCcw, BookOpen, User, History } from 'lucide-react'
+import { RotateCcw, BookOpen, User, History, ClipboardList } from 'lucide-react'
 import { loadSession, getSessions } from '../lib/storage'
 
 // Maximum IV thrombolysis window: 4h 29min
@@ -51,7 +51,7 @@ function getSessionMeta(session) {
   return parts.join('')
 }
 
-export default function StartStep({ onStart, onResume, onOpenEducational, authUser, onAuthClick }) {
+export default function StartStep({ onStart, onResume, onOutOfWindow, onOpenEducational, authUser, onAuthClick }) {
   const [recentSession] = useState(() => getRecentSession())
   const [showResume, setShowResume] = useState(false)
   const [resumeId, setResumeId] = useState('')
@@ -183,6 +183,18 @@ export default function StartStep({ onStart, onResume, onOpenEducational, authUs
         <History size={15} strokeWidth={2} />
         Ver historial de eventos
       </button>
+
+      {/* ── ACV evolucionado / fuera de ventana — NO activa el código stroke ── */}
+      {onOutOfWindow && (
+        <button
+          type="button"
+          onClick={onOutOfWindow}
+          className="w-full max-w-xs flex items-center justify-center gap-2 font-medium text-sm py-[15px] px-8 mt-3 rounded-full text-stroke-textMuted hover:text-stroke-text active:scale-[0.98] transition-all duration-150"
+        >
+          <ClipboardList size={15} strokeWidth={2} />
+          ACV fuera de ventana
+        </button>
+      )}
 
       {/* ── Manual resume (expandable) ── */}
       {showResume && (

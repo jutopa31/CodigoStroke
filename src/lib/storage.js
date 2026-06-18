@@ -55,6 +55,7 @@ async function toSupabaseRow(data) {
 
   return {
     id: data.id,
+    source: data.source ?? 'app',
     patient_dni_hash: await hashDni(data.patient?.dni),
     patient_alias: data.patientId ?? null,
     patient_mrs_score: data.symptoms?.modifiedRankinScale?.score ?? null,
