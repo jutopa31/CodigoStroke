@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { PROTOCOL_STEPS } from '../lib/protocolSteps'
 
-// Riel vertical de progreso al borde derecho (Dirección B). Equivalente vertical
+// Riel vertical de progreso al borde izquierdo (Dirección B). Equivalente vertical
 // de StepStepper: mismos 8 nodos, mismo cálculo de estado. Marca número + estado
 // de cada paso; al tocar un nodo salta a ese paso y revela su nombre ~1.5s.
 // El nombre del paso activo lo muestra StepPill (arriba), no el riel.
@@ -56,7 +56,7 @@ export default function StepRail({
   return (
     <nav
       aria-label="Progreso del protocolo"
-      className="absolute right-0 top-1/2 z-30 -translate-y-1/2 pr-1"
+      className="absolute left-0 top-14 z-30 pl-1"
     >
       <div className="relative flex flex-col items-center">
         {/* Connector line behind the nodes */}
@@ -77,9 +77,9 @@ export default function StepRail({
               title={step.name}
               className="relative flex h-11 w-11 items-center justify-center"
             >
-              {/* tap-reveal name tooltip (to the left of the rail) */}
+              {/* tap-reveal name tooltip (to the right of the rail) */}
               {tipKey === step.key && (
-                <span className="pointer-events-none absolute right-10 top-1/2 z-10 -translate-y-1/2 whitespace-nowrap rounded-md border border-stroke-line bg-stroke-navy px-2 py-1 text-[11px] font-semibold text-stroke-text shadow-elevated animate-fade-in">
+                <span className="pointer-events-none absolute left-10 top-1/2 z-10 -translate-y-1/2 whitespace-nowrap rounded-md border border-stroke-line bg-stroke-navy px-2 py-1 text-[11px] font-semibold text-stroke-text shadow-elevated animate-fade-in">
                   <span className="mr-1 font-mono text-stroke-iconActive">{step.n}</span>
                   {step.name}
                 </span>

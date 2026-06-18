@@ -47,7 +47,7 @@ export default function ContactFAB({ getSummary, patient }) {
     <>
       <button
         onClick={handleOpen}
-        className="fixed bottom-[calc(6.25rem+env(safe-area-inset-bottom,0px))] left-3 z-50 flex h-11 w-11 items-center justify-center rounded-full btn-primary text-white shadow-elevated transition-transform hover:scale-105 active:scale-95 md:bottom-6 md:left-6"
+        className="fixed bottom-[calc(8.5rem+env(safe-area-inset-bottom,0px))] right-3 z-50 flex h-11 w-11 items-center justify-center rounded-full btn-primary text-white shadow-elevated transition-transform hover:scale-105 active:scale-95 md:bottom-6 md:right-6"
         title="Interconsulta"
         aria-label="Enviar interconsulta por email"
       >
