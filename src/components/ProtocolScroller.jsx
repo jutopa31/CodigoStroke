@@ -71,10 +71,11 @@ const ProtocolScroller = forwardRef(function ProtocolScroller(
             className="h-full w-full snap-start snap-always overflow-y-auto overflow-x-hidden"
             style={{ scrollbarWidth: 'none' }}
           >
-            {/* pt-14 despeja la StepPill flotante (top-center). pl ajustado al ancho
-                real del riel (~48px) para no desperdiciar espacio: la card ya trae
-                su propio px-4, así que con pl-10 queda ~8-12px de aire al riel. */}
-            <div className="mx-auto w-full max-w-5xl px-0 pb-3 pt-14 pl-10 md:px-5 md:pl-12">
+            {/* pt-14 despeja la StepPill flotante (top-center). Padding horizontal
+                simétrico: el riel ahora son dots diminutos al borde (no reserva un
+                gutter ancho), así la card queda centrada y full-bleed como el mock B.
+                La card ya trae su propio px-4 interno. */}
+            <div className="mx-auto w-full max-w-5xl px-3 pb-3 pt-14 md:px-6">
               {renderStep(step, isActive)}
             </div>
           </section>

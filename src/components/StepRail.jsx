@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { PROTOCOL_STEPS } from '../lib/protocolSteps'
 
-// Riel vertical de progreso al borde izquierdo (Dirección B). Equivalente vertical
-// de StepStepper: mismos 8 nodos, mismo cálculo de estado. Marca número + estado
-// de cada paso; al tocar un nodo salta a ese paso y revela su nombre ~1.5s.
-// El nombre del paso activo lo muestra StepPill (arriba), no el riel.
+// Riel vertical de progreso al borde izquierdo (Dirección B). Guía periférica
+// "tipo Stories": dots diminutos, sólo el paso activo se agranda a una pastilla
+// numerada. El estado se lee por color (ámbar = completo). El nombre del paso
+// activo lo muestra StepPill (arriba); al tocar un dot salta y revela su nombre
+// ~1.5s. Mismos 8 nodos y cálculo de estado que StepStepper, pero al borde y sin
+// línea conectora, para que no compita con el contenido (fidelidad al mock B).
 
 function stepStatus(step, { completion, postUnlocked, summaryUnlocked }) {
   if (step.key === 'decision') return postUnlocked ? 'complete' : 'empty'
@@ -16,12 +18,13 @@ function stepStatus(step, { completion, postUnlocked, summaryUnlocked }) {
   return 'empty'
 }
 
-function dotClasses(status, active) {
-  if (active && status === 'complete') return 'bg-status-warning text-stroke-bg ring-2 ring-stroke-iconActive'
-  if (active) return 'border-2 border-stroke-iconActive bg-stroke-iconActive/15 text-stroke-iconActive'
-  if (status === 'complete') return 'bg-status-warning text-stroke-bg border border-status-warning'
-  if (status === 'partial') return 'bg-stroke-navy border border-status-warning text-status-warning'
-  return 'bg-stroke-navy border border-stroke-line text-stroke-textMuted'
+// El activo es el único nodo numerado (pastilla); el resto son dots periféricos.
+function dotVisual(status, active) {
+  if (active && status === 'complete') return 'h-6 w-6 text-[12px] bg-status-warning text-stroke-bg ring-2 ring-stroke-iconActive'
+  if (active) return 'h-6 w-6 text-[12px] bg-stroke-iconActive text-white ring-4 ring-stroke-iconActive/25'
+  if (status === 'complete') return 'h-2 w-2 bg-status-warning'
+  if (status === 'partial') return 'h-2 w-2 bg-stroke-navy ring-1 ring-status-warning'
+  return 'h-2 w-2 bg-stroke-line'
 }
 
 export default function StepRail({
@@ -56,11 +59,9 @@ export default function StepRail({
   return (
     <nav
       aria-label="Progreso del protocolo"
-      className="absolute left-0 top-14 z-30 pl-1"
+      className="absolute left-0 top-1/2 z-30 -translate-y-1/2 pl-1"
     >
       <div className="relative flex flex-col items-center">
-        {/* Connector line behind the nodes */}
-        <div className="absolute bottom-3 left-1/2 top-3 w-px -translate-x-1/2 bg-stroke-line" aria-hidden="true" />
         {PROTOCOL_STEPS.map((step) => {
           const status = stepStatus(step, { completion, postUnlocked, summaryUnlocked })
           const active = activeStep?.n === step.n
@@ -86,12 +87,11 @@ export default function StepRail({
               )}
               <span
                 className={`relative z-[1] flex items-center justify-center rounded-full font-mono font-semibold transition duration-base
-                  ${active ? 'h-8 w-8 text-[14px]' : 'h-6 w-6 text-[12px]'}
-                  ${dotClasses(status, active)}
+                  ${dotVisual(status, active)}
                   ${pending ? 'animate-pending-pulse motion-reduce:animate-none' : ''}
-                  ${reachable ? 'active:scale-95' : 'opacity-50'}`}
+                  ${reachable ? 'active:scale-90' : 'opacity-40'}`}
               >
-                {step.n}
+                {active ? step.n : null}
               </span>
             </button>
           )

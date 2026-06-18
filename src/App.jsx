@@ -944,7 +944,7 @@ export default function App() {
         onReset={patient ? handleReset : undefined}
         onEducationalOpen={() => setShowEducationalOverlay(true)}
         progressPct={progressPct}
-        stepLabel={stepLabel}
+        stepLabel={scrollActive ? null : stepLabel}
         authUser={user}
         onAuthClick={() => setShowLoginModal(true)}
         theme={theme}
