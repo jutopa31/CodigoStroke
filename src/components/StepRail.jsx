@@ -56,7 +56,7 @@ export default function StepRail({
   return (
     <nav
       aria-label="Progreso del protocolo"
-      className="absolute left-0 top-1/2 z-30 -translate-y-1/2 pl-1"
+      className="absolute left-0 top-14 z-30 pl-1"
     >
       <div className="relative flex flex-col items-center">
         {/* Connector line behind the nodes */}
