@@ -102,6 +102,37 @@ export type RetrospectiveFields = Pick<
   | "mortality90d"
 >;
 
+/**
+ * Datos para crear un caso manual desde el dashboard (ACV evolucionado /
+ * fuera de ventana / carga retrospectiva). Combina presentación aguda,
+ * tiempos y outcomes; el `id`, `source` y `createdAt` los pone la acción.
+ */
+export type ManualCaseInput = Pick<
+  StrokeCase,
+  | "patientAlias"
+  | "age"
+  | "sex"
+  | "nihssScore"
+  | "aspectsScore"
+  | "isWakeUpStroke"
+  | "hasLvo"
+  | "lvoSite"
+  | "symptomOnset"
+  | "doorTime"
+  | "thrombolysisGiven"
+  | "drugUsed"
+  | "thrombectomyDone"
+  | "hasBleeding"
+  | "mrsBaseline"
+  | "mrsDischarge"
+  | "mrs90d"
+  | "lengthOfStayDays"
+  | "dischargeDestination"
+  | "toastEtiology"
+  | "symptomaticICH"
+  | "mortality90d"
+> & { createdAt?: string | null };
+
 export const RETROSPECTIVE_KEYS: (keyof RetrospectiveFields)[] = [
   "age",
   "sex",

@@ -1,8 +1,11 @@
-// Overrides en memoria para las ediciones retrospectivas en modo mock.
-// Persisten durante la vida del proceso del server (suficiente para la demo).
-// En modo real, las ediciones van a Supabase vía UPDATE (ver actions.ts).
+// Estado en memoria para el modo mock. Persiste durante la vida del proceso
+// del server (suficiente para la demo). En modo real las ediciones/altas van a
+// Supabase vía UPDATE/INSERT (ver actions.ts).
+//
+//   overrides   → ediciones retrospectivas sobre casos existentes
+//   manualCases → casos cargados manualmente desde el dashboard (source 'manual')
 
-import type { RetrospectiveFields } from "./types";
+import type { RetrospectiveFields, StrokeCase } from "./types";
 
 const overrides = new Map<string, Partial<RetrospectiveFields>>();
 
@@ -12,4 +15,16 @@ export function getOverride(id: string): Partial<RetrospectiveFields> | undefine
 
 export function setOverride(id: string, patch: Partial<RetrospectiveFields>): void {
   overrides.set(id, { ...overrides.get(id), ...patch });
+}
+
+// ── Casos manuales (ACV evolucionado / carga retrospectiva) ───────────────────
+
+const manualCases: StrokeCase[] = [];
+
+export function addManualCase(c: StrokeCase): void {
+  manualCases.unshift(c);
+}
+
+export function getManualCases(): StrokeCase[] {
+  return manualCases;
 }

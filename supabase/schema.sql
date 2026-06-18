@@ -168,6 +168,25 @@ alter table stroke_events
 
 create index if not exists idx_stroke_events_source on stroke_events (source);
 
+-- ------------------------------------------------------------
+-- Carga manual / retrospectiva (ACV evolucionado + outcomes)
+-- Columnas que el dashboard ya asume (queries.ts, RetrospectiveForm y el
+-- formulario "Nuevo caso manual"). El source 'manual' se admite arriba.
+-- ------------------------------------------------------------
+alter table stroke_events
+  add column if not exists age                   smallint check (age between 0 and 120),
+  add column if not exists sex                   text check (sex in ('M', 'F')),
+  add column if not exists has_lvo               boolean,
+  add column if not exists lvo_site              text check (lvo_site in ('ica', 'm1', 'm2', 'aca', 'pca', 'basilar', 'tandem')),
+  add column if not exists mrs_baseline          smallint check (mrs_baseline between 0 and 6),
+  add column if not exists mrs_discharge         smallint check (mrs_discharge between 0 and 6),
+  add column if not exists mrs_90d               smallint check (mrs_90d between 0 and 6),
+  add column if not exists length_of_stay_days   smallint check (length_of_stay_days >= 0),
+  add column if not exists discharge_destination text check (discharge_destination in ('home', 'rehab', 'other_facility', 'death')),
+  add column if not exists toast_etiology        text check (toast_etiology in ('laa', 'cardioembolic', 'lacunar', 'other', 'undetermined')),
+  add column if not exists symptomatic_ich       boolean,
+  add column if not exists mortality_90d         boolean;
+
 -- ============================================================
 -- Ejemplos de queries analíticas
 -- ============================================================
