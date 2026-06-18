@@ -10,6 +10,8 @@ import {
   saveCaseDraft,
   loadCaseDraft,
   clearCaseDraft,
+  getNavMode,
+  setNavMode,
 } from './storage'
 
 // localStorage stub (vitest/node doesn't have it)
@@ -206,5 +208,30 @@ describe('case draft (saveCaseDraft / loadCaseDraft / clearCaseDraft)', () => {
     const recent = new Date(Date.now() - 60 * 60 * 1000).toISOString()
     localStorage.setItem('codigo_stroke_active_case', JSON.stringify({ phase: 'pre', _savedAt: recent }))
     expect(loadCaseDraft()?.phase).toBe('pre')
+  })
+})
+
+// ── navMode (flag A/B: stepper vs scroll) ─────────────────────────────────────
+
+describe('getNavMode / setNavMode', () => {
+  it('defaults to "stepper" when nothing is stored', () => {
+    expect(getNavMode()).toBe('stepper')
+  })
+
+  it('persists and reads back a valid mode', () => {
+    setNavMode('scroll')
+    expect(getNavMode()).toBe('scroll')
+    setNavMode('stepper')
+    expect(getNavMode()).toBe('stepper')
+  })
+
+  it('falls back to "stepper" for an invalid stored value', () => {
+    localStorage.setItem('codigo_stroke_nav_mode', 'banana')
+    expect(getNavMode()).toBe('stepper')
+  })
+
+  it('setNavMode rejects invalid input and normalizes to "stepper"', () => {
+    expect(setNavMode('banana')).toBe('stepper')
+    expect(getNavMode()).toBe('stepper')
   })
 })

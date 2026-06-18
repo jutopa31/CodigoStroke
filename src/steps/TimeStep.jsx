@@ -31,12 +31,13 @@ function combineDateTime(datePart, timePart) {
   return d.toISOString()
 }
 
-function useInterval(ms) {
+function useInterval(ms, active = true) {
   const [, setTick] = useState(0)
   useEffect(() => {
+    if (!active) return
     const id = setInterval(() => setTick((t) => t + 1), ms)
     return () => clearInterval(id)
-  }, [ms])
+  }, [ms, active])
 }
 
 function formatClock(dateStr) {
@@ -44,7 +45,7 @@ function formatClock(dateStr) {
   return new Date(dateStr).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false })
 }
 
-export default function TimeStep({ onConfirm, isCollapsed = false, initialLastSeen = null, initialIsWakeUp = false }) {
+export default function TimeStep({ onConfirm, isCollapsed = false, initialLastSeen = null, initialIsWakeUp = false, isActive = true }) {
   const initialDate = initialLastSeen ? new Date(initialLastSeen) : new Date()
   const [lastSeenDate, setLastSeenDate] = useState(() => toLocalDateInput(initialDate))
   const [lastSeenTime, setLastSeenTime] = useState(() => toLocalTimeInput(initialDate))
@@ -53,7 +54,7 @@ export default function TimeStep({ onConfirm, isCollapsed = false, initialLastSe
   const [isIncierto, setIsIncierto] = useState(!!initialIsWakeUp)
   const [editingTime, setEditingTime] = useState(false)
 
-  useInterval(1000)
+  useInterval(1000, isActive)
 
   const lastSeen = combineDateTime(lastSeenDate, lastSeenTime)
   const elapsedMinutes = getElapsedMinutes(lastSeen)

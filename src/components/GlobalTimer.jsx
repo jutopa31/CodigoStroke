@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Clock, Activity, RotateCcw, BookOpen, User, Sun, Moon } from 'lucide-react'
+import { Clock, Activity, RotateCcw, BookOpen, User, Sun, Moon, Rows3 } from 'lucide-react'
 import { getTimerTone } from '../lib/timerTone'
 
 function getInitials(user) {
@@ -59,7 +59,7 @@ function HeaderStrip({ stepLabel }) {
   )
 }
 
-function HeaderActions({ authUser, onAuthClick, onEducationalOpen, onReset, onToggleTheme, theme, size = 'mobile' }) {
+function HeaderActions({ authUser, onAuthClick, onEducationalOpen, onReset, onToggleTheme, theme, navMode, onToggleNavMode, size = 'mobile' }) {
   // Same role (icon button) → same radius token on mobile & desktop.
   // Only the touch-target size scales down on desktop (pointer vs finger).
   const base = size === 'mobile'
@@ -69,6 +69,14 @@ function HeaderActions({ authUser, onAuthClick, onEducationalOpen, onReset, onTo
   const cls = `${base} border border-[#29416D] bg-[#0F1C38] flex items-center justify-center text-white hover:bg-[#1E3356] transition-colors shrink-0`
   return (
     <div className="flex items-center gap-2 shrink-0">
+      {onToggleNavMode && (
+        <button type="button" onClick={onToggleNavMode} className={cls}
+          title={navMode === 'scroll' ? 'Navegación: scroll vertical' : 'Navegación: pasos'}
+          aria-label={`Cambiar navegación: ${navMode === 'scroll' ? 'scroll vertical' : 'pasos'}`}
+          aria-pressed={navMode === 'scroll'}>
+          <Rows3 size={14} strokeWidth={2} />
+        </button>
+      )}
       {onToggleTheme && (
         <button type="button" onClick={onToggleTheme} className={cls}
           title={theme === 'light' ? 'Modo oscuro' : 'Modo claro'} aria-label={theme === 'light' ? 'Cambiar a modo oscuro' : 'Cambiar a modo claro'}>
@@ -101,7 +109,7 @@ function HeaderActions({ authUser, onAuthClick, onEducationalOpen, onReset, onTo
   )
 }
 
-export default function GlobalTimer({ startTime, timestamps = {}, patient, onReset, progressPct, stepLabel, onEducationalOpen, authUser, onAuthClick, theme, onToggleTheme }) {
+export default function GlobalTimer({ startTime, timestamps = {}, patient, onReset, progressPct, stepLabel, onEducationalOpen, authUser, onAuthClick, theme, onToggleTheme, navMode, onToggleNavMode }) {
   const [elapsed, setElapsed] = useState(0)
 
   useEffect(() => {
@@ -132,7 +140,7 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
               <HeaderActions
                 authUser={authUser} onAuthClick={onAuthClick}
                 onEducationalOpen={onEducationalOpen} onReset={onReset}
-                onToggleTheme={onToggleTheme} theme={theme} size="mobile"
+                onToggleTheme={onToggleTheme} theme={theme} navMode={navMode} onToggleNavMode={onToggleNavMode} size="mobile"
               />
             </div>
             {/* Timer row */}
@@ -155,7 +163,7 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
             <HeaderActions
               authUser={authUser} onAuthClick={onAuthClick}
               onEducationalOpen={onEducationalOpen} onReset={onReset}
-              onToggleTheme={onToggleTheme} theme={theme} size="mobile"
+              onToggleTheme={onToggleTheme} theme={theme} navMode={navMode} onToggleNavMode={onToggleNavMode} size="mobile"
             />
           </div>
         )}
@@ -208,7 +216,7 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
           <HeaderActions
             authUser={authUser} onAuthClick={onAuthClick}
             onEducationalOpen={onEducationalOpen} onReset={onReset}
-            onToggleTheme={onToggleTheme} theme={theme} size="desktop"
+            onToggleTheme={onToggleTheme} theme={theme} navMode={navMode} onToggleNavMode={onToggleNavMode} size="desktop"
           />
         </div>
       </div>
