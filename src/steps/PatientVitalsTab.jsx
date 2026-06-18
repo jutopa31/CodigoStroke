@@ -273,7 +273,7 @@ function PatientSection({ patient, patientId, arrivalTime, onConfirm, onOpenEduc
 
 // ── Vitals section ────────────────────────────────────────────────────────────
 
-function VitalsSection({ vitals, onConfirm, draftVitals, onDraftChange, nihssScore }) {
+function VitalsSection({ vitals, onConfirm, draftVitals, onDraftChange, nihssScore, isActive = true }) {
   const [sys,     setSys]     = useState(vitals ? String(vitals.systolic)  : (draftVitals?.sys ?? ''))
   const [dia,     setDia]     = useState(vitals ? String(vitals.diastolic) : (draftVitals?.dia ?? ''))
   const [glucose, setGlucose] = useState(vitals ? String(vitals.glucose)  : (draftVitals?.glucose ?? ''))
@@ -302,12 +302,14 @@ function VitalsSection({ vitals, onConfirm, draftVitals, onDraftChange, nihssSco
     if (v.length === limit) scheduleAdvance()
   }
 
+  // Auto-foco solo si la card está activa: en modo scroll todas las cards están
+  // montadas y un foco no-activo robaría el scroll/teclado de la card visible.
   useEffect(() => {
-    if (!vitals) {
+    if (!vitals && isActive) {
       const t = setTimeout(() => sysRef.current?.focus(), 80)
       return () => clearTimeout(t)
     }
-  }, [])
+  }, [isActive])
 
   useEffect(() => {
     if (!vitals && onDraftChange) onDraftChange({ sys, dia, glucose, mrs })
@@ -604,6 +606,7 @@ export default function PatientVitalsTab({
   draftVitals,
   onDraftVitalsChange,
   nihssScore,
+  isActive = true,
 }) {
   const patientDone = !!patient
   const vitalsDone  = vitals !== null
@@ -640,6 +643,7 @@ export default function PatientVitalsTab({
             draftVitals={draftVitals}
             onDraftChange={onDraftVitalsChange}
             nihssScore={nihssScore}
+            isActive={isActive}
           />
         </div>
       ) : (

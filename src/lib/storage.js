@@ -203,3 +203,26 @@ export function clearCaseDraft() {
     localStorage.removeItem(ACTIVE_CASE_KEY)
   } catch { /* ignore */ }
 }
+
+// ── Modo de navegación (flag A/B: stepper horizontal vs scroll vertical) ──────
+const NAV_MODE_KEY = 'codigo_stroke_nav_mode'
+const NAV_MODES = ['stepper', 'scroll']
+
+// Default 'stepper' — el modo nuevo es opt-in hasta validarlo. Un valor inválido
+// o storage inaccesible (Safari privado) cae al default.
+export function getNavMode() {
+  try {
+    const v = localStorage.getItem(NAV_MODE_KEY)
+    return NAV_MODES.includes(v) ? v : 'stepper'
+  } catch {
+    return 'stepper'
+  }
+}
+
+export function setNavMode(mode) {
+  const next = NAV_MODES.includes(mode) ? mode : 'stepper'
+  try {
+    localStorage.setItem(NAV_MODE_KEY, next)
+  } catch { /* ignore */ }
+  return next
+}

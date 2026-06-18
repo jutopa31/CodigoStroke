@@ -2,12 +2,13 @@ import { useState, useEffect } from 'react'
 import { CheckCircle2, Scan, Clock, Droplets, Moon, Activity } from 'lucide-react'
 import StepCard from '../components/StepCard'
 
-function useInterval(ms) {
+function useInterval(ms, active = true) {
   const [, setTick] = useState(0)
   useEffect(() => {
+    if (!active) return
     const id = setInterval(() => setTick((t) => t + 1), ms)
     return () => clearInterval(id)
-  }, [ms])
+  }, [ms, active])
 }
 
 function timeSince(date) {
@@ -48,12 +49,13 @@ function CTSection({
   initialCtPerformedTime,
   initialInterpretTime,
   initialBleeding,
+  isActive = true,
 }) {
   const [requestTime, setRequestTime] = useState(initialCtRequestTime ?? null)
   const [performedTime, setPerformedTime] = useState(initialCtPerformedTime ?? null)
   const [interpretTime, setInterpretTime] = useState(initialInterpretTime ?? null)
   const [bleeding, setBleeding] = useState(initialBleeding ?? null)
-  useInterval(1000)
+  useInterval(1000, isActive)
 
   const interpreted = bleeding === true || bleeding === false
   const times = [requestTime, performedTime, interpretTime]
@@ -182,10 +184,10 @@ function CTSection({
 
 // ── MRI Section ──────────────────────────────────────────────────────────────
 
-function MRISection({ onConfirm, initialMriRequestTime, initialMismatch }) {
+function MRISection({ onConfirm, initialMriRequestTime, initialMismatch, isActive = true }) {
   const [mriRequestTime, setMriRequestTime] = useState(initialMriRequestTime ?? null)
   const [mismatch, setMismatch] = useState(initialMismatch ?? null)
-  useInterval(1000)
+  useInterval(1000, isActive)
 
   const elapsed = timeSince(mriRequestTime)
 
@@ -268,6 +270,7 @@ export default function ImagingTab({
   ctResult,
   isWakeUpStroke,
   initialCtRequestTime,
+  isActive = true,
 }) {
   const [selectedMode, setSelectedMode] = useState(null)
 
@@ -323,6 +326,7 @@ export default function ImagingTab({
             initialCtPerformedTime={ctResult?.ctPerformedTime ? new Date(ctResult.ctPerformedTime) : null}
             initialInterpretTime={ctResult?.ctInterpretTime ? new Date(ctResult.ctInterpretTime) : null}
             initialBleeding={ctResult?.bleeding ?? null}
+            isActive={isActive}
           />
           {ctResult?.bleeding === true && (
           <div className="mt-3 bg-status-critical/10 border border-status-critical/40 rounded-lg px-3 py-2.5 animate-fade-in">
@@ -345,6 +349,7 @@ export default function ImagingTab({
             onConfirm={onMriConfirm}
             initialMriRequestTime={ctResult?.mriRequestTime ? new Date(ctResult.mriRequestTime) : null}
             initialMismatch={ctResult?.mismatch ?? null}
+            isActive={isActive}
           />
         </StepCard>
       )}

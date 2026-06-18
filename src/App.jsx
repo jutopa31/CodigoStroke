@@ -5,6 +5,9 @@ import GlobalTimer from './components/GlobalTimer'
 import AlertModal from './components/AlertModal'
 import RestoreCaseModal from './components/RestoreCaseModal'
 import StepStepper from './components/StepStepper'
+import StepRail from './components/StepRail'
+import StepPill from './components/StepPill'
+import ProtocolScroller from './components/ProtocolScroller'
 import DecisionButton from './components/DecisionButton'
 import QuickAddFAB from './components/QuickAddFAB'
 import ContactFAB from './components/ContactFAB'
@@ -24,7 +27,8 @@ import DosageStep from './steps/DosageStep'
 import ThrombectomyStep from './steps/ThrombectomyStep'
 import CareTab from './steps/CareTab'
 import SummaryTab from './steps/SummaryTab'
-import { saveStrokeEvent, generatePatientId, saveSession, syncPendingEvents, saveCaseDraft, loadCaseDraft, clearCaseDraft } from './lib/storage'
+import { saveStrokeEvent, generatePatientId, saveSession, syncPendingEvents, saveCaseDraft, loadCaseDraft, clearCaseDraft, getNavMode, setNavMode } from './lib/storage'
+import { PROTOCOL_STEPS, deriveVisibleSteps } from './lib/protocolSteps'
 import { getNihssSeverity } from './content/nihss'
 import { sendStrokeAlert } from './lib/emailService'
 import { computeStrokeDecision } from './lib/strokeAlgorithm'
@@ -94,12 +98,28 @@ const SYMPTOM_LABELS = {
 // ── Phase-1 tab order (module-level so handlers can reference it) ─────────────
 const PHASE1_TAB_IDS = ['paciente', 'tiempo', 'clinica', 'imagenes', 'ci_abs', 'ci_rel']
 
+// Rótulos de los sub-tabs de los pasos agrupados (CI / Tratamiento) — usados por
+// el sub-control segmentado del modo scroll.
+const SUB_LABELS = {
+  ci_abs: 'CI Absolutas',
+  ci_rel: 'CI Relativas',
+  trombolisis: 'Trombolisis',
+  cuidados: 'Cuidados',
+  trombectomia: 'Trombectomía',
+}
+
 // ── Main App ─────────────────────────────────────────────────────────────────
 
 export default function App() {
   // Phase management
   const [phase, setPhase] = useState('start') // 'start' | 'pre' | 'post'
   const [activeTab, setActiveTab] = useState('paciente')
+
+  // Modo de navegación (flag A/B): 'stepper' (default) | 'scroll'
+  const [navMode, setNavModeState] = useState(getNavMode)
+  function handleToggleNavMode() {
+    setNavModeState((m) => setNavMode(m === 'scroll' ? 'stepper' : 'scroll'))
+  }
 
   // Modal state
   const [showEducationalOverlay, setShowEducationalOverlay] = useState(false)
@@ -685,79 +705,78 @@ export default function App() {
 
   // ── Render: tab content ─────────────────────────────────────────────────────
 
-  function renderTabContent() {
-    if (phase === 'pre') {
-      switch (activeTab) {
-        case 'paciente':
-          return (
-            <PatientVitalsTab
-              patient={patient}
-              patientId={patientId}
-              arrivalTime={patientArrivalTime}
-              vitals={vitals}
-              onPatientConfirm={handlePatientConfirm}
-              onVitalsConfirm={handleVitalsConfirm}
-              onOpenEducational={() => { setEducationalSection('intro'); setShowEducationalMode(true) }}
-              draftVitals={draftVitals}
-              onDraftVitalsChange={setDraftVitals}
-              nihssScore={nihss?.nihssScore}
-            />
-          )
-        case 'tiempo':
-          return (
-            <TimeStep
-              onConfirm={handleTimeConfirm}
-              isCollapsed={false}
-              initialLastSeen={symptoms?.lastSeenNormal ?? null}
-              initialIsWakeUp={symptoms?.isWakeUpStroke ?? false}
-            />
-          )
-        case 'clinica':
-          return (
-            <ClinicalTab
-              onNihssConfirm={handleNihssConfirm}
-              onNihssReset={() => setNihss(null)}
-              nihss={nihss}
-              symptoms={symptoms}
-              nihssDraft={nihssDraft}
-              onNihssDraftChange={setNihssDraft}
-              onContinue={() => setActiveTab('imagenes')}
-            />
-          )
-        case 'imagenes':
-          return (
-            <ImagingTab
-              onCtConfirm={handleCtConfirm}
-              onMriConfirm={handleMriConfirm}
-              onCtRequest={handleCtRequest}
-              onCtPerformed={handleCtPerformed}
-              ctResult={ctResult}
-              isWakeUpStroke={symptoms?.isWakeUpStroke}
-              initialCtRequestTime={ctRequestTime}
-            />
-          )
-        case 'ci_abs':
-          return (
-            <CIAbsolutasTab
-              initialState={contraAbsolutes}
-              onUpdate={handleContraAbsUpdate}
-            />
-          )
-        case 'ci_rel':
-          return (
-            <CIRelativasTab
-              initialState={contraRelatives}
-              onUpdate={handleContraRelUpdate}
-              onAnticoagChange={handleAnticoagChange}
-            />
-          )
-        default:
-          return null
-      }
-    }
-
-    // ── Phase 2 ──────────────────────────────────────────────────────────────
-    switch (activeTab) {
+  // Render del contenido de UN tab por su id. `isActive` se pasa a los pasos con
+  // efectos de montaje (foco / timers) para gatearlos en modo scroll, donde
+  // todas las cards están montadas a la vez. Switch único sobre el tabId (los
+  // ids son únicos entre fases, no hay colisión).
+  function renderTabById(tabId, isActive = true) {
+    switch (tabId) {
+      case 'paciente':
+        return (
+          <PatientVitalsTab
+            isActive={isActive}
+            patient={patient}
+            patientId={patientId}
+            arrivalTime={patientArrivalTime}
+            vitals={vitals}
+            onPatientConfirm={handlePatientConfirm}
+            onVitalsConfirm={handleVitalsConfirm}
+            onOpenEducational={() => { setEducationalSection('intro'); setShowEducationalMode(true) }}
+            draftVitals={draftVitals}
+            onDraftVitalsChange={setDraftVitals}
+            nihssScore={nihss?.nihssScore}
+          />
+        )
+      case 'tiempo':
+        return (
+          <TimeStep
+            isActive={isActive}
+            onConfirm={handleTimeConfirm}
+            isCollapsed={false}
+            initialLastSeen={symptoms?.lastSeenNormal ?? null}
+            initialIsWakeUp={symptoms?.isWakeUpStroke ?? false}
+          />
+        )
+      case 'clinica':
+        return (
+          <ClinicalTab
+            onNihssConfirm={handleNihssConfirm}
+            onNihssReset={() => setNihss(null)}
+            nihss={nihss}
+            symptoms={symptoms}
+            nihssDraft={nihssDraft}
+            onNihssDraftChange={setNihssDraft}
+            onContinue={() => setActiveTab('imagenes')}
+          />
+        )
+      case 'imagenes':
+        return (
+          <ImagingTab
+            isActive={isActive}
+            onCtConfirm={handleCtConfirm}
+            onMriConfirm={handleMriConfirm}
+            onCtRequest={handleCtRequest}
+            onCtPerformed={handleCtPerformed}
+            ctResult={ctResult}
+            isWakeUpStroke={symptoms?.isWakeUpStroke}
+            initialCtRequestTime={ctRequestTime}
+          />
+        )
+      case 'ci_abs':
+        return (
+          <CIAbsolutasTab
+            initialState={contraAbsolutes}
+            onUpdate={handleContraAbsUpdate}
+          />
+        )
+      case 'ci_rel':
+        return (
+          <CIRelativasTab
+            initialState={contraRelatives}
+            onUpdate={handleContraRelUpdate}
+            onAnticoagChange={handleAnticoagChange}
+          />
+        )
       case 'decision':
         return (
           <DecisionTab
@@ -832,6 +851,43 @@ export default function App() {
     }
   }
 
+  function renderTabContent() {
+    return renderTabById(activeTab, true)
+  }
+
+  // Modo scroll: render de una sección del stream. Single-tab → su contenido;
+  // agrupada (CI / Tratamiento) → sub-control segmentado + contenido del sub-tab.
+  function renderScrollSection(step, isActive) {
+    if (step.tabs.length === 1) return renderTabById(step.tabs[0], isActive)
+    const subTabs = step.tabs.filter((t) => !(t === 'trombolisis' && !showTrombolisis))
+    const current = subTabs.includes(activeTab) ? activeTab : subTabs[0]
+    return (
+      <div>
+        <div className="mb-3 flex items-center justify-center gap-1.5 px-4 md:px-0">
+          {subTabs.map((t) => {
+            const sel = current === t
+            return (
+              <button
+                key={t}
+                type="button"
+                onClick={() => setActiveTab(t)}
+                aria-pressed={sel}
+                className={`rounded-full px-3 py-1 text-[11px] font-semibold transition-colors ${
+                  sel
+                    ? 'border border-stroke-iconActive/40 bg-stroke-iconActive/15 text-stroke-iconActive'
+                    : 'border border-stroke-line bg-stroke-navy text-stroke-textMuted hover:bg-stroke-panel/40'
+                }`}
+              >
+                {SUB_LABELS[t] ?? t}
+              </button>
+            )
+          })}
+        </div>
+        {renderTabById(current, isActive)}
+      </div>
+    )
+  }
+
   // ── Main render ─────────────────────────────────────────────────────────────
 
   const progressPct = phase === 'pre'
@@ -848,10 +904,28 @@ export default function App() {
   }
   const stepLabel = STEP_OF_TAB[activeTab] ? `PASO ${STEP_OF_TAB[activeTab]}/8` : null
 
+  // Trombolisis indicada por el algoritmo (controla el sub-tab del paso Tratamiento)
+  const showTrombolisis = decisionResult?.thrombolyze === true
+
   // Floating trombolisis button: visible in Phase 2 when indicated, not already on that tab
   const showTrombolisisFAB = phase === 'post'
-    && decisionResult?.thrombolyze === true
+    && showTrombolisis
     && activeTab !== 'trombolisis'
+
+  // ── Modo scroll: secciones del stream + sección activa ──────────────────────
+  const scrollActive = navMode === 'scroll'
+  const visibleSteps = deriveVisibleSteps({ phase, summaryUnlocked: !!thrombectomy })
+  const activeSectionKey = PROTOCOL_STEPS.find((s) => s.tabs.includes(activeTab))?.key
+
+  // El observer del scroller reporta la sección visible; mapeamos a un tab y
+  // actualizamos activeTab sólo si el actual no pertenece ya a esa sección (así
+  // un sub-tab elegido en un paso agrupado no se pisa al re-observar).
+  function handleScrollActive(sectionKey) {
+    const step = PROTOCOL_STEPS.find((s) => s.key === sectionKey)
+    if (!step || step.tabs.includes(activeTab)) return
+    const tab = step.tabs.filter((t) => !(t === 'trombolisis' && !showTrombolisis))[0] ?? step.tabs[0]
+    setActiveTab(tab)
+  }
 
   return (
     <div className="h-dvh flex flex-col overflow-hidden bg-stroke-bg">
@@ -875,23 +949,28 @@ export default function App() {
         onAuthClick={() => setShowLoginModal(true)}
         theme={theme}
         onToggleTheme={handleToggleTheme}
+        navMode={navMode}
+        onToggleNavMode={handleToggleNavMode}
       />
 
       {/* Body below header */}
       <div className="flex-1 flex flex-col overflow-hidden">
 
-        {/* Protocol stepper — 7 numbered steps replacing the icon TabBar */}
-        <div className="shrink-0 bg-stroke-navy md:border-b md:border-stroke-line md:px-5 md:py-1">
-          <StepStepper
-            phase={phase}
-            activeTab={activeTab}
-            completion={tabCompletion}
-            postUnlocked={!!decisionResult}
-            showTrombolisis={decisionResult?.thrombolyze === true}
-            summaryUnlocked={!!thrombectomy}
-            onNavigate={handleStepNavigate}
-          />
-        </div>
+        {/* Protocol stepper — modo stepper. En modo scroll la guía es el StepRail
+            vertical (borde derecho del contenido), no esta barra superior. */}
+        {!scrollActive && (
+          <div className="shrink-0 bg-stroke-navy md:border-b md:border-stroke-line md:px-5 md:py-1">
+            <StepStepper
+              phase={phase}
+              activeTab={activeTab}
+              completion={tabCompletion}
+              postUnlocked={!!decisionResult}
+              showTrombolisis={showTrombolisis}
+              summaryUnlocked={!!thrombectomy}
+              onNavigate={handleStepNavigate}
+            />
+          </div>
+        )}
 
         {/* Two-column layout: sidebar (desktop) + main content */}
         <div className="flex-1 flex overflow-hidden md:px-4 md:pb-3">
@@ -1004,8 +1083,8 @@ export default function App() {
             </aside>
           )}
 
-          {/* Main content */}
-          <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Main content — `relative` para anclar el StepRail / StepPill (modo scroll) */}
+          <div className="relative flex-1 flex flex-col overflow-hidden">
 
             {/* ── Full-width sticky CTA — appears in main content when all 6 tabs complete ── */}
             {phase === 'pre' && tabCompletion.allComplete && (
@@ -1024,15 +1103,36 @@ export default function App() {
               </div>
             )}
 
-            <main className="flex-1 overflow-y-auto overflow-x-hidden">
-              <div className={`w-full max-w-5xl mx-auto px-0 py-3 md:px-5 md:py-3 md:pb-5 ${
-                phase === 'pre' && !tabCompletion.allComplete ? 'pb-20'
-                : phase === 'post' && timerStart ? 'pb-28'
-                : 'pb-5'
-              }`}>
-                {renderTabContent()}
-              </div>
-            </main>
+            {scrollActive ? (
+              <>
+                <StepPill activeTab={activeTab} />
+                <ProtocolScroller
+                  steps={visibleSteps}
+                  activeSectionKey={activeSectionKey}
+                  renderStep={renderScrollSection}
+                  onActiveChange={handleScrollActive}
+                />
+                <StepRail
+                  phase={phase}
+                  activeTab={activeTab}
+                  completion={tabCompletion}
+                  postUnlocked={!!decisionResult}
+                  showTrombolisis={showTrombolisis}
+                  summaryUnlocked={!!thrombectomy}
+                  onNavigate={handleStepNavigate}
+                />
+              </>
+            ) : (
+              <main className="flex-1 overflow-y-auto overflow-x-hidden">
+                <div className={`w-full max-w-5xl mx-auto px-0 py-3 md:px-5 md:py-3 md:pb-5 ${
+                  phase === 'pre' && !tabCompletion.allComplete ? 'pb-20'
+                  : phase === 'post' && timerStart ? 'pb-28'
+                  : 'pb-5'
+                }`}>
+                  {renderTabContent()}
+                </div>
+              </main>
+            )}
           </div>
         </div>
 
