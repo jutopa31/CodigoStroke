@@ -21,7 +21,7 @@ import {
   type MonthlyThrombolysisRow,
   type MrsDistributionRow,
 } from "./mock-data";
-import { getOverride } from "./mock-store";
+import { getOverride, getManualCases } from "./mock-store";
 
 export type {
   QualityMetrics,
@@ -49,7 +49,7 @@ function withOverrides(c: StrokeCase): StrokeCase {
 }
 
 async function loadAllCases(): Promise<StrokeCase[]> {
-  if (USE_MOCK) return MOCK_CASES.map(withOverrides);
+  if (USE_MOCK) return [...getManualCases(), ...MOCK_CASES.map(withOverrides)];
 
   // ── Path Supabase real ──
   const { createServerSupabaseClient } = await import("./supabase-server");
