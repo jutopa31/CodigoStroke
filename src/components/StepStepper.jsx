@@ -81,8 +81,8 @@ export default function StepStepper({ phase, activeTab, completion = {}, postUnl
     : []
 
   return (
-    <div className="px-5 pt-2 pb-2 md:px-0">
-     <div className="mx-auto w-full max-w-md">
+    <div className="px-4 py-2 md:px-0">
+     <div className="mx-auto w-full max-w-[360px] md:max-w-md">
       {/* Circles + connector line */}
       <div className="relative flex items-center justify-between">
         <div className="absolute left-4 right-4 top-1/2 h-px -translate-y-1/2 bg-stroke-line" aria-hidden="true" />
@@ -102,7 +102,7 @@ export default function StepStepper({ phase, activeTab, completion = {}, postUnl
               aria-current={active ? 'step' : undefined}
               aria-label={`Paso ${step.n}: ${step.name}`}
               title={step.name}
-              className={`relative z-10 flex h-8 w-8 items-center justify-center rounded-full font-mono text-[13px] font-semibold
+              className={`relative z-10 flex h-8 w-8 items-center justify-center rounded-full font-mono text-[13px] font-semibold md:h-8 md:w-8
                 transition duration-base ${circleClasses(status, active)} ${popping[step.key] ? 'animate-step-pop' : ''} ${pending ? 'animate-pending-pulse motion-reduce:animate-none' : ''} ${reachable ? 'active:scale-95' : 'opacity-50 cursor-not-allowed'}`}
             >
               {step.n}

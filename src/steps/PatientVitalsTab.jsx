@@ -138,10 +138,10 @@ function PatientSection({ patient, patientId, arrivalTime, onConfirm, onOpenEduc
       {showScanner && <DniQrScanner onScan={handleScan} onClose={() => setShowScanner(false)} />}
 
       {/* ══ DESKTOP ══ */}
-      <div className="hidden md:block md:max-w-md md:mx-auto">
+      <div className="hidden md:block md:max-w-lg md:mx-auto">
 
         {/* Form Inputs */}
-        <div className="bg-stroke-bg rounded-2xl border border-stroke-line p-4 space-y-4">
+        <div className="rounded-xl border border-stroke-line bg-stroke-bg/80 p-4 space-y-4">
           <div className="flex items-center justify-between">
             <p className="text-[10px] font-bold uppercase tracking-widest text-stroke-textMuted">Datos del paciente</p>
             <button type="button" onClick={() => setShowScanner(true)}
@@ -208,14 +208,14 @@ function PatientSection({ patient, patientId, arrivalTime, onConfirm, onOpenEduc
       {/* ══ MOBILE: stacked ══ */}
       <div className="md:hidden space-y-3">
         {/* Scan + educational row */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-2">
           <button type="button" onClick={() => setShowScanner(true)}
-            className="flex items-center gap-1.5 text-xs font-semibold text-stroke-iconActive bg-stroke-iconActive/10 hover:bg-stroke-iconActive/20 border border-stroke-iconActive/40 px-2.5 py-1.5 rounded-lg transition-colors">
+            className="flex min-h-9 items-center gap-1.5 rounded-lg border border-stroke-iconActive/40 bg-stroke-iconActive/10 px-2.5 py-1.5 text-xs font-semibold text-stroke-iconActive transition-colors hover:bg-stroke-iconActive/20">
             <ScanLine size={13} strokeWidth={2} /> Escanear DNI
           </button>
           {onOpenEducational && (
             <button type="button" onClick={onOpenEducational}
-              className="flex items-center gap-1 text-[11px] text-stroke-textMuted hover:text-amber-500 transition-colors">
+              className="flex min-h-9 items-center gap-1 rounded-lg px-2 text-[11px] text-stroke-textMuted transition-colors hover:bg-stroke-bg hover:text-amber-500">
               <BookOpen size={11} strokeWidth={2} /> Modo educativo
             </button>
           )}
@@ -223,7 +223,7 @@ function PatientSection({ patient, patientId, arrivalTime, onConfirm, onOpenEduc
 
         {/* Mobile form */}
         <form onSubmit={handleSubmit} className="space-y-3">
-          <div className="grid grid-cols-[1fr_1.5fr] gap-2.5">
+          <div className="grid grid-cols-1 gap-3">
             <div>
               <label className="text-[10px] font-semibold uppercase tracking-wider text-stroke-textMuted flex items-center gap-1 mb-1.5">
                 <CreditCard size={10} /> DNI
@@ -232,7 +232,7 @@ function PatientSection({ patient, patientId, arrivalTime, onConfirm, onOpenEduc
                 value={dni} onChange={(e) => setDni(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); nameRef.current?.focus() } }}
                 autoFocus
-                className="h-[42px] w-full bg-stroke-bg border border-stroke-line rounded-xl px-3 text-sm font-semibold font-mono tracking-widest text-stroke-text focus:ring-2 focus:ring-stroke-iconActive/30 focus:border-stroke-iconActive/40 placeholder-stroke-textMuted/50 transition-all outline-none" />
+                className="h-12 w-full rounded-xl border border-stroke-line bg-stroke-bg px-3 font-mono text-sm font-semibold tracking-widest text-stroke-text outline-none transition-all placeholder-stroke-textMuted/50 focus:border-stroke-iconActive/40 focus:ring-2 focus:ring-stroke-iconActive/30" />
             </div>
             <div>
               <label className="text-[10px] font-semibold uppercase tracking-wider text-stroke-textMuted flex items-center gap-1 mb-1.5">
@@ -241,13 +241,13 @@ function PatientSection({ patient, patientId, arrivalTime, onConfirm, onOpenEduc
               <input ref={nameRef} type="text" placeholder="Nombre y apellido"
                 value={name} onChange={(e) => setName(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); passRef.current?.focus() } }}
-                className="h-[42px] w-full bg-stroke-bg border border-stroke-line rounded-xl px-3 text-sm text-stroke-text focus:ring-2 focus:ring-stroke-iconActive/30 focus:border-stroke-iconActive/40 placeholder-stroke-textMuted/50 transition-all outline-none" />
+                className="h-12 w-full rounded-xl border border-stroke-line bg-stroke-bg px-3 text-sm text-stroke-text outline-none transition-all placeholder-stroke-textMuted/50 focus:border-stroke-iconActive/40 focus:ring-2 focus:ring-stroke-iconActive/30" />
             </div>
           </div>
 
           <div>
             <button type="button" onClick={() => setShowPassphrase(v => !v)}
-              className="flex items-center gap-1.5 text-[11px] text-stroke-textMuted hover:text-stroke-textMuted transition-colors">
+              className="flex min-h-9 items-center gap-1.5 rounded-lg px-1 text-[11px] text-stroke-textMuted transition-colors hover:text-stroke-text">
               <Lock size={11} strokeWidth={2} />
               <span>{showPassphrase ? 'Ocultar contraseña de turno' : 'Agregar contraseña de turno (opcional)'}</span>
               <ChevronRight size={11} strokeWidth={2} className={`transition-transform ${showPassphrase ? 'rotate-90' : ''}`} />
@@ -260,7 +260,7 @@ function PatientSection({ patient, patientId, arrivalTime, onConfirm, onOpenEduc
           </div>
 
           <button type="submit" disabled={!valid}
-            className={`flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold transition-all active:scale-[0.98] ${
+            className={`flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-semibold transition-all active:scale-[0.98] ${
               valid ? 'bg-brand-600 hover:bg-brand-700 text-white' : 'bg-stroke-panel text-stroke-textMuted cursor-not-allowed'
             }`}>
             <Zap size={15} strokeWidth={2.5} /> Activar Código Stroke
@@ -622,7 +622,7 @@ export default function PatientVitalsTab({
       )}
 
       {/* Patient section */}
-      <div className="bg-stroke-navy rounded-xl border border-stroke-line p-3 md:max-w-none">
+      <div className="rounded-xl border border-stroke-line bg-stroke-navy p-3 md:p-4">
         {!patient && <p className="text-[10px] font-bold uppercase tracking-widest text-stroke-textMuted mb-2.5">Identificación del paciente</p>}
         <PatientSection
           patient={patient}
@@ -635,7 +635,7 @@ export default function PatientVitalsTab({
 
       {/* Vitals section */}
       {patientDone ? (
-        <div className="bg-stroke-navy rounded-xl border border-stroke-line p-3 md:max-w-none animate-fade-in">
+        <div className="rounded-xl border border-stroke-line bg-stroke-navy p-3 animate-fade-in md:p-4">
           <p className="text-[10px] font-bold uppercase tracking-widest text-stroke-textMuted mb-2.5">Signos vitales</p>
           <VitalsSection
             vitals={vitals}
@@ -647,7 +647,7 @@ export default function PatientVitalsTab({
           />
         </div>
       ) : (
-        <div className="bg-stroke-bg rounded-xl border border-dashed border-stroke-line p-4">
+        <div className="rounded-xl border border-dashed border-stroke-line bg-stroke-bg/60 p-4">
           <div className="flex items-center gap-3 text-stroke-textMuted">
             <Lock size={16} strokeWidth={1.5} className="shrink-0" />
             <div>

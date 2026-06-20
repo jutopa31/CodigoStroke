@@ -74,18 +74,18 @@ export default function StartStep({ onStart, onResume, onOutOfWindow, onOpenEduc
 
   return (
     <div
-      className="min-h-[100dvh] flex flex-col items-center justify-center px-6 py-10 bg-stroke-bg"
-      style={{ paddingTop: 'max(40px, env(safe-area-inset-top, 0px))' }}
+      className="relative min-h-[100dvh] flex flex-col items-center justify-center overflow-hidden bg-stroke-bg px-5 py-8"
+      style={{ paddingTop: 'max(32px, env(safe-area-inset-top, 0px))' }}
     >
       {/* Top-right utility buttons */}
-      <div className="absolute top-0 right-0 flex items-center gap-0.5 p-2"
+      <div className="absolute top-3 right-3 flex items-center gap-1 rounded-xl border border-stroke-line/70 bg-stroke-navy/45 p-1 backdrop-blur-sm"
            style={{ paddingTop: 'env(safe-area-inset-top, 8px)' }}>
         {onOpenEducational && (
           <button
             type="button"
             onClick={onOpenEducational}
             aria-label="Modo educativo"
-            className="w-11 h-11 flex items-center justify-center text-stroke-textMuted hover:text-amber-400 transition-colors rounded-xl"
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-stroke-textMuted transition-colors hover:bg-stroke-iconActive/10 hover:text-amber-400"
           >
             <BookOpen size={16} strokeWidth={2} />
           </button>
@@ -95,7 +95,7 @@ export default function StartStep({ onStart, onResume, onOutOfWindow, onOpenEduc
             type="button"
             onClick={onAuthClick}
             aria-label={authUser ? 'Tu cuenta' : 'Iniciar sesión'}
-            className="w-11 h-11 flex items-center justify-center text-stroke-textMuted hover:text-stroke-iconActive transition-colors rounded-xl"
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-stroke-textMuted transition-colors hover:bg-stroke-iconActive/10 hover:text-stroke-iconActive"
           >
             {authUser
               ? <span className="text-[10px] font-bold text-stroke-iconActive">{getInitials(authUser)}</span>
@@ -106,16 +106,17 @@ export default function StartStep({ onStart, onResume, onOutOfWindow, onOpenEduc
       </div>
 
       {/* ── Title ── */}
-      <h1 className="text-[2rem] font-bold tracking-tight mb-1 text-center">
+      <div className="flex w-full max-w-sm flex-col items-center">
+      <h1 className="text-[2rem] font-bold tracking-tight mb-1 text-center md:text-[2.15rem]">
         <span className="text-stroke-text">Código</span>
         <span className="text-stroke-iconActive">Stroke</span>
       </h1>
-      <p className="text-stroke-textMuted text-sm text-center mb-10">
+      <p className="text-stroke-textMuted text-sm text-center mb-8">
         Protocolo ACV Isquémico · AHA/ASA 2026
       </p>
 
       {/* ── Hero: IV thrombolysis window (static reference, NOT a live clock) ── */}
-      <div className="text-center mb-10">
+      <div className="text-center mb-8">
         <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-stroke-textMuted mb-2">
           Ventana de trombólisis IV
         </p>
@@ -133,11 +134,11 @@ export default function StartStep({ onStart, onResume, onOutOfWindow, onOpenEduc
       </div>
 
       {/* ── Last event card ── */}
-      <div className="w-full max-w-xs mb-4">
+      <div className="w-full mb-4">
         {recentSession ? (
           <button
             onClick={handleRecentResume}
-            className="w-full bg-stroke-navy border border-stroke-line rounded-2xl px-5 py-4 text-left transition-all hover:bg-stroke-navy/70 active:scale-[0.98]"
+            className="w-full rounded-xl border border-stroke-line bg-stroke-navy/90 px-4 py-3.5 text-left transition-all hover:bg-stroke-navy/70 active:scale-[0.98]"
           >
             <div className="flex items-start justify-between gap-3">
               <div className="flex-1 min-w-0">
@@ -157,7 +158,7 @@ export default function StartStep({ onStart, onResume, onOutOfWindow, onOpenEduc
             </div>
           </button>
         ) : (
-          <div className="w-full bg-stroke-navy border border-stroke-line rounded-2xl px-5 py-4">
+          <div className="w-full rounded-xl border border-stroke-line bg-stroke-navy/70 px-4 py-3.5">
             <p className="text-[10px] font-semibold text-stroke-textMuted uppercase tracking-wider mb-1.5">
               Último evento
             </p>
@@ -169,7 +170,7 @@ export default function StartStep({ onStart, onResume, onOutOfWindow, onOpenEduc
       {/* ── Primary CTA ── */}
       <button
         onClick={onStart}
-        className="w-full max-w-xs flex items-center justify-center font-bold text-base py-4 px-8 rounded-full bg-brand-600 hover:bg-brand-700 active:scale-[0.98] text-white shadow-elevated transition-all duration-150 mb-3"
+        className="flex w-full items-center justify-center rounded-xl bg-brand-600 px-8 py-4 text-base font-bold text-white shadow-elevated transition-all duration-150 hover:bg-brand-700 active:scale-[0.98]"
       >
         Iniciar Código Stroke
       </button>
@@ -178,7 +179,7 @@ export default function StartStep({ onStart, onResume, onOutOfWindow, onOpenEduc
       <button
         type="button"
         onClick={() => setShowResume(v => !v)}
-        className="w-full max-w-xs flex items-center justify-center gap-2 font-medium text-sm py-[15px] px-8 rounded-full border border-stroke-line text-stroke-textMuted hover:border-stroke-iconActive/40 hover:text-stroke-iconActive active:scale-[0.98] transition-all duration-150"
+        className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-stroke-line px-8 py-[13px] text-sm font-medium text-stroke-textMuted transition-all duration-150 hover:border-stroke-iconActive/40 hover:text-stroke-iconActive active:scale-[0.98]"
       >
         <History size={15} strokeWidth={2} />
         Ver historial de eventos
@@ -189,7 +190,7 @@ export default function StartStep({ onStart, onResume, onOutOfWindow, onOpenEduc
         <button
           type="button"
           onClick={onOutOfWindow}
-          className="w-full max-w-xs flex items-center justify-center gap-2 font-medium text-sm py-[15px] px-8 mt-3 rounded-full text-stroke-textMuted hover:text-stroke-text active:scale-[0.98] transition-all duration-150"
+        className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl px-8 py-[13px] text-sm font-medium text-stroke-textMuted transition-all duration-150 hover:bg-stroke-navy/55 hover:text-stroke-text active:scale-[0.98]"
         >
           <ClipboardList size={15} strokeWidth={2} />
           ACV fuera de ventana
@@ -198,7 +199,7 @@ export default function StartStep({ onStart, onResume, onOutOfWindow, onOpenEduc
 
       {/* ── Manual resume (expandable) ── */}
       {showResume && (
-        <div className="w-full max-w-xs mt-4 flex flex-col gap-3 animate-fade-in">
+        <div className="mt-4 flex w-full flex-col gap-3 animate-fade-in">
           <div className="flex gap-2">
             <input
               type="text"
@@ -222,6 +223,7 @@ export default function StartStep({ onStart, onResume, onOutOfWindow, onOpenEduc
           )}
         </div>
       )}
+      </div>
 
     </div>
   )
