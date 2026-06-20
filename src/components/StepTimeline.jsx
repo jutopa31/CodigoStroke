@@ -32,7 +32,7 @@ export default function StepTimeline({ currentStep, completedSteps = [], onStepC
                   onClick={() => isUnlocked ? onStepClick?.(step.value) : undefined}
                   className={`
                     relative flex items-center gap-3 w-full text-left rounded-xl py-2 pr-3
-                    transition-all group focus:outline-none
+                    transition group focus:outline-none
                     ${isActive
                       ? 'bg-stroke-iconActive/10'
                       : isUnlocked
@@ -44,7 +44,7 @@ export default function StepTimeline({ currentStep, completedSteps = [], onStepC
                   <span
                     className={`
                       relative z-10 w-7 h-7 rounded-lg flex-shrink-0 flex items-center justify-center
-                      font-semibold text-xs transition-all
+                      font-semibold text-xs transition
                       ${isCompleted
                         ? 'bg-emerald-500/100 text-white'
                         : isActive

@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { X, Clock, Pill, AlertTriangle } from 'lucide-react'
 
 const ANTECEDENTES = [
@@ -36,6 +36,9 @@ function SectionTitle({ icon: Icon, label }) {
   )
 }
 
+// Shared input treatment — navy surface, accent focus ring (DESIGN.md §Color).
+const inputCls = 'w-full border border-stroke-line rounded-xl px-4 py-3 text-sm text-stroke-text bg-stroke-navy focus:outline-none focus:ring-2 focus:ring-stroke-iconActive/40 focus:border-stroke-iconActive placeholder-stroke-textMuted/50 transition'
+
 export default function OutOfWindowModal({ patient, onClose, onSave }) {
   const [nombre, setNombre] = useState(patient?.name ?? '')
   const [dni, setDni] = useState(patient?.dni ?? '')
@@ -50,8 +53,29 @@ export default function OutOfWindowModal({ patient, onClose, onSave }) {
   const [nihss, setNihss] = useState('')
   const [decision, setDecision] = useState(null)
   const sintomasRef = useRef(null)
+  const dialogRef = useRef(null)
+  const closeRef = useRef(null)
 
   const isAcod = ACOD.includes(anticoagulante)
+
+  // Esc to close + initial focus + basic focus trap (Tab cycles within dialog).
+  useEffect(() => {
+    closeRef.current?.focus()
+    function onKeyDown(e) {
+      if (e.key === 'Escape') { onClose(); return }
+      if (e.key !== 'Tab') return
+      const focusables = dialogRef.current?.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+      )
+      if (!focusables || focusables.length === 0) return
+      const first = focusables[0]
+      const last = focusables[focusables.length - 1]
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus() }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus() }
+    }
+    document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [onClose])
 
   function toggleAntec(id) {
     setAntecedentes((a) => ({ ...a, [id]: !a[id] }))
@@ -84,21 +108,32 @@ export default function OutOfWindowModal({ patient, onClose, onSave }) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/70 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-      <div className="bg-stroke-navy w-full max-w-md max-h-[92dvh] rounded-t-2xl sm:rounded-2xl flex flex-col shadow-2xl">
+    <div
+      className="fixed inset-0 bg-black/70 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
+      onClick={onClose}
+    >
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="oow-title"
+        onClick={(e) => e.stopPropagation()}
+        className="bg-stroke-navy w-full max-w-md max-h-[92dvh] rounded-t-2xl sm:rounded-2xl flex flex-col shadow-2xl"
+      >
 
         {/* Header fijo */}
-        <div className="bg-slate-800 text-white px-5 py-4 flex items-center justify-between rounded-t-2xl shrink-0">
+        <div className="border-b border-stroke-line px-5 py-4 flex items-center justify-between rounded-t-2xl shrink-0">
           <div>
-            <h2 className="font-semibold text-base leading-tight">ACV evolucionado</h2>
-            <span className="mt-1.5 inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-[11px] text-stroke-textMuted">
+            <h2 id="oow-title" className="font-semibold text-base leading-tight text-stroke-text">ACV evolucionado</h2>
+            <span className="mt-1.5 inline-flex items-center gap-1.5 rounded-full border border-stroke-line bg-stroke-panel/40 px-2.5 py-1 text-[11px] text-stroke-textMuted">
               <span className="h-1.5 w-1.5 rounded-full bg-stroke-textMuted" />
               Fuera de ventana · no activa protocolo
             </span>
           </div>
           <button
+            ref={closeRef}
             onClick={onClose}
-            className="text-stroke-textMuted hover:text-white transition-colors p-1"
+            className="flex h-11 w-11 items-center justify-center rounded-xl text-stroke-textMuted hover:text-stroke-text hover:bg-stroke-panel/40 transition-colors shrink-0"
             aria-label="Cerrar"
           >
             <X size={20} />
@@ -117,7 +152,7 @@ export default function OutOfWindowModal({ patient, onClose, onSave }) {
                 placeholder="Nombre y apellido"
                 value={nombre}
                 onChange={(e) => setNombre(e.target.value)}
-                className="w-full border border-stroke-line rounded-xl px-4 py-3 text-sm text-stroke-text focus:outline-none focus:ring-2 focus:ring-slate-400 placeholder-stroke-textMuted/50"
+                className={inputCls}
               />
               <input
                 type="text"
@@ -125,7 +160,7 @@ export default function OutOfWindowModal({ patient, onClose, onSave }) {
                 placeholder="DNI"
                 value={dni}
                 onChange={(e) => setDni(e.target.value)}
-                className="w-full border border-stroke-line rounded-xl px-4 py-3 text-sm text-stroke-text focus:outline-none focus:ring-2 focus:ring-slate-400 placeholder-stroke-textMuted/50"
+                className={inputCls}
               />
             </div>
           </section>
@@ -139,15 +174,16 @@ export default function OutOfWindowModal({ patient, onClose, onSave }) {
                   key={id}
                   type="button"
                   onClick={() => toggleAntec(id)}
+                  aria-pressed={!!antecedentes[id]}
                   className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border text-sm transition-colors ${
                     antecedentes[id]
                       ? 'bg-stroke-panel border-stroke-line text-stroke-text font-medium'
-                      : 'border-stroke-line text-stroke-textMuted hover:border-slate-300'
+                      : 'border-stroke-line text-stroke-textMuted hover:border-stroke-iconActive/40'
                   }`}
                 >
                   {label}
                   <span className={`w-5 h-5 rounded-full border-2 shrink-0 flex items-center justify-center transition-colors ${
-                    antecedentes[id] ? 'bg-slate-700 border-slate-700' : 'border-stroke-line'
+                    antecedentes[id] ? 'bg-stroke-iconActive border-stroke-iconActive' : 'border-stroke-line'
                   }`}>
                     {antecedentes[id] && (
                       <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -163,7 +199,7 @@ export default function OutOfWindowModal({ patient, onClose, onSave }) {
                 value={antecOtro}
                 onChange={(e) => setAntecOtro(e.target.value)}
                 onKeyDown={(event) => focusOnEnter(event, sintomasRef)}
-                className="w-full border border-stroke-line rounded-xl px-4 py-3 text-sm text-stroke-text focus:outline-none focus:ring-2 focus:ring-slate-400 placeholder-stroke-textMuted/50"
+                className={inputCls}
               />
             </div>
           </section>
@@ -187,7 +223,7 @@ export default function OutOfWindowModal({ patient, onClose, onSave }) {
                     value={value}
                     max={toLocalInput(new Date())}
                     onChange={(e) => set(e.target.value)}
-                    className="w-full border border-stroke-line rounded-xl px-4 py-3 text-sm text-stroke-text focus:outline-none focus:ring-2 focus:ring-slate-400"
+                    className={inputCls}
                   />
                 </div>
               ))}
@@ -203,7 +239,7 @@ export default function OutOfWindowModal({ patient, onClose, onSave }) {
                 <select
                   value={anticoagulante}
                   onChange={(e) => setAnticoagulante(e.target.value)}
-                  className="w-full border border-stroke-line rounded-xl px-4 py-3 text-sm text-stroke-text focus:outline-none focus:ring-2 focus:ring-slate-400 bg-stroke-navy"
+                  className={inputCls}
                 >
                   <option value="">Sin anticoagulante</option>
                   <optgroup label="ACOD / NOAC">
@@ -220,8 +256,8 @@ export default function OutOfWindowModal({ patient, onClose, onSave }) {
                 </select>
                 {isAcod && (
                   <div className="mt-2 flex items-start gap-2 bg-status-critical/10 border border-status-critical/30 rounded-xl px-3 py-2.5">
-                    <AlertTriangle size={14} className="text-red-400 shrink-0 mt-0.5" />
-                    <p className="text-xs text-red-400 leading-relaxed">
+                    <AlertTriangle size={14} className="text-status-critical shrink-0 mt-0.5" />
+                    <p className="text-xs text-status-critical leading-relaxed">
                       ACOD activo — contraindicación relativa para trombolisis IV. Verificar última dosis, tiempo transcurrido y función renal.
                     </p>
                   </div>
@@ -233,7 +269,7 @@ export default function OutOfWindowModal({ patient, onClose, onSave }) {
                 <select
                   value={antiplaquetario}
                   onChange={(e) => setAntiplaquetario(e.target.value)}
-                  className="w-full border border-stroke-line rounded-xl px-4 py-3 text-sm text-stroke-text focus:outline-none focus:ring-2 focus:ring-slate-400 bg-stroke-navy"
+                  className={inputCls}
                 >
                   <option value="">Sin antiplaquetario</option>
                   {ANTIPLAQUETARIOS.map((a) => <option key={a} value={a}>{a}</option>)}
@@ -245,7 +281,7 @@ export default function OutOfWindowModal({ patient, onClose, onSave }) {
                 placeholder="Otra medicación relevante..."
                 value={medOtro}
                 onChange={(e) => setMedOtro(e.target.value)}
-                className="w-full border border-stroke-line rounded-xl px-4 py-3 text-sm text-stroke-text focus:outline-none focus:ring-2 focus:ring-slate-400 placeholder-stroke-textMuted/50"
+                className={inputCls}
               />
             </div>
           </section>
@@ -261,7 +297,7 @@ export default function OutOfWindowModal({ patient, onClose, onSave }) {
               placeholder="0 – 42"
               value={nihss}
               onChange={(e) => setNihss(e.target.value)}
-              className="w-full border border-stroke-line rounded-xl px-4 py-3 text-2xl font-bold text-center text-stroke-text focus:outline-none focus:ring-2 focus:ring-slate-400"
+              className="w-full border border-stroke-line rounded-xl px-4 py-3 text-2xl font-mono font-bold tabular-nums text-center text-stroke-text bg-stroke-navy focus:outline-none focus:ring-2 focus:ring-stroke-iconActive/40 focus:border-stroke-iconActive transition"
             />
           </section>
 
@@ -274,10 +310,11 @@ export default function OutOfWindowModal({ patient, onClose, onSave }) {
                   key={id}
                   type="button"
                   onClick={() => setDecision(id)}
-                  className={`w-full px-4 py-3.5 rounded-xl border-2 text-sm font-medium text-left transition-all active:scale-95 ${
+                  aria-pressed={decision === id}
+                  className={`w-full px-4 py-3.5 rounded-xl border-2 text-sm font-medium text-left transition active:scale-95 ${
                     decision === id
-                      ? 'bg-slate-800 border-slate-800 text-white'
-                      : 'border-stroke-line text-stroke-text hover:border-stroke-line'
+                      ? 'bg-stroke-iconActive/15 border-stroke-iconActive text-stroke-text'
+                      : 'border-stroke-line text-stroke-text hover:border-stroke-iconActive/40'
                   }`}
                 >
                   {label}
@@ -290,7 +327,7 @@ export default function OutOfWindowModal({ patient, onClose, onSave }) {
           <button
             type="button"
             onClick={handleSave}
-            className="w-full bg-slate-800 hover:bg-slate-900 active:scale-95 text-white font-semibold py-4 rounded-xl transition-all"
+            className="btn-primary w-full active:scale-95 font-semibold py-4 rounded-xl transition"
           >
             Registrar evaluación
           </button>

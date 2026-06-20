@@ -56,7 +56,7 @@ export default function InstructionsStep({ onConfirm }) {
               <button
                 key={item.id}
                 onClick={() => toggle(item.id)}
-                className={`w-full flex items-start gap-3 px-4 py-3.5 rounded-xl border-2 text-left transition-all ${
+                className={`w-full flex items-start gap-3 px-4 py-3.5 rounded-xl border-2 text-left transition ${
                   done
                     ? 'bg-emerald-500/15 border-green-500 text-emerald-300 shadow-sm ring-2 ring-emerald-500/30'
                     : 'border-stroke-line bg-stroke-navy hover:border-green-300 hover:bg-emerald-500/15'
@@ -86,7 +86,7 @@ export default function InstructionsStep({ onConfirm }) {
         </div>
         <div className="h-2 bg-stroke-panel rounded-full overflow-hidden">
           <div
-            className="h-2 bg-emerald-500/150 rounded-full transition-all duration-300"
+            className="h-2 bg-emerald-500/150 rounded-full transition duration-300"
             style={{ width: `${(Object.values(checked).filter(Boolean).length / CHECKLIST.length) * 100}%` }}
           />
         </div>

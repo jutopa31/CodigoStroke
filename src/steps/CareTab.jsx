@@ -95,7 +95,7 @@ function InfoItem({ item, accent = 'red' }) {
     <button
       type="button"
       onClick={() => setOpen((v) => !v)}
-      className="w-full flex flex-col rounded-lg border border-stroke-line bg-stroke-navy px-3 py-2 text-left transition-all hover:bg-stroke-bg active:scale-[0.98]"
+      className="w-full flex flex-col rounded-lg border border-stroke-line bg-stroke-navy px-3 py-2 text-left transition hover:bg-stroke-bg active:scale-[0.98]"
     >
       <div className="flex items-center gap-3">
         <AlertTriangle size={13} className={`${accentColor} shrink-0`} />
@@ -266,7 +266,7 @@ export default function CareTab({
           onChange={(e) => setNotes(e.target.value)}
           placeholder="Notas clínicas, interconsultas, evolución..."
           rows={4}
-          className="w-full rounded-xl border border-stroke-line bg-stroke-bg px-3 py-2.5 text-sm text-stroke-text resize-none focus:outline-none focus:ring-2 focus:ring-stroke-iconActive/30 focus:border-stroke-iconActive/40 placeholder-stroke-textMuted/50 transition-all"
+          className="w-full rounded-xl border border-stroke-line bg-stroke-bg px-3 py-2.5 text-sm text-stroke-text resize-none focus:outline-none focus:ring-2 focus:ring-stroke-iconActive/30 focus:border-stroke-iconActive/40 placeholder-stroke-textMuted/50 transition"
         />
         {notes && (
           <div className="flex items-center gap-2 mt-2">
@@ -281,7 +281,7 @@ export default function CareTab({
         <button
           type="button"
           onClick={onContinue}
-          className="flex w-full items-center justify-center gap-2 rounded-xl btn-primary py-3 text-sm font-semibold text-white transition-all active:scale-[0.98] md:w-auto md:px-5"
+          className="flex w-full items-center justify-center gap-2 rounded-xl btn-primary py-3 text-sm font-semibold text-white transition active:scale-[0.98] md:w-auto md:px-5"
         >
           Continuar → Trombectomía <ChevronRight size={16} />
         </button>

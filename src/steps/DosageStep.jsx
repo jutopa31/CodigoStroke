@@ -46,7 +46,7 @@ function GateInput({ value, onChange, placeholder, warn, ariaLabel, suffix }) {
         value={value}
         onChange={(e) => onChange(e.target.value.replace(/\D/g, '').slice(0, 3))}
         aria-label={ariaLabel}
-        className={`h-10 w-full rounded-lg border text-center text-base font-mono font-bold tabular-nums text-stroke-text ${suffix ? 'pr-9' : ''} focus:outline-none focus:ring-2 transition-all placeholder:text-stroke-textMuted/40 ${
+        className={`h-10 w-full rounded-lg border text-center text-base font-mono font-bold tabular-nums text-stroke-text ${suffix ? 'pr-9' : ''} focus:outline-none focus:ring-2 transition placeholder:text-stroke-textMuted/40 ${
           warn
             ? 'border-red-400/60 bg-red-500/10 focus:ring-red-500/20'
             : value
@@ -137,7 +137,7 @@ function PreThrombolysisGate({ latestVitals, latestGlucose, gate, onAddVitals, o
             <span className="font-bold text-stroke-textMuted">/</span>
             <GateInput value={dia} onChange={setDia} placeholder="PAD" warn={dia && diaNum > 110} ariaLabel="PAD corregida" />
             <button type="button" onClick={saveTa} disabled={!taValid}
-              className={`shrink-0 h-10 px-3 rounded-lg text-xs font-bold transition-all active:scale-95 ${
+              className={`shrink-0 h-10 px-3 rounded-lg text-xs font-bold transition active:scale-95 ${
                 taValid ? 'bg-emerald-700 text-white hover:bg-emerald-800' : 'bg-stroke-panel text-stroke-textMuted cursor-not-allowed'
               }`}>
               Guardar
@@ -161,7 +161,7 @@ function PreThrombolysisGate({ latestVitals, latestGlucose, gate, onAddVitals, o
           <div className="flex items-center gap-1.5">
             <GateInput value={glucose} onChange={setGlucose} placeholder="mg/dL" warn={glucWarn} ariaLabel="Glucemia corregida" suffix="mg/dL" />
             <button type="button" onClick={saveGluc} disabled={!glucValid}
-              className={`shrink-0 h-10 px-3 rounded-lg text-xs font-bold transition-all active:scale-95 ${
+              className={`shrink-0 h-10 px-3 rounded-lg text-xs font-bold transition active:scale-95 ${
                 glucValid ? 'bg-emerald-700 text-white hover:bg-emerald-800' : 'bg-stroke-panel text-stroke-textMuted cursor-not-allowed'
               }`}>
               Guardar
@@ -273,7 +273,7 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
                   key={id}
                   type="button"
                   onClick={() => { setDrug(id); setDrugLocked(true) }}
-                  className={`flex-1 py-2 transition-all ${
+                  className={`flex-1 py-2 transition ${
                     drug === id
                       ? 'bg-emerald-700 text-white'
                       : 'bg-stroke-navy text-stroke-textMuted hover:bg-emerald-500/10'
@@ -309,7 +309,7 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
               <div className="grid max-w-md grid-cols-[2.2rem_2.2rem_8rem_2.2rem_2.2rem] items-center gap-1.5 mb-3">
                 {[-5, -1].map((d) => (
                   <button key={d} type="button" onClick={() => adjust(d)}
-                    className="h-10 rounded-xl border border-stroke-line text-stroke-textMuted font-semibold text-xs hover:bg-stroke-bg active:scale-95 transition-all">
+                    className="h-10 rounded-xl border border-stroke-line text-stroke-textMuted font-semibold text-xs hover:bg-stroke-bg active:scale-95 transition">
                     {d}
                   </button>
                 ))}
@@ -322,7 +322,7 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
                 />
                 {[1, 5].map((d) => (
                   <button key={d} type="button" onClick={() => adjust(d)}
-                    className="h-10 rounded-xl border border-stroke-line text-stroke-textMuted font-semibold text-xs hover:bg-stroke-bg active:scale-95 transition-all">
+                    className="h-10 rounded-xl border border-stroke-line text-stroke-textMuted font-semibold text-xs hover:bg-stroke-bg active:scale-95 transition">
                     +{d}
                   </button>
                 ))}
@@ -333,7 +333,7 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
                 {WEIGHT_PRESETS.map((w) => (
                   <button key={w} type="button"
                     onClick={() => { setWeightStr(String(w)); setWeightLocked(true) }}
-                    className={`px-2.5 py-1 rounded-full text-xs font-bold border-2 transition-all ${
+                    className={`px-2.5 py-1 rounded-full text-xs font-bold border-2 transition ${
                       weightStr === String(w)
                         ? 'bg-emerald-700 border-emerald-600 text-white'
                         : 'border-stroke-line text-stroke-textMuted hover:border-emerald-300 hover:bg-emerald-500/10'
@@ -346,7 +346,7 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
           )}
 
           {/* Dose result */}
-          <div className={`rounded-xl px-3 py-2.5 transition-all duration-200 ${
+          <div className={`rounded-xl px-3 py-2.5 transition duration-200 ${
             validWeight && dose
               ? 'bg-emerald-500/10 border-2 border-emerald-300'
               : 'bg-stroke-bg border-2 border-dashed border-stroke-line'
@@ -411,7 +411,7 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
                 type="button" ref={startButtonRef} onClick={handleThrombolyticStart}
                 disabled={!thrombolyticStartTime && gate.blocked}
                 title={!thrombolyticStartTime && gate.blocked ? 'Corregí TA/glucemia antes de iniciar' : undefined}
-                className={`shrink-0 px-3 py-2 rounded-xl text-xs font-bold transition-all active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 ${
+                className={`shrink-0 px-3 py-2 rounded-xl text-xs font-bold transition active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 ${
                   thrombolyticStartTime
                     ? 'border border-emerald-300 bg-stroke-navy text-emerald-300 hover:bg-emerald-500/15'
                     : 'bg-emerald-700 text-white hover:bg-emerald-800'
@@ -427,7 +427,7 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
           <button
             type="button" onClick={() => setView('post')}
             disabled={!validWeight || !thrombolyticStartTime}
-            className="flex w-full items-center justify-center gap-2 rounded-xl btn-primary py-3 text-sm font-semibold text-white transition-all active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40 md:w-auto md:px-5"
+            className="flex w-full items-center justify-center gap-2 rounded-xl btn-primary py-3 text-sm font-semibold text-white transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40 md:w-auto md:px-5"
           >
             Continuar — post-trombolisis <ChevronRight size={16} />
           </button>
@@ -477,7 +477,7 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
                 key={item.id}
                 type="button"
                 onClick={() => setChecked((c) => ({ ...c, [item.id]: !c[item.id] }))}
-                className={`flex flex-col items-start gap-1.5 rounded-lg border px-3 py-2 text-left transition-all active:scale-[0.97] ${
+                className={`flex flex-col items-start gap-1.5 rounded-lg border px-3 py-2 text-left transition active:scale-[0.97] ${
                   done
                     ? 'bg-emerald-500/10 border-emerald-400 text-emerald-300'
                     : 'border-stroke-line hover:border-emerald-500/30 hover:bg-emerald-500/10'
@@ -506,7 +506,7 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
               setChecked(allDone)
               onConfirm({ drug, weight, dose, checklist: allDone, thrombolyticStartTime: thrombolyticStartTime?.toISOString() })
             }}
-            className="flex flex-col items-start gap-1.5 rounded-lg border border-blue-900 bg-blue-900 px-3 py-2 text-left transition-all hover:bg-[#4D6CD6] active:scale-[0.97]"
+            className="flex flex-col items-start gap-1.5 rounded-lg border border-blue-900 bg-blue-900 px-3 py-2 text-left transition hover:bg-[#4D6CD6] active:scale-[0.97]"
           >
             <div className="flex items-center justify-between w-full">
               <CheckCircle2 size={14} className="text-blue-200" />
@@ -521,7 +521,7 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
         <div className="flex items-center gap-2 mb-3">
           <div className="flex-1 h-1.5 bg-stroke-panel rounded-full overflow-hidden">
             <div
-              className="h-1.5 bg-emerald-500/100 rounded-full transition-all duration-300"
+              className="h-1.5 bg-emerald-500/100 rounded-full transition duration-300"
               style={{ width: `${(checkedCount / POST_CHECKLIST.length) * 100}%` }}
             />
           </div>
@@ -580,7 +580,7 @@ export default function DosageStep({ onConfirm, thrombolyticStartTime = null, on
           type="button"
           onClick={() => onConfirm({ drug, weight, dose, checklist: checked, thrombolyticStartTime: thrombolyticStartTime?.toISOString() })}
           disabled={!canContinue}
-          className="flex w-full items-center justify-center gap-2 rounded-xl btn-primary py-3 text-sm font-semibold text-white transition-all active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 md:w-auto md:px-5"
+          className="flex w-full items-center justify-center gap-2 rounded-xl btn-primary py-3 text-sm font-semibold text-white transition active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 md:w-auto md:px-5"
         >
           Continuar → Cuidados <ChevronRight size={18} />
         </button>

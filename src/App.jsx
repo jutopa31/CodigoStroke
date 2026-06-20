@@ -1104,7 +1104,7 @@ export default function App() {
                 {showTrombolisisFAB && (
                   <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-2.5">
                     <button type="button" onClick={() => setActiveTab('trombolisis')}
-                      className="w-full flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-semibold bg-emerald-700 hover:bg-emerald-800 text-white transition-all active:scale-[0.98]">
+                      className="w-full flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-semibold bg-emerald-700 hover:bg-emerald-800 text-white transition active:scale-[0.98]">
                       <Syringe size={13} /> Ir a Trombolisis
                     </button>
                   </div>
@@ -1114,7 +1114,7 @@ export default function App() {
                 {phase === 'post' && (
                   <div className="rounded-lg border border-stroke-line bg-stroke-navy p-2.5">
                     <button type="button" onClick={handleCopy}
-                      className={`w-full flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-medium border transition-all ${
+                      className={`w-full flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-medium border transition ${
                         copied ? 'border-emerald-500/30 bg-emerald-500/15 text-emerald-300' : 'border-stroke-line bg-stroke-bg text-stroke-textMuted hover:bg-stroke-panel/40'
                       }`}>
                       {copied ? <><Check size={13} /> Copiado</> : <><Copy size={13} /> Copiar resumen</>}
@@ -1123,7 +1123,7 @@ export default function App() {
                       const url = `https://wa.me/?text=${encodeURIComponent(buildSummaryText())}`
                       window.open(url, '_blank')
                     }}
-                      className="w-full flex items-center justify-center gap-2 py-2 mt-1 rounded-lg text-xs font-medium border border-emerald-500/30 bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/25 transition-all">
+                      className="w-full flex items-center justify-center gap-2 py-2 mt-1 rounded-lg text-xs font-medium border border-emerald-500/30 bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/25 transition">
                       WhatsApp
                     </button>
                   </div>
@@ -1143,7 +1143,7 @@ export default function App() {
                   type="button"
                   onClick={handleComputeDecision}
                   className="w-full flex items-center justify-center gap-2.5 py-3.5 rounded-xl font-bold text-sm
-                    btn-primary text-white shadow-elevated transition-all active:scale-[0.98] animate-pulse-subtle
+                    btn-primary text-white shadow-elevated transition active:scale-[0.98] animate-pulse-subtle
                     md:py-3 md:rounded-lg md:animate-none"
                 >
                   <Brain size={18} strokeWidth={2} />
@@ -1228,7 +1228,7 @@ export default function App() {
             onClick={() => setActiveTab('trombolisis')}
             className="fixed z-50 flex items-center gap-2 px-4 py-3 rounded-2xl shadow-xl
               bg-emerald-700 hover:bg-emerald-800 active:scale-[0.97] text-white font-bold text-sm
-              transition-all animate-fade-in md:hidden"
+              transition animate-fade-in md:hidden"
             style={{
               bottom: timerStart
                 ? 'calc(5rem + env(safe-area-inset-bottom, 0px))'

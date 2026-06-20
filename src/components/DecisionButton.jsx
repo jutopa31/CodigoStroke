@@ -11,7 +11,7 @@ export default function DecisionButton({ allComplete, onClick, executed, missing
       type="button"
       onClick={onClick}
       className="w-full flex items-center justify-center gap-2.5 py-3 rounded-xl font-bold text-sm
-        bg-stroke-navy text-stroke-iconActive shadow-elevated transition-all active:scale-[0.98] hover:bg-stroke-bg
+        bg-stroke-navy text-stroke-iconActive shadow-elevated transition active:scale-[0.98] hover:bg-stroke-bg
         animate-pulse-subtle md:animate-none md:rounded-lg md:bg-neutral-950 md:py-3 md:text-white md:shadow-none md:hover:bg-neutral-800"
     >
       <Brain size={18} strokeWidth={2} />

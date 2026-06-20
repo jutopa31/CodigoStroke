@@ -188,7 +188,7 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
                 onChange={(e) => setDni(e.target.value)}
                 onKeyDown={(event) => focusNext(event, nameRef)}
                 autoFocus
-                className="h-[42px] w-full bg-stroke-bg border border-stroke-line rounded-xl px-3 text-sm font-semibold text-stroke-text focus:bg-stroke-navy focus:ring-2 focus:ring-stroke-iconActive/30 focus:border-stroke-iconActive/40 placeholder-stroke-textMuted/50 transition-all outline-none"
+                className="h-[42px] w-full bg-stroke-bg border border-stroke-line rounded-xl px-3 text-sm font-semibold text-stroke-text focus:bg-stroke-navy focus:ring-2 focus:ring-stroke-iconActive/30 focus:border-stroke-iconActive/40 placeholder-stroke-textMuted/50 transition outline-none"
                 required
               />
             </div>
@@ -203,7 +203,7 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 onKeyDown={(event) => focusNext(event, passphraseRef)}
-                className="h-[42px] w-full bg-stroke-bg border border-stroke-line rounded-xl px-3 text-sm text-stroke-text focus:bg-stroke-navy focus:ring-2 focus:ring-stroke-iconActive/30 focus:border-stroke-iconActive/40 placeholder-stroke-textMuted/50 transition-all outline-none"
+                className="h-[42px] w-full bg-stroke-bg border border-stroke-line rounded-xl px-3 text-sm text-stroke-text focus:bg-stroke-navy focus:ring-2 focus:ring-stroke-iconActive/30 focus:border-stroke-iconActive/40 placeholder-stroke-textMuted/50 transition outline-none"
                 required
               />
             </div>
@@ -231,7 +231,7 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
                 placeholder="Frase de acceso"
                 value={passphrase}
                 onChange={(e) => setPassphrase(e.target.value)}
-                className="mt-2 h-10 w-full bg-stroke-bg border border-stroke-line rounded-xl px-3 text-sm text-stroke-text focus:bg-stroke-navy focus:ring-2 focus:ring-stroke-iconActive/30 focus:border-stroke-iconActive/40 placeholder-stroke-textMuted/50 transition-all outline-none"
+                className="mt-2 h-10 w-full bg-stroke-bg border border-stroke-line rounded-xl px-3 text-sm text-stroke-text focus:bg-stroke-navy focus:ring-2 focus:ring-stroke-iconActive/30 focus:border-stroke-iconActive/40 placeholder-stroke-textMuted/50 transition outline-none"
               />
             )}
           </div>
@@ -239,7 +239,7 @@ export default function PatientStep({ onConfirm, confirmed = false, patient = nu
           <button
             type="submit"
             disabled={!valid}
-            className="flex w-full items-center justify-center gap-2 rounded-xl btn-primary py-3 text-sm font-semibold text-white transition-all active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-stroke-panel disabled:text-stroke-textMuted"
+            className="flex w-full items-center justify-center gap-2 rounded-xl btn-primary py-3 text-sm font-semibold text-white transition active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-stroke-panel disabled:text-stroke-textMuted"
           >
             Confirmar y activar código <ChevronRight size={16} strokeWidth={2} />
           </button>

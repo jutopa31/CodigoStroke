@@ -85,7 +85,7 @@ export default function StartStep({ onStart, onResume, onOutOfWindow, onOpenEduc
             type="button"
             onClick={onOpenEducational}
             aria-label="Modo educativo"
-            className="flex h-9 w-9 items-center justify-center rounded-lg text-stroke-textMuted transition-colors hover:bg-stroke-iconActive/10 hover:text-amber-400"
+            className="flex h-11 w-11 items-center justify-center rounded-lg text-stroke-textMuted transition-colors hover:bg-stroke-iconActive/10 hover:text-amber-400"
           >
             <BookOpen size={16} strokeWidth={2} />
           </button>
@@ -95,7 +95,7 @@ export default function StartStep({ onStart, onResume, onOutOfWindow, onOpenEduc
             type="button"
             onClick={onAuthClick}
             aria-label={authUser ? 'Tu cuenta' : 'Iniciar sesión'}
-            className="flex h-9 w-9 items-center justify-center rounded-lg text-stroke-textMuted transition-colors hover:bg-stroke-iconActive/10 hover:text-stroke-iconActive"
+            className="flex h-11 w-11 items-center justify-center rounded-lg text-stroke-textMuted transition-colors hover:bg-stroke-iconActive/10 hover:text-stroke-iconActive"
           >
             {authUser
               ? <span className="text-[10px] font-bold text-stroke-iconActive">{getInitials(authUser)}</span>
@@ -138,7 +138,7 @@ export default function StartStep({ onStart, onResume, onOutOfWindow, onOpenEduc
         {recentSession ? (
           <button
             onClick={handleRecentResume}
-            className="w-full rounded-xl border border-stroke-line bg-stroke-navy/90 px-4 py-3.5 text-left transition-all hover:bg-stroke-navy/70 active:scale-[0.98]"
+            className="w-full rounded-xl border border-stroke-line bg-stroke-navy/90 px-4 py-3.5 text-left transition hover:bg-stroke-navy/70 active:scale-[0.98]"
           >
             <div className="flex items-start justify-between gap-3">
               <div className="flex-1 min-w-0">
@@ -170,7 +170,7 @@ export default function StartStep({ onStart, onResume, onOutOfWindow, onOpenEduc
       {/* ── Primary CTA ── */}
       <button
         onClick={onStart}
-        className="flex w-full items-center justify-center rounded-xl bg-brand-600 px-8 py-4 text-base font-bold text-white shadow-elevated transition-all duration-150 hover:bg-brand-700 active:scale-[0.98]"
+        className="flex w-full items-center justify-center rounded-xl bg-brand-600 px-8 py-4 text-base font-bold text-white shadow-elevated transition duration-150 hover:bg-brand-700 active:scale-[0.98]"
       >
         Iniciar Código Stroke
       </button>
@@ -179,7 +179,7 @@ export default function StartStep({ onStart, onResume, onOutOfWindow, onOpenEduc
       <button
         type="button"
         onClick={() => setShowResume(v => !v)}
-        className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-stroke-line px-8 py-[13px] text-sm font-medium text-stroke-textMuted transition-all duration-150 hover:border-stroke-iconActive/40 hover:text-stroke-iconActive active:scale-[0.98]"
+        className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-stroke-line px-8 py-[13px] text-sm font-medium text-stroke-textMuted transition duration-150 hover:border-stroke-iconActive/40 hover:text-stroke-iconActive active:scale-[0.98]"
       >
         <History size={15} strokeWidth={2} />
         Ver historial de eventos
@@ -190,7 +190,7 @@ export default function StartStep({ onStart, onResume, onOutOfWindow, onOpenEduc
         <button
           type="button"
           onClick={onOutOfWindow}
-        className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl px-8 py-[13px] text-sm font-medium text-stroke-textMuted transition-all duration-150 hover:bg-stroke-navy/55 hover:text-stroke-text active:scale-[0.98]"
+        className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl px-8 py-[13px] text-sm font-medium text-stroke-textMuted transition duration-150 hover:bg-stroke-navy/55 hover:text-stroke-text active:scale-[0.98]"
         >
           <ClipboardList size={15} strokeWidth={2} />
           ACV fuera de ventana
@@ -207,12 +207,12 @@ export default function StartStep({ onStart, onResume, onOutOfWindow, onOpenEduc
               maxLength={6}
               value={resumeId}
               onChange={(e) => { setResumeId(e.target.value.toUpperCase()); setError(false) }}
-              className="flex-1 min-w-0 bg-stroke-navy border border-stroke-line rounded-xl px-4 py-3 text-stroke-text text-base font-mono tracking-widest focus:ring-2 focus:ring-stroke-iconActive/40 focus:border-stroke-iconActive placeholder-stroke-textMuted/40 uppercase transition-all"
+              className="flex-1 min-w-0 bg-stroke-navy border border-stroke-line rounded-xl px-4 py-3 text-stroke-text text-base font-mono tracking-widest focus:ring-2 focus:ring-stroke-iconActive/40 focus:border-stroke-iconActive placeholder-stroke-textMuted/40 uppercase transition"
             />
             <button
               onClick={handleManualResume}
               disabled={resumeId.length < 3}
-              className="border border-stroke-iconActive text-stroke-iconActive rounded-xl py-3 px-4 font-semibold text-sm flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-95 hover:bg-stroke-iconActive/10"
+              className="border border-stroke-iconActive text-stroke-iconActive rounded-xl py-3 px-4 font-semibold text-sm flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed transition active:scale-95 hover:bg-stroke-iconActive/10"
             >
               <RotateCcw size={14} strokeWidth={2} />
               Ir

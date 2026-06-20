@@ -106,7 +106,7 @@ function VitalsSection({ onConfirm, confirmed, initialVitals }) {
 
       <button
         type="button" onClick={handleConfirm} disabled={!valid}
-        className={`mt-4 w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-all active:scale-[0.98] ${
+        className={`mt-4 w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition active:scale-[0.98] ${
           confirmed
             ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-300'
             : valid
@@ -197,12 +197,12 @@ function NihssSection({ onConfirm, onReset, initialNihss, draft, onDraftChange }
             </div>
             <div className="flex flex-col gap-1.5 items-end">
               <button type="button" onClick={() => setShowAdjust((v) => !v)}
-                className="flex items-center gap-1.5 text-xs font-semibold rounded-lg px-3 py-1.5 bg-stroke-bg text-stroke-iconActive hover:bg-stroke-navy transition-all active:scale-95">
+                className="flex items-center gap-1.5 text-xs font-semibold rounded-lg px-3 py-1.5 bg-stroke-bg text-stroke-iconActive hover:bg-stroke-navy transition active:scale-95">
                 <ChevronDown size={13} className={showAdjust ? 'rotate-180 transition-transform duration-200' : 'transition-transform duration-200'} />
                 {showAdjust ? 'Cerrar' : 'Ajustar'}
               </button>
               <button type="button" onClick={handleReset}
-                className="flex items-center gap-1.5 text-xs font-semibold rounded-lg px-3 py-1.5 bg-stroke-bg text-stroke-textMuted hover:bg-stroke-bg transition-all active:scale-95">
+                className="flex items-center gap-1.5 text-xs font-semibold rounded-lg px-3 py-1.5 bg-stroke-bg text-stroke-textMuted hover:bg-stroke-bg transition active:scale-95">
                 <RotateCcw size={11} /> Reiniciar
               </button>
             </div>
@@ -242,11 +242,11 @@ function NihssSection({ onConfirm, onReset, initialNihss, draft, onDraftChange }
           <p className="text-xs font-semibold text-amber-300 mb-2">¿El déficit es discapacitante?</p>
           <div className="grid grid-cols-2 gap-2 mb-2">
             <button type="button" onClick={() => answerDisabling(false)}
-              className={`py-2.5 rounded-xl border-2 font-semibold text-sm transition-all active:scale-[0.98] ${
+              className={`py-2.5 rounded-xl border-2 font-semibold text-sm transition active:scale-[0.98] ${
                 hasDisabling === false ? 'border-stroke-line bg-stroke-panel text-stroke-text' : 'border-stroke-line text-stroke-textMuted hover:border-stroke-line'
               }`}>NO</button>
             <button type="button" onClick={() => answerDisabling(true)}
-              className={`py-2.5 rounded-xl border-2 font-semibold text-sm transition-all active:scale-[0.98] ${
+              className={`py-2.5 rounded-xl border-2 font-semibold text-sm transition active:scale-[0.98] ${
                 hasDisabling === true ? 'border-amber-400 bg-amber-500/10 text-amber-300' : 'border-stroke-line text-stroke-textMuted hover:border-amber-500/30'
               }`}>SÍ</button>
           </div>
@@ -294,7 +294,7 @@ export default function ClinicalTab({ onNihssConfirm, onNihssReset, nihss, nihss
       {nihssConfirmed && onContinue && (
         <button
           type="button" onClick={onContinue}
-          className="flex w-full items-center justify-center gap-2 rounded-xl btn-primary py-3 text-sm font-semibold text-white transition-all active:scale-[0.98] animate-fade-in"
+          className="flex w-full items-center justify-center gap-2 rounded-xl btn-primary py-3 text-sm font-semibold text-white transition active:scale-[0.98] animate-fade-in"
         >
           Continuar a Imagen <ChevronRight size={16} strokeWidth={2.5} />
         </button>

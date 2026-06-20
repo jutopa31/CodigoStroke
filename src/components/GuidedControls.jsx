@@ -45,7 +45,7 @@ export function SelectionCheck({ active, tone = 'blue' }) {
   const styles = toneStyles[tone] ?? toneStyles.blue
 
   return (
-    <span className={`w-5 h-5 rounded-md shrink-0 flex items-center justify-center transition-all ${
+    <span className={`w-5 h-5 rounded-md shrink-0 flex items-center justify-center transition ${
       active ? styles.check : 'border border-stroke-line bg-stroke-navy'
     }`}>
       {active && <CheckCircle2 size={12} className="text-white" strokeWidth={2.5} />}
@@ -70,7 +70,7 @@ export function SelectableButton({
       ref={buttonRef}
       type="button"
       aria-pressed={Boolean(active)}
-      className={`rounded-xl border transition-all active:scale-[0.98] ${
+      className={`rounded-xl border transition active:scale-[0.98] ${
         active ? styles.active : styles.idle
       } ${className}`}
       {...props}
@@ -106,7 +106,7 @@ export function PrimaryAction({ valid, children, disabledLabel, className = '', 
     <button
       ref={buttonRef}
       disabled={!valid}
-      className={`w-full flex items-center justify-center gap-2 btn-primary active:scale-[0.98] text-white font-semibold py-3 rounded-xl transition-all disabled:bg-stroke-panel disabled:text-stroke-textMuted disabled:cursor-not-allowed ${className}`}
+      className={`w-full flex items-center justify-center gap-2 btn-primary active:scale-[0.98] text-white font-semibold py-3 rounded-xl transition disabled:bg-stroke-panel disabled:text-stroke-textMuted disabled:cursor-not-allowed ${className}`}
       {...props}
     >
       {valid ? children : disabledLabel}

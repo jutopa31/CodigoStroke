@@ -63,7 +63,7 @@ function HeaderActions({ authUser, onAuthClick, onEducationalOpen, onReset, onTo
   // Same role (icon button) → same radius token on mobile & desktop.
   // Only the touch-target size scales down on desktop (pointer vs finger).
   const base = size === 'mobile'
-    ? 'w-10 h-10 rounded-xl'
+    ? 'w-11 h-11 rounded-xl'
     : 'w-7 h-7 rounded-lg'
   // Timer bar is always dark — buttons use hardcoded dark styles
   const cls = `${base} border border-[#29416D] bg-[#132B58] flex items-center justify-center text-white hover:bg-[#1E3356] transition-colors shrink-0`
@@ -225,7 +225,7 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
       {progressPct > 0 && (
         <div className="h-1.5" style={{ backgroundColor: '#132B58' }}>
           <div
-            className={`h-full rounded-r-full transition-all duration-500 ${tone.bar}`}
+            className={`h-full rounded-r-full transition duration-500 ${tone.bar}`}
             style={{ width: `${progressPct}%` }}
           />
         </div>

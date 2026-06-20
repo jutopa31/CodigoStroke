@@ -8,7 +8,7 @@ function getInitials(user) {
 }
 
 const inputClass =
-  'w-full bg-stroke-navy border border-stroke-line rounded-xl px-4 py-3 text-stroke-text text-sm focus:ring-2 focus:ring-stroke-iconActive/40 focus:border-stroke-iconActive/40 placeholder-stroke-textMuted/50 transition-all outline-none'
+  'w-full bg-stroke-navy border border-stroke-line rounded-xl px-4 py-3 text-stroke-text text-sm focus:ring-2 focus:ring-stroke-iconActive/40 focus:border-stroke-iconActive/40 placeholder-stroke-textMuted/50 transition outline-none'
 
 const Overlay = ({ onClose, children }) => (
   <div
@@ -44,7 +44,7 @@ const ModeToggle = ({ mode, onChange }) => (
           key={m}
           type="button"
           onClick={() => onChange(m)}
-          className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
+          className={`flex-1 py-2 rounded-lg text-sm font-medium transition ${
             mode === m
               ? 'bg-stroke-navy text-stroke-text shadow-sm'
               : 'text-stroke-textMuted hover:text-stroke-text'
@@ -124,7 +124,7 @@ export default function LoginModal({ onClose }) {
           <button
             type="button"
             onClick={handleSignOut}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-stroke-line text-stroke-textMuted text-sm font-medium hover:bg-stroke-bg active:scale-[0.98] transition-all"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-stroke-line text-stroke-textMuted text-sm font-medium hover:bg-stroke-bg active:scale-[0.98] transition"
           >
             <LogOut size={15} strokeWidth={2} />
             Cerrar sesión
@@ -163,7 +163,7 @@ export default function LoginModal({ onClose }) {
           <button
             type="button"
             onClick={onClose}
-            className="mt-2 px-6 py-2.5 rounded-xl btn-primary text-white text-sm font-medium active:scale-[0.98] transition-all"
+            className="mt-2 px-6 py-2.5 rounded-xl btn-primary text-white text-sm font-medium active:scale-[0.98] transition"
           >
             Entendido
           </button>
@@ -216,7 +216,7 @@ export default function LoginModal({ onClose }) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 btn-primary text-white rounded-xl font-semibold text-sm active:scale-[0.98] disabled:opacity-60 transition-all flex items-center justify-center gap-2 mt-1"
+            className="w-full py-3 btn-primary text-white rounded-xl font-semibold text-sm active:scale-[0.98] disabled:opacity-60 transition flex items-center justify-center gap-2 mt-1"
           >
             {loading && <Loader2 size={15} className="animate-spin" />}
             Crear cuenta
@@ -282,7 +282,7 @@ export default function LoginModal({ onClose }) {
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-3 btn-primary text-white rounded-xl font-semibold text-sm active:scale-[0.98] disabled:opacity-60 transition-all flex items-center justify-center gap-2 mt-1"
+          className="w-full py-3 btn-primary text-white rounded-xl font-semibold text-sm active:scale-[0.98] disabled:opacity-60 transition flex items-center justify-center gap-2 mt-1"
         >
           {loading && <Loader2 size={15} className="animate-spin" />}
           {mode === 'admin' ? 'Enviar link de acceso' : 'Ingresar'}

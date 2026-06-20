@@ -133,7 +133,7 @@ export default function NihssGuided({ onLoad, onClose }) {
               <button
                 key={opt.score}
                 onClick={() => select(opt.score)}
-                className={`flex flex-col items-center justify-center rounded-xl py-3 gap-1 transition-all duration-150 active:scale-95 ${optionStyle(selected, opt.score)}`}
+                className={`flex flex-col items-center justify-center rounded-xl py-3 gap-1 transition duration-150 active:scale-95 ${optionStyle(selected, opt.score)}`}
               >
                 <span className="font-mono text-lg font-semibold leading-none">{opt.score}</span>
                 <span className="text-[10px] leading-tight text-center px-1 opacity-80">

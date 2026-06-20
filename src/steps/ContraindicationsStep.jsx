@@ -52,7 +52,7 @@ function ContraRow({ item, value, onChange, color, expanded, onToggleExpand }) {
     : isNo ? 'bg-stroke-bg border-stroke-line' : 'border-gray-100'
 
   return (
-    <div className={`rounded-xl border-2 transition-all ${rowBg}`}>
+    <div className={`rounded-xl border-2 transition ${rowBg}`}>
       <div className="flex items-center gap-2 px-3 py-2">
         <p className={`text-xs font-semibold leading-snug flex-1 min-w-0 ${
           isYes ? (color === 'red' ? 'text-blue-300' : 'text-amber-300') : 'text-stroke-text'
@@ -76,7 +76,7 @@ function ContraRow({ item, value, onChange, color, expanded, onToggleExpand }) {
           <button
             type="button"
             onClick={() => onChange(false)}
-            className={`px-2.5 py-1.5 transition-all active:scale-95 ${
+            className={`px-2.5 py-1.5 transition active:scale-95 ${
               isNo ? 'bg-slate-600 text-white' : 'bg-stroke-navy text-stroke-textMuted hover:bg-stroke-bg'
             }`}
           >
@@ -86,7 +86,7 @@ function ContraRow({ item, value, onChange, color, expanded, onToggleExpand }) {
           <button
             type="button"
             onClick={() => onChange(true)}
-            className={`px-2.5 py-1.5 transition-all active:scale-95 ${
+            className={`px-2.5 py-1.5 transition active:scale-95 ${
               isYes
                 ? color === 'red' ? 'bg-status-critical text-white' : 'bg-amber-500 text-stroke-bg'
                 : 'bg-stroke-navy text-stroke-textMuted hover:bg-stroke-bg'
@@ -216,7 +216,7 @@ export default function ContraindicationsStep({ onConfirm, onAnticoagChange, isC
               <button
                 type="button"
                 onClick={() => handleAnticoagAnswer(false)}
-                className={`px-4 py-2 transition-all active:scale-95 ${
+                className={`px-4 py-2 transition active:scale-95 ${
                   anticoag.active === false ? 'bg-slate-600 text-white' : 'bg-stroke-navy text-stroke-textMuted hover:bg-stroke-bg'
                 }`}
               >
@@ -226,7 +226,7 @@ export default function ContraindicationsStep({ onConfirm, onAnticoagChange, isC
               <button
                 type="button"
                 onClick={() => handleAnticoagAnswer(true)}
-                className={`px-4 py-2 transition-all active:scale-95 ${
+                className={`px-4 py-2 transition active:scale-95 ${
                   anticoag.active === true ? 'bg-amber-500 text-stroke-bg' : 'bg-stroke-navy text-stroke-textMuted hover:bg-stroke-bg'
                 }`}
               >
@@ -243,7 +243,7 @@ export default function ContraindicationsStep({ onConfirm, onAnticoagChange, isC
                       key={id}
                       type="button"
                       onClick={() => handleAnticoagType(id)}
-                      className={`flex items-center justify-center rounded-xl border py-2.5 text-xs font-semibold transition-all active:scale-[0.97] ${
+                      className={`flex items-center justify-center rounded-xl border py-2.5 text-xs font-semibold transition active:scale-[0.97] ${
                         anticoag.type === id
                           ? 'border-amber-400 bg-amber-500/15 text-amber-300'
                           : 'border-amber-500/30 bg-amber-500/10 text-amber-300 hover:bg-amber-500/15'
@@ -286,7 +286,7 @@ export default function ContraindicationsStep({ onConfirm, onAnticoagChange, isC
             type="button"
             onClick={() => setView('orange')}
             disabled={!allRedAnswered || !anticoagAnswered}
-            className="w-full flex items-center justify-center gap-2 mb-3 py-3 rounded-xl font-semibold text-sm transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed btn-primary text-white"
+            className="w-full flex items-center justify-center gap-2 mb-3 py-3 rounded-xl font-semibold text-sm transition active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed btn-primary text-white"
           >
             Continuar — relativas <ChevronRight size={16} />
           </button>
@@ -299,7 +299,7 @@ export default function ContraindicationsStep({ onConfirm, onAnticoagChange, isC
           <button
             type="button"
             onClick={markAllNoRed}
-            className="w-full flex items-center justify-center gap-2 mb-3 py-2.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 text-xs font-semibold transition-all hover:border-emerald-400 hover:bg-emerald-500/15 hover:shadow-sm active:scale-[0.98] active:bg-emerald-500/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+            className="w-full flex items-center justify-center gap-2 mb-3 py-2.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 text-xs font-semibold transition hover:border-emerald-400 hover:bg-emerald-500/15 hover:shadow-sm active:scale-[0.98] active:bg-emerald-500/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
           >
             <ShieldCheck size={14} />
             Ninguna presente — marcar todas NO →
@@ -359,7 +359,7 @@ export default function ContraindicationsStep({ onConfirm, onAnticoagChange, isC
             <button
               type="button"
               onClick={() => setShowRelativeWarning(true)}
-              className="w-full flex items-center justify-center gap-2 btn-primary active:scale-95 text-white font-semibold py-3 rounded-xl transition-all text-sm"
+              className="w-full flex items-center justify-center gap-2 btn-primary active:scale-95 text-white font-semibold py-3 rounded-xl transition text-sm"
             >
               Continuar <ChevronRight size={16} />
             </button>
@@ -367,7 +367,7 @@ export default function ContraindicationsStep({ onConfirm, onAnticoagChange, isC
             <button
               type="button"
               onClick={() => confirm(hasRed)}
-              className="w-full flex items-center justify-center gap-2 btn-primary active:scale-95 text-white font-semibold py-3 rounded-xl transition-all text-sm"
+              className="w-full flex items-center justify-center gap-2 btn-primary active:scale-95 text-white font-semibold py-3 rounded-xl transition text-sm"
             >
               {hasRed ? 'Registrar — Evaluar OGV' : 'Registrar y continuar'} <ChevronRight size={16} />
             </button>
@@ -407,7 +407,7 @@ export default function ContraindicationsStep({ onConfirm, onAnticoagChange, isC
         <button
           type="button"
           onClick={markAllNoOrange}
-          className="w-full flex items-center justify-center gap-2 mb-3 py-2.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 text-xs font-semibold transition-all hover:border-emerald-400 hover:bg-emerald-500/15 hover:shadow-sm active:scale-[0.98] active:bg-emerald-500/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+          className="w-full flex items-center justify-center gap-2 mb-3 py-2.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 text-xs font-semibold transition hover:border-emerald-400 hover:bg-emerald-500/15 hover:shadow-sm active:scale-[0.98] active:bg-emerald-500/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
         >
           <ShieldCheck size={14} />
           Ninguna presente — marcar todas NO
@@ -493,19 +493,19 @@ export default function ContraindicationsStep({ onConfirm, onAnticoagChange, isC
           <div className="border-t border-stroke-line px-5 pb-6 pt-4 space-y-2">
             <button
               onClick={() => { setShowRelativeWarning(false); confirm(false) }}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-amber-500 px-4 py-3 text-sm font-semibold text-stroke-bg transition-all hover:bg-amber-600 active:scale-[0.98]"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-amber-500 px-4 py-3 text-sm font-semibold text-stroke-bg transition hover:bg-amber-600 active:scale-[0.98]"
             >
               Trombolisis <ChevronRight size={16} />
             </button>
             <button
               onClick={() => { setShowRelativeWarning(false); confirm(true) }}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-700 px-4 py-3 text-sm font-semibold text-white transition-all hover:bg-slate-800 active:scale-[0.98]"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-700 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 active:scale-[0.98]"
             >
               No Trombolisis — buscar OGV <ChevronRight size={16} />
             </button>
             <button
               onClick={() => setShowRelativeWarning(false)}
-              className="flex w-full items-center justify-center gap-2 rounded-xl border border-stroke-line bg-stroke-navy px-4 py-3 text-sm font-semibold text-stroke-text transition-all hover:bg-stroke-bg active:scale-[0.98]"
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-stroke-line bg-stroke-navy px-4 py-3 text-sm font-semibold text-stroke-text transition hover:bg-stroke-bg active:scale-[0.98]"
             >
               Atrás
             </button>

@@ -119,7 +119,7 @@ export default function ContactFAB({ getSummary, patient }) {
             <div className="border-t border-stroke-line px-5 pb-6 pt-4">
               <button
                 onClick={handleSend}
-                className="flex w-full items-center justify-center gap-2 rounded-xl btn-primary px-4 py-3 text-sm font-semibold text-white transition-all active:scale-[0.98]"
+                className="flex w-full items-center justify-center gap-2 rounded-xl btn-primary px-4 py-3 text-sm font-semibold text-white transition active:scale-[0.98]"
               >
                 <Send size={16} />
                 Abrir en cliente de email

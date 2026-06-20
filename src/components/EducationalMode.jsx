@@ -151,7 +151,7 @@ function TiempoSection() {
           type="time"
           value={onsetTime}
           onChange={(e) => setOnsetTime(e.target.value)}
-          className="w-full bg-stroke-navy border border-amber-500/30 rounded-xl px-4 py-3 text-stroke-text text-lg font-mono focus:ring-2 focus:ring-amber-300 focus:border-amber-400 transition-all"
+          className="w-full bg-stroke-navy border border-amber-500/30 rounded-xl px-4 py-3 text-stroke-text text-lg font-mono focus:ring-2 focus:ring-amber-300 focus:border-amber-400 transition"
         />
         {minutesElapsed !== null && (
           <div className="mt-4 space-y-2">
@@ -279,7 +279,7 @@ function NihssSection() {
                     key={opt.score}
                     type="button"
                     onClick={() => setScores(prev => ({ ...prev, [item.id]: opt.score }))}
-                    className={`w-full flex items-center gap-3 rounded-xl border px-3 py-2.5 text-left transition-all active:scale-[0.98] ${
+                    className={`w-full flex items-center gap-3 rounded-xl border px-3 py-2.5 text-left transition active:scale-[0.98] ${
                       selected === opt.score
                         ? 'btn-primary border-blue-700 text-white'
                         : 'bg-stroke-bg border-stroke-line text-stroke-text hover:bg-blue-500/10 hover:border-blue-500/30'
@@ -333,7 +333,7 @@ function MrsSection() {
             key={level.score}
             type="button"
             onClick={() => setSelected(selected === level.score ? null : level.score)}
-            className={`w-full rounded-2xl border-2 px-4 py-4 text-left transition-all active:scale-[0.99] ${
+            className={`w-full rounded-2xl border-2 px-4 py-4 text-left transition active:scale-[0.99] ${
               selected === level.score
                 ? `${level.bg} ${level.border}`
                 : 'bg-stroke-navy border-stroke-line hover:border-stroke-line'
@@ -469,7 +469,7 @@ function DosisSection() {
           placeholder="ej. 75"
           value={weight}
           onChange={(e) => setWeight(e.target.value)}
-          className="w-full bg-stroke-navy border border-blue-500/30 rounded-xl px-4 py-3 text-stroke-text text-lg font-mono focus:ring-2 focus:ring-blue-300 focus:border-blue-400 transition-all"
+          className="w-full bg-stroke-navy border border-blue-500/30 rounded-xl px-4 py-3 text-stroke-text text-lg font-mono focus:ring-2 focus:ring-blue-300 focus:border-blue-400 transition"
         />
       </Card>
 
@@ -651,7 +651,7 @@ export default function EducationalMode({ onClose, initialSection = 'intro' }) {
             key={section.id}
             type="button"
             onClick={() => setActiveSection(section.id)}
-            className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap ${
+            className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition whitespace-nowrap ${
               activeSection === section.id
                 ? 'bg-amber-500 text-stroke-bg shadow-sm'
                 : 'text-stroke-textMuted hover:bg-stroke-panel hover:text-stroke-text'
@@ -676,7 +676,7 @@ export default function EducationalMode({ onClose, initialSection = 'intro' }) {
               type="button"
               onClick={goPrev}
               disabled={currentIdx === 0}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-stroke-line text-sm font-medium text-stroke-textMuted hover:bg-stroke-bg disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-stroke-line text-sm font-medium text-stroke-textMuted hover:bg-stroke-bg disabled:opacity-30 disabled:cursor-not-allowed transition"
             >
               <ChevronLeft size={15} />
               {currentIdx > 0 ? SECTIONS[currentIdx - 1].label : 'Anterior'}
@@ -690,7 +690,7 @@ export default function EducationalMode({ onClose, initialSection = 'intro' }) {
               type="button"
               onClick={goNext}
               disabled={currentIdx === SECTIONS.length - 1}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500 text-stroke-bg text-sm font-semibold hover:bg-amber-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500 text-stroke-bg text-sm font-semibold hover:bg-amber-600 disabled:opacity-30 disabled:cursor-not-allowed transition"
             >
               {currentIdx < SECTIONS.length - 1 ? SECTIONS[currentIdx + 1].label : 'Fin'}
               <ChevronRight size={15} />

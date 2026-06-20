@@ -59,14 +59,14 @@ export default function AlertModal({ patient, onConfirm, onClose }) {
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-3 border border-stroke-line rounded-xl text-stroke-textMuted font-medium text-sm hover:bg-stroke-bg active:scale-[0.98] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2"
+            className="flex-1 py-3 border border-stroke-line rounded-xl text-stroke-textMuted font-medium text-sm hover:bg-stroke-bg active:scale-[0.98] transition focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2"
           >
             Cancelar
           </button>
           <button
             type="button"
             onClick={onConfirm}
-            className="flex-[2] py-3 btn-primary text-white rounded-xl font-semibold text-sm active:scale-[0.98] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-stroke-iconActive focus-visible:ring-offset-2"
+            className="flex-[2] py-3 btn-primary text-white rounded-xl font-semibold text-sm active:scale-[0.98] transition focus:outline-none focus-visible:ring-2 focus-visible:ring-stroke-iconActive focus-visible:ring-offset-2"
           >
             Sí, activar
           </button>
