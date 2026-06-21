@@ -115,6 +115,34 @@ test.describe('Clinical pathway — full flow (real UI)', () => {
     await expect(page.getByText(/Derivar a Neurocirugía/)).toBeVisible()
   })
 
+  test('wake-up recognized within 4.5 h opens MRI and records bleeding plus mismatch', async ({ page }) => {
+    await activateCode(page)
+
+    // The default time is now (< 4.5 h). Unknown onset must remain wake-up;
+    // recognition time does not convert it into a standard-window case.
+    await step(page, 2).click()
+    await page.getByRole('button', { name: /Incierto \/ Wake-up/ }).click()
+    await page.getByRole('button', { name: 'Registrar tiempo' }).click()
+
+    await step(page, 4).click()
+    await expect(page.getByRole('button', { name: 'RMN solicitada' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'TAC solicitada' })).toHaveCount(0)
+
+    await page.getByRole('button', { name: 'RMN solicitada' }).click()
+    await expect(page.getByRole('button', { name: 'RMN realizada' })).toBeVisible()
+    await page.getByRole('button', { name: 'RMN realizada' }).click()
+
+    await expect(page.getByText(/RMN interpretada.*hemorragia intracraneal/)).toBeVisible()
+    await page.getByRole('button', { name: 'No sangre' }).click()
+    await expect(page.getByText('¿Presenta mismatch DWI-FLAIR?')).toBeVisible()
+    await page.getByRole('button', { name: 'Sí mismatch' }).click()
+
+    // A completed positive MRI unlocks the next clinical step and remains saved.
+    await expect(page.getByRole('button', { name: /marcar las 10 como NO/ })).toBeVisible()
+    await step(page, 4).click()
+    await expect(page.getByText('Sin sangrado y con mismatch — evaluar contraindicaciones')).toBeVisible()
+  })
+
   test('NIHSS in-progress answers survive switching tabs', async ({ page }) => {
     await activateCode(page)
     await step(page, 3).click() // NIHSS

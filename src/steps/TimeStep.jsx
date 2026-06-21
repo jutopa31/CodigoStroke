@@ -151,7 +151,10 @@ export default function TimeStep({ onConfirm, isCollapsed = false, initialLastSe
 
   function handleSubmit() {
     if (!lastSeen) return
-    handleConfirm(isIncierto ? shouldEvaluateOgv : false)
+    // Wake-up describes an unknown onset, independently of how recently the
+    // symptoms were recognized. A patient found symptomatic less than 4.5 h
+    // ago still needs the WAKE-UP imaging pathway because onset remains unknown.
+    handleConfirm(isIncierto)
   }
 
   const stepTitle = isIncierto ? 'Última vez asintomático' : 'Reconocimiento de síntomas'
