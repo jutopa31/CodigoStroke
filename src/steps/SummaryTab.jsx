@@ -250,7 +250,7 @@ export default function SummaryTab({
         <button
           type="button"
           onClick={onCopy}
-          className={`flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold border transition-all active:scale-[0.97] ${
+          className={`flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold border transition active:scale-[0.97] ${
             copied
               ? 'border-emerald-300 bg-emerald-500/10 text-emerald-300'
               : 'border-stroke-line bg-stroke-navy text-stroke-text hover:bg-stroke-bg'
@@ -262,7 +262,7 @@ export default function SummaryTab({
         <button
           type="button"
           onClick={onWhatsApp}
-          className="flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/15 transition-all active:scale-[0.97]"
+          className="flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/15 transition active:scale-[0.97]"
         >
           <Share2 size={15} />
           WhatsApp

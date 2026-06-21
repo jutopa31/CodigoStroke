@@ -91,14 +91,14 @@ function CTSection({
 
   const elapsedSinceLast = step === 1 ? timeSince(requestTime) : step === 2 ? timeSince(performedTime) : null
 
-  const btnBase = 'flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-bold transition-all active:scale-[0.98]'
+  const btnBase = 'flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-bold transition active:scale-[0.98]'
 
   return (
     <div>
       {/* progress sweep */}
       <div className="mb-3 h-1.5 overflow-hidden rounded-full bg-stroke-line">
         <div
-          className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-status-warning transition-all duration-500"
+          className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-status-warning transition duration-500"
           style={{ width: `${(step / 3) * 100}%` }}
         />
       </div>
@@ -111,7 +111,7 @@ function CTSection({
           return (
             <div
               key={label}
-              className={`flex min-h-[94px] flex-col items-center justify-center rounded-xl border px-2 py-3 text-center transition-all duration-300 ${
+              className={`flex min-h-[94px] flex-col items-center justify-center rounded-xl border px-2 py-3 text-center transition duration-300 ${
                 isActive
                   ? 'flex-[1.6] -translate-y-0.5 border-stroke-iconActive bg-stroke-panel ring-2 ring-stroke-iconActive/20'
                   : isDone
@@ -212,7 +212,7 @@ function MRISection({ onConfirm, initialMriRequestTime, initialMismatch, isActiv
       {!mriRequestTime ? (
         <div className="p-2.5">
           <button type="button" onClick={() => setMriRequestTime(new Date())}
-            className="w-full flex items-center justify-center gap-2 py-2.5 bg-indigo-700 hover:bg-indigo-800 active:scale-95 text-white font-semibold rounded-lg transition-all">
+            className="w-full flex items-center justify-center gap-2 py-2.5 bg-indigo-700 hover:bg-indigo-800 active:scale-95 text-white font-semibold rounded-lg transition">
             <Moon size={16} /> Solicitar RMN DWI + FLAIR
           </button>
         </div>
@@ -231,13 +231,13 @@ function MRISection({ onConfirm, initialMriRequestTime, initialMismatch, isActiv
 
           <div className="grid grid-cols-2 gap-2">
             <button type="button" onClick={() => handleMismatch(false)}
-              className={`py-2.5 rounded-lg border font-bold text-sm transition-all active:scale-[0.98] ${
+              className={`py-2.5 rounded-lg border font-bold text-sm transition active:scale-[0.98] ${
                 mismatch === false ? 'border-stroke-iconActive btn-primary text-white' : 'border-stroke-line bg-stroke-navy text-stroke-text hover:bg-stroke-bg'
               }`}>
               NO mismatch
             </button>
             <button type="button" onClick={() => handleMismatch(true)}
-              className={`py-2.5 rounded-lg border font-bold text-sm transition-all active:scale-[0.98] ${
+              className={`py-2.5 rounded-lg border font-bold text-sm transition active:scale-[0.98] ${
                 mismatch === true ? 'border-emerald-500 bg-emerald-700 text-white' : 'border-emerald-500/30 bg-stroke-navy text-emerald-300 hover:bg-emerald-500/10'
               }`}>
               SÍ mismatch
@@ -291,7 +291,7 @@ export default function ImagingTab({
             { id: 'mri', label: 'RMN (Wake-up)' },
           ].map(({ id, label }) => (
             <button key={id} type="button" onClick={() => setSelectedMode(id)}
-              className={`flex-1 py-2.5 transition-all ${
+              className={`flex-1 py-2.5 transition ${
                 mode === id ? 'btn-primary text-white font-semibold' : 'bg-stroke-navy text-stroke-textMuted hover:bg-stroke-iconActive/10'
               }`}>
               {label}

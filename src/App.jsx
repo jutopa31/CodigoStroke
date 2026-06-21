@@ -1010,7 +1010,7 @@ export default function App() {
         {/* Protocol stepper — modo stepper. En modo scroll la guía es el StepRail
             vertical (borde derecho del contenido), no esta barra superior. */}
         {!scrollActive && (
-          <div className="shrink-0 bg-stroke-navy md:border-b md:border-stroke-line md:px-5 md:py-1">
+          <div className="shrink-0 border-y border-stroke-line/70 bg-stroke-navy/85 md:border-b md:border-t-0 md:px-5">
             <StepStepper
               phase={phase}
               activeTab={activeTab}
@@ -1024,11 +1024,11 @@ export default function App() {
         )}
 
         {/* Two-column layout: sidebar (desktop) + main content */}
-        <div className="flex-1 flex overflow-hidden md:px-4 md:pb-3">
+        <div className="flex-1 flex overflow-hidden md:px-5 md:pb-4">
 
           {/* Desktop sidebar */}
           {(patient || phase === 'pre') && (
-            <aside className="hidden md:flex md:flex-col w-[270px] shrink-0 overflow-hidden border-r border-stroke-line pr-3 pt-3">
+            <aside className="hidden md:flex md:flex-col w-[248px] shrink-0 overflow-hidden border-r border-stroke-line/80 pr-4 pt-4">
 
               {/* Scrollable content */}
               <div className="flex-1 overflow-y-auto flex flex-col gap-2 pb-2" style={{ scrollbarWidth: 'none' }}>
@@ -1104,7 +1104,7 @@ export default function App() {
                 {showTrombolisisFAB && (
                   <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-2.5">
                     <button type="button" onClick={() => setActiveTab('trombolisis')}
-                      className="w-full flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-semibold bg-emerald-700 hover:bg-emerald-800 text-white transition-all active:scale-[0.98]">
+                      className="w-full flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-semibold bg-emerald-700 hover:bg-emerald-800 text-white transition active:scale-[0.98]">
                       <Syringe size={13} /> Ir a Trombolisis
                     </button>
                   </div>
@@ -1114,7 +1114,7 @@ export default function App() {
                 {phase === 'post' && (
                   <div className="rounded-lg border border-stroke-line bg-stroke-navy p-2.5">
                     <button type="button" onClick={handleCopy}
-                      className={`w-full flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-medium border transition-all ${
+                      className={`w-full flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-medium border transition ${
                         copied ? 'border-emerald-500/30 bg-emerald-500/15 text-emerald-300' : 'border-stroke-line bg-stroke-bg text-stroke-textMuted hover:bg-stroke-panel/40'
                       }`}>
                       {copied ? <><Check size={13} /> Copiado</> : <><Copy size={13} /> Copiar resumen</>}
@@ -1123,7 +1123,7 @@ export default function App() {
                       const url = `https://wa.me/?text=${encodeURIComponent(buildSummaryText())}`
                       window.open(url, '_blank')
                     }}
-                      className="w-full flex items-center justify-center gap-2 py-2 mt-1 rounded-lg text-xs font-medium border border-emerald-500/30 bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/25 transition-all">
+                      className="w-full flex items-center justify-center gap-2 py-2 mt-1 rounded-lg text-xs font-medium border border-emerald-500/30 bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/25 transition">
                       WhatsApp
                     </button>
                   </div>
@@ -1143,7 +1143,7 @@ export default function App() {
                   type="button"
                   onClick={handleComputeDecision}
                   className="w-full flex items-center justify-center gap-2.5 py-3.5 rounded-xl font-bold text-sm
-                    btn-primary text-white shadow-elevated transition-all active:scale-[0.98] animate-pulse-subtle
+                    btn-primary text-white shadow-elevated transition active:scale-[0.98] animate-pulse-subtle
                     md:py-3 md:rounded-lg md:animate-none"
                 >
                   <Brain size={18} strokeWidth={2} />
@@ -1174,7 +1174,7 @@ export default function App() {
               </>
             ) : (
               <main className="flex-1 overflow-y-auto overflow-x-hidden">
-                <div className={`w-full max-w-5xl mx-auto px-0 py-3 md:px-5 md:py-3 md:pb-5 ${
+                <div className={`w-full max-w-4xl mx-auto px-0 py-3 md:px-6 md:py-4 md:pb-6 ${
                   phase === 'pre' && !tabCompletion.allComplete ? 'pb-20'
                   : phase === 'post' && timerStart ? 'pb-28'
                   : 'pb-5'
@@ -1189,10 +1189,10 @@ export default function App() {
         {/* ── Fixed bottom: "Completá los 6 tabs" status bar (Phase 1, incomplete only) ── */}
         {phase === 'pre' && !tabCompletion.allComplete && (
           <div
-            className="fixed inset-x-0 bottom-0 z-50 bg-stroke-navy/95 backdrop-blur-sm border-t border-stroke-line px-4 py-3 md:hidden"
+            className="fixed inset-x-0 bottom-0 z-50 border-t border-stroke-line bg-stroke-navy/95 px-3 py-3 shadow-elevated backdrop-blur-sm md:hidden"
             style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}
           >
-            <div className="max-w-3xl mx-auto">
+            <div className="mx-auto max-w-3xl">
               <DecisionButton
                 allComplete={false}
                 onClick={handleComputeDecision}
@@ -1228,7 +1228,7 @@ export default function App() {
             onClick={() => setActiveTab('trombolisis')}
             className="fixed z-50 flex items-center gap-2 px-4 py-3 rounded-2xl shadow-xl
               bg-emerald-700 hover:bg-emerald-800 active:scale-[0.97] text-white font-bold text-sm
-              transition-all animate-fade-in md:hidden"
+              transition animate-fade-in md:hidden"
             style={{
               bottom: timerStart
                 ? 'calc(5rem + env(safe-area-inset-bottom, 0px))'

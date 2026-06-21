@@ -78,7 +78,7 @@ function GuidedWizard({ onSave, onClose }) {
         {/* Progress bar */}
         <div className="h-1 bg-stroke-panel">
           <div
-            className="h-1 bg-stroke-iconActive transition-all duration-300 ease-out"
+            className="h-1 bg-stroke-iconActive transition duration-300 ease-out"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -118,7 +118,7 @@ function GuidedWizard({ onSave, onClose }) {
                   key={opt.score}
                   type="button"
                   onClick={() => select(opt.score)}
-                  className={`w-full text-left px-4 py-3 rounded-xl border-2 text-sm transition-all duration-150 active:scale-[0.99] ${
+                  className={`w-full text-left px-4 py-3 rounded-xl border-2 text-sm transition duration-150 active:scale-[0.99] ${
                     active
                       ? 'border-stroke-iconActive btn-primary text-white shadow-sm'
                       : 'border-stroke-line bg-stroke-navy text-stroke-text hover:border-stroke-iconActive/40 hover:bg-stroke-iconActive/10'
@@ -163,7 +163,7 @@ function GuidedWizard({ onSave, onClose }) {
             <button
               type="button"
               onClick={() => onSave(scores)}
-              className="flex-1 py-2.5 btn-primary text-white rounded-xl font-bold text-sm active:scale-[0.98] transition-all shadow-sm"
+              className="flex-1 py-2.5 btn-primary text-white rounded-xl font-bold text-sm active:scale-[0.98] transition shadow-sm"
             >
               Guardar · {total} pts
             </button>
@@ -286,7 +286,7 @@ function InlineScroll({ scores: initialScores, onClose, current: initialCurrent,
                 key={opt.score}
                 type="button"
                 onClick={() => select(opt.score)}
-                className={`flex flex-col items-center justify-center rounded-xl py-3 gap-1 transition-all duration-150 active:scale-95 ${optionStyle(selected, opt.score)}`}
+                className={`flex flex-col items-center justify-center rounded-xl py-3 gap-1 transition duration-150 active:scale-95 ${optionStyle(selected, opt.score)}`}
               >
                 <span className="font-mono text-xl font-bold leading-none">{opt.score}</span>
               </button>
@@ -381,7 +381,7 @@ function InlineAdjust({ scores: initialScores, onSave, onClose }) {
                     type="button"
                     title={opt.text}
                     onClick={() => setScores((prev) => ({ ...prev, [item.id]: opt.score }))}
-                    className={`min-w-[44px] h-11 px-1 rounded-lg font-mono text-sm font-black transition-all active:scale-90 ${
+                    className={`min-w-[44px] h-11 px-1 rounded-lg font-mono text-sm font-black transition active:scale-90 ${
                       score === opt.score
                         ? 'btn-primary text-white shadow-sm'
                         : 'bg-stroke-panel text-stroke-textMuted hover:bg-stroke-panel'
@@ -404,7 +404,7 @@ function InlineAdjust({ scores: initialScores, onSave, onClose }) {
         <button
           type="button"
           onClick={() => onSave(scores)}
-          className="px-4 py-2 btn-primary text-white rounded-xl font-bold text-xs active:scale-95 transition-all"
+          className="px-4 py-2 btn-primary text-white rounded-xl font-bold text-xs active:scale-95 transition"
         >
           Guardar cambios
         </button>
@@ -472,7 +472,7 @@ function ScrollModal({ scores: initialScores, onSave, onClose }) {
                         key={opt.score}
                         type="button"
                         onClick={() => setScores((prev) => ({ ...prev, [item.id]: opt.score }))}
-                        className={`w-full text-left px-3 py-2.5 rounded-xl border-2 text-sm flex items-center gap-3 transition-all active:scale-[0.99] ${
+                        className={`w-full text-left px-3 py-2.5 rounded-xl border-2 text-sm flex items-center gap-3 transition active:scale-[0.99] ${
                           active
                             ? 'border-stroke-iconActive btn-primary text-white'
                             : 'border-stroke-line text-stroke-text hover:border-stroke-iconActive/40 hover:bg-stroke-iconActive/10'
@@ -499,7 +499,7 @@ function ScrollModal({ scores: initialScores, onSave, onClose }) {
           <button
             type="button"
             onClick={() => onSave(scores)}
-            className="px-5 py-2.5 btn-primary text-white rounded-xl font-bold text-sm active:scale-95 transition-all"
+            className="px-5 py-2.5 btn-primary text-white rounded-xl font-bold text-sm active:scale-95 transition"
           >
             Guardar · {total} pts
           </button>

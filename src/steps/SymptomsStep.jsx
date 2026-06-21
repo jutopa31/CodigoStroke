@@ -150,7 +150,7 @@ function AnticoagulationModal({ onClose, onConfirm }) {
                     setActive(option.value)
                     if (!option.value) setType('')
                   }}
-                  className={`flex min-h-[48px] items-center justify-center gap-2 rounded-lg border-2 text-sm font-bold transition-all active:scale-[0.99] ${
+                  className={`flex min-h-[48px] items-center justify-center gap-2 rounded-lg border-2 text-sm font-bold transition active:scale-[0.99] ${
                     selected
                       ? option.value
                         ? 'border-red-500 bg-status-critical/10 text-red-300 ring-2 ring-status-critical/30'
@@ -177,7 +177,7 @@ function AnticoagulationModal({ onClose, onConfirm }) {
                       type="button"
                       aria-pressed={selected}
                       onClick={() => setType(option.id)}
-                      className={`rounded-lg border-2 px-3 py-3 text-sm font-bold transition-all active:scale-[0.99] ${
+                      className={`rounded-lg border-2 px-3 py-3 text-sm font-bold transition active:scale-[0.99] ${
                         selected
                           ? 'border-red-500 bg-status-critical/10 text-red-300 ring-2 ring-status-critical/30'
                           : 'border-stroke-line bg-stroke-navy text-stroke-text hover:border-status-critical/30 hover:bg-status-critical/10'
@@ -461,7 +461,7 @@ export default function SymptomsStep({ onConfirm }) {
                   onClick={() => toggle(opt.id)}
                   title={`${opt.label}: ${opt.sub}`}
                   aria-label={`${opt.label}: ${opt.sub}`}
-                  className={`group relative flex min-h-[58px] flex-col items-center justify-center gap-1 rounded-lg border px-2 py-2 transition-all ${
+                  className={`group relative flex min-h-[58px] flex-col items-center justify-center gap-1 rounded-lg border px-2 py-2 transition ${
                     active
                       ? 'border-orange-400 bg-amber-500/15 text-amber-300 shadow-sm ring-2 ring-amber-500/30'
                       : 'border-stroke-line bg-stroke-navy text-stroke-textMuted hover:border-amber-500/40 hover:bg-amber-500/15'
@@ -578,7 +578,7 @@ export default function SymptomsStep({ onConfirm }) {
         ref={continueButtonRef}
         onClick={handleSubmit}
         disabled={!valid}
-        className="w-full flex items-center justify-center gap-2 btn-primary active:scale-95 text-white font-semibold py-3.5 rounded-lg transition-all disabled:bg-stroke-panel disabled:text-stroke-textMuted disabled:opacity-100 disabled:cursor-not-allowed"
+        className="w-full flex items-center justify-center gap-2 btn-primary active:scale-95 text-white font-semibold py-3.5 rounded-lg transition disabled:bg-stroke-panel disabled:text-stroke-textMuted disabled:opacity-100 disabled:cursor-not-allowed"
       >
         {valid ? 'Continuar' : 'Completa lo pendiente para continuar'} <ChevronRight size={18} />
       </button>

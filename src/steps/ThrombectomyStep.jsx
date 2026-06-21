@@ -145,7 +145,7 @@ export default function ThrombectomyStep({
             <button
               type="button"
               onClick={handleAngioYes}
-              className="px-3 py-1.5 text-xs font-semibold rounded-lg btn-primary text-white active:scale-[0.98] transition-all shrink-0"
+              className="px-3 py-1.5 text-xs font-semibold rounded-lg btn-primary text-white active:scale-[0.98] transition shrink-0"
             >
               Solicitar {angioLabel}
             </button>
@@ -175,14 +175,14 @@ export default function ThrombectomyStep({
                   <button
                     type="button"
                     onClick={() => { setOgvFound(false); setNotified(false) }}
-                    className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-stroke-line bg-stroke-navy text-stroke-textMuted hover:bg-stroke-bg active:scale-[0.98] transition-all"
+                    className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-stroke-line bg-stroke-navy text-stroke-textMuted hover:bg-stroke-bg active:scale-[0.98] transition"
                   >
                     No OGV
                   </button>
                   <button
                     type="button"
                     onClick={() => setOgvFound(true)}
-                    className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-900 text-white hover:bg-[#4D6CD6] active:scale-[0.98] transition-all"
+                    className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-900 text-white hover:bg-[#4D6CD6] active:scale-[0.98] transition"
                   >
                     Sí OGV
                   </button>
@@ -206,7 +206,7 @@ export default function ThrombectomyStep({
               type="button"
               onClick={() => adjustAspect(-1)}
               disabled={aspectNum <= 0}
-              className="w-8 h-8 flex items-center justify-center rounded-lg border border-stroke-line bg-stroke-navy text-stroke-textMuted font-bold hover:bg-stroke-bg active:scale-[0.97] transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+              className="w-8 h-8 flex items-center justify-center rounded-lg border border-stroke-line bg-stroke-navy text-stroke-textMuted font-bold hover:bg-stroke-bg active:scale-[0.97] transition disabled:opacity-30 disabled:cursor-not-allowed"
             >
               <ChevronDown size={18} strokeWidth={2.5} />
             </button>
@@ -224,7 +224,7 @@ export default function ThrombectomyStep({
               type="button"
               onClick={() => adjustAspect(1)}
               disabled={aspectNum >= 10}
-              className="w-8 h-8 flex items-center justify-center rounded-lg border border-stroke-line bg-stroke-navy text-stroke-textMuted font-bold hover:bg-stroke-bg active:scale-[0.97] transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+              className="w-8 h-8 flex items-center justify-center rounded-lg border border-stroke-line bg-stroke-navy text-stroke-textMuted font-bold hover:bg-stroke-bg active:scale-[0.97] transition disabled:opacity-30 disabled:cursor-not-allowed"
             >
               <ChevronUp size={18} strokeWidth={2.5} />
             </button>
@@ -253,7 +253,7 @@ export default function ThrombectomyStep({
             <button
               type="button"
               onClick={() => setNotified(true)}
-              className={`flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg transition-all active:scale-[0.98] ${
+              className={`flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg transition active:scale-[0.98] ${
                 notified
                   ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/30'
                   : 'btn-primary text-white'
@@ -265,7 +265,7 @@ export default function ThrombectomyStep({
             <button
               type="button"
               onClick={handleThrombectomyActivation}
-              className={`flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg border transition-all active:scale-[0.98] ${
+              className={`flex items-center justify-center gap-1.5 py-2 text-xs font-semibold rounded-lg border transition active:scale-[0.98] ${
                 thrombectomyActivationTime
                   ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
                   : 'border-stroke-iconActive/40 bg-stroke-navy text-stroke-iconActive hover:bg-stroke-iconActive/10'
@@ -305,7 +305,7 @@ export default function ThrombectomyStep({
             <button
               type="button"
               onClick={handleSubmit}
-              className={`flex w-full items-center justify-center gap-2 rounded-lg py-3 text-sm font-semibold transition-all active:scale-[0.98] md:w-auto md:px-5 ${
+              className={`flex w-full items-center justify-center gap-2 rounded-lg py-3 text-sm font-semibold transition active:scale-[0.98] md:w-auto md:px-5 ${
                 canContinue
                   ? 'btn-primary text-white'
                   : 'bg-stroke-panel text-stroke-textMuted cursor-pointer'
@@ -364,14 +364,14 @@ export default function ThrombectomyStep({
               <button
                 type="button"
                 onClick={() => setShowAngioWarning(false)}
-                className="flex-1 py-3 border border-stroke-line rounded-xl text-stroke-textMuted font-medium text-sm hover:bg-stroke-bg active:scale-[0.98] transition-all"
+                className="flex-1 py-3 border border-stroke-line rounded-xl text-stroke-textMuted font-medium text-sm hover:bg-stroke-bg active:scale-[0.98] transition"
               >
                 Volver
               </button>
               <button
                 type="button"
                 onClick={doConfirm}
-                className="flex-[2] py-3 btn-primary text-white rounded-xl font-semibold text-sm active:scale-[0.98] transition-all"
+                className="flex-[2] py-3 btn-primary text-white rounded-xl font-semibold text-sm active:scale-[0.98] transition"
               >
                 Finalizar igual
               </button>

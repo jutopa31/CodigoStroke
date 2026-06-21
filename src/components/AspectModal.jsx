@@ -87,7 +87,7 @@ export default function AspectModal({ onLoad, onClose }) {
                   <button
                     key={id}
                     onClick={() => toggle(id)}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border transition-all text-left ${
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border transition text-left ${
                       affected[id]
                         ? 'bg-status-critical/10 border-red-300 text-red-300'
                         : 'border-stroke-line text-stroke-text hover:border-indigo-300 hover:bg-indigo-500/10'
@@ -115,7 +115,7 @@ export default function AspectModal({ onLoad, onClose }) {
         <div className="px-5 pb-5 pt-3 border-t border-gray-100 shrink-0">
           <button
             onClick={() => onLoad(score)}
-            className="w-full bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-semibold py-4 rounded-xl transition-all"
+            className="w-full bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-semibold py-4 rounded-xl transition"
           >
             Usar ASPECTS {score}
           </button>

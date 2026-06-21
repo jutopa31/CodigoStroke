@@ -92,7 +92,7 @@ export default function StepCard({
         onClick={() => onStepClick?.(stepValue)}
         className={`
           absolute z-10 flex items-center justify-center rounded-full 
-          transition-all active:scale-95 md:hidden
+          transition active:scale-95 md:hidden
           ${hasStepDot
             ? `left-[-6px] top-[18px] h-6 w-6 text-[10px] font-semibold shadow-minimal ${
                 isCompleted

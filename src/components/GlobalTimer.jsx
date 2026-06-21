@@ -64,9 +64,9 @@ function HeaderActions({ authUser, onAuthClick, onEducationalOpen, onReset, onTo
   // Only the touch-target size scales down on desktop (pointer vs finger).
   const base = size === 'mobile'
     ? 'w-11 h-11 rounded-xl'
-    : 'w-7 h-7 rounded-xl'
+    : 'w-7 h-7 rounded-lg'
   // Timer bar is always dark — buttons use hardcoded dark styles
-  const cls = `${base} border border-[#29416D] bg-[#0F1C38] flex items-center justify-center text-white hover:bg-[#1E3356] transition-colors shrink-0`
+  const cls = `${base} border border-[#29416D] bg-[#132B58] flex items-center justify-center text-white hover:bg-[#1E3356] transition-colors shrink-0`
   return (
     <div className="flex items-center gap-2 shrink-0">
       {onToggleNavMode && (
@@ -153,12 +153,12 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
             </div>
           </div>
         ) : (
-          <div className="flex items-center justify-between gap-3 px-4 py-2.5">
+          <div className="flex items-center justify-between gap-3 px-4 py-3">
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-10 h-10 rounded-xl bg-stroke-navy flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-stroke-navy flex items-center justify-center shrink-0 shadow-minimal">
                 <Activity size={16} className="text-stroke-iconActive" strokeWidth={2} />
               </div>
-              <span className="text-white font-semibold text-sm tracking-wide">Código Stroke</span>
+              <span className="text-white font-semibold text-sm tracking-wide leading-tight">Código<br className="sm:hidden" /> Stroke</span>
             </div>
             <HeaderActions
               authUser={authUser} onAuthClick={onAuthClick}
@@ -185,7 +185,7 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
       </div>
 
       {/* ───────── DESKTOP: compact bar ───────── */}
-      <div className="hidden md:flex items-center justify-between gap-3 h-11 px-5">
+      <div className="hidden md:flex items-center justify-between gap-3 h-12 px-5">
         <div className="flex items-center gap-3 min-w-0 shrink">
           <div className="w-7 h-7 rounded-lg bg-stroke-panel flex items-center justify-center shrink-0">
             {startTime
@@ -225,7 +225,7 @@ export default function GlobalTimer({ startTime, timestamps = {}, patient, onRes
       {progressPct > 0 && (
         <div className="h-1.5" style={{ backgroundColor: '#132B58' }}>
           <div
-            className={`h-full rounded-r-full transition-all duration-500 ${tone.bar}`}
+            className={`h-full rounded-r-full transition duration-500 ${tone.bar}`}
             style={{ width: `${progressPct}%` }}
           />
         </div>

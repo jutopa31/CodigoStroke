@@ -94,7 +94,7 @@ export default function CTResultStep({ onConfirm, initialCtRequestTime = null, o
               <button
                 type="button"
                 onClick={handleCtRequest}
-                className="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg btn-primary px-4 py-2.5 text-sm font-bold text-white transition-all active:scale-[0.98]"
+                className="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg btn-primary px-4 py-2.5 text-sm font-bold text-white transition active:scale-[0.98]"
               >
                 <Scan size={17} strokeWidth={2.5} />
                 TAC solicitada
@@ -105,7 +105,7 @@ export default function CTResultStep({ onConfirm, initialCtRequestTime = null, o
               <button
                 type="button"
                 onClick={() => handleBleedingSelect(true)}
-                className={`flex min-h-[46px] items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-sm font-bold transition-all active:scale-[0.98] ${
+                className={`flex min-h-[46px] items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-sm font-bold transition active:scale-[0.98] ${
                   bleeding === true
                     ? 'border-status-critical bg-status-critical text-white shadow-elevated'
                     : 'border-status-critical/30 bg-stroke-navy text-red-300 hover:border-status-critical/50 hover:bg-status-critical/10'
@@ -117,7 +117,7 @@ export default function CTResultStep({ onConfirm, initialCtRequestTime = null, o
               <button
                 type="button"
                 onClick={() => handleBleedingSelect(false)}
-                className={`flex min-h-[46px] items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-sm font-bold transition-all active:scale-[0.98] ${
+                className={`flex min-h-[46px] items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-sm font-bold transition active:scale-[0.98] ${
                   bleeding === false
                     ? 'border-emerald-500 bg-emerald-700 text-white shadow-elevated'
                     : 'border-emerald-500/30 bg-stroke-navy text-emerald-300 hover:border-emerald-300 hover:bg-emerald-500/10'

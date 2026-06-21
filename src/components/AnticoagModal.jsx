@@ -51,7 +51,7 @@ export default function AnticoagModal({ isOpen, onConfirm }) {
               type="button"
               aria-pressed={active === false}
               onClick={handleNo}
-              className={`flex items-center justify-center gap-2 rounded-xl border px-4 py-3.5 text-sm font-semibold transition-all active:scale-[0.98] ${
+              className={`flex items-center justify-center gap-2 rounded-xl border px-4 py-3.5 text-sm font-semibold transition active:scale-[0.98] ${
                 active === false
                   ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
                   : 'border-stroke-line bg-stroke-navy text-stroke-text hover:bg-stroke-bg'
@@ -64,7 +64,7 @@ export default function AnticoagModal({ isOpen, onConfirm }) {
               type="button"
               aria-pressed={active === true}
               onClick={() => setActive(true)}
-              className={`flex items-center justify-center gap-2 rounded-xl border px-4 py-3.5 text-sm font-semibold transition-all active:scale-[0.98] ${
+              className={`flex items-center justify-center gap-2 rounded-xl border px-4 py-3.5 text-sm font-semibold transition active:scale-[0.98] ${
                 active === true
                   ? 'border-blue-500/30 bg-blue-500/10 text-blue-300'
                   : 'border-stroke-line bg-stroke-navy text-stroke-text hover:bg-stroke-bg'
@@ -85,7 +85,7 @@ export default function AnticoagModal({ isOpen, onConfirm }) {
                     key={id}
                     type="button"
                     onClick={() => handleTypeSelect(id)}
-                    className="flex items-center justify-center rounded-xl border border-blue-500/30 bg-blue-500/10 py-3 text-xs font-semibold text-blue-300 hover:bg-blue-500/15 active:scale-[0.97] transition-all"
+                    className="flex items-center justify-center rounded-xl border border-blue-500/30 bg-blue-500/10 py-3 text-xs font-semibold text-blue-300 hover:bg-blue-500/15 active:scale-[0.97] transition"
                   >
                     {label}
                   </button>
