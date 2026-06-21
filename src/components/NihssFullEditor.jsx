@@ -26,6 +26,24 @@ const NIHSS_CATEGORY = {
 
 const GRID_COLS = { 2: 'grid-cols-2', 3: 'grid-cols-3', 4: 'grid-cols-4', 5: 'grid-cols-5' }
 
+const NIHSS_BADGE_LABEL = {
+  '1a': 'Conciencia',
+  '1b': 'Preguntas',
+  '1c': 'Órdenes',
+  '2': 'Mirada',
+  '3': 'Campos visuales',
+  '4': 'Paresia facial',
+  '5a': 'Brazo izq.',
+  '5b': 'Brazo der.',
+  '6a': 'Pierna izq.',
+  '6b': 'Pierna der.',
+  '7': 'Ataxia',
+  '8': 'Sensibilidad',
+  '9': 'Lenguaje',
+  '10': 'Disartria',
+  '11': 'Inatención',
+}
+
 function pillStyle(score) {
   if (score === 0) return 'border border-stroke-iconActive text-stroke-iconActive bg-stroke-iconActive/10'
   if (score <= 3)  return 'border border-amber-400 text-amber-300 bg-amber-500/10'
@@ -199,7 +217,8 @@ function InlineScroll({ scores: initialScores, onClose, current: initialCurrent,
   const total = nihssItems.reduce((s, i) => s + (scores[i.id] ?? 0), 0)
   const severity = getNihssSeverity(total)
   const colsClass = GRID_COLS[Math.min(item.options.length, 5)] ?? 'grid-cols-4'
-  const completedItems = nihssItems.filter((i, idx) => idx < current && i.id in scores)
+  const pendingItems = nihssItems.filter((i) => !(i.id in scores))
+  const skippedItems = nihssItems.filter((i, idx) => idx < current && !(i.id in scores))
   const allAnswered = nihssItems.every((i) => i.id in scores)
 
   function select(score) {
@@ -237,19 +256,72 @@ function InlineScroll({ scores: initialScores, onClose, current: initialCurrent,
         <span className="font-mono text-sm font-bold text-amber-300 tabular-nums">{total} pts</span>
       </div>
 
-      {/* Completed pills */}
-      {completedItems.length > 0 && (
-        <div className="flex gap-1.5 flex-wrap">
-          {completedItems.map((i) => (
+      {/* Item navigator: answered items show their score; skipped items become
+          prominent pending badges and work as direct links back to the gap. */}
+      <div>
+        <div className="mb-1.5 flex items-center justify-between gap-2">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-stroke-textMuted">
+            Mapa de ítems
+          </span>
+          <span className={`text-[10px] font-semibold ${pendingItems.length ? 'text-amber-300' : 'text-emerald-300'}`}>
+            {pendingItems.length ? `${pendingItems.length} pendientes` : 'Completo'}
+          </span>
+        </div>
+        <div className="flex gap-1.5 flex-wrap" aria-label="Navegación de ítems NIHSS">
+          {nihssItems.map((i, idx) => {
+            const isAnswered = i.id in scores
+            const isCurrent = idx === current
+            const isSkipped = idx < current && !isAnswered
+            const badgeLabel = NIHSS_BADGE_LABEL[i.id]
+            const stateLabel = isAnswered
+              ? `Respondido: ${badgeLabel} (ítem ${i.id}), ${scores[i.id]} puntos`
+              : isSkipped
+                ? `Pendiente: ${badgeLabel} (ítem ${i.id})`
+                : `Ir a ${badgeLabel} (ítem ${i.id})`
+
+            return (
+              <button
+                key={i.id}
+                type="button"
+                onClick={() => setCurrent(idx)}
+                aria-label={stateLabel}
+                aria-current={isCurrent ? 'step' : undefined}
+                className={`relative inline-flex items-center justify-center min-h-[44px] text-xs font-semibold px-3 rounded-full border transition-all active:scale-95 ${
+                  isAnswered
+                    ? pillStyle(scores[i.id])
+                    : isSkipped
+                      ? 'border-amber-400 bg-amber-500/15 text-amber-200 shadow-[0_0_0_2px_rgba(251,191,36,0.12)]'
+                      : 'border-stroke-line bg-stroke-bg/40 text-stroke-textMuted'
+                } ${isCurrent ? 'ring-2 ring-stroke-iconActive ring-offset-2 ring-offset-stroke-navy' : ''}`}
+              >
+                {isSkipped && <span className="mr-1 text-amber-300" aria-hidden="true">!</span>}
+                <span>{badgeLabel}</span>
+                {isAnswered && <span className="ml-1.5 font-mono opacity-75">· {scores[i.id]}</span>}
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Once an item has actually been skipped, keep the omission impossible
+          to miss and offer a one-tap route back to the first gap. */}
+      {skippedItems.length > 0 && (
+        <div className="rounded-xl border border-amber-400/50 bg-amber-500/10 px-3 py-2.5 animate-fade-in" role="status">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="text-xs font-bold text-amber-200">
+                {skippedItems.length === 1 ? '1 pregunta sin responder' : `${skippedItems.length} preguntas sin responder`}
+              </p>
+              <p className="mt-0.5 text-[10px] text-amber-200/70">Completalas para registrar el NIHSS.</p>
+            </div>
             <button
-              key={i.id}
               type="button"
-              onClick={() => setCurrent(nihssItems.indexOf(i))}
-              className={`inline-flex items-center min-h-[44px] text-xs font-mono px-3 rounded-full transition-transform active:scale-95 ${pillStyle(scores[i.id])}`}
+              onClick={() => setCurrent(nihssItems.indexOf(skippedItems[0]))}
+              className="min-h-[44px] shrink-0 rounded-lg border border-amber-400/60 bg-amber-400/15 px-3 text-xs font-bold text-amber-200 transition-colors hover:bg-amber-400/25"
             >
-              {i.id}:{scores[i.id]}
+              Ir a la primera
             </button>
-          ))}
+          </div>
         </div>
       )}
 

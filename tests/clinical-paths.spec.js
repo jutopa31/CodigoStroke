@@ -169,6 +169,27 @@ test.describe('Clinical pathway — full flow (real UI)', () => {
   // Reiniciar reset only the inline editor, so the "NIHSS registrado — N pts"
   // chip and the "Continuar a Imagen" button lingered with the stale score,
   // letting the clinician advance with the old value while re-scoring.
+  test('NIHSS marks skipped questions and links directly back to them', async ({ page }) => {
+    await activateCode(page)
+    await step(page, 3).click()
+
+    // Answer item 1, skip item 1b, and continue to item 1c.
+    await page.getByRole('button', { name: /^1$/ }).first().click()
+    await expect(page.locator('[aria-current="step"][aria-label="Ir a Preguntas (ítem 1b)"]')).toBeVisible()
+    await page.getByRole('button', { name: /Siguiente/ }).click()
+
+    await expect(page.getByText('1 pregunta sin responder')).toBeVisible()
+    const pendingBadge = page.getByRole('button', { name: 'Pendiente: Preguntas (ítem 1b)' })
+    await expect(pendingBadge).toBeVisible()
+
+    // The pending badge is itself the quick link to the omitted question.
+    await pendingBadge.click()
+    await page.getByRole('button', { name: /^1$/ }).first().click()
+
+    await expect(page.getByRole('button', { name: 'Pendiente: Preguntas (ítem 1b)' })).toHaveCount(0)
+    await expect(page.getByRole('button', { name: 'Respondido: Preguntas (ítem 1b), 1 puntos' })).toBeVisible()
+  })
+
   test('ISSUE-001: Reiniciar clears the registered NIHSS score and Continuar button', async ({ page }) => {
     await activateCode(page)
     await step(page, 3).click() // NIHSS
