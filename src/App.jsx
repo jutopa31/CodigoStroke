@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
-import { Copy, Check, Syringe, Brain, ChevronRight } from 'lucide-react'
+import { Copy, Check, Syringe, Brain } from 'lucide-react'
 import GlobalTimer from './components/GlobalTimer'
 import AlertModal from './components/AlertModal'
 import RestoreCaseModal from './components/RestoreCaseModal'
@@ -8,7 +8,7 @@ import StepStepper from './components/StepStepper'
 import StepRail from './components/StepRail'
 import StepPill from './components/StepPill'
 import ProtocolScroller from './components/ProtocolScroller'
-import DecisionButton from './components/DecisionButton'
+import ContextualActionBar from './components/ContextualActionBar'
 import QuickAddFAB from './components/QuickAddFAB'
 import ContactFAB from './components/ContactFAB'
 import Cronologia from './components/Cronologia'
@@ -692,6 +692,23 @@ export default function App() {
     .filter((k) => tabCompletion[k] !== 'complete')
     .map((k) => MISSING_LABELS[k])
 
+  // Contextual bottom action (pre phase): the single relevant next action, named.
+  // "Faltan: …" (current step blocking) → "Continuar a [paso]" (current done,
+  // another pending) → "Calcular decisión" (all complete). See ContextualActionBar.
+  function getContextualAction() {
+    if (phase !== 'pre') return null
+    if (tabCompletion.allComplete) {
+      return { type: 'action', cta: 'Calcular decisión de trombolisis', onClick: handleComputeDecision, icon: Brain, pulse: true }
+    }
+    const nextIncomplete = PHASE1_TAB_IDS.find((k) => tabCompletion[k] !== 'complete')
+    const currentComplete = tabCompletion[activeTab] === 'complete'
+    if (currentComplete && nextIncomplete && nextIncomplete !== activeTab) {
+      return { type: 'action', cta: `Continuar a ${MISSING_LABELS[nextIncomplete]}`, onClick: () => setActiveTab(nextIncomplete) }
+    }
+    return { type: 'status', label: 'Faltan:', sublabel: missingSteps.join(' · ') }
+  }
+  const ctxAction = getContextualAction()
+
   // Stepper navigation — jump between protocol steps across phases.
   // Guard: post-phase steps (Decisión, Tratamiento) only reachable once decision is computed.
   function handleStepNavigate(targetPhase, tab) {
@@ -1136,20 +1153,11 @@ export default function App() {
           {/* Main content — `relative` para anclar el StepRail / StepPill (modo scroll) */}
           <div className="relative flex-1 flex flex-col overflow-hidden">
 
-            {/* ── Full-width sticky CTA — appears in main content when all 6 tabs complete ── */}
-            {phase === 'pre' && tabCompletion.allComplete && (
-              <div className="shrink-0 px-3 py-2.5 bg-stroke-navy shadow-lg animate-slide-down md:px-5 md:py-3 md:bg-stroke-navy md:border-b md:border-stroke-line md:shadow-sm">
-                <button
-                  type="button"
-                  onClick={handleComputeDecision}
-                  className="w-full flex items-center justify-center gap-2.5 py-3.5 rounded-xl font-bold text-sm
-                    btn-primary text-white shadow-elevated transition active:scale-[0.98] animate-pulse-subtle
-                    md:py-3 md:rounded-lg md:animate-none"
-                >
-                  <Brain size={18} strokeWidth={2} />
-                  Calcular decisión de trombolisis
-                  <ChevronRight size={16} strokeWidth={2.5} />
-                </button>
+            {/* ── Contextual action — desktop (inline, top of work area). The mobile
+                counterpart is the fixed bottom bar below. Same computed action. ── */}
+            {ctxAction && (
+              <div className="hidden md:block animate-slide-down">
+                <ContextualActionBar action={ctxAction} variant="inline" />
               </div>
             )}
 
@@ -1175,7 +1183,7 @@ export default function App() {
             ) : (
               <main className="flex-1 overflow-y-auto overflow-x-hidden">
                 <div className={`w-full max-w-4xl mx-auto px-0 py-3 md:px-6 md:py-4 md:pb-6 ${
-                  phase === 'pre' && !tabCompletion.allComplete ? 'pb-20'
+                  phase === 'pre' ? 'pb-24'
                   : phase === 'post' && timerStart ? 'pb-28'
                   : 'pb-5'
                 }`}>
@@ -1186,22 +1194,9 @@ export default function App() {
           </div>
         </div>
 
-        {/* ── Fixed bottom: "Completá los 6 tabs" status bar (Phase 1, incomplete only) ── */}
-        {phase === 'pre' && !tabCompletion.allComplete && (
-          <div
-            className="fixed inset-x-0 bottom-0 z-50 border-t border-stroke-line bg-stroke-navy/95 px-3 py-3 shadow-elevated backdrop-blur-sm md:hidden"
-            style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}
-          >
-            <div className="mx-auto max-w-3xl">
-              <DecisionButton
-                allComplete={false}
-                onClick={handleComputeDecision}
-                executed={false}
-                missingSteps={missingSteps}
-              />
-            </div>
-          </div>
-        )}
+        {/* ── Contextual action — mobile (fixed bottom, mutates by step). Same
+            computed action as the desktop inline bar above. ── */}
+        <ContextualActionBar action={ctxAction} variant="fixed" />
 
         {/* ── Fixed bottom: QuickAddFAB toolbar (Phase 2, mobile only) ── */}
         {phase === 'post' && timerStart && (
@@ -1237,7 +1232,7 @@ export default function App() {
             }}
           >
             <Syringe size={16} strokeWidth={2} />
-            Trombolisis
+            Administrar trombólisis
           </button>
         )}
 
