@@ -229,7 +229,7 @@ export default function VitalsStep({ onConfirm, isCollapsed = false }) {
                   type="button"
                   onClick={() => setMrs(o.score)}
                   title={o.label}
-                  className={`rounded-xl border py-2.5 text-lg font-bold transition-all active:scale-95 ${
+                  className={`rounded-xl border py-2.5 text-lg font-bold transition active:scale-95 ${
                     mrs === o.score
                       ? 'border-stroke-iconActive/40 bg-stroke-iconActive/10 text-stroke-iconActive ring-2 ring-stroke-iconActive/30'
                       : 'border-stroke-line text-stroke-textMuted hover:border-stroke-iconActive/40 hover:bg-stroke-iconActive/10'

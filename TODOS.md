@@ -108,3 +108,24 @@ row no overlap, QuickAddFAB + VitalsModal register correctly). 95/95 unit tests 
     Regression test deferred: project convention is unit tests for pure functions only;
     a full-App render assertion is off-convention and an E2E exceeds the fix-loop budget.
     Suggest adding an E2E "interconsulta FAB visible after activation" in a later pass.
+
+## T-HUB1: Candado central de auth en el dashboard (cuando haya datos reales)
+
+**Qué:** Al pasar el hub de pacientes (`dashboard/`) de modo demo a datos reales,
+agregar un `middleware.ts` único que controle permisos para todas las rutas
+`/dashboard/*` y `/api/*`, en vez de que cada página/ruta se proteja sola.
+
+**Por qué:** El patrón actual (cada superficie se gatea sola) ya falló una vez:
+`dashboard/src/app/api/export/route.ts` quedó SIN control de auth mientras
+`/api/sync` y el `layout.tsx` sí lo tenían. Es un CSV de todos los casos
+(edad, sexo, fecha, NIHSS, evolución, mortalidad). Un candado central evita que
+una ruta futura se olvide.
+
+**Contexto:** Detectado en /plan-ceo-review 2026-06-15 (modo HOLD SCOPE,
+demo-hardening). El agujero de `/api/export` se cerró copiándole el gate de admin
+de `/api/sync` (commit 13e40da, rama `fix/dashboard-export-auth`); esta tarea es la
+solución sistémica para la fase de datos reales. Relacionado con `supabase/PLAN.md`
+(Prioridad 2 — Autenticación).
+
+**Esfuerzo:** S (humano ~2-3h / CC ~20min). **Prioridad:** P1 al flipear a real.
+**Depende de:** activar `NEXT_PUBLIC_USE_MOCK=false` + Supabase Auth.

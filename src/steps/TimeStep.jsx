@@ -196,7 +196,7 @@ export default function TimeStep({ onConfirm, isCollapsed = false, initialLastSe
               onChange={(e) => handleTimeInput(e.target.value)}
               onFocus={() => setEditingTime(true)}
               onBlur={() => setEditingTime(false)}
-              className={`text-sm font-bold tabular-nums rounded-lg border bg-stroke-bg px-2 py-0.5 text-stroke-text focus:outline-none focus:ring-1 focus:ring-stroke-iconActive cursor-pointer transition-all ${
+              className={`text-sm font-bold tabular-nums rounded-lg border bg-stroke-bg px-2 py-0.5 text-stroke-text focus:outline-none focus:ring-1 focus:ring-stroke-iconActive cursor-pointer transition ${
                 editingTime ? 'border-stroke-iconActive ring-1 shadow-sm' : 'border-stroke-line hover:border-stroke-iconActive/60'
               }`}
               style={{ colorScheme: 'dark' }}
@@ -212,7 +212,7 @@ export default function TimeStep({ onConfirm, isCollapsed = false, initialLastSe
             type="button"
             aria-pressed={isIncierto}
             onClick={() => { setIsIncierto((v) => !v); setConfirmed(false) }}
-            className={`ml-auto flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[10px] font-semibold transition-all active:scale-[0.98] ${
+            className={`ml-auto flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[10px] font-semibold transition active:scale-[0.98] ${
               isIncierto
                 ? 'border-indigo-400/40 bg-indigo-500/15 text-indigo-300'
                 : 'border-stroke-line bg-stroke-bg text-stroke-textMuted hover:bg-stroke-panel/40'
@@ -313,7 +313,7 @@ export default function TimeStep({ onConfirm, isCollapsed = false, initialLastSe
             type="button"
             onClick={handleSubmit}
             disabled={!lastSeen}
-            className={`w-full flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg font-bold text-sm transition-all active:scale-[0.98] ${
+            className={`w-full flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg font-bold text-sm transition active:scale-[0.98] ${
               confirmed
                 ? 'bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 cursor-default'
                 : lastSeen

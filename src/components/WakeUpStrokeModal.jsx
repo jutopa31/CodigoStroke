@@ -38,7 +38,7 @@ export default function WakeUpStrokeModal({ elapsedHours, onActivate, onDismiss 
         <div className="px-5 pb-5 flex flex-col gap-2">
           <button
             onClick={onActivate}
-            className="w-full py-3.5 bg-indigo-700 hover:bg-indigo-800 active:scale-95 text-white rounded-xl font-semibold text-sm transition-all"
+            className="w-full py-3.5 bg-indigo-700 hover:bg-indigo-800 active:scale-95 text-white rounded-xl font-semibold text-sm transition"
           >
             Activar protocolo ACV del despertar
           </button>

@@ -48,7 +48,7 @@ export default function MRIResultStep({ onConfirm }) {
             <button
               type="button"
               onClick={() => setMriRequestTime(new Date())}
-              className="w-full flex items-center justify-center gap-2 py-3 bg-indigo-700 hover:bg-indigo-800 active:scale-95 text-white text-sm font-semibold rounded-lg transition-all"
+              className="w-full flex items-center justify-center gap-2 py-3 bg-indigo-700 hover:bg-indigo-800 active:scale-95 text-white text-sm font-semibold rounded-lg transition"
             >
               <Moon size={18} /> Solicitar RMN DWI + FLAIR
             </button>

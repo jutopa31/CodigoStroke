@@ -26,7 +26,15 @@ export default async function CasosPage({ searchParams }: Props) {
           <h1 className="text-xl font-bold text-[#132B58]">Casos</h1>
           <p className="text-sm text-[#334155] mt-0.5">Registro histórico de eventos ACV</p>
         </div>
-        <ExportButton filters={filters} />
+        <div className="flex items-center gap-2">
+          <Link
+            href="/dashboard/casos/nuevo"
+            className="px-4 py-2 text-sm font-medium rounded-lg bg-[#132B58] text-white hover:bg-[#10264F] transition-colors"
+          >
+            + Nuevo caso manual
+          </Link>
+          <ExportButton filters={filters} />
+        </div>
       </div>
 
       {/* Filter bar */}

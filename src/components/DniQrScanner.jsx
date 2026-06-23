@@ -163,7 +163,7 @@ export default function DniQrScanner({ onScan, onClose }) {
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={isScanning}
-            className="w-full flex items-center justify-center gap-2 btn-primary active:scale-[0.98] text-white font-semibold py-3.5 rounded-xl transition-all disabled:bg-stroke-panel disabled:text-stroke-textMuted disabled:cursor-wait"
+            className="w-full flex items-center justify-center gap-2 btn-primary active:scale-[0.98] text-white font-semibold py-3.5 rounded-xl transition disabled:bg-stroke-panel disabled:text-stroke-textMuted disabled:cursor-wait"
           >
             {isScanning ? <Loader2 size={16} className="animate-spin" /> : <Camera size={16} />}
             {isScanning ? 'Leyendo código...' : 'Sacar foto del DNI'}

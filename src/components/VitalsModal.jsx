@@ -167,7 +167,7 @@ export default function VitalsModal({ isOpen, onConfirm }) {
             type="button"
             onClick={handleConfirm}
             disabled={!valid}
-            className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-semibold text-sm transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed btn-primary text-white"
+            className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-semibold text-sm transition active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed btn-primary text-white"
           >
             Iniciar protocolo <ChevronRight size={16} strokeWidth={2} />
           </button>

@@ -51,7 +51,7 @@ export default function AvisoModal({ isOpen, onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
-      <div className={`w-full max-w-md bg-stroke-navy rounded-2xl shadow-2xl overflow-hidden transition-all ${done ? 'scale-95 opacity-0' : 'scale-100 opacity-100'}`}>
+      <div className={`w-full max-w-md bg-stroke-navy rounded-2xl shadow-2xl overflow-hidden transition ${done ? 'scale-95 opacity-0' : 'scale-100 opacity-100'}`}>
         {/* Header urgente */}
         <div className="bg-stroke-iconActive px-6 py-5">
           <div className="flex items-center gap-3 mb-1">
@@ -95,7 +95,7 @@ export default function AvisoModal({ isOpen, onClose }) {
             </div>
             <div className="w-full bg-stroke-panel rounded-full h-2 overflow-hidden">
               <div
-                className="h-full bg-stroke-iconActive rounded-full transition-all duration-1000 ease-linear"
+                className="h-full bg-stroke-iconActive rounded-full transition duration-1000 ease-linear"
                 style={{ width: `${progress}%` }}
               />
             </div>
@@ -104,7 +104,7 @@ export default function AvisoModal({ isOpen, onClose }) {
           <button
             type="button"
             onClick={onClose}
-            className="w-full flex items-center justify-center gap-2 py-3.5 btn-primary active:scale-95 text-white font-bold rounded-xl transition-all text-sm"
+            className="w-full flex items-center justify-center gap-2 py-3.5 btn-primary active:scale-95 text-white font-bold rounded-xl transition text-sm"
           >
             <CheckCircle2 size={16} />
             Avanzar ahora

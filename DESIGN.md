@@ -10,10 +10,11 @@
 ---
 
 ## Aesthetic Direction
-- **Direction:** Clinical Command Center
-- **Decoration level:** Minimal — the status token colors (amber, violet, red, green) are the only decoration. No gradients, no decorative blobs, no icon grids.
-- **Mood:** An ICU monitor or flight instrument panel. Every element earns its place. Color means something specific. Used under fluorescent ER lighting with gloved hands — clarity is the aesthetic.
-- **Reference:** NOT Epic, Doximity, or Medscape (white portal aesthetic). This is a crisis tool, not a hospital information system.
+- **Direction:** Mesa Clínica Clara (clear clinical table) — default. A calm, light, transactional surface inspired by MercadoLibre's *interaction model* (not its yellow identity): one decision per screen, white surfaces on warm-neutral gray, secondary info in gray, and **color used only when it carries clinical meaning**. The contextual bottom action bar — which mutates its label by where you are in the protocol ("Faltan signos vitales" → "Continuar a imágenes" → "Calcular decisión" → "Administrar TNK") — is the signature interaction, not the palette.
+- **Decoration level:** Minimal — the status token colors (amber, violet, red, green) are the only decoration. No gradients, no decorative blobs, no icon grids. The dark timer card is the one deliberate island of darkness (it means *urgency*).
+- **Mood:** A clean clinical worksheet, not a dashboard. Surfaces are quiet so the one thing that matters right now is loud. Used under fluorescent ER lighting with gloved hands — clarity is the aesthetic. Color is reserved so that when amber/red/violet appears, it reads instantly.
+- **Dark mode (ER glare mode):** The dark navy system is retained as an explicit alternate for night shifts / high-glare bays, toggled via `data-theme="dark"`. It is no longer the default; the light "mesa clínica" is.
+- **Reference:** MercadoLibre's transactional flow (progressive, contextual, one primary action visible) — translated to clinical language. NOT a white hospital portal (Epic, Doximity, Medscape) and NOT a SaaS card-grid landing page.
 
 ---
 
@@ -55,19 +56,46 @@ fontFamily: {
 
 ## Color
 
-**Approach:** Restrained — dark navy system with precisely-scoped status colors. The navy is the identity; accent blue is for actions only.
+**Approach:** Restrained, meaning-first. The surface is neutral (warm gray + white); **chrome carries no color**. Primary actions are graphite, links/secondary info are blue, and the four clinical channels (amber/red/violet/green) are the *only* saturated color on screen — so each one reads as a signal, not decoration. There are two themes sharing one set of token names: **light "mesa clínica" (default)** and **dark "ER glare mode"**.
 
-### Core palette (CSS custom properties)
+### Light theme — default ("mesa clínica")
+
+The clinical-table surface. Warm-neutral grays, white cards, near-black text, color only for meaning.
+
+| Token | Value | Role |
+|-------|-------|------|
+| `--bg`        | `#F5F5F5` | page background (warm-neutral gray) |
+| `--surface`   | `#FFFFFF` | cards, step containers |
+| `--panel`     | `#F0F0F0` | inputs, nested panels, secondary surfaces |
+| `--line`      | `#E5E5E5` | borders, dividers |
+| `--accent`    | `#242424` | **primary action + active states** (graphite, not blue) |
+| `--accent-dim`| `#000000` | hover for primary action |
+| `--link`      | `#1D4ED8` | links + secondary/informational blue ONLY |
+| `--text`      | `#242424` | primary text |
+| `--text-muted`| `#737373` | secondary text, labels |
+| `--text-dim`  | `#A3A3A3` | tertiary text, placeholders |
+
+**Primary action = graphite, not blue.** The filled CTA (`.btn-primary`) is graphite
+(`#242424` → `#000` hover) with a white label in light mode. Blue is demoted to links
+and informational accents only. This keeps the four clinical channels as the only
+saturated color and avoids blue competing with them for attention. Green is reserved
+for *completed / favorable* — never used as a generic action color (would collide with
+its clinical meaning).
+
+### Dark theme — "ER glare mode" (alternate, toggle)
+
+Retained for night shifts / high-glare bays. The original navy system.
+
 ```css
-:root {
+[data-theme="dark"] {
   --bg:           #0F1C38;  /* primary background — darker than navyDeep */
   --surface:      #132B58;  /* card/panel surfaces — stroke.navy */
   --panel:        #1E3356;  /* nested panels, inputs */
   --line:         #29416D;  /* borders, dividers — stroke.line */
-  --accent:       #5C7AEA;  /* CTA, active states — stroke.iconActive */
+  --accent:       #5C7AEA;  /* CTA, active states */
   --accent-dim:   #3D57B8;  /* hover state for accent */
   --text:         #F0F4FF;  /* primary text */
-  --text-muted:   #A8B6D6;  /* secondary text — stroke.textMuted */
+  --text-muted:   #A8B6D6;  /* secondary text */
   --text-dim:     #7089B8;  /* tertiary text, placeholders */
 }
 ```
@@ -93,31 +121,32 @@ fontFamily: {
 }
 ```
 
-**Rationale for dark backgrounds:** ER fluorescent overhead lighting washes out white screens. Dark navy backgrounds reduce glare and make status color indicators pop with maximum contrast — amber on dark navy reads faster than amber on white in bright ambient light.
+**Rationale for keeping dark mode available:** ER fluorescent overhead lighting can wash out light screens, and night shifts in dim bays benefit from a dark surface. Dark mode is retained as an explicit toggle for those conditions — but the default is the light "mesa clínica" because the clear, transactional surface is what the team asked for and what reads fastest in normal lighting.
 
-**Rationale for red critical (changed from dark navy `#1E3A8A`):** On a dark background, navy-on-navy critical alerts have insufficient contrast. Red (`#EF4444`) is unambiguous and immediately readable. Clinical note: verify with ER staff that red reads as "hard stop / contraindication" not "patient crashing."
+**Rationale for red critical:** Red (`#EF4444`) is unambiguous and immediately readable on both white and navy. Clinical note: verify with ER staff that red reads as "hard stop / contraindication" not "patient crashing."
 
-**Light mode:** Full system — white background, navy text, deep blue accent. Status
-colors recalibrated for white backgrounds (muted versions use Tailwind semantic
-swatches instead of translucent rgba, which look washed out on white).
+**Light mode (default) — full token set.** Warm-neutral surface; status colors use
+solid semantic swatches (translucent rgba looks washed out on white). Blue is present
+only as the `--link` / informational accent, never as the primary action color.
 
 ```css
-[data-theme="light"] {
-  /* Backgrounds */
-  --bg:           #F0F4FF;  /* subtle blue tint — softer than stark white under ER lighting */
+[data-theme="light"], :root {
+  /* Backgrounds — warm-neutral "mesa clínica" */
+  --bg:           #F5F5F5;  /* page background */
   --surface:      #FFFFFF;  /* cards, step containers */
-  --panel:        #EBF0FA;  /* inputs, nested panels, secondary surfaces */
-  --line:         #C8D4EC;  /* borders, dividers */
+  --panel:        #F0F0F0;  /* inputs, nested panels, secondary surfaces */
+  --line:         #E5E5E5;  /* borders, dividers */
 
-  /* Brand / accent — the "identifying blue" */
-  --accent:       #1D4ED8;  /* brand-600 — CTAs, links, active nav, step indicators */
-  --accent-dim:   #1E40AF;  /* hover state */
-  --accent-bg:    #EFF6FF;  /* selected/active state backgrounds */
+  /* Accent = graphite (primary action + active states). NOT blue. */
+  --accent:       #242424;  /* primary action, active nav, step indicators */
+  --accent-dim:   #000000;  /* hover state */
+  --accent-bg:    #F0F0F0;  /* selected/active state backgrounds (neutral) */
+  --link:         #1D4ED8;  /* links + informational blue ONLY */
 
   /* Text hierarchy */
-  --text:         #0F1C38;  /* dark navy — WCAG AAA on white (contrast ~17:1) */
-  --text-muted:   #3D5080;  /* secondary text — subtitles, labels */
-  --text-dim:     #7089B8;  /* tertiary — placeholders, disabled */
+  --text:         #242424;  /* near-black — WCAG AAA on white */
+  --text-muted:   #737373;  /* secondary text — subtitles, labels */
+  --text-dim:     #A3A3A3;  /* tertiary — placeholders, disabled */
 
   /* Status colors — recalibrated for white */
   /* On dark navy, rgba muted backgrounds work. On white, they look washed out.
@@ -347,3 +376,6 @@ Left-border accent matching status color, muted background, icon + bold lead + m
 | 2026-06-13 | Mobile/desktop parity rule established | Same role = same color/radius/weight on both breakpoints; only layout dimensions scale. Unified header icon-button radius (`rounded-xl` both). |
 | 2026-06-13 | Banned `transition-all`; deleted dead `TabBar.jsx` | `transition-all` animates layout (jank) → use `transition`/specific. `TabBar` was unused since the numbered `StepStepper` replaced it. |
 | 2026-06-13 | Primary buttons → `.btn-primary` (white on royal blue) | The `bg-stroke-iconActive text-stroke-bg` pattern painted dark text on the mid-tone accent (~4.3:1, muddy in dark mode). Swept ~49 button instances across 26 files to a single `.btn-primary` class (brand-600 + white, 6.6:1, both themes). Amber/green buttons keep dark text (correct direction). |
+| 2026-06-23 | Default theme flipped dark → light "mesa clínica"; dark kept as toggle | User feedback: dislikes the blue + dark-background default; wants a clear, transactional surface like MercadoLibre's *interaction model*. Light = warm-neutral (#F5F5F5 bg, #FFFFFF cards, #242424 text, #737373 secondary, #E5E5E5 lines). Dark navy retained as explicit "ER glare mode" toggle. |
+| 2026-06-23 | Accent demoted: blue → graphite for primary action + active states | Blue now only links/informational (`--link #1D4ED8`). Primary CTA + active nav/step indicators are graphite (`#242424`). Keeps the four clinical channels (amber/red/violet/green) as the only saturated color so each reads as a signal. Green stays reserved for completed/favorable (never a generic action color). |
+| 2026-06-23 | Unified contextual bottom action bar | Merged the fragmented phase-1 bottom blocks (missing-steps indicator + "Calcular decisión" CTA) into one `ContextualActionBar` whose label/action mutate by `(phase, activeTab, completion)` — "Faltan…" → "Continuar a [paso]" → "Calcular decisión" → "Administrar TNK" → "Activar trombectomía". The signature MercadoLibre-style interaction: the relevant primary action is always visible and named. |
