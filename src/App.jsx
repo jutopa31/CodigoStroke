@@ -496,7 +496,15 @@ export default function App() {
       startTime: timerStart?.toISOString(),
       ctRequestTime: data.ctRequestTime,
     })
-    advanceToNext('imagenes')
+    // In wake-up stroke, a clear CT is only an intermediate result: MRI must
+    // still establish DWI-FLAIR mismatch. Keep the clinician on imaging.
+    if (!(symptoms?.isWakeUpStroke && data.bleeding === false)) {
+      advanceToNext('imagenes')
+    }
+  }
+
+  function handleMriProgress(data) {
+    setCtResult((prev) => ({ ...prev, ...data }))
   }
 
   function handleMriConfirm(data) {
@@ -823,6 +831,7 @@ export default function App() {
             isActive={isActive}
             onCtConfirm={handleCtConfirm}
             onMriConfirm={handleMriConfirm}
+            onMriProgress={handleMriProgress}
             onCtRequest={handleCtRequest}
             onCtPerformed={handleCtPerformed}
             ctResult={ctResult}
@@ -1012,7 +1021,7 @@ export default function App() {
         onReset={patient ? handleReset : undefined}
         onEducationalOpen={() => setShowEducationalOverlay(true)}
         progressPct={progressPct}
-        stepLabel={stepLabel}
+        stepLabel={scrollActive ? null : stepLabel}
         authUser={user}
         onAuthClick={() => setShowLoginModal(true)}
         theme={theme}

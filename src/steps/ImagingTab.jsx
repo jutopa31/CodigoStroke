@@ -91,14 +91,14 @@ function CTSection({
 
   const elapsedSinceLast = step === 1 ? timeSince(requestTime) : step === 2 ? timeSince(performedTime) : null
 
-  const btnBase = 'flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-bold transition active:scale-[0.98]'
+  const btnBase = 'flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-bold transition-all active:scale-[0.98]'
 
   return (
     <div>
       {/* progress sweep */}
       <div className="mb-3 h-1.5 overflow-hidden rounded-full bg-stroke-line">
         <div
-          className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-status-warning transition duration-500"
+          className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-status-warning transition-all duration-500"
           style={{ width: `${(step / 3) * 100}%` }}
         />
       </div>
@@ -111,7 +111,7 @@ function CTSection({
           return (
             <div
               key={label}
-              className={`flex min-h-[94px] flex-col items-center justify-center rounded-xl border px-2 py-3 text-center transition duration-300 ${
+              className={`flex min-h-[94px] flex-col items-center justify-center rounded-xl border px-2 py-3 text-center transition-all duration-300 ${
                 isActive
                   ? 'flex-[1.6] -translate-y-0.5 border-stroke-iconActive bg-stroke-panel ring-2 ring-stroke-iconActive/20'
                   : isDone
@@ -184,76 +184,151 @@ function CTSection({
 
 // ── MRI Section ──────────────────────────────────────────────────────────────
 
-function MRISection({ onConfirm, initialMriRequestTime, initialMismatch, isActive = true }) {
+const MRI_MILESTONES = [
+  { label: 'Solicitada', Icon: Moon },
+  { label: 'Realizada', Icon: Activity },
+  { label: 'Interpretada', Icon: Scan },
+]
+
+function MRISection({
+  onConfirm,
+  onProgress,
+  initialMriRequestTime,
+  initialMriPerformedTime,
+  initialMriInterpretTime,
+  initialBleeding,
+  initialMismatch,
+  isActive = true,
+}) {
   const [mriRequestTime, setMriRequestTime] = useState(initialMriRequestTime ?? null)
+  const [mriPerformedTime, setMriPerformedTime] = useState(initialMriPerformedTime ?? null)
+  const [mriInterpretTime, setMriInterpretTime] = useState(initialMriInterpretTime ?? null)
+  const [bleeding, setBleeding] = useState(initialBleeding ?? null)
   const [mismatch, setMismatch] = useState(initialMismatch ?? null)
   useInterval(1000, isActive)
 
-  const elapsed = timeSince(mriRequestTime)
+  const interpreted = bleeding === true || (bleeding === false && (mismatch === true || mismatch === false))
+  const times = [mriRequestTime, mriPerformedTime, mriInterpretTime]
+  const step = !mriRequestTime ? 0 : !mriPerformedTime ? 1 : !interpreted ? 2 : 3
+  const elapsedSinceLast = step === 1 ? timeSince(mriRequestTime) : step === 2 ? timeSince(mriPerformedTime) : null
+  const btnBase = 'flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-bold transition-all active:scale-[0.98]'
 
-  function handleMismatch(value) {
-    setMismatch(value)
-    if (mriRequestTime) {
-      onConfirm({
-        mismatch: value,
-        mriRequestTime: mriRequestTime.toISOString(),
-        mriElapsedSeconds: Math.floor((Date.now() - mriRequestTime.getTime()) / 1000),
-      })
+  function handleRequest() {
+    const now = new Date()
+    setMriRequestTime(now)
+    onProgress?.({ mriRequestTime: now.toISOString() })
+  }
+
+  function handlePerformed() {
+    if (!mriRequestTime) return
+    const now = new Date()
+    setMriPerformedTime(now)
+    onProgress?.({ mriPerformedTime: now.toISOString() })
+  }
+
+  function finishInterpretation(nextBleeding, nextMismatch) {
+    const now = new Date()
+    setMriInterpretTime(now)
+    onConfirm({
+      bleeding: nextBleeding,
+      mismatch: nextMismatch,
+      mriRequestTime: mriRequestTime.toISOString(),
+      mriPerformedTime: mriPerformedTime.toISOString(),
+      mriInterpretTime: now.toISOString(),
+      mriElapsedSeconds: Math.floor((now.getTime() - mriRequestTime.getTime()) / 1000),
+    })
+  }
+
+  function handleBleeding(value) {
+    setBleeding(value)
+    if (value) {
+      finishInterpretation(true, null)
+    } else {
+      onProgress?.({ bleeding: false })
     }
   }
 
+  function handleMismatch(value) {
+    setMismatch(value)
+    if (mriRequestTime && mriPerformedTime && bleeding === false) finishInterpretation(false, value)
+  }
+
   return (
-    <div className="rounded-xl bg-indigo-500/10 overflow-hidden">
+    <div>
       <div className="flex items-center gap-2 px-4 py-3 bg-indigo-500/15">
         <Moon size={14} className="text-indigo-300 shrink-0" />
-        <span className="text-xs font-semibold text-indigo-300">Protocolo WAKE-UP — evaluar mismatch FLAIR-DWI</span>
+        <span className="text-xs font-semibold text-indigo-300">Protocolo WAKE-UP — descartar sangrado y evaluar mismatch FLAIR-DWI</span>
       </div>
 
-      {!mriRequestTime ? (
-        <div className="p-2.5">
-          <button type="button" onClick={() => setMriRequestTime(new Date())}
-            className="w-full flex items-center justify-center gap-2 py-2.5 bg-indigo-700 hover:bg-indigo-800 active:scale-95 text-white font-semibold rounded-lg transition">
-            <Moon size={16} /> Solicitar RMN DWI + FLAIR
-          </button>
+      <div className="mb-3 mt-3 h-1.5 overflow-hidden rounded-full bg-stroke-line">
+        <div className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-emerald-500 transition-all duration-500"
+          style={{ width: `${(step / 3) * 100}%` }} />
+      </div>
+
+      <div className="flex items-stretch gap-2">
+        {MRI_MILESTONES.map(({ label, Icon }, i) => {
+          const isDone = !!times[i]
+          const milestoneActive = i === step && step < 3
+          return (
+            <div key={label} className={`flex min-h-[94px] flex-col items-center justify-center rounded-xl border px-2 py-3 text-center transition-all duration-300 ${
+              milestoneActive
+                ? 'flex-[1.6] -translate-y-0.5 border-indigo-400 bg-stroke-panel ring-2 ring-indigo-400/20'
+                : isDone ? 'flex-1 border-stroke-line bg-stroke-bg' : 'flex-1 border-stroke-line bg-stroke-bg opacity-50'
+            }`}>
+              <span className={`mb-1.5 flex h-8 w-8 items-center justify-center rounded-lg ${
+                isDone ? 'bg-emerald-500 text-stroke-bg animate-scale-in' : milestoneActive ? 'bg-indigo-500/20 text-indigo-300' : 'bg-stroke-navy text-stroke-textMuted'
+              }`}>
+                {isDone ? <CheckCircle2 size={16} strokeWidth={2.5} /> : <Icon size={16} strokeWidth={2.4} />}
+              </span>
+              <span className={`text-xs font-semibold ${isDone || milestoneActive ? 'text-stroke-text' : 'text-stroke-textMuted'}`}>{label}</span>
+              {isDone && <span className="mt-1 font-mono text-[11px] font-semibold tabular-nums text-emerald-300">{fmtClock(times[i])}</span>}
+              {isDone && i > 0 && times[i - 1] && <span className="mt-0.5 font-mono text-[10px] text-stroke-textMuted">{fmtDelta(times[i - 1], times[i])}</span>}
+            </div>
+          )
+        })}
+      </div>
+
+      {elapsedSinceLast && (
+        <div className="mt-2.5 flex justify-center animate-fade-in">
+          <span className="inline-flex items-center gap-1.5 rounded-md border border-stroke-line bg-stroke-bg px-2.5 py-1 text-[11px] text-stroke-textMuted">
+            <Clock size={11} /> desde último hito
+            <span className="font-mono font-semibold tabular-nums text-indigo-300">{elapsedSinceLast}</span>
+          </span>
         </div>
-      ) : (
-        <div className="p-2.5 space-y-2">
-          <div className="flex items-center gap-2 bg-indigo-500/15 border border-indigo-500/30 rounded-xl px-3 py-2">
-            <Clock size={13} className="text-indigo-300 shrink-0" />
-            <span className="text-xs font-medium text-indigo-300">RMN solicitada hace {elapsed}</span>
-          </div>
+      )}
 
-          <div className="bg-stroke-bg rounded-lg px-3 py-2 text-xs text-stroke-textMuted space-y-1">
-            <p className="font-semibold text-stroke-text">Criterio mismatch FLAIR-DWI</p>
-            <p>DWI (+): restricción de difusión presente</p>
-            <p>FLAIR (−) o sutil: sin cambios establecidos</p>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2">
-            <button type="button" onClick={() => handleMismatch(false)}
-              className={`py-2.5 rounded-lg border font-bold text-sm transition active:scale-[0.98] ${
-                mismatch === false ? 'border-stroke-iconActive btn-primary text-white' : 'border-stroke-line bg-stroke-navy text-stroke-text hover:bg-stroke-bg'
-              }`}>
-              NO mismatch
-            </button>
-            <button type="button" onClick={() => handleMismatch(true)}
-              className={`py-2.5 rounded-lg border font-bold text-sm transition active:scale-[0.98] ${
-                mismatch === true ? 'border-emerald-500 bg-emerald-700 text-white' : 'border-emerald-500/30 bg-stroke-navy text-emerald-300 hover:bg-emerald-500/10'
-              }`}>
-              SÍ mismatch
-            </button>
-          </div>
-
-          {mismatch === true && (
-            <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl px-3 py-2 animate-fade-in">
-              <p className="text-xs font-semibold text-emerald-300">Mismatch presente — evaluar contraindicaciones</p>
+      <div className="mt-4">
+        {step === 0 && <button type="button" onClick={handleRequest} className={`${btnBase} animate-fade-in bg-indigo-700 text-white hover:bg-indigo-800`}><Moon size={17} /> RMN solicitada</button>}
+        {step === 1 && <button type="button" onClick={handlePerformed} className={`${btnBase} animate-fade-in bg-indigo-700 text-white hover:bg-indigo-800`}><Activity size={17} /> RMN realizada</button>}
+        {step === 2 && bleeding === null && (
+          <div className="animate-fade-in">
+            <p className="mb-2 text-center text-xs font-medium text-stroke-textMuted">RMN interpretada — ¿hemorragia intracraneal?</p>
+            <div className="grid grid-cols-2 gap-2">
+              <button type="button" onClick={() => handleBleeding(true)} className={`${btnBase} border border-status-critical/40 bg-stroke-navy text-red-300 hover:bg-status-critical hover:text-white`}><Droplets size={17} /> Sí sangre</button>
+              <button type="button" onClick={() => handleBleeding(false)} className={`${btnBase} border border-emerald-500/40 bg-stroke-navy text-emerald-300 hover:bg-emerald-700 hover:text-white`}><CheckCircle2 size={17} /> No sangre</button>
             </div>
-          )}
-          {mismatch === false && (
-            <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl px-3 py-2 animate-fade-in">
-              <p className="text-xs font-semibold text-amber-300">Sin mismatch — trombolisis IV no indicada en wake-up</p>
+          </div>
+        )}
+        {step === 2 && bleeding === false && (
+          <div className="animate-fade-in space-y-3">
+            <div className="rounded-lg bg-stroke-bg px-3 py-2 text-xs text-stroke-textMuted">
+              <p className="font-semibold text-stroke-text">Criterio mismatch FLAIR-DWI</p>
+              <p>DWI (+) con FLAIR (−) o sutil.</p>
             </div>
-          )}
+            <p className="text-center text-xs font-medium text-stroke-textMuted">¿Presenta mismatch DWI-FLAIR?</p>
+            <div className="grid grid-cols-2 gap-2">
+              <button type="button" onClick={() => handleMismatch(false)} className={`${btnBase} border border-amber-500/40 bg-stroke-navy text-amber-300 hover:bg-amber-700 hover:text-white`}>No mismatch</button>
+              <button type="button" onClick={() => handleMismatch(true)} className={`${btnBase} border border-emerald-500/40 bg-stroke-navy text-emerald-300 hover:bg-emerald-700 hover:text-white`}>Sí mismatch</button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {interpreted && (
+        <div className={`mt-3 rounded-xl border px-3 py-2 animate-fade-in ${bleeding ? 'border-status-critical/40 bg-status-critical/10' : mismatch ? 'border-emerald-500/30 bg-emerald-500/10' : 'border-amber-500/30 bg-amber-500/10'}`}>
+          <p className={`text-xs font-semibold ${bleeding ? 'text-red-300' : mismatch ? 'text-emerald-300' : 'text-amber-300'}`}>
+            {bleeding ? 'Hemorragia presente — trombólisis contraindicada' : mismatch ? 'Sin sangrado y con mismatch — evaluar contraindicaciones' : 'Sin sangrado y sin mismatch — trombólisis IV no indicada'}
+          </p>
         </div>
       )}
     </div>
@@ -265,6 +340,7 @@ function MRISection({ onConfirm, initialMriRequestTime, initialMismatch, isActiv
 export default function ImagingTab({
   onCtConfirm,
   onMriConfirm,
+  onMriProgress,
   onCtRequest,
   onCtPerformed,
   ctResult,
@@ -274,12 +350,21 @@ export default function ImagingTab({
 }) {
   const [selectedMode, setSelectedMode] = useState(null)
 
-  const ctConfirmed  = ctResult?.bleeding === true || ctResult?.bleeding === false
-  const mriConfirmed = ctResult?.mismatch  === true || ctResult?.mismatch  === false
+  const ctConfirmed  = !!ctResult?.ctRequestTime && (ctResult?.bleeding === true || ctResult?.bleeding === false)
+  const mriConfirmed = !!ctResult?.mriRequestTime && (
+    ctResult?.bleeding === true || ctResult?.mismatch === true || ctResult?.mismatch === false
+  )
 
   // MRI toggle only appears when time window is uncertain (wake-up stroke)
   const showMriToggle = isWakeUpStroke === true
-  const mode = showMriToggle ? (selectedMode ?? 'ct') : 'ct'
+  const mode = showMriToggle ? (selectedMode ?? 'mri') : 'ct'
+
+  function handleCtResult(data) {
+    if (showMriToggle && data.bleeding === false) {
+      setSelectedMode('mri')
+    }
+    onCtConfirm(data)
+  }
 
   return (
     <div className="px-4 pb-4 space-y-3 md:px-0">
@@ -291,7 +376,7 @@ export default function ImagingTab({
             { id: 'mri', label: 'RMN (Wake-up)' },
           ].map(({ id, label }) => (
             <button key={id} type="button" onClick={() => setSelectedMode(id)}
-              className={`flex-1 py-2.5 transition ${
+              className={`flex-1 py-2.5 transition-all ${
                 mode === id ? 'btn-primary text-white font-semibold' : 'bg-stroke-navy text-stroke-textMuted hover:bg-stroke-iconActive/10'
               }`}>
               {label}
@@ -319,7 +404,7 @@ export default function ImagingTab({
       {(!showMriToggle || mode === 'ct') && (
         <StepCard step="" title="TAC de encéfalo" accent="blue">
           <CTSection
-            onConfirm={onCtConfirm}
+            onConfirm={handleCtResult}
             onCtRequest={onCtRequest}
             onCtPerformed={onCtPerformed}
             initialCtRequestTime={initialCtRequestTime}
@@ -347,7 +432,11 @@ export default function ImagingTab({
         <StepCard step="" title="RMN — ACV del despertar" accent="blue">
           <MRISection
             onConfirm={onMriConfirm}
+            onProgress={onMriProgress}
             initialMriRequestTime={ctResult?.mriRequestTime ? new Date(ctResult.mriRequestTime) : null}
+            initialMriPerformedTime={ctResult?.mriPerformedTime ? new Date(ctResult.mriPerformedTime) : null}
+            initialMriInterpretTime={ctResult?.mriInterpretTime ? new Date(ctResult.mriInterpretTime) : null}
+            initialBleeding={ctResult?.mriRequestTime ? (ctResult?.bleeding ?? null) : null}
             initialMismatch={ctResult?.mismatch ?? null}
             isActive={isActive}
           />
