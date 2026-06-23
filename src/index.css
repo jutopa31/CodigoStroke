@@ -22,6 +22,13 @@
 html:not([data-theme="dark"]) .btn-primary        { background-color: #242424; }
 html:not([data-theme="dark"]) .btn-primary:hover  { background-color: #000000; }
 
+/* Filled royal-blue CTAs (bg-brand-600) sweep to graphite in light mode too, so
+   primary actions are consistent whether or not they use .btn-primary. Only the
+   solid 600/700 fill is remapped — blue text/links and tinted bg-brand-50/100
+   informational surfaces keep their blue. Dark "ER glare mode" keeps blue. */
+html:not([data-theme="dark"]) .bg-brand-600              { background-color: #242424; }
+html:not([data-theme="dark"]) .hover\:bg-brand-700:hover { background-color: #000000; }
+
 /* ─── Theming: RGB channels (no rgb() wrapper) so Tailwind opacity modifiers work ─── */
 /* Dark "ER glare mode" — alternate theme, opt-in via data-theme="dark". */
 [data-theme="dark"] {

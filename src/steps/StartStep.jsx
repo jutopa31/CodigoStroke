@@ -170,7 +170,7 @@ export default function StartStep({ onStart, onResume, onOutOfWindow, onOpenEduc
       {/* ── Primary CTA ── */}
       <button
         onClick={onStart}
-        className="flex w-full items-center justify-center rounded-xl bg-brand-600 px-8 py-4 text-base font-bold text-white shadow-elevated transition duration-150 hover:bg-brand-700 active:scale-[0.98]"
+        className="btn-primary flex w-full items-center justify-center rounded-xl px-8 py-4 text-base font-bold text-white shadow-elevated transition duration-150 active:scale-[0.98]"
       >
         Iniciar Código Stroke
       </button>
