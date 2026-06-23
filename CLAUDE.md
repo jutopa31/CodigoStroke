@@ -129,9 +129,11 @@ Key points:
 - Primary font: **DM Sans** (UI/headers) — replaces Inter
 - Body font: **Source Sans 3** (clinical descriptions)
 - Timer/numbers: **Geist Mono** (always tabular-nums)
-- Background: `#0F1C38` dark navy (not white)
-- Critical status: `#EF4444` red (not dark navy)
-- The timer is the most important UI element — must be large, amber, always visible
+- Default theme: light "mesa clínica" — warm-neutral (`#F5F5F5` bg, `#FFFFFF` cards, `#242424` text, `#737373` secondary, `#E5E5E5` lines). Dark navy `#0F1C38` is the alternate "ER glare mode" toggle.
+- Primary action + active states: graphite `#242424` (light) — NOT blue. Blue (`#1D4ED8`) is links/informational only.
+- Clinical color channels are the only saturated color: amber (CI relativa / elevated values), red `#EF4444` (CI absoluta / hard stop), violet (glucemia), green (completed/favorable — never a generic action color).
+- The timer is the most important UI element — large, amber, always visible. Keeps its dark navy card even in light mode (deliberate island of urgency).
+- The contextual bottom action bar mutates its label/action by `(phase, activeTab, completion)` — the signature interaction.
 
 ## Further Reading
 
