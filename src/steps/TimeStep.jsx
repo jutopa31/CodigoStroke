@@ -185,7 +185,7 @@ export default function TimeStep({ onConfirm, isCollapsed = false, initialLastSe
               value={lastSeenDate}
               onChange={(e) => handleDateInput(e.target.value)}
               className="text-[10px] font-medium rounded border border-stroke-line bg-stroke-bg px-1.5 py-0.5 text-stroke-text focus:outline-none focus:ring-1 focus:ring-stroke-iconActive cursor-pointer"
-              style={{ colorScheme: 'dark' }}
+              style={{ colorScheme: 'light' }}
             />
           )}
 
@@ -199,7 +199,7 @@ export default function TimeStep({ onConfirm, isCollapsed = false, initialLastSe
               className={`text-sm font-bold tabular-nums rounded-lg border bg-stroke-bg px-2 py-0.5 text-stroke-text focus:outline-none focus:ring-1 focus:ring-stroke-iconActive cursor-pointer transition-all ${
                 editingTime ? 'border-stroke-iconActive ring-1 shadow-sm' : 'border-stroke-line hover:border-stroke-iconActive/60'
               }`}
-              style={{ colorScheme: 'dark' }}
+              style={{ colorScheme: 'light' }}
             />
             <Pencil
               size={9}
@@ -227,7 +227,7 @@ export default function TimeStep({ onConfirm, isCollapsed = false, initialLastSe
         </div>
 
         {/* Two-column body */}
-        <div className="grid grid-cols-2 divide-x divide-stroke-line/50">
+        <div className="grid grid-cols-1 divide-y divide-stroke-line/50 sm:grid-cols-2 sm:divide-x sm:divide-y-0">
 
           {/* Left: elapsed time + window bar */}
           <div className="px-3 py-3">

@@ -3,7 +3,7 @@ import useStepProgress from './useStepProgress'
 
 export function CollapsedStep({ title, children }) {
   return (
-    <div className="relative bg-stroke-navy rounded-xl border border-stroke-line px-4 py-3 flex items-center gap-3 animate-fade-in">
+    <div className="relative flex items-center gap-3 rounded-2xl border border-emerald-200 bg-white px-4 py-3 shadow-card animate-fade-in">
       <span className="w-6 h-6 rounded-lg bg-emerald-500 flex items-center justify-center shrink-0">
         <CheckCircle2 size={12} className="text-white" strokeWidth={2.5} />
       </span>
@@ -53,7 +53,7 @@ export default function StepCard({
 
   const card = (
     <div className={`
-      relative bg-stroke-navy rounded-xl border transition-colors duration-200
+      relative rounded-2xl border bg-white shadow-card transition-colors duration-200
       ${isActive
         ? 'border-stroke-iconActive/40'
         : 'border-stroke-line'

@@ -133,7 +133,7 @@ const DISABLING_LIST = [
   'Ataxia severa: imposibilidad de caminar sin asistencia',
 ]
 
-function NihssSection({ onConfirm, onReset, initialNihss, draft, onDraftChange }) {
+function NihssSection({ sectionActive = true, onConfirm, onReset, initialNihss, draft, onDraftChange }) {
   const [subscaleScores, setSubscaleScores] = useState(initialNihss?.scores ?? {})
   const [useFullScores, setUseFullScores] = useState(!!initialNihss)
   const [showAdjust, setShowAdjust] = useState(false)
@@ -228,6 +228,7 @@ function NihssSection({ onConfirm, onReset, initialNihss, draft, onDraftChange }
           <NihssFullEditor
             scores={draft?.scores ?? {}}
             current={draft?.current ?? 0}
+            sectionActive={sectionActive}
             inlineScroll={true}
             onComplete={handleSave}
             onScoresChange={(scores) => onDraftChange?.((d) => ({ ...(d ?? {}), scores }))}
@@ -271,7 +272,7 @@ function NihssSection({ onConfirm, onReset, initialNihss, draft, onDraftChange }
 
 // ── ClinicalTab (exported) ───────────────────────────────────────────────────
 
-export default function ClinicalTab({ onNihssConfirm, onNihssReset, nihss, nihssDraft, onNihssDraftChange, onContinue }) {
+export default function ClinicalTab({ isActive = true, onNihssConfirm, onNihssReset, nihss, nihssDraft, onNihssDraftChange, onContinue }) {
   const nihssConfirmed = nihss !== null
 
   return (
@@ -283,6 +284,7 @@ export default function ClinicalTab({ onNihssConfirm, onNihssReset, nihss, nihss
         </div>
       )}
       <NihssSection
+        sectionActive={isActive}
         onConfirm={onNihssConfirm}
         onReset={onNihssReset}
         initialNihss={nihss}
