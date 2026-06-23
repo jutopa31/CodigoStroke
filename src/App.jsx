@@ -172,7 +172,7 @@ export default function App() {
   const { user } = useAuth()
 
   const [theme, setTheme] = useState(() => {
-    try { return localStorage.getItem('codigostroke_theme') ?? 'dark' } catch { return 'dark' }
+    try { return localStorage.getItem('codigostroke_theme') ?? 'light' } catch { return 'light' }
   })
 
   useEffect(() => {
