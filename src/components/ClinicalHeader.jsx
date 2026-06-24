@@ -67,9 +67,9 @@ export default function ClinicalHeader({
       className="shrink-0 border-b border-stroke-line bg-white"
       style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
     >
-      <div className="mx-auto flex min-h-[68px] max-w-[1440px] items-center gap-3 px-4 py-2.5 md:px-6">
+      <div className="mx-auto flex min-h-[68px] max-w-[1440px] items-center gap-2 px-3 py-2.5 sm:gap-3 sm:px-4 md:px-6">
         <div className="flex min-w-0 flex-1 items-center gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-clinical-700 text-white shadow-minimal">
+          <div className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-clinical-700 text-white shadow-minimal min-[430px]:flex">
             <Activity size={19} strokeWidth={2.3} />
           </div>
 
@@ -91,7 +91,7 @@ export default function ClinicalHeader({
         </div>
 
         {startTime && (
-          <div className="flex shrink-0 items-center gap-2 rounded-xl border border-stroke-line bg-stroke-surfaceMuted px-3 py-2">
+          <div className="flex shrink-0 items-center gap-1.5 rounded-xl border border-stroke-line bg-stroke-surfaceMuted px-2.5 py-2 sm:gap-2 sm:px-3">
             <span className={`h-2 w-2 rounded-full ${tone.dot}`} aria-hidden="true" />
             <div className="text-right">
               <p className={`font-mono text-lg font-bold leading-none tabular-nums ${tone.text}`}>
@@ -103,6 +103,19 @@ export default function ClinicalHeader({
             </div>
           </div>
         )}
+
+        <div className="flex shrink-0 items-center gap-1.5 sm:hidden">
+          <HeaderButton
+            label={`Cambiar navegación: ${navMode === 'scroll' ? 'scroll vertical' : 'pasos'}`}
+            onClick={onToggleNavMode}
+            pressed={navMode === 'scroll'}
+          >
+            <Rows3 size={16} />
+          </HeaderButton>
+          <HeaderButton label="Reiniciar protocolo" onClick={onReset}>
+            <RotateCcw size={16} />
+          </HeaderButton>
+        </div>
 
         <div className="hidden shrink-0 items-center gap-1.5 sm:flex">
           <HeaderButton
