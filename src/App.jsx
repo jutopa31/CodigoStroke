@@ -172,18 +172,11 @@ export default function App() {
   })
   const { user } = useAuth()
 
-  const [theme, setTheme] = useState(() => {
-    try { return localStorage.getItem('codigostroke_theme') ?? 'light' } catch { return 'light' }
-  })
-
+  const theme = 'light'
   useEffect(() => {
-    document.documentElement.dataset.theme = theme
-    try { localStorage.setItem('codigostroke_theme', theme) } catch { /* Safari private mode */ }
-  }, [theme])
-
-  function handleToggleTheme() {
-    setTheme(t => t === 'dark' ? 'light' : 'dark')
-  }
+    document.documentElement.dataset.theme = 'light'
+    try { localStorage.setItem('codigostroke_theme', 'light') } catch { /* Safari private mode */ }
+  }, [])
 
   // ── Persistencia del caso activo (sobrevive recargas / crash) ─────────────────
   // Junta todo el estado del caso en un objeto serializable. JSON.stringify
@@ -290,6 +283,10 @@ export default function App() {
       const nihssData = { nihssScore, hasDisablingSymptoms: nihssScore < 5 && Math.random() > 0.5 }
       const weight = 60 + Math.floor(Math.random() * 31)
       const ctReqTime = ago(22 + Math.floor(Math.random() * 10))
+      const ctPerformedTime = new Date(ctReqTime.getTime() + 5 * 60 * 1000)
+      const ctInterpretTime = new Date(ctReqTime.getTime() + 10 * 60 * 1000)
+      const mriPerformedTime = new Date(ctReqTime.getTime() + 8 * 60 * 1000)
+      const mriInterpretTime = new Date(ctReqTime.getTime() + 15 * 60 * 1000)
 
       const allNo = (ids) => Object.fromEntries(ids.map((k) => [k, false]))
       const rtpaDose = (w) => { const total = Math.round(w * 0.9 * 10) / 10; const bolo = Math.round(total * 0.1 * 10) / 10; return { total, bolo, infusion: Math.round((total - bolo) * 10) / 10 } }
@@ -298,29 +295,29 @@ export default function App() {
       let thrombolyticStart = null, angioReqTime = null, thrombectomyActTime = null, thrombectomyData = null
 
       if (scenario === 0) {
-        ctResultData = { bleeding: false, ctRequestTime: ctReqTime.toISOString(), ctElapsedSeconds: 600 }
+        ctResultData = { bleeding: false, ctRequestTime: ctReqTime.toISOString(), ctPerformedTime: ctPerformedTime.toISOString(), ctInterpretTime: ctInterpretTime.toISOString(), ctElapsedSeconds: 600 }
         contraindicationsData = { red: allNo(RED_IDS), orange: allNo(ORANGE_IDS), hasAbsolute: false, hasRelative: false, decidedNotToThrombolyze: false }
         thrombolyticStart = ago(10)
         dosageData = { drug: 'rtpa', weight, dose: rtpaDose(weight), checklist: {}, thrombolyticStartTime: thrombolyticStart.toISOString() }
         angioReqTime = ago(8); thrombectomyActTime = ago(5)
         thrombectomyData = { angioRequested: true, angioRequestTime: angioReqTime.toISOString(), hemodinamisNotified: true, aspectScore: 7 + Math.floor(Math.random() * 3), thrombectomyActivationTime: thrombectomyActTime.toISOString() }
       } else if (scenario === 1) {
-        ctResultData = { bleeding: true, ctRequestTime: ctReqTime.toISOString(), ctElapsedSeconds: 600 }
+        ctResultData = { bleeding: true, ctRequestTime: ctReqTime.toISOString(), ctPerformedTime: ctPerformedTime.toISOString(), ctInterpretTime: ctInterpretTime.toISOString(), ctElapsedSeconds: 600 }
       } else if (scenario === 2) {
-        ctResultData = { bleeding: false, ctRequestTime: ctReqTime.toISOString(), ctElapsedSeconds: 600 }
+        ctResultData = { bleeding: false, ctRequestTime: ctReqTime.toISOString(), ctPerformedTime: ctPerformedTime.toISOString(), ctInterpretTime: ctInterpretTime.toISOString(), ctElapsedSeconds: 600 }
         const redAnswers = { ...allNo(RED_IDS), ct_hemorrhage: true }
         contraindicationsData = { red: redAnswers, orange: allNo(ORANGE_IDS), hasAbsolute: true, hasRelative: false, decidedNotToThrombolyze: false }
         angioReqTime = ago(8)
         thrombectomyData = { angioRequested: true, angioRequestTime: angioReqTime.toISOString(), hemodinamisNotified: true, aspectScore: 8, thrombectomyActivationTime: null }
       } else if (scenario === 3) {
-        ctResultData = { mismatch: true, mriRequestTime: ctReqTime.toISOString(), mriElapsedSeconds: 900 }
+        ctResultData = { bleeding: false, mismatch: true, mriRequestTime: ctReqTime.toISOString(), mriPerformedTime: mriPerformedTime.toISOString(), mriInterpretTime: mriInterpretTime.toISOString(), mriElapsedSeconds: 900 }
         contraindicationsData = { red: allNo(RED_IDS), orange: allNo(ORANGE_IDS), hasAbsolute: false, hasRelative: false, decidedNotToThrombolyze: false }
         thrombolyticStart = ago(10)
         dosageData = { drug: pick(['rtpa','tnk']), weight, dose: rtpaDose(weight), checklist: {}, thrombolyticStartTime: thrombolyticStart.toISOString() }
         angioReqTime = ago(8); thrombectomyActTime = ago(5)
         thrombectomyData = { angioRequested: true, angioRequestTime: angioReqTime.toISOString(), hemodinamisNotified: true, aspectScore: 7 + Math.floor(Math.random() * 3), thrombectomyActivationTime: thrombectomyActTime.toISOString() }
       } else {
-        ctResultData = { mismatch: false, mriRequestTime: ctReqTime.toISOString(), mriElapsedSeconds: 900 }
+        ctResultData = { bleeding: false, mismatch: false, mriRequestTime: ctReqTime.toISOString(), mriPerformedTime: mriPerformedTime.toISOString(), mriInterpretTime: mriInterpretTime.toISOString(), mriElapsedSeconds: 900 }
         angioReqTime = ago(8)
         thrombectomyData = { angioRequested: true, angioRequestTime: angioReqTime.toISOString(), hemodinamisNotified: true, aspectScore: 6 + Math.floor(Math.random() * 4), thrombectomyActivationTime: ago(5).toISOString() }
       }
@@ -495,7 +492,7 @@ export default function App() {
       patientName: patient?.name, patientDNI: patient?.dni,
       patientArrivalTime: patientArrivalTime?.toISOString(),
       startTime: timerStart?.toISOString(),
-      ctRequestTime: data.ctRequestTime,
+      ...data,
     })
     // In wake-up stroke, a clear CT is only an intermediate result: MRI must
     // still establish DWI-FLAIR mismatch. Keep the clinician on imaging.
@@ -506,19 +503,29 @@ export default function App() {
 
   function handleMriProgress(data) {
     setCtResult((prev) => ({ ...prev, ...data }))
+    if (patientId) saveSession(patientId, data)
   }
 
   function handleMriConfirm(data) {
     setCtResult((prev) => ({ ...prev, ...data }))
+    if (patientId) saveSession(patientId, data)
     advanceToNext('imagenes')
   }
 
   function handleCtRequest(time) {
     setCtRequestTime(time)
+    if (patientId) saveSession(patientId, { ctRequestTime: time.toISOString() })
   }
 
   function handleCtPerformed(time) {
     setCtResult((prev) => ({ ...prev, ctPerformedTime: time.toISOString() }))
+    if (patientId) saveSession(patientId, { ctPerformedTime: time.toISOString() })
+  }
+
+  function handleCtProgress(data) {
+    setCtResult((prev) => ({ ...prev, ...data }))
+    if (data.ctRequestTime) setCtRequestTime(new Date(data.ctRequestTime))
+    if (patientId) saveSession(patientId, data)
   }
 
   // CI tabs auto-save on each toggle
@@ -815,6 +822,7 @@ export default function App() {
             onMriProgress={handleMriProgress}
             onCtRequest={handleCtRequest}
             onCtPerformed={handleCtPerformed}
+            onCtProgress={handleCtProgress}
             ctResult={ctResult}
             isWakeUpStroke={symptoms?.isWakeUpStroke}
             initialCtRequestTime={ctRequestTime}
@@ -1040,7 +1048,6 @@ export default function App() {
         authUser={user}
         onAuthClick={() => setShowLoginModal(true)}
         theme={theme}
-        onToggleTheme={handleToggleTheme}
         navMode={navMode}
         onToggleNavMode={handleToggleNavMode}
       />
