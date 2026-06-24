@@ -622,32 +622,58 @@ export default function PatientVitalsTab({
       )}
 
       {/* Patient section */}
-      <div className="bg-stroke-navy rounded-xl border border-stroke-line p-3 md:max-w-none">
-        {!patient && <p className="text-[10px] font-bold uppercase tracking-widest text-stroke-textMuted mb-2.5">Identificación del paciente</p>}
-        <PatientSection
-          patient={patient}
-          patientId={patientId}
-          arrivalTime={arrivalTime}
-          onConfirm={onPatientConfirm}
-          onOpenEducational={onOpenEducational}
-        />
-      </div>
+      <section className="overflow-hidden rounded-2xl border border-stroke-line bg-white shadow-card md:max-w-none">
+        <div className="flex items-start gap-3 border-b border-stroke-line px-4 py-3">
+          <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-xs font-bold ${
+            patientDone ? 'bg-emerald-100 text-emerald-800' : 'bg-clinical-100 text-clinical-800'
+          }`}>
+            {patientDone ? <CheckCircle2 size={16} /> : '1'}
+          </span>
+          <div>
+            <p className="text-sm font-bold text-stroke-text">Identificación del paciente</p>
+            <p className="mt-0.5 text-xs text-stroke-textMuted">
+              {patientDone ? 'Datos registrados para este código' : 'Escaneá el DNI o cargá los datos manualmente'}
+            </p>
+          </div>
+        </div>
+        <div className="p-4">
+          <PatientSection
+            patient={patient}
+            patientId={patientId}
+            arrivalTime={arrivalTime}
+            onConfirm={onPatientConfirm}
+            onOpenEducational={onOpenEducational}
+          />
+        </div>
+      </section>
 
       {/* Vitals section */}
       {patientDone ? (
-        <div className="bg-stroke-navy rounded-xl border border-stroke-line p-3 md:max-w-none animate-fade-in">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-stroke-textMuted mb-2.5">Signos vitales</p>
-          <VitalsSection
-            vitals={vitals}
-            onConfirm={onVitalsConfirm}
-            draftVitals={draftVitals}
-            onDraftChange={onDraftVitalsChange}
-            nihssScore={nihssScore}
-            isActive={isActive}
-          />
-        </div>
+        <section className="overflow-hidden rounded-2xl border border-stroke-line bg-white shadow-card md:max-w-none animate-fade-in">
+          <div className="flex items-start gap-3 border-b border-stroke-line px-4 py-3">
+            <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-xs font-bold ${
+              vitalsDone ? 'bg-emerald-100 text-emerald-800' : 'bg-clinical-100 text-clinical-800'
+            }`}>
+              {vitalsDone ? <CheckCircle2 size={16} /> : '2'}
+            </span>
+            <div>
+              <p className="text-sm font-bold text-stroke-text">Signos vitales y estado basal</p>
+              <p className="mt-0.5 text-xs text-stroke-textMuted">TA, glucemia y mRS previo al evento</p>
+            </div>
+          </div>
+          <div className="p-4">
+            <VitalsSection
+              vitals={vitals}
+              onConfirm={onVitalsConfirm}
+              draftVitals={draftVitals}
+              onDraftChange={onDraftVitalsChange}
+              nihssScore={nihssScore}
+              isActive={isActive}
+            />
+          </div>
+        </section>
       ) : (
-        <div className="bg-stroke-bg rounded-xl border border-dashed border-stroke-line p-4">
+        <div className="rounded-2xl border border-dashed border-stroke-line bg-stroke-surfaceMuted p-4">
           <div className="flex items-center gap-3 text-stroke-textMuted">
             <Lock size={16} strokeWidth={1.5} className="shrink-0" />
             <div>

@@ -158,7 +158,7 @@ export default function TimeStep({ onConfirm, isCollapsed = false, initialLastSe
   }
 
   const stepTitle = isIncierto ? 'Última vez asintomático' : 'Reconocimiento de síntomas'
-  const sliderLabel = isIncierto ? 'Última vez visto asintomático' : 'Reconocimiento de síntomas'
+  const sliderLabel = isIncierto ? 'Última vez visto asintomático' : 'Hora de inicio o reconocimiento'
 
   if (isCollapsed && confirmed) {
     return (
@@ -169,34 +169,88 @@ export default function TimeStep({ onConfirm, isCollapsed = false, initialLastSe
   }
 
   return (
-    <StepCard step="2" title={stepTitle} accent={isCandidate ? 'green' : windowStatus === 'ogv' ? 'orange' : 'red'}>
-      <div className="rounded-xl overflow-hidden -m-1">
+    <StepCard step="2" title="Ventana terapéutica" accent={isCandidate ? 'green' : windowStatus === 'ogv' ? 'orange' : 'red'}>
+      <div className="-m-1 overflow-hidden rounded-xl">
 
-        {/* Top row: label + time input + wake toggle */}
-        <div className="flex flex-wrap items-center gap-2 px-3 pt-3 pb-2.5 border-b border-stroke-line/50">
-          <label className="text-[10px] font-semibold uppercase tracking-wider flex items-center gap-1.5 text-stroke-textMuted shrink-0">
-            <Clock size={11} strokeWidth={2} />
-            {sliderLabel}
-          </label>
+        <div className="border-b border-stroke-line px-3 pb-3 pt-3">
+          <p className="text-sm font-bold text-stroke-text">¿El inicio de los síntomas es conocido?</p>
+          <p className="mt-1 text-xs text-stroke-textMuted">Esta respuesta define el circuito de imágenes y la ventana a evaluar.</p>
+
+          <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+            <button
+              type="button"
+              aria-pressed={!isIncierto}
+              onClick={() => { setIsIncierto(false); setConfirmed(false) }}
+              className={`flex min-h-[68px] items-start gap-3 rounded-2xl border p-3 text-left transition-colors ${
+                !isIncierto
+                  ? 'border-clinical-600 bg-clinical-50'
+                  : 'border-stroke-line bg-white hover:bg-stroke-surfaceMuted'
+              }`}
+            >
+              <span className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
+                !isIncierto ? 'bg-clinical-700 text-white' : 'bg-stroke-surfaceMuted text-stroke-textMuted'
+              }`}>
+                <Clock size={17} />
+              </span>
+              <span>
+                <span className="block text-sm font-bold text-stroke-text">Inicio conocido</span>
+                <span className="mt-1 block text-xs leading-snug text-stroke-textMuted">Se conoce la hora de comienzo o reconocimiento.</span>
+              </span>
+            </button>
+
+            <button
+              type="button"
+              aria-pressed={isIncierto}
+              onClick={() => { setIsIncierto(true); setConfirmed(false) }}
+              className={`flex min-h-[68px] items-start gap-3 rounded-2xl border p-3 text-left transition-colors ${
+                isIncierto
+                  ? 'border-indigo-400 bg-indigo-50'
+                  : 'border-stroke-line bg-white hover:bg-stroke-surfaceMuted'
+              }`}
+            >
+              <span className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
+                isIncierto ? 'bg-indigo-600 text-white' : 'bg-stroke-surfaceMuted text-stroke-textMuted'
+              }`}>
+                <Moon size={17} />
+              </span>
+              <span>
+                <span className="block text-sm font-bold text-stroke-text">Incierto / Wake-up</span>
+                <span className="mt-1 block text-xs leading-snug text-stroke-textMuted">Despertó con síntomas o no puede precisarse el inicio.</span>
+              </span>
+            </button>
+          </div>
+        </div>
+
+        {/* Contextual time input */}
+        <div className="flex flex-wrap items-center gap-3 border-b border-stroke-line px-3 py-3">
+          <div className="min-w-[180px] flex-1">
+            <label className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-stroke-textMuted">
+              <Clock size={11} strokeWidth={2} />
+              {sliderLabel}
+            </label>
+            <p className="mt-1 text-xs text-stroke-textMuted">
+              {isIncierto ? 'Usá la última hora en que fue visto sin síntomas.' : 'Si la hora parece futura, se interpreta como el día anterior.'}
+            </p>
+          </div>
 
           {!isToday && (
             <input
               type="date"
               value={lastSeenDate}
               onChange={(e) => handleDateInput(e.target.value)}
-              className="text-[10px] font-medium rounded border border-stroke-line bg-stroke-bg px-1.5 py-0.5 text-stroke-text focus:outline-none focus:ring-1 focus:ring-stroke-iconActive cursor-pointer"
+              className="h-11 rounded-xl border border-stroke-line bg-white px-3 text-xs font-medium text-stroke-text focus:outline-none focus:ring-2 focus:ring-stroke-iconActive/20"
               style={{ colorScheme: 'light' }}
             />
           )}
 
-          <div className="relative flex items-center group">
+          <div className="group relative flex items-center">
             <input
               type="time"
               value={lastSeenTime}
               onChange={(e) => handleTimeInput(e.target.value)}
               onFocus={() => setEditingTime(true)}
               onBlur={() => setEditingTime(false)}
-              className={`text-sm font-bold tabular-nums rounded-lg border bg-stroke-bg px-2 py-0.5 text-stroke-text focus:outline-none focus:ring-1 focus:ring-stroke-iconActive cursor-pointer transition-all ${
+              className={`h-11 min-w-[118px] rounded-xl border bg-white px-3 font-mono text-base font-bold tabular-nums text-stroke-text focus:outline-none focus:ring-2 focus:ring-stroke-iconActive/20 ${
                 editingTime ? 'border-stroke-iconActive ring-1 shadow-sm' : 'border-stroke-line hover:border-stroke-iconActive/60'
               }`}
               style={{ colorScheme: 'light' }}
@@ -204,26 +258,9 @@ export default function TimeStep({ onConfirm, isCollapsed = false, initialLastSe
             <Pencil
               size={9}
               strokeWidth={2}
-              className={`absolute -right-3 text-stroke-textMuted transition-opacity ${editingTime ? 'opacity-0' : 'opacity-40 group-hover:opacity-70'}`}
+              className={`pointer-events-none absolute right-3 text-stroke-textMuted transition-opacity ${editingTime ? 'opacity-0' : 'opacity-50 group-hover:opacity-80'}`}
             />
           </div>
-
-          <button
-            type="button"
-            aria-pressed={isIncierto}
-            onClick={() => { setIsIncierto((v) => !v); setConfirmed(false) }}
-            className={`ml-auto flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[10px] font-semibold transition-all active:scale-[0.98] ${
-              isIncierto
-                ? 'border-indigo-400/40 bg-indigo-500/15 text-indigo-300'
-                : 'border-stroke-line bg-stroke-bg text-stroke-textMuted hover:bg-stroke-panel/40'
-            }`}
-          >
-            <Moon size={11} strokeWidth={2} />
-            <span className="flex flex-col items-start leading-none gap-0.5">
-              <span>Incierto / Wake-up</span>
-              <span className={`text-[9px] font-normal ${isIncierto ? 'text-indigo-300/80' : 'text-stroke-textMuted/70'}`}>Síntomas al despertar</span>
-            </span>
-          </button>
         </div>
 
         {/* Two-column body */}

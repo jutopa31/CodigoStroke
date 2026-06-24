@@ -1,53 +1,7 @@
 import { useState } from 'react'
-import { ShieldCheck, Info, ChevronDown, CheckCircle2, AlertTriangle } from 'lucide-react'
+import { ShieldCheck, CheckCircle2, AlertTriangle } from 'lucide-react'
 import { RED_CONTRAS } from '../lib/contraindications'
-
-function ContraRow({ item, value, onChange }) {
-  const [expanded, setExpanded] = useState(false)
-  const isYes = value === true
-  const isNo  = value === false
-
-  return (
-    <div className={`rounded-lg border transition-all ${
-      isYes ? 'bg-red-50 border-red-300' : isNo ? 'bg-white border-stroke-line' : 'border-stroke-line bg-white'
-    }`}>
-      <div className="flex items-center gap-2 px-3 py-1.5">
-        {/* Label */}
-        <p className={`flex-1 min-w-0 text-xs font-semibold leading-snug truncate ${isYes ? 'text-red-700' : 'text-stroke-text'}`}>
-          {item.short}
-        </p>
-
-        {/* Info toggle */}
-        <button type="button" onClick={() => setExpanded(v => !v)}
-          className={`shrink-0 p-1 rounded-full transition-colors ${expanded ? 'bg-stroke-panel text-stroke-textMuted' : 'text-stroke-textMuted hover:text-stroke-textMuted'}`}>
-          {expanded ? <ChevronDown size={11} /> : <Info size={11} />}
-        </button>
-
-        {/* NO | SÍ toggle */}
-        <div className="flex shrink-0 rounded-md overflow-hidden border border-stroke-line text-[11px] font-bold">
-          <button type="button" onClick={() => onChange(false)}
-            className={`px-2.5 py-1 transition-colors active:scale-95 ${isNo ? 'bg-clinical-700 text-white' : 'bg-white text-stroke-textMuted hover:bg-stroke-panel'}`}>
-            NO
-          </button>
-          <div className="w-px bg-stroke-panel" />
-          <button type="button" onClick={() => onChange(true)}
-            className={`px-2.5 py-1 transition-colors active:scale-95 ${isYes ? 'bg-red-600 text-white' : 'bg-white text-stroke-textMuted hover:bg-red-50'}`}>
-            SÍ
-          </button>
-        </div>
-      </div>
-
-      {expanded && (
-        <div className="px-3 pb-2 border-t border-stroke-line animate-fade-in">
-          <div className="mt-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-800">
-            <p className="font-semibold">{item.label}</p>
-            {item.sub && <p className="opacity-75 mt-0.5">{item.sub}</p>}
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
+import BinaryDecisionRow from '../components/BinaryDecisionRow'
 
 /**
  * CIAbsolutasTab
@@ -102,9 +56,9 @@ export default function CIAbsolutasTab({ initialState, onUpdate }) {
       </button>
 
       {/* List */}
-      <div className="space-y-1.5">
+      <div className="space-y-2">
         {RED_CONTRAS.map((item) => (
-          <ContraRow key={item.id} item={item} value={answers[item.id] ?? null}
+          <BinaryDecisionRow key={item.id} item={item} tone="critical" value={answers[item.id] ?? null}
             onChange={(val) => set(item.id, val)} />
         ))}
       </div>

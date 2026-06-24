@@ -130,9 +130,10 @@ describe('saveSession', () => {
   })
 
   it('overwrites an existing session for the same id', () => {
-    saveSession('GJ678', { step: 1 })
+    saveSession('GJ678', { step: 1, patientName: 'Juan García' })
     saveSession('GJ678', { step: 5 })
     expect(getSessions()['GJ678'].step).toBe(5)
+    expect(getSessions()['GJ678'].patientName).toBe('Juan García')
   })
 })
 
