@@ -1,4 +1,5 @@
 import { Copy, Check, Share2, User, Clock, Activity, Scan, Syringe, ShieldAlert, CheckCircle2, XCircle, AlertTriangle } from 'lucide-react'
+import { ReviewRow, ReviewSection, ReviewTag } from '../components/ReviewSection'
 
 const SYMPTOM_LABELS = {
   consciousness: 'Consciencia',
@@ -28,36 +29,17 @@ function diffMinutes(a, b) {
   return Math.round(Math.abs(da - db) / 60000)
 }
 
-function SectionHeader({ icon: Icon, label, color = 'text-stroke-textMuted' }) {
-  return (
-    <p className={`text-[10px] font-bold uppercase tracking-wider ${color} flex items-center gap-1.5 mb-2`}>
-      <Icon size={11} />
-      {label}
-    </p>
-  )
-}
-
-function Row({ label, value, highlight }) {
-  if (!value && value !== 0) return null
-  return (
-    <div className="flex items-baseline justify-between gap-3 py-1 border-b border-neutral-50 last:border-0">
-      <span className="text-xs text-stroke-textMuted shrink-0">{label}</span>
-      <span className={`text-xs font-medium text-right ${highlight ? 'text-emerald-300' : 'text-stroke-text'}`}>{value}</span>
-    </div>
-  )
-}
-
 function TimestampRow({ label, time, delta, deltaLabel, color = 'text-stroke-text' }) {
   if (!time) return null
   return (
-    <div className="flex items-center gap-3 py-1.5">
-      <div className="w-1.5 h-1.5 rounded-full bg-stroke-navy/40 shrink-0 mt-0.5" />
-      <div className="flex-1 flex items-baseline justify-between gap-2">
+    <div className="flex min-h-[52px] items-center gap-3 py-2.5">
+      <div className="h-2 w-2 shrink-0 rounded-full bg-clinical-600" />
+      <div className="flex flex-1 items-baseline justify-between gap-2">
         <span className="text-xs text-stroke-textMuted">{label}</span>
         <div className="text-right">
-          <span className={`text-xs font-semibold ${color}`}>{time}</span>
+          <span className={`font-mono text-xs font-bold tabular-nums ${color}`}>{time}</span>
           {delta != null && (
-            <span className="text-[10px] text-stroke-textMuted ml-1.5">+{delta} min {deltaLabel}</span>
+            <span className="ml-1.5 block text-[10px] text-stroke-textMuted sm:inline">+{delta} min {deltaLabel}</span>
           )}
         </div>
       </div>
@@ -69,14 +51,14 @@ function DecisionBadge({ result }) {
   if (!result) return <span className="text-xs text-stroke-textMuted">No registrado</span>
   const { icon, title } = result
   const cfg = {
-    check:   { bg: 'bg-emerald-500/10 border-emerald-500/30', text: 'text-emerald-300', Icon: CheckCircle2, iconColor: 'text-emerald-400' },
-    error:   { bg: 'bg-blue-500/10 border-blue-500/30',       text: 'text-blue-300',    Icon: XCircle,      iconColor: 'text-blue-300' },
-    warning: { bg: 'bg-amber-500/10 border-amber-500/30',     text: 'text-amber-300',   Icon: AlertTriangle, iconColor: 'text-amber-400' },
-    moon:    { bg: 'bg-indigo-500/10 border-indigo-500/30',   text: 'text-indigo-300',  Icon: Clock,        iconColor: 'text-indigo-300' },
+    check:   { bg: 'bg-emerald-50 border-emerald-200', text: 'text-emerald-800', Icon: CheckCircle2, iconColor: 'text-emerald-700' },
+    error:   { bg: 'bg-red-50 border-red-200',         text: 'text-red-800',     Icon: XCircle,      iconColor: 'text-red-700' },
+    warning: { bg: 'bg-amber-50 border-amber-200',     text: 'text-amber-800',   Icon: AlertTriangle, iconColor: 'text-amber-700' },
+    moon:    { bg: 'bg-indigo-50 border-indigo-200',   text: 'text-indigo-800',  Icon: Clock,        iconColor: 'text-indigo-700' },
   }[icon] ?? { bg: 'bg-stroke-bg border-stroke-line', text: 'text-stroke-text', Icon: Clock, iconColor: 'text-stroke-textMuted' }
 
   return (
-    <div className={`flex items-center gap-2 px-3 py-2 rounded-lg border ${cfg.bg}`}>
+    <div className={`flex items-center gap-2 rounded-xl border px-3 py-2 ${cfg.bg}`}>
       <cfg.Icon size={16} className={cfg.iconColor} />
       <span className={`text-xs font-bold ${cfg.text}`}>{title}</span>
     </div>
@@ -128,18 +110,18 @@ export default function SummaryTab({
     ? diffMinutes(angioRequestTime || thrombectomyActivationTime, timerStart) : null
 
   return (
-    <div className="px-4 pb-6 animate-slide-down md:px-0 space-y-3">
+    <div className="space-y-3 px-4 pb-6 animate-slide-down md:px-0">
 
       {/* Patient header */}
-      <div className="bg-stroke-navy rounded-xl border border-stroke-line p-4">
+      <div className="rounded-2xl border border-stroke-line bg-white p-4 shadow-card">
         <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-lg bg-stroke-navy/10 flex items-center justify-center shrink-0">
-            <User size={18} className="text-stroke-navy" />
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-clinical-50">
+            <User size={18} className="text-clinical-700" />
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-base font-bold text-stroke-text truncate">{patient?.name ?? '—'}</p>
             <p className="text-xs text-stroke-textMuted mt-0.5">
-              DNI: {patient?.dni ?? '—'} · ID: <span className="font-mono font-semibold text-stroke-navy">{patientId || '—'}</span>
+              DNI: {patient?.dni ?? '—'} · ID: <span className="font-mono font-semibold text-stroke-text">{patientId || '—'}</span>
             </p>
             {patientArrivalTime && (
               <p className="text-[11px] text-stroke-textMuted mt-0.5">Ingreso: {fmtDateTime(patientArrivalTime)}</p>
@@ -150,100 +132,95 @@ export default function SummaryTab({
       </div>
 
       {/* Timeline */}
-      <div className="bg-stroke-navy rounded-xl border border-stroke-line p-4">
-        <SectionHeader icon={Clock} label="Tiempos clave" color="text-stroke-navy/70" />
-        <div className="divide-y divide-stroke-line/50">
+      <ReviewSection icon={Clock} title="Tiempos clave" description="Cronología registrada durante el protocolo" tone="clinical">
+        <div>
           <TimestampRow label="Inicio código stroke" time={fmtTime(timerStart)} />
           <TimestampRow label="Solicitud de TC/RM"   time={fmtTime(ctRequestTime)} delta={dtCt} deltaLabel="del código" />
-          <TimestampRow label="Inicio trombolítico"  time={fmtTime(thrombolyticStartTime)} delta={dtTnk} deltaLabel="del código" color="text-emerald-300" />
+          <TimestampRow label="Inicio trombolítico"  time={fmtTime(thrombolyticStartTime)} delta={dtTnk} deltaLabel="del código" color="text-emerald-700" />
           <TimestampRow label="Solicitud angio / trombectomía"
             time={fmtTime(angioRequestTime || thrombectomyActivationTime)}
             delta={dtAngio} deltaLabel="del código"
-            color="text-blue-300" />
+            color="text-blue-700" />
         </div>
         {dtCode != null && (
-          <p className="text-[10px] text-stroke-textMuted mt-2 pt-2 border-t border-stroke-line">
-            Tiempo puerta-código: <span className="font-semibold text-stroke-textMuted">{dtCode} min</span>
-          </p>
+          <ReviewRow label="Tiempo puerta-código" value={`${dtCode} min`} tone="info" />
         )}
-      </div>
+      </ReviewSection>
 
       {/* Clinical evaluation */}
-      <div className="bg-stroke-navy rounded-xl border border-stroke-line p-4">
-        <SectionHeader icon={Activity} label="Evaluación clínica" color="text-stroke-textMuted" />
-        <Row label="Síntomas"
+      <ReviewSection icon={Activity} title="Evaluación clínica" description="Datos basales que sostienen la decisión" tone="neutral">
+        <ReviewRow label="Síntomas"
           value={selectedSymptoms.length > 0 ? selectedSymptoms.join(', ') : 'No registrado'} />
         {symptoms?.lastSeenNormal && (
-          <Row label="Última vez asintomático" value={fmtDateTime(symptoms.lastSeenNormal)} />
+          <ReviewRow label="Última vez asintomático" value={fmtDateTime(symptoms.lastSeenNormal)} />
         )}
         {symptoms?.isWakeUpStroke && (
-          <Row label="Wake-up stroke" value="Sí" />
+          <ReviewRow label="Wake-up stroke" value="Sí" tone="warning" />
         )}
-        <Row label="TA"
+        <ReviewRow label="TA"
           value={vitals ? `${vitals.systolic}/${vitals.diastolic} mmHg` : null} />
-        <Row label="Glucemia"
+        <ReviewRow label="Glucemia"
           value={vitals ? `${vitals.glucose} mg/dL` : null} />
         {nihss && (
-          <Row label="NIHSS"
+          <ReviewRow label="NIHSS"
             value={`${nihss.nihssScore} pts — ${nihssSeverity(nihss.nihssScore)}${nihss.hasDisablingSymptoms ? ' (déficit discapacitante)' : ''}`}
-            highlight />
+            tone="warning" complete />
         )}
-      </div>
+      </ReviewSection>
 
       {/* Imaging + CIs + Treatment in a 2-col grid on wide screens */}
       <div className="grid gap-3 md:grid-cols-2">
 
         {/* Imaging */}
-        <div className="bg-stroke-navy rounded-xl border border-stroke-line p-4">
-          <SectionHeader icon={Scan} label="Neuroimagen" color="text-stroke-textMuted" />
-          <Row label="Resultado" value={imagingLabel()} />
+        <ReviewSection icon={Scan} title="Neuroimagen" tone="clinical">
+          <ReviewRow label="Resultado" value={imagingLabel()} complete />
           {thrombectomy?.aspectScore != null && (
-            <Row label="ASPECTS" value={`${thrombectomy.aspectScore} pts`} highlight={thrombectomy.aspectScore >= 6} />
+            <ReviewRow label="ASPECTS" value={`${thrombectomy.aspectScore} pts`} tone={thrombectomy.aspectScore >= 6 ? 'success' : 'warning'} />
           )}
-        </div>
+        </ReviewSection>
 
         {/* Contraindications */}
-        <div className="bg-stroke-navy rounded-xl border border-stroke-line p-4">
-          <SectionHeader icon={ShieldAlert} label="Contraindicaciones" color="text-stroke-textMuted" />
-          <Row label="Absolutas"
-            value={decisionResult?.absoluteCI ? 'Presentes' : 'Ninguna'} />
-          <Row label="Relativas"
-            value={decisionResult?.relativeCI ? 'Presentes' : 'Ninguna'} />
+        <ReviewSection icon={ShieldAlert} title="Contraindicaciones" tone={decisionResult?.absoluteCI ? 'critical' : decisionResult?.relativeCI ? 'warning' : 'success'}>
+          <ReviewRow label="Absolutas"
+            value={decisionResult?.absoluteCI ? 'Presentes' : 'Ninguna'}
+            tone={decisionResult?.absoluteCI ? 'critical' : 'success'} />
+          <ReviewRow label="Relativas"
+            value={decisionResult?.relativeCI ? 'Presentes' : 'Ninguna'}
+            tone={decisionResult?.relativeCI ? 'warning' : 'success'} />
           {decisionResult?.absoluteDetails?.length > 0 && (
-            <div className="mt-2 space-y-1">
+            <div className="flex flex-wrap gap-1.5 py-3">
               {decisionResult.absoluteDetails.map((d) => (
-                <div key={d} className="text-[11px] text-blue-300 bg-blue-500/10 border border-blue-500/30 rounded px-2 py-0.5">{d}</div>
+                <ReviewTag key={d} tone="critical">{d}</ReviewTag>
               ))}
             </div>
           )}
           {decisionResult?.relativeDetails?.length > 0 && (
-            <div className="mt-2 space-y-1">
+            <div className="flex flex-wrap gap-1.5 py-3">
               {decisionResult.relativeDetails.map((d) => (
-                <div key={d} className="text-[11px] text-amber-300 bg-amber-500/10 border border-amber-500/30 rounded px-2 py-0.5">{d}</div>
+                <ReviewTag key={d} tone="warning">{d}</ReviewTag>
               ))}
             </div>
           )}
-        </div>
+        </ReviewSection>
       </div>
 
       {/* Treatment */}
-      <div className="bg-stroke-navy rounded-xl border border-stroke-line p-4">
-        <SectionHeader icon={Syringe} label="Tratamiento administrado" color="text-emerald-400/80" />
-        <Row label="Trombolisis"
+      <ReviewSection icon={Syringe} title="Tratamiento administrado" description="Intervenciones que quedaron registradas" tone={dosage ? 'success' : 'neutral'}>
+        <ReviewRow label="Trombolisis"
           value={doseLabel() ?? 'No administrada'}
-          highlight={!!dosage} />
+          tone={dosage ? 'success' : 'neutral'} complete={!!dosage} />
         {thrombolyticStartTime && (
-          <Row label="Hora de inicio" value={fmtTime(thrombolyticStartTime)} />
+          <ReviewRow label="Hora de inicio" value={fmtTime(thrombolyticStartTime)} />
         )}
-        <Row label="Angio-TC"
+        <ReviewRow label="Angio-TC"
           value={thrombectomy?.angioRequested === true ? 'Solicitada' : thrombectomy?.angioRequested === false ? 'No solicitada' : 'No registrado'} />
         {(angioRequestTime || thrombectomyActivationTime) && (
-          <Row label="Hora angio / activación"
+          <ReviewRow label="Hora angio / activación"
             value={fmtTime(angioRequestTime || thrombectomyActivationTime)} />
         )}
-        <Row label="Hemodinámica notificada"
+        <ReviewRow label="Hemodinámica notificada"
           value={thrombectomy?.hemodinamisNotified === true ? 'Sí' : thrombectomy?.hemodinamisNotified === false ? 'No' : null} />
-      </div>
+      </ReviewSection>
 
       {/* Share */}
       <div className="grid grid-cols-2 gap-2 pt-1">
@@ -252,8 +229,8 @@ export default function SummaryTab({
           onClick={onCopy}
           className={`flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold border transition-all active:scale-[0.97] ${
             copied
-              ? 'border-emerald-300 bg-emerald-500/10 text-emerald-300'
-              : 'border-stroke-line bg-stroke-navy text-stroke-text hover:bg-stroke-bg'
+              ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
+              : 'border-stroke-line bg-white text-stroke-text hover:bg-stroke-panel'
           }`}
         >
           {copied ? <Check size={15} /> : <Copy size={15} />}
@@ -262,7 +239,7 @@ export default function SummaryTab({
         <button
           type="button"
           onClick={onWhatsApp}
-          className="flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/15 transition-all active:scale-[0.97]"
+          className="flex items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 py-3 text-sm font-semibold text-emerald-800 transition-all hover:bg-emerald-100 active:scale-[0.97]"
         >
           <Share2 size={15} />
           WhatsApp
