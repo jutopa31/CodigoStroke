@@ -1,47 +1,7 @@
 import { useState } from 'react'
-import { ShieldCheck, Info, ChevronDown, CheckCircle2, AlertTriangle, ShieldAlert } from 'lucide-react'
+import { ShieldCheck, CheckCircle2, AlertTriangle, ShieldAlert } from 'lucide-react'
 import { ORANGE_CONTRAS, ANTICOAG_TYPES } from '../lib/contraindications'
-
-function ContraRow({ item, value, onChange }) {
-  const [expanded, setExpanded] = useState(false)
-  const isYes = value === true
-  const isNo  = value === false
-
-  return (
-    <div className={`rounded-lg border transition-all ${
-      isYes ? 'bg-amber-500/10 border-amber-300' : isNo ? 'bg-stroke-bg border-stroke-line' : 'border-stroke-line bg-stroke-navy'
-    }`}>
-      <div className="flex items-center gap-2 px-3 py-1.5">
-        <p className={`flex-1 min-w-0 text-xs font-semibold leading-snug truncate ${isYes ? 'text-amber-300' : 'text-stroke-text'}`}>
-          {item.short}
-        </p>
-        <button type="button" onClick={() => setExpanded(v => !v)}
-          className={`shrink-0 p-1 rounded-full transition-colors ${expanded ? 'bg-stroke-panel text-stroke-textMuted' : 'text-stroke-textMuted hover:text-stroke-textMuted'}`}>
-          {expanded ? <ChevronDown size={11} /> : <Info size={11} />}
-        </button>
-        <div className="flex shrink-0 rounded-md overflow-hidden border border-stroke-line text-[11px] font-bold">
-          <button type="button" onClick={() => onChange(false)}
-            className={`px-2.5 py-1 transition-all active:scale-95 ${isNo ? 'bg-slate-600 text-white' : 'bg-stroke-navy text-stroke-textMuted hover:bg-stroke-bg'}`}>
-            NO
-          </button>
-          <div className="w-px bg-stroke-panel" />
-          <button type="button" onClick={() => onChange(true)}
-            className={`px-2.5 py-1 transition-all active:scale-95 ${isYes ? 'bg-amber-500 text-stroke-bg' : 'bg-stroke-navy text-stroke-textMuted hover:bg-stroke-bg'}`}>
-            SÍ
-          </button>
-        </div>
-      </div>
-      {expanded && (
-        <div className="px-3 pb-2 border-t border-stroke-line animate-fade-in">
-          <div className="rounded-lg bg-amber-500/10 border border-amber-500/30 px-3 py-1.5 mt-1.5 text-xs text-amber-300">
-            <p className="font-semibold">{item.label}</p>
-            {item.sub && <p className="opacity-75 mt-0.5">{item.sub}</p>}
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
+import BinaryDecisionRow from '../components/BinaryDecisionRow'
 
 /**
  * CIRelativasTab
@@ -124,7 +84,7 @@ export default function CIRelativasTab({ initialState, onUpdate, onAnticoagChang
       {/* Anticoagulación */}
       <div className={`rounded-lg border transition-all ${
         anticoag.active === true ? 'bg-amber-500/10 border-amber-300' :
-        anticoag.active === false ? 'bg-stroke-bg border-stroke-line' : 'border-stroke-line bg-stroke-navy'
+        anticoag.active === false ? 'bg-white border-stroke-line' : 'border-stroke-line bg-white'
       }`}>
         <div className="flex items-center gap-2 px-3 py-1.5">
           <ShieldAlert size={13} className={`shrink-0 ${anticoag.active === true ? 'text-amber-400' : 'text-stroke-textMuted'}`} />
@@ -133,12 +93,12 @@ export default function CIRelativasTab({ initialState, onUpdate, onAnticoagChang
           </p>
           <div className="flex shrink-0 rounded-md overflow-hidden border border-stroke-line text-[11px] font-bold">
             <button type="button" onClick={() => setAnticoagActive(false)}
-              className={`px-2.5 py-1 transition-all active:scale-95 ${anticoag.active === false ? 'bg-slate-600 text-white' : 'bg-stroke-navy text-stroke-textMuted hover:bg-stroke-bg'}`}>
+              className={`px-2.5 py-1 transition-colors active:scale-95 ${anticoag.active === false ? 'bg-clinical-700 text-white' : 'bg-white text-stroke-textMuted hover:bg-stroke-panel'}`}>
               NO
             </button>
             <div className="w-px bg-stroke-panel" />
             <button type="button" onClick={() => setAnticoagActive(true)}
-              className={`px-2.5 py-1 transition-all active:scale-95 ${anticoag.active === true ? 'bg-amber-500 text-stroke-bg' : 'bg-stroke-navy text-stroke-textMuted hover:bg-stroke-bg'}`}>
+              className={`px-2.5 py-1 transition-colors active:scale-95 ${anticoag.active === true ? 'bg-amber-500 text-white' : 'bg-white text-stroke-textMuted hover:bg-amber-50'}`}>
               SÍ
             </button>
           </div>
@@ -168,9 +128,9 @@ export default function CIRelativasTab({ initialState, onUpdate, onAnticoagChang
       </div>
 
       {/* List */}
-      <div className="space-y-1.5">
+      <div className="space-y-2">
         {ORANGE_CONTRAS.map((item) => (
-          <ContraRow key={item.id} item={item} value={answers[item.id] ?? null}
+          <BinaryDecisionRow key={item.id} item={item} tone="warning" value={answers[item.id] ?? null}
             onChange={(val) => set(item.id, val)} />
         ))}
       </div>

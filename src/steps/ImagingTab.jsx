@@ -29,6 +29,14 @@ function fmtClock(d) {
   return d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false })
 }
 
+function withClock(baseDate, clockValue) {
+  if (!baseDate || !clockValue) return baseDate
+  const [hours, minutes] = clockValue.split(':').map(Number)
+  const next = new Date(baseDate)
+  next.setHours(hours, minutes, 0, 0)
+  return next
+}
+
 function fmtDelta(a, b) {
   const s = Math.round((b.getTime() - a.getTime()) / 1000)
   const m = Math.floor(s / 60)
@@ -43,6 +51,7 @@ const CT_MILESTONES = [
 
 function CTSection({
   onConfirm,
+  onProgress,
   onCtRequest,
   onCtPerformed,
   initialCtRequestTime,
@@ -89,6 +98,29 @@ function CTSection({
     })
   }
 
+  function updateRequestTime(next) {
+    setRequestTime(next)
+    onCtRequest?.(next)
+    onProgress?.({
+      ctRequestTime: next.toISOString(),
+      ...(interpretTime ? { ctElapsedSeconds: Math.max(0, Math.floor((interpretTime.getTime() - next.getTime()) / 1000)) } : {}),
+    })
+  }
+
+  function updatePerformedTime(next) {
+    setPerformedTime(next)
+    onCtPerformed?.(next)
+    onProgress?.({ ctPerformedTime: next.toISOString() })
+  }
+
+  function updateInterpretTime(next) {
+    setInterpretTime(next)
+    onProgress?.({
+      ctInterpretTime: next.toISOString(),
+      ...(requestTime ? { ctElapsedSeconds: Math.max(0, Math.floor((next.getTime() - requestTime.getTime()) / 1000)) } : {}),
+    })
+  }
+
   const elapsedSinceLast = step === 1 ? timeSince(requestTime) : step === 2 ? timeSince(performedTime) : null
 
   const btnBase = 'flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-bold transition-all active:scale-[0.98]'
@@ -103,37 +135,19 @@ function CTSection({
         />
       </div>
 
-      {/* stepped cards */}
-      <div className="flex items-stretch gap-2">
-        {CT_MILESTONES.map(({ label, Icon }, i) => {
-          const isDone = !!times[i]
-          const isActive = i === step && step < 3
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+        {CT_MILESTONES.map(({ label, Icon }, index) => {
+          const handlers = [updateRequestTime, updatePerformedTime, updateInterpretTime]
           return (
-            <div
+            <MilestoneCard
               key={label}
-              className={`flex min-h-[94px] flex-col items-center justify-center rounded-xl border px-2 py-3 text-center transition-all duration-300 ${
-                isActive
-                  ? 'flex-[1.6] -translate-y-0.5 border-stroke-iconActive bg-stroke-panel ring-2 ring-stroke-iconActive/20'
-                  : isDone
-                    ? 'flex-1 border-stroke-line bg-stroke-bg'
-                    : 'flex-1 border-stroke-line bg-stroke-bg opacity-50'
-              }`}
-            >
-              <span className={`mb-1.5 flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${
-                isDone ? 'bg-emerald-500 text-stroke-bg animate-scale-in' : isActive ? 'bg-stroke-iconActive/20 text-stroke-iconActive' : 'bg-stroke-navy text-stroke-textMuted'
-              }`}>
-                {isDone ? <CheckCircle2 size={16} strokeWidth={2.5} /> : <Icon size={16} strokeWidth={2.4} />}
-              </span>
-              <span className={`font-sans text-xs font-semibold leading-tight ${isDone || isActive ? 'text-stroke-text' : 'text-stroke-textMuted'}`}>
-                {label}
-              </span>
-              {isDone && (
-                <span className="mt-1 font-mono text-[11px] font-semibold tabular-nums text-emerald-300">{fmtClock(times[i])}</span>
-              )}
-              {isDone && i > 0 && times[i - 1] && (
-                <span className="mt-0.5 font-mono text-[10px] tabular-nums text-stroke-textMuted">{fmtDelta(times[i - 1], times[i])}</span>
-              )}
-            </div>
+              label={label}
+              Icon={Icon}
+              time={times[index]}
+              previousTime={index > 0 ? times[index - 1] : null}
+              active={index === step && step < 3}
+              onTimeChange={handlers[index]}
+            />
           )
         })}
       </div>
@@ -189,6 +203,57 @@ const MRI_MILESTONES = [
   { label: 'Realizada', Icon: Activity },
   { label: 'Interpretada', Icon: Scan },
 ]
+
+function MilestoneCard({ label, Icon, time, previousTime, active, onTimeChange, tone = 'clinical' }) {
+  const done = !!time
+  const invalidOrder = !!previousTime && !!time && time.getTime() < previousTime.getTime()
+  const activeStyles = tone === 'indigo'
+    ? 'border-indigo-400 bg-indigo-50 ring-indigo-200'
+    : 'border-clinical-600 bg-clinical-50 ring-clinical-100'
+  const iconStyles = tone === 'indigo' ? 'bg-indigo-600 text-white' : 'bg-clinical-700 text-white'
+
+  return (
+    <div className={`min-w-0 rounded-2xl border px-3 py-3 transition-colors ${
+      invalidOrder
+        ? 'border-status-critical bg-red-50'
+        : active
+          ? `${activeStyles} ring-2`
+          : done
+            ? 'border-stroke-line bg-white'
+            : 'border-stroke-line bg-stroke-surfaceMuted opacity-60'
+    }`}>
+      <div className="flex items-center gap-2">
+        <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl ${
+          done ? 'bg-emerald-100 text-emerald-700' : active ? iconStyles : 'bg-white text-stroke-textMuted'
+        }`}>
+          {done ? <CheckCircle2 size={16} strokeWidth={2.5} /> : <Icon size={16} strokeWidth={2.3} />}
+        </span>
+        <div className="min-w-0">
+          <p className="truncate text-xs font-bold text-stroke-text">{label}</p>
+          {!done && <p className="text-[10px] text-stroke-textMuted">{active ? 'Hito actual' : 'Pendiente'}</p>}
+        </div>
+      </div>
+      {done && (
+        <div className="mt-3">
+          <label className="text-[9px] font-semibold uppercase tracking-wider text-stroke-textMuted">Hora registrada</label>
+          <input
+            type="time"
+            value={fmtClock(time)}
+            onChange={(event) => onTimeChange?.(withClock(time, event.target.value))}
+            className="mt-1 h-10 w-full rounded-xl border border-stroke-line bg-white px-2 font-mono text-sm font-bold tabular-nums text-stroke-text focus:border-stroke-iconActive focus:outline-none focus:ring-2 focus:ring-stroke-iconActive/15"
+            style={{ colorScheme: 'light' }}
+            aria-label={`Hora de ${label.toLowerCase()}`}
+          />
+          {invalidOrder ? (
+            <p className="mt-1 text-center text-[10px] font-bold text-status-critical">Revisar orden horario</p>
+          ) : (
+            previousTime && <p className="mt-1 text-center font-mono text-[10px] text-stroke-textMuted">{fmtDelta(previousTime, time)}</p>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
 
 function MRISection({
   onConfirm,
@@ -253,6 +318,18 @@ function MRISection({
     if (mriRequestTime && mriPerformedTime && bleeding === false) finishInterpretation(false, value)
   }
 
+  function updateMriTime(field, setter, next) {
+    setter(next)
+    const data = { [field]: next.toISOString() }
+    if (field === 'mriRequestTime' && mriInterpretTime) {
+      data.mriElapsedSeconds = Math.max(0, Math.floor((mriInterpretTime.getTime() - next.getTime()) / 1000))
+    }
+    if (field === 'mriInterpretTime' && mriRequestTime) {
+      data.mriElapsedSeconds = Math.max(0, Math.floor((next.getTime() - mriRequestTime.getTime()) / 1000))
+    }
+    onProgress?.(data)
+  }
+
   return (
     <div>
       <div className="flex items-center gap-2 px-4 py-3 bg-indigo-500/15">
@@ -265,25 +342,21 @@ function MRISection({
           style={{ width: `${(step / 3) * 100}%` }} />
       </div>
 
-      <div className="flex items-stretch gap-2">
-        {MRI_MILESTONES.map(({ label, Icon }, i) => {
-          const isDone = !!times[i]
-          const milestoneActive = i === step && step < 3
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+        {MRI_MILESTONES.map(({ label, Icon }, index) => {
+          const fields = ['mriRequestTime', 'mriPerformedTime', 'mriInterpretTime']
+          const setters = [setMriRequestTime, setMriPerformedTime, setMriInterpretTime]
           return (
-            <div key={label} className={`flex min-h-[94px] flex-col items-center justify-center rounded-xl border px-2 py-3 text-center transition-all duration-300 ${
-              milestoneActive
-                ? 'flex-[1.6] -translate-y-0.5 border-indigo-400 bg-stroke-panel ring-2 ring-indigo-400/20'
-                : isDone ? 'flex-1 border-stroke-line bg-stroke-bg' : 'flex-1 border-stroke-line bg-stroke-bg opacity-50'
-            }`}>
-              <span className={`mb-1.5 flex h-8 w-8 items-center justify-center rounded-lg ${
-                isDone ? 'bg-emerald-500 text-stroke-bg animate-scale-in' : milestoneActive ? 'bg-indigo-500/20 text-indigo-300' : 'bg-stroke-navy text-stroke-textMuted'
-              }`}>
-                {isDone ? <CheckCircle2 size={16} strokeWidth={2.5} /> : <Icon size={16} strokeWidth={2.4} />}
-              </span>
-              <span className={`text-xs font-semibold ${isDone || milestoneActive ? 'text-stroke-text' : 'text-stroke-textMuted'}`}>{label}</span>
-              {isDone && <span className="mt-1 font-mono text-[11px] font-semibold tabular-nums text-emerald-300">{fmtClock(times[i])}</span>}
-              {isDone && i > 0 && times[i - 1] && <span className="mt-0.5 font-mono text-[10px] text-stroke-textMuted">{fmtDelta(times[i - 1], times[i])}</span>}
-            </div>
+            <MilestoneCard
+              key={label}
+              label={label}
+              Icon={Icon}
+              time={times[index]}
+              previousTime={index > 0 ? times[index - 1] : null}
+              active={index === step && step < 3}
+              tone="indigo"
+              onTimeChange={(next) => updateMriTime(fields[index], setters[index], next)}
+            />
           )
         })}
       </div>
@@ -343,6 +416,7 @@ export default function ImagingTab({
   onMriProgress,
   onCtRequest,
   onCtPerformed,
+  onCtProgress,
   ctResult,
   isWakeUpStroke,
   initialCtRequestTime,
@@ -350,8 +424,9 @@ export default function ImagingTab({
 }) {
   const [selectedMode, setSelectedMode] = useState(null)
 
-  const ctConfirmed  = !!ctResult?.ctRequestTime && (ctResult?.bleeding === true || ctResult?.bleeding === false)
-  const mriConfirmed = !!ctResult?.mriRequestTime && (
+  const ctConfirmed  = !!ctResult?.ctRequestTime && !!ctResult?.ctPerformedTime && !!ctResult?.ctInterpretTime
+    && (ctResult?.bleeding === true || ctResult?.bleeding === false)
+  const mriConfirmed = !!ctResult?.mriRequestTime && !!ctResult?.mriPerformedTime && !!ctResult?.mriInterpretTime && (
     ctResult?.bleeding === true || ctResult?.mismatch === true || ctResult?.mismatch === false
   )
 
@@ -405,6 +480,7 @@ export default function ImagingTab({
         <StepCard step="" title="TAC de encéfalo" accent="blue">
           <CTSection
             onConfirm={handleCtResult}
+            onProgress={onCtProgress}
             onCtRequest={onCtRequest}
             onCtPerformed={onCtPerformed}
             initialCtRequestTime={initialCtRequestTime}
@@ -413,13 +489,13 @@ export default function ImagingTab({
             initialBleeding={ctResult?.bleeding ?? null}
             isActive={isActive}
           />
-          {ctResult?.bleeding === true && (
+          {ctConfirmed && ctResult?.bleeding === true && (
           <div className="mt-3 bg-status-critical/10 border border-status-critical/40 rounded-lg px-3 py-2.5 animate-fade-in">
               <p className="text-sm font-bold text-red-300 mb-1">Hemorragia intracraneal presente</p>
               <p className="text-xs text-red-300 leading-relaxed">Contraindicación absoluta para trombolisis IV.</p>
             </div>
           )}
-          {ctResult?.bleeding === false && (
+          {ctConfirmed && ctResult?.bleeding === false && (
           <div className="mt-3 bg-emerald-500/10 border border-emerald-300 rounded-lg px-3 py-2.5 animate-fade-in">
               <p className="text-xs font-semibold text-emerald-300">TAC sin hemorragia — continuar evaluación.</p>
             </div>

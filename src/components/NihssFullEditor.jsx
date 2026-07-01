@@ -194,7 +194,7 @@ function GuidedWizard({ onSave, onClose }) {
 
 // ── Inline guided — one item at a time, embedded (variant B) ──────────────────
 
-function InlineScroll({ scores: initialScores, onClose, current: initialCurrent, onCurrentChange, onScoresChange, onComplete }) {
+function InlineScroll({ scores: initialScores, onClose, current: initialCurrent, sectionActive = true, onCurrentChange, onScoresChange, onComplete }) {
   const [scores, setScores] = useState(() => ({ ...(initialScores ?? {}) }))
   const [current, setCurrentState] = useState(() => Math.min(Math.max(0, initialCurrent ?? 0), nihssItems.length - 1))
 
@@ -285,7 +285,7 @@ function InlineScroll({ scores: initialScores, onClose, current: initialCurrent,
                 type="button"
                 onClick={() => setCurrent(idx)}
                 aria-label={stateLabel}
-                aria-current={isCurrent ? 'step' : undefined}
+                aria-current={sectionActive && isCurrent ? 'step' : undefined}
                 className={`relative inline-flex items-center justify-center min-h-[44px] text-xs font-semibold px-3 rounded-full border transition-all active:scale-95 ${
                   isAnswered
                     ? pillStyle(scores[i.id])
@@ -487,9 +487,9 @@ function InlineAdjust({ scores: initialScores, onSave, onClose }) {
 
 // ── Public API ───────────────────────────────────────────────────────────────
 
-export default function NihssFullEditor({ scores, onSave, onClose, guided, inlineScroll, inline, current, onCurrentChange, onScoresChange, onComplete }) {
+export default function NihssFullEditor({ scores, onSave, onClose, guided, inlineScroll, inline, current, sectionActive = true, onCurrentChange, onScoresChange, onComplete }) {
   if (guided)       return <GuidedWizard onSave={onSave} onClose={onClose} />
-  if (inlineScroll) return <InlineScroll scores={scores} onClose={onClose} current={current} onCurrentChange={onCurrentChange} onScoresChange={onScoresChange} onComplete={onComplete} />
+  if (inlineScroll) return <InlineScroll scores={scores} onClose={onClose} current={current} sectionActive={sectionActive} onCurrentChange={onCurrentChange} onScoresChange={onScoresChange} onComplete={onComplete} />
   if (inline)       return <InlineAdjust scores={scores} onSave={onSave} onClose={onClose} />
   return <ScrollModal scores={scores} onSave={onSave} onClose={onClose} />
 }

@@ -151,7 +151,12 @@ export function generatePatientId(name, dni) {
 
 export function saveSession(patientId, data) {
   const sessions = getSessions()
-  sessions[patientId] = { ...data, patientId, updatedAt: new Date().toISOString() }
+  sessions[patientId] = {
+    ...sessions[patientId],
+    ...data,
+    patientId,
+    updatedAt: new Date().toISOString(),
+  }
   localStorage.setItem('codigo_stroke_sessions', JSON.stringify(sessions))
 }
 

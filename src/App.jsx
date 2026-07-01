@@ -1,17 +1,17 @@
 import { useEffect, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { Copy, Check, Syringe, Brain, ChevronRight } from 'lucide-react'
-import GlobalTimer from './components/GlobalTimer'
+import ClinicalHeader from './components/ClinicalHeader'
+import ClinicalSummary from './components/ClinicalSummary'
+import ContextualActionBar from './components/ContextualActionBar'
 import AlertModal from './components/AlertModal'
 import RestoreCaseModal from './components/RestoreCaseModal'
 import StepStepper from './components/StepStepper'
 import StepRail from './components/StepRail'
 import StepPill from './components/StepPill'
 import ProtocolScroller from './components/ProtocolScroller'
-import DecisionButton from './components/DecisionButton'
 import QuickAddFAB from './components/QuickAddFAB'
 import ContactFAB from './components/ContactFAB'
-import Cronologia from './components/Cronologia'
 import OutOfWindowModal from './components/OutOfWindowModal'
 import EducationalOverlay from './components/EducationalOverlay'
 import EducationalMode from './components/EducationalMode'
@@ -119,6 +119,7 @@ export default function App() {
   const [navMode, setNavModeState] = useState(getNavMode)
   function handleToggleNavMode() {
     setNavModeState((m) => setNavMode(m === 'scroll' ? 'stepper' : 'scroll'))
+    if (phase !== 'start') saveCaseDraft(buildCaseSnapshot())
   }
 
   // Modal state
@@ -171,18 +172,11 @@ export default function App() {
   })
   const { user } = useAuth()
 
-  const [theme, setTheme] = useState(() => {
-    try { return localStorage.getItem('codigostroke_theme') ?? 'dark' } catch { return 'dark' }
-  })
-
+  const theme = 'light'
   useEffect(() => {
-    document.documentElement.dataset.theme = theme
-    try { localStorage.setItem('codigostroke_theme', theme) } catch { /* Safari private mode */ }
-  }, [theme])
-
-  function handleToggleTheme() {
-    setTheme(t => t === 'dark' ? 'light' : 'dark')
-  }
+    document.documentElement.dataset.theme = 'light'
+    try { localStorage.setItem('codigostroke_theme', 'light') } catch { /* Safari private mode */ }
+  }, [])
 
   // ── Persistencia del caso activo (sobrevive recargas / crash) ─────────────────
   // Junta todo el estado del caso en un objeto serializable. JSON.stringify
@@ -289,6 +283,10 @@ export default function App() {
       const nihssData = { nihssScore, hasDisablingSymptoms: nihssScore < 5 && Math.random() > 0.5 }
       const weight = 60 + Math.floor(Math.random() * 31)
       const ctReqTime = ago(22 + Math.floor(Math.random() * 10))
+      const ctPerformedTime = new Date(ctReqTime.getTime() + 5 * 60 * 1000)
+      const ctInterpretTime = new Date(ctReqTime.getTime() + 10 * 60 * 1000)
+      const mriPerformedTime = new Date(ctReqTime.getTime() + 8 * 60 * 1000)
+      const mriInterpretTime = new Date(ctReqTime.getTime() + 15 * 60 * 1000)
 
       const allNo = (ids) => Object.fromEntries(ids.map((k) => [k, false]))
       const rtpaDose = (w) => { const total = Math.round(w * 0.9 * 10) / 10; const bolo = Math.round(total * 0.1 * 10) / 10; return { total, bolo, infusion: Math.round((total - bolo) * 10) / 10 } }
@@ -297,29 +295,29 @@ export default function App() {
       let thrombolyticStart = null, angioReqTime = null, thrombectomyActTime = null, thrombectomyData = null
 
       if (scenario === 0) {
-        ctResultData = { bleeding: false, ctRequestTime: ctReqTime.toISOString(), ctElapsedSeconds: 600 }
+        ctResultData = { bleeding: false, ctRequestTime: ctReqTime.toISOString(), ctPerformedTime: ctPerformedTime.toISOString(), ctInterpretTime: ctInterpretTime.toISOString(), ctElapsedSeconds: 600 }
         contraindicationsData = { red: allNo(RED_IDS), orange: allNo(ORANGE_IDS), hasAbsolute: false, hasRelative: false, decidedNotToThrombolyze: false }
         thrombolyticStart = ago(10)
         dosageData = { drug: 'rtpa', weight, dose: rtpaDose(weight), checklist: {}, thrombolyticStartTime: thrombolyticStart.toISOString() }
         angioReqTime = ago(8); thrombectomyActTime = ago(5)
         thrombectomyData = { angioRequested: true, angioRequestTime: angioReqTime.toISOString(), hemodinamisNotified: true, aspectScore: 7 + Math.floor(Math.random() * 3), thrombectomyActivationTime: thrombectomyActTime.toISOString() }
       } else if (scenario === 1) {
-        ctResultData = { bleeding: true, ctRequestTime: ctReqTime.toISOString(), ctElapsedSeconds: 600 }
+        ctResultData = { bleeding: true, ctRequestTime: ctReqTime.toISOString(), ctPerformedTime: ctPerformedTime.toISOString(), ctInterpretTime: ctInterpretTime.toISOString(), ctElapsedSeconds: 600 }
       } else if (scenario === 2) {
-        ctResultData = { bleeding: false, ctRequestTime: ctReqTime.toISOString(), ctElapsedSeconds: 600 }
+        ctResultData = { bleeding: false, ctRequestTime: ctReqTime.toISOString(), ctPerformedTime: ctPerformedTime.toISOString(), ctInterpretTime: ctInterpretTime.toISOString(), ctElapsedSeconds: 600 }
         const redAnswers = { ...allNo(RED_IDS), ct_hemorrhage: true }
         contraindicationsData = { red: redAnswers, orange: allNo(ORANGE_IDS), hasAbsolute: true, hasRelative: false, decidedNotToThrombolyze: false }
         angioReqTime = ago(8)
         thrombectomyData = { angioRequested: true, angioRequestTime: angioReqTime.toISOString(), hemodinamisNotified: true, aspectScore: 8, thrombectomyActivationTime: null }
       } else if (scenario === 3) {
-        ctResultData = { mismatch: true, mriRequestTime: ctReqTime.toISOString(), mriElapsedSeconds: 900 }
+        ctResultData = { bleeding: false, mismatch: true, mriRequestTime: ctReqTime.toISOString(), mriPerformedTime: mriPerformedTime.toISOString(), mriInterpretTime: mriInterpretTime.toISOString(), mriElapsedSeconds: 900 }
         contraindicationsData = { red: allNo(RED_IDS), orange: allNo(ORANGE_IDS), hasAbsolute: false, hasRelative: false, decidedNotToThrombolyze: false }
         thrombolyticStart = ago(10)
         dosageData = { drug: pick(['rtpa','tnk']), weight, dose: rtpaDose(weight), checklist: {}, thrombolyticStartTime: thrombolyticStart.toISOString() }
         angioReqTime = ago(8); thrombectomyActTime = ago(5)
         thrombectomyData = { angioRequested: true, angioRequestTime: angioReqTime.toISOString(), hemodinamisNotified: true, aspectScore: 7 + Math.floor(Math.random() * 3), thrombectomyActivationTime: thrombectomyActTime.toISOString() }
       } else {
-        ctResultData = { mismatch: false, mriRequestTime: ctReqTime.toISOString(), mriElapsedSeconds: 900 }
+        ctResultData = { bleeding: false, mismatch: false, mriRequestTime: ctReqTime.toISOString(), mriPerformedTime: mriPerformedTime.toISOString(), mriInterpretTime: mriInterpretTime.toISOString(), mriElapsedSeconds: 900 }
         angioReqTime = ago(8)
         thrombectomyData = { angioRequested: true, angioRequestTime: angioReqTime.toISOString(), hemodinamisNotified: true, aspectScore: 6 + Math.floor(Math.random() * 4), thrombectomyActivationTime: ago(5).toISOString() }
       }
@@ -494,7 +492,7 @@ export default function App() {
       patientName: patient?.name, patientDNI: patient?.dni,
       patientArrivalTime: patientArrivalTime?.toISOString(),
       startTime: timerStart?.toISOString(),
-      ctRequestTime: data.ctRequestTime,
+      ...data,
     })
     // In wake-up stroke, a clear CT is only an intermediate result: MRI must
     // still establish DWI-FLAIR mismatch. Keep the clinician on imaging.
@@ -505,19 +503,29 @@ export default function App() {
 
   function handleMriProgress(data) {
     setCtResult((prev) => ({ ...prev, ...data }))
+    if (patientId) saveSession(patientId, data)
   }
 
   function handleMriConfirm(data) {
     setCtResult((prev) => ({ ...prev, ...data }))
+    if (patientId) saveSession(patientId, data)
     advanceToNext('imagenes')
   }
 
   function handleCtRequest(time) {
     setCtRequestTime(time)
+    if (patientId) saveSession(patientId, { ctRequestTime: time.toISOString() })
   }
 
   function handleCtPerformed(time) {
     setCtResult((prev) => ({ ...prev, ctPerformedTime: time.toISOString() }))
+    if (patientId) saveSession(patientId, { ctPerformedTime: time.toISOString() })
+  }
+
+  function handleCtProgress(data) {
+    setCtResult((prev) => ({ ...prev, ...data }))
+    if (data.ctRequestTime) setCtRequestTime(new Date(data.ctRequestTime))
+    if (patientId) saveSession(patientId, data)
   }
 
   // CI tabs auto-save on each toggle
@@ -696,10 +704,6 @@ export default function App() {
 
   // Human-readable list of the pre-phase steps still missing, for the decision CTA.
   const MISSING_LABELS = { paciente: 'Paciente', tiempo: 'Tiempo', clinica: 'NIHSS', imagenes: 'Imagen', ci_abs: 'CI Absolutas', ci_rel: 'CI Relativas' }
-  const missingSteps = ['paciente', 'tiempo', 'clinica', 'imagenes', 'ci_abs', 'ci_rel']
-    .filter((k) => tabCompletion[k] !== 'complete')
-    .map((k) => MISSING_LABELS[k])
-
   // Stepper navigation — jump between protocol steps across phases.
   // Guard: post-phase steps (Decisión, Tratamiento) only reachable once decision is computed.
   function handleStepNavigate(targetPhase, tab) {
@@ -799,6 +803,7 @@ export default function App() {
       case 'clinica':
         return (
           <ClinicalTab
+            isActive={isActive}
             onNihssConfirm={handleNihssConfirm}
             onNihssReset={() => setNihss(null)}
             nihss={nihss}
@@ -817,6 +822,7 @@ export default function App() {
             onMriProgress={handleMriProgress}
             onCtRequest={handleCtRequest}
             onCtPerformed={handleCtPerformed}
+            onCtProgress={handleCtProgress}
             ctResult={ctResult}
             isWakeUpStroke={symptoms?.isWakeUpStroke}
             initialCtRequestTime={ctRequestTime}
@@ -987,19 +993,53 @@ export default function App() {
     setActiveTab(tab)
   }
 
+  const PRE_TAB_ORDER = ['paciente', 'tiempo', 'clinica', 'imagenes', 'ci_abs', 'ci_rel']
+  const ACTIVE_LABELS = {
+    paciente: ['Identificá al paciente', 'Completá identificación y signos vitales'],
+    tiempo: ['Definí la ventana terapéutica', 'Registrá la última vez visto asintomático'],
+    clinica: ['Completá la evaluación NIHSS', 'Registrá el déficit neurológico actual'],
+    imagenes: ['Registrá el resultado de imágenes', 'Definí hemorragia o mismatch'],
+    ci_abs: ['Revisá contraindicaciones absolutas', 'Respondé todas las condiciones de exclusión'],
+    ci_rel: ['Revisá contraindicaciones relativas', 'Completá riesgo, beneficio y anticoagulación'],
+  }
+
+  function getContextualAction() {
+    if (phase !== 'pre') return null
+    if (tabCompletion.allComplete) {
+      return {
+        title: 'Evaluación inicial completa',
+        detail: 'Revisá los datos y calculá la conducta recomendada',
+        actionLabel: 'Calcular decisión de trombolisis',
+        onAction: handleComputeDecision,
+        complete: true,
+      }
+    }
+    const status = tabCompletion[activeTab] ?? 'empty'
+    const currentIndex = PRE_TAB_ORDER.indexOf(activeTab)
+    const nextTab = PRE_TAB_ORDER[currentIndex + 1]
+    const [title, detail] = ACTIVE_LABELS[activeTab] ?? ['Continuá la evaluación', 'Completá los datos requeridos']
+    if (status === 'complete' && nextTab) {
+      return {
+        title: `${MISSING_LABELS[activeTab] ?? 'Paso'} completo`,
+        detail: `Siguiente: ${MISSING_LABELS[nextTab]}`,
+        actionLabel: 'Continuar',
+        onAction: () => setActiveTab(nextTab),
+        complete: true,
+      }
+    }
+    return { title, detail, disabled: true }
+  }
+
+  const contextualAction = getContextualAction()
+
   return (
     <div className="h-dvh flex flex-col overflow-hidden bg-stroke-bg">
 
       {/* Header — a flex child, not fixed. Its height (timer hero, event strip,
           progress bar) is absorbed by the flex column, so the body can never be
           clipped underneath it. No magic padding-top needed. */}
-      <GlobalTimer
+      <ClinicalHeader
         startTime={timerStart}
-        timestamps={{
-          ctRequest: ctRequestTime?.toISOString(),
-          thrombolyticStart: thrombolyticStartTime?.toISOString(),
-          angioRequest: angioRequestTime?.toISOString(),
-        }}
         patient={patient}
         onReset={patient ? handleReset : undefined}
         onEducationalOpen={() => setShowEducationalOverlay(true)}
@@ -1008,7 +1048,6 @@ export default function App() {
         authUser={user}
         onAuthClick={() => setShowLoginModal(true)}
         theme={theme}
-        onToggleTheme={handleToggleTheme}
         navMode={navMode}
         onToggleNavMode={handleToggleNavMode}
       />
@@ -1019,7 +1058,7 @@ export default function App() {
         {/* Protocol stepper — modo stepper. En modo scroll la guía es el StepRail
             vertical (borde derecho del contenido), no esta barra superior. */}
         {!scrollActive && (
-          <div className="shrink-0 bg-stroke-navy md:border-b md:border-stroke-line md:px-5 md:py-1">
+          <div className="shrink-0 border-b border-stroke-line bg-white md:px-5 md:py-1">
             <StepStepper
               phase={phase}
               activeTab={activeTab}
@@ -1033,25 +1072,25 @@ export default function App() {
         )}
 
         {/* Two-column layout: sidebar (desktop) + main content */}
-        <div className="flex-1 flex overflow-hidden md:px-4 md:pb-3">
+        <div className="flex-1 flex overflow-hidden md:px-5 md:pb-4">
 
           {/* Desktop sidebar */}
           {(patient || phase === 'pre') && (
-            <aside className="hidden md:flex md:flex-col w-[270px] shrink-0 overflow-hidden border-r border-stroke-line pr-3 pt-3">
+            <aside className="hidden md:flex md:flex-col w-[320px] shrink-0 overflow-hidden pr-4 pt-4">
 
               {/* Scrollable content */}
-              <div className="flex-1 overflow-y-auto flex flex-col gap-2 pb-2" style={{ scrollbarWidth: 'none' }}>
-                {timerStart && (
-                  <Cronologia
-                    codeStart={timerStart}
-                    symptomOnset={symptoms?.lastSeenNormal}
-                    ct={ctRequestTime}
-                    thrombolytic={thrombolyticStartTime}
-                    hemo={angioRequestTime}
-                  />
-                )}
+              <div className="flex-1 overflow-y-auto flex flex-col gap-3 pb-2" style={{ scrollbarWidth: 'none' }}>
+                <ClinicalSummary
+                  patient={patient}
+                  patientId={patientId}
+                  symptoms={symptoms}
+                  latestNihss={latestNihss}
+                  latestVitals={latestVitals}
+                  latestGlucose={latestGlucose}
+                  ctResult={ctResult}
+                />
 
-                <div className="rounded-lg border border-stroke-line bg-stroke-navy p-2.5">
+                <div className="hidden">
                   {patient ? (
                     <>
                       <div className="flex items-start justify-between gap-2 mb-0.5">
@@ -1095,7 +1134,7 @@ export default function App() {
                 </div>
 
                 {timerStart && (
-                  <div className="rounded-lg border border-stroke-line bg-stroke-navy p-2">
+                  <div className="rounded-2xl border border-stroke-line bg-white p-3 shadow-card">
                     <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-stroke-textMuted">Registros rápidos</p>
                     <QuickAddFAB
                       variant="sidebar"
@@ -1121,7 +1160,7 @@ export default function App() {
 
                 {/* Summary copy (Phase 2 only) */}
                 {phase === 'post' && (
-                  <div className="rounded-lg border border-stroke-line bg-stroke-navy p-2.5">
+                  <div className="rounded-2xl border border-stroke-line bg-white p-3 shadow-card">
                     <button type="button" onClick={handleCopy}
                       className={`w-full flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-medium border transition-all ${
                         copied ? 'border-emerald-500/30 bg-emerald-500/15 text-emerald-300' : 'border-stroke-line bg-stroke-bg text-stroke-textMuted hover:bg-stroke-panel/40'
@@ -1146,7 +1185,7 @@ export default function App() {
           <div className="relative flex-1 flex flex-col overflow-hidden">
 
             {/* ── Full-width sticky CTA — appears in main content when all 6 tabs complete ── */}
-            {phase === 'pre' && tabCompletion.allComplete && (
+            {phase === 'pre' && tabCompletion.allComplete && !contextualAction && (
               <div className="shrink-0 px-3 py-2.5 bg-stroke-navy shadow-lg animate-slide-down md:px-5 md:py-3 md:bg-stroke-navy md:border-b md:border-stroke-line md:shadow-sm">
                 <button
                   type="button"
@@ -1183,7 +1222,7 @@ export default function App() {
               </>
             ) : (
               <main className="flex-1 overflow-y-auto overflow-x-hidden">
-                <div className={`w-full max-w-5xl mx-auto px-0 py-3 md:px-5 md:py-3 md:pb-5 ${
+                <div className={`w-full max-w-5xl mx-auto px-3 py-4 md:px-5 md:py-4 md:pb-5 ${
                   phase === 'pre' && !tabCompletion.allComplete ? 'pb-20'
                   : phase === 'post' && timerStart ? 'pb-28'
                   : 'pb-5'
@@ -1196,21 +1235,7 @@ export default function App() {
         </div>
 
         {/* ── Fixed bottom: "Completá los 6 tabs" status bar (Phase 1, incomplete only) ── */}
-        {phase === 'pre' && !tabCompletion.allComplete && (
-          <div
-            className="fixed inset-x-0 bottom-0 z-50 bg-stroke-navy/95 backdrop-blur-sm border-t border-stroke-line px-4 py-3 md:hidden"
-            style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}
-          >
-            <div className="max-w-3xl mx-auto">
-              <DecisionButton
-                allComplete={false}
-                onClick={handleComputeDecision}
-                executed={false}
-                missingSteps={missingSteps}
-              />
-            </div>
-          </div>
-        )}
+        {contextualAction && <ContextualActionBar {...contextualAction} />}
 
         {/* ── Fixed bottom: QuickAddFAB toolbar (Phase 2, mobile only) ── */}
         {phase === 'post' && timerStart && (
